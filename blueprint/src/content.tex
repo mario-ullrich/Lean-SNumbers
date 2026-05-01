@@ -94,6 +94,7 @@ strengthening (S5$'$): $a_n(\mathrm{id}_X) = 1$ on every Banach space
 $X$ with $\dim X > n$.
 \end{theorem}
 \begin{proof}
+\leanok
 Axioms (S1)--(S4) are proved in
 \texttt{SNumbers/Approximation.lean}: \texttt{approximationNumber\_nonneg},
 \texttt{approximationNumber\_antitone}, \texttt{approximationNumber\_le\_norm},
@@ -184,6 +185,15 @@ $\mathbb{R}$ or $\mathbb{C}$) and additionally \texttt{CompleteSpace}
 $\mathbb{K}$ for the (S5$'$) step (which closes finite-dimensional
 subspaces via Riesz's lemma).
 \end{theorem}
+\begin{proof}
+\leanok
+The proof is fully formalized in \texttt{SNumbers/Kolmogorov.lean}. (S1)
+properties and (S4) follow from the definitions and Riesz, (S2)/(S3) use
+the per-subspace deviation lemmas
+\texttt{deviationFromSubspace\_add\_le} and
+\texttt{deviationFromSubspace\_comp\_comp\_map\_le}, and (S5$'$) is
+\texttt{kolmogorovNumber\_strict}.
+\end{proof}
 
 \section{Hilbert numbers $h_n$}
 \label{sec:hil}
@@ -258,6 +268,12 @@ Every finite-dimensional normed space over $\mathbb{R}$ of positive
 dimension admits a basis $(e_i)$ with $\|e_i\| = 1$ whose dual coordinate
 functionals also satisfy $\|e_i^*\| = 1$.
 \end{theorem}
+\begin{proof}
+\leanok
+The proof is fully formalized in \texttt{BasicResults/Auerbach.lean}.
+The strategy maximises $|\det|$ on a product of unit balls, then reads off
+the basis and dual functionals from the maximiser.
+\end{proof}
 
 \begin{theorem}[SVD for compact operators]
 \label{thm:compact-svd}
