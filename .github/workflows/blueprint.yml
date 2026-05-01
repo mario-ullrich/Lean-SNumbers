@@ -20,10 +20,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Opt into Node.js 24 for JavaScript-based actions. The pinned action
-# versions (`@v4`, `@v5`) still ship a Node.js 20 binary at the time of
-# writing; this env var tells the runner to execute them on Node 24
-# instead, ahead of the June 2026 deadline.
+# All pinned action versions below natively target Node.js 24. This env
+# var is kept as a belt-and-suspenders guard against any future action
+# added at a Node 20 version, ahead of the June 2026 deprecation cutoff.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
@@ -32,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache Lean toolchain and Lake artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.elan
@@ -63,7 +62,7 @@ jobs:
 
       # ----- Blueprint side: TeX, graphviz, leanblueprint
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -71,7 +70,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz libgraphviz-dev
+            texlive-latex-base texlive-latex-extra texlive-fonts-recommended \
+            latexmk graphviz libgraphviz-dev
 
       - name: Install leanblueprint
         run: |
@@ -91,14 +91,14 @@ jobs:
 
       # ----- Upload as workflow artifacts
       - name: Upload blueprint web (HTML site)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: blueprint-web
           path: blueprint/web/
           retention-days: 30
 
       - name: Upload blueprint PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: hashFiles('blueprint/print/print.pdf') != ''
         with:
           name: blueprint-pdf

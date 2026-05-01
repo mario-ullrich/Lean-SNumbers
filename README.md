@@ -31,10 +31,11 @@ artifact under *Actions → latest run → blueprint-web*.
 │   └── SVD.lean                ← compact-operator SVD (blueprint only)
 ├── LICENSE                     ← Apache 2.0
 └── blueprint/
-    ├── plastex.cfg             ← leanblueprint configuration
     └── src/
-        ├── main.tex            ← pdflatex master
-        ├── web.tex             ← leanblueprint web master
+        ├── plastex.cfg         ← plastex / leanblueprint configuration
+        ├── extra_styles.css    ← CSS tweaks for the rendered web blueprint
+        ├── print.tex           ← pdflatex master (leanblueprint pdf)
+        ├── web.tex             ← plastex master (leanblueprint web)
         └── content.tex         ← actual content with \lean / \uses tags
 ```
 
