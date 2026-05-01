@@ -1,0 +1,12 @@
+name = "snumbers"
+defaultTargets = ["SNumbers", "BasicResults"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+
+[[lean_lib]]
+name = "SNumbers"
+
+[[lean_lib]]
+name = "BasicResults"

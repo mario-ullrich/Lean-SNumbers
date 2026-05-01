@@ -1,0 +1,99 @@
+# Builds the leanblueprint and stores the result as a workflow artifact.
+#
+# This variant is for *private* repositories where GitHub Pages is not
+# available on the free plan. Instead of publishing the blueprint to a
+# public URL, we save it as a downloadable ZIP attached to each workflow
+# run. To view the blueprint:
+#
+#   1. Go to the repository's Actions tab.
+#   2. Click on the most recent successful run of this workflow.
+#   3. Scroll to the bottom and download the `blueprint-web` artifact.
+#   4. Unzip it on your computer and open `index.html` in your browser.
+#
+# The PDF is uploaded as a separate artifact `blueprint-pdf` for
+# convenience.
+
+name: Build blueprint
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Lean toolchain and Lake artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            .lake/packages
+            .lake/build
+          key: ${{ runner.os }}-lean-${{ hashFiles('lakefile.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-lean-
+
+      # ----- Lean side: build the project so that checkdecls can verify
+      # each `\lean{Decl}` tag against the actually-existing declaration.
+      - name: Install elan (Lean version manager)
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Resolve dependencies and download Mathlib cache
+        run: |
+          lake update
+          lake exe cache get || true
+
+      - name: Build the Lean project
+        run: lake build
+
+      # ----- Blueprint side: TeX, graphviz, leanblueprint
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install TeX Live and graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-full graphviz
+
+      - name: Install leanblueprint
+        run: |
+          python -m pip install --upgrade pip
+          pip install leanblueprint
+
+      - name: Build blueprint PDF
+        run: leanblueprint pdf
+        continue-on-error: true   # PDF is nice-to-have; don't break the build if TeX hiccups
+
+      - name: Build blueprint web
+        run: leanblueprint web
+
+      - name: Verify Lean declaration references
+        run: leanblueprint checkdecls
+        continue-on-error: true   # Don't block on first run; flip to false once stable.
+
+      # ----- Upload as workflow artifacts
+      - name: Upload blueprint web (HTML site)
+        uses: actions/upload-artifact@v4
+        with:
+          name: blueprint-web
+          path: blueprint/web/
+          retention-days: 30
+
+      - name: Upload blueprint PDF
+        uses: actions/upload-artifact@v4
+        if: hashFiles('blueprint/print/print.pdf') != ''
+        with:
+          name: blueprint-pdf
+          path: blueprint/print/print.pdf
+          retention-days: 30

@@ -1,0 +1,271 @@
+% !TEX root = main.tex
+
+\chapter{Setting and prerequisites}
+\label{ch:setting}
+
+Throughout the blueprint, $\mathbb{K}$ denotes a non-trivially normed
+field — in practice $\mathbb{R}$ or $\mathbb{C}$ — and $X, Y, Z, W$ are
+Banach spaces over $\mathbb{K}$. We write $\mathcal{L}(X, Y)$ for the
+space of bounded linear operators $X \to Y$ with the operator norm.
+
+\begin{definition}[Rank of a continuous linear map]
+\label{def:rank}
+\lean{ContinuousLinearMap.rank}
+\leanok
+For $S \in \mathcal{L}(X, Y)$ the \emph{rank} of $S$ is the cardinal
+dimension of its range,
+\[
+\operatorname{rank}(S) := \dim_{\mathbb{K}} \operatorname{range}(S)
+                        \in \mathrm{Card}.
+\]
+\end{definition}
+
+\chapter{Axioms of an $s$-number sequence}
+\label{ch:axioms}
+
+\begin{definition}[$s$-number sequence; Pietsch axioms]
+\label{def:s-number-sequence}
+\lean{SNumbers.IsSNumberSequence}
+\leanok
+\uses{def:rank}
+A family
+\[
+s \;=\; (s_n)_{n \in \mathbb{N}}, \qquad
+s_n : \mathcal{L}(X, Y) \longrightarrow [0, \infty),
+\]
+indexed for all Banach pairs $(X, Y)$ over $\mathbb{K}$ is called an
+\emph{$s$-number sequence} if:
+\begin{description}
+  \item[(S1)]\label{ax:S1} $\|S\| = s_0(S) \ge s_1(S) \ge \dots \ge 0$
+        for every $S$.
+  \item[(S2)]\label{ax:S2} $s_n(S + T) \le s_n(S) + \|T\|$.
+  \item[(S3)]\label{ax:S3} $s_n(BSA) \le \|B\| \, s_n(S) \, \|A\|$ for
+        composable bounded operators $A, B$.
+  \item[(S4)]\label{ax:S4} $s_n(S) = 0$ whenever $\operatorname{rank}(S) \le n$.
+  \item[(S5)]\label{ax:S5} $s_n(\mathrm{id}_{\ell_2^{n+1}}) = 1$.
+\end{description}
+The bundled Lean structure splits (S1) into the three predicates
+\texttt{norm\_at\_zero}, \texttt{antitone}, \texttt{nonneg}.
+\end{definition}
+
+\begin{definition}[Strict $s$-number sequence]
+\label{def:strict-s-number-sequence}
+\lean{SNumbers.IsStrictSNumberSequence}
+\leanok
+\uses{def:s-number-sequence}
+An $s$-number sequence is \emph{strict} if it additionally satisfies the
+strengthening
+\begin{description}
+  \item[(S5$'$)] $s_n(\mathrm{id}_X) = 1$ for every Banach space $X$ with
+        $\dim X > n$, not merely on $X = \ell_2^{n+1}$.
+\end{description}
+\end{definition}
+
+\chapter{The five canonical examples}
+\label{ch:examples}
+
+We construct the five textbook $s$-number sequences. Each definition is
+encoded as a \texttt{noncomputable def} returning a real number; the proof
+that it satisfies the axioms (S1)–(S5) is the content of an
+\texttt{IsSNumberSequence} theorem.
+
+\section{Approximation numbers $a_n$}
+\label{sec:approx}
+
+\begin{definition}[Approximation number]
+\label{def:approximation-number}
+\lean{SNumbers.approximationNumber}
+\leanok
+\uses{def:rank}
+For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}$,
+\[
+a_n(S) := \inf \bigl\{ \|S - A\| : A \in \mathcal{L}(X, Y),
+                       \operatorname{rank}(A) \le n \bigr\}.
+\]
+\end{definition}
+
+\begin{theorem}[Approximation numbers form a strict $s$-number sequence]
+\label{thm:approx-is-snumber}
+\lean{SNumbers.isStrictSNumberSequence_approximationNumber}
+\leanok
+\uses{def:approximation-number, def:strict-s-number-sequence}
+The family $a = (a_n)_n$ satisfies all axioms (S1)--(S5) and the
+strengthening (S5$'$): $a_n(\mathrm{id}_X) = 1$ on every Banach space
+$X$ with $\dim X > n$.
+\end{theorem}
+\begin{proof}
+Axioms (S1)--(S4) are proved in
+\texttt{SNumbers/Approximation.lean}: \texttt{approximationNumber\_nonneg},
+\texttt{approximationNumber\_antitone}, \texttt{approximationNumber\_le\_norm},
+\texttt{approximationNumber\_add\_le},
+\texttt{approximationNumber\_comp\_comp\_le} (using
+\texttt{rank\_comp\_comp\_le} and \texttt{Real.sInf\_smul\_of\_nonneg}),
+and \texttt{approximationNumber\_eq\_zero\_of\_rank\_le}. The strict
+normalisation (S5$'$) is \texttt{approximationNumber\_strict}:
+for any $L$ with $\operatorname{rank}(L) \le n$, the range of $L$ is a
+proper finite-dimensional, hence closed, subspace of $X$; Riesz's lemma
+provides $x_0 \notin \operatorname{range}(L)$ with $r \|x_0\| \le \|x_0 - L
+x_0\|$ for any $r < 1$, so $\|\mathrm{id} - L\| \ge \|(\mathrm{id}-L) x_0\|
+/ \|x_0\| \ge r$; letting $r \to 1$ gives $\|\mathrm{id} - L\| \ge 1$,
+and combined with the trivial upper bound $a_n(\mathrm{id}) \le \|\mathrm{id}\| = 1$
+we obtain equality. The classical (S5) on $\ell_2^{n+1}$ specialises (S5$'$).
+The argument needs neither SVD nor Auerbach; the blueprint stubs in
+\texttt{BasicResults.SVD} are kept for the future identification
+$a_n(S) = \sigma_{n+1}(S)$ for compact $S$.
+\end{proof}
+
+\section{Bernstein numbers $b_n$}
+\label{sec:bern}
+
+\begin{definition}[Bernstein number]
+\label{def:bernstein-number}
+\lean{SNumbers.bernsteinNumber}
+\leanok
+For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}$,
+\[
+b_n(S) := \sup_{\dim M = n+1}
+            \inf_{\substack{x \in M \\ \|x\| = 1}} \|Sx\|.
+\]
+\end{definition}
+
+\begin{proposition}[$b_n$ is an $s$-number sequence]
+\label{prop:bernstein-is-snumber}
+\lean{SNumbers.isSNumberSequence_bernsteinNumber}
+\notready
+\uses{def:bernstein-number, def:s-number-sequence}
+\end{proposition}
+
+\section{Gelfand numbers $c_n$}
+\label{sec:gelf}
+
+\begin{definition}[Gelfand number]
+\label{def:gelfand-number}
+\lean{SNumbers.gelfandNumber}
+\leanok
+For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}$,
+\[
+c_n(S) := \inf \bigl\{ \|S \restriction_M\| :
+            M \subseteq X \text{ closed subspace, } \operatorname{codim} M \le n
+            \bigr\}.
+\]
+\end{definition}
+
+\begin{proposition}[$c_n$ is an $s$-number sequence]
+\label{prop:gelfand-is-snumber}
+\lean{SNumbers.isSNumberSequence_gelfandNumber}
+\notready
+\uses{def:gelfand-number, def:s-number-sequence}
+\end{proposition}
+
+\section{Kolmogorov numbers $d_n$}
+\label{sec:kol}
+
+\begin{definition}[Kolmogorov number]
+\label{def:kolmogorov-number}
+\lean{SNumbers.kolmogorovNumber}
+\leanok
+For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}$,
+\[
+d_n(S) := \inf_{\substack{V \subseteq Y \\ \dim V \le n}}
+            \sup_{\|x\| \le 1} \inf_{v \in V} \|Sx - v\|.
+\]
+\end{definition}
+
+\begin{theorem}[$d_n$ is a strict $s$-number sequence]
+\label{thm:kolmogorov-is-snumber}
+\lean{SNumbers.isStrictSNumberSequence_kolmogorovNumber}
+\leanok
+\uses{def:kolmogorov-number, def:strict-s-number-sequence}
+The Kolmogorov numbers satisfy all five Pietsch axioms (S1)–(S5) and
+moreover the strengthening (S5$'$): $d_n(\mathrm{id}_X) = 1$ on every
+Banach space $X$ with $\dim X > n$. The argument requires the scalar
+field $\mathbb{K}$ to be a \texttt{DenselyNormedField} (in particular
+$\mathbb{R}$ or $\mathbb{C}$) and additionally \texttt{CompleteSpace}
+$\mathbb{K}$ for the (S5$'$) step (which closes finite-dimensional
+subspaces via Riesz's lemma).
+\end{theorem}
+
+\section{Hilbert numbers $h_n$}
+\label{sec:hil}
+
+For the Hilbert numbers we work over $\mathbb{R}$ and use
+$L_2 := \ell_2(\mathbb{N}; \mathbb{R})$.
+
+\begin{definition}[Hilbert number]
+\label{def:hilbert-number}
+\lean{SNumbers.hilbertNumber}
+\leanok
+For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}$,
+\[
+h_n(S) := \sup \bigl\{ a_n(B \, S \, A) :
+            A : L_2 \to X, \ B : Y \to L_2, \ \|A\|, \|B\| \le 1 \bigr\}.
+\]
+\end{definition}
+
+\begin{proposition}[$h_n$ is an $s$-number sequence]
+\label{prop:hilbert-is-snumber}
+\lean{SNumbers.isSNumberSequence_hilbertNumber}
+\notready
+\uses{def:hilbert-number, def:approximation-number, def:s-number-sequence}
+\end{proposition}
+
+\chapter{Pietsch's sandwich theorem}
+\label{ch:sandwich}
+
+\begin{theorem}[Hilbert-space coincidence]
+\label{thm:all-eq-on-hilbert}
+\lean{SNumbers.allSNumbers_eq_on_HilbertSpace}
+\notready
+\uses{def:s-number-sequence, def:approximation-number}
+On a Hilbert space, every $s$-number sequence agrees with the
+approximation numbers: $s_n(S) = a_n(S)$ for every continuous linear map
+$S$ between Hilbert spaces.
+\end{theorem}
+
+\begin{theorem}[Pietsch \emph{sandwich}]
+\label{thm:sandwich}
+\lean{SNumbers.hilbertNumber_le_sn_le_approximationNumber}
+\uses{thm:approx-is-snumber, prop:hilbert-is-snumber}
+For every $s$-number sequence $s$ on real Banach spaces and every operator
+$S$,
+\[
+h_n(S) \;\le\; s_n(S) \;\le\; a_n(S).
+\]
+On Hilbert spaces all three numbers agree.
+\end{theorem}
+\begin{proof}
+The upper bound $s_n(S) \le a_n(S)$ is proved without \texttt{sorry}
+in \texttt{SNumbers.sn\_le\_approximationNumber}: for any $A$ with
+$\operatorname{rank}(A) \le n$ axiom (S2) yields
+$s_n(S) \le s_n(A) + \|S - A\| = \|S - A\|$ by (S4); take the infimum.
+The lower bound $h_n(S) \le s_n(S)$ uses (S3) plus the Hilbert-space
+coincidence theorem and is currently \texttt{sorry}.
+\end{proof}
+
+\chapter{Basic auxiliary results}
+\label{ch:basic-results}
+
+The companion library \texttt{BasicResults} (sibling of \texttt{SNumbers})
+collects two generic functional-analysis results that are independent of
+the s-numbers framework. The first — Auerbach's lemma — is fully proved;
+the second — compact-operator SVD — is a blueprint stub.
+
+\begin{theorem}[Auerbach's lemma]
+\label{thm:auerbach}
+\lean{exists_isAuerbachBasis}
+\leanok
+Every finite-dimensional normed space over $\mathbb{R}$ of positive
+dimension admits a basis $(e_i)$ with $\|e_i\| = 1$ whose dual coordinate
+functionals also satisfy $\|e_i^*\| = 1$.
+\end{theorem}
+
+\begin{theorem}[SVD for compact operators]
+\label{thm:compact-svd}
+\lean{SVD.compactOperator_svd}
+\notready
+For every compact operator $S : H_1 \to H_2$ between Hilbert spaces
+there exist orthonormal sequences $(u_k) \subseteq H_1$,
+$(v_k) \subseteq H_2$ and a non-increasing sequence of non-negative reals
+$\sigma_1 \ge \sigma_2 \ge \dots \ge 0$ with
+$S x = \sum_k \sigma_k \langle x, u_k \rangle v_k$ for every $x \in H_1$.
+\end{theorem}
