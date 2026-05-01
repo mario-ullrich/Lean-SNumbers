@@ -64,7 +64,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            texlive-full graphviz
+            texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz
 
       - name: Install leanblueprint
         run: |
