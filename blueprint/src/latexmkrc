@@ -1,0 +1,6 @@
+# latexmk configuration for the PDF blueprint build.
+# Without `@default_files`, latexmk would also try to compile `web.tex`
+# (which uses `\usepackage{blueprint}`, only resolved by plastex).
+$pdf_mode = 1;
+$pdflatex = 'pdflatex -synctex=1';
+@default_files = ('print.tex');
