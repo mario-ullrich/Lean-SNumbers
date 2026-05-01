@@ -20,6 +20,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Opt into Node.js 24 for JavaScript-based actions. The pinned action
+# versions (`@v4`, `@v5`) still ship a Node.js 20 binary at the time of
+# writing; this env var tells the runner to execute them on Node 24
+# instead, ahead of the June 2026 deadline.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     runs-on: ubuntu-latest
