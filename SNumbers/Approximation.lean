@@ -246,11 +246,7 @@ Key idea:
   for any `r < 1`, an `x₀ ∉ range L` with `r * ‖x₀‖ ≤ ‖x₀ - L x₀‖`. The
   operator-norm sup characterisation then gives
   `‖id − L‖ ≥ ‖(id − L) x₀‖ / ‖x₀‖ ≥ r`. Letting `r → 1` yields `‖id − L‖ ≥ 1`,
-  hence `a_n(id) ≥ 1`.
-
-Unlike Kolmogorov's (S5'), no density argument on the scalar field is
-needed: the operator-norm sup absorbs the scaling automatically. -/
-
+  hence `a_n(id) ≥ 1`.-/
 variable [CompleteSpace 𝕜]
 
 /-- (S5') Strict normalisation: `approximationNumber (id_X) n = 1` whenever
