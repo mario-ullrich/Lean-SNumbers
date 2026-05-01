@@ -61,10 +61,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install TeX Live and graphviz
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends \
+              texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz libgraphviz-dev
 
       - name: Install leanblueprint
         run: |
