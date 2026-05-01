@@ -1,10 +1,11 @@
-# `s`-Numbers — Lean 4 / Mathlib formalisation
+# s-Numbers — Lean 4 / Mathlib formalisation
 
 A Lean 4 / Mathlib formalisation of the **Pietsch axiomatic theory of
 `s`-numbers** for bounded linear operators between Banach spaces.
 
-🛠️ **Repository** (private): <https://github.com/M-Ull/Lean-SNumbers>
-📦 **Blueprint**: built by GitHub Actions, available as a downloadable
+**Repository** (private): <https://github.com/M-Ull/Lean-SNumbers>
+
+**Blueprint**: built by GitHub Actions, available as a downloadable
 artifact under *Actions → latest run → blueprint-web*.
 
 ## Layout
