@@ -21,7 +21,7 @@ artifact under *Actions → latest run → blueprint-web*.
 │   ├── Helpers.lean            ← shared rank facts + ε-limit lemma
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
 │   ├── Bernstein.lean          ← bernsteinNumber  (statement only)
-│   ├── Gelfand.lean            ← gelfandNumber    (statement only)
+│   ├── Gelfand.lean            ← gelfandNumber    + (S1)–(S5')
 │   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
 │   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
 │   │                              (Banach-only variant; SNumbers.Lifting)
@@ -53,7 +53,7 @@ artifact under *Actions → latest run → blueprint-web*.
 |   ↳ (S1)–(S5)                             | ✅ proved           |
 |   ↳ (S5') strict normalisation            | ✅ proved (Riesz)   |
 | Bernstein number `bₙ`                     | 🟡 defined, no proof|
-| Gelfand number `cₙ`                       | 🟡 defined, no proof|
+| Gelfand number `cₙ`                       | ✅ proved (S1–S5')  |
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
 |   ↳ Pietsch lifting `dₙ S = aₙ(S∘Q_X)`    | ✅ proved (Banach)  |
 | Hilbert number `hₙ` (real case)           | 🟡 defined, no proof|

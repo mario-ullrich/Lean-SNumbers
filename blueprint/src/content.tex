@@ -151,12 +151,56 @@ c_n(S) := \inf \bigl\{ \|S \restriction_M\| :
 \]
 \end{definition}
 
-\begin{proposition}[$c_n$ is an $s$-number sequence]
-\label{prop:gelfand-is-snumber}
-\lean{SNumbers.isSNumberSequence_gelfandNumber}
-\notready
-\uses{def:gelfand-number, def:s-number-sequence}
-\end{proposition}
+\begin{theorem}[$c_n$ is a strict $s$-number sequence]
+\label{thm:gelfand-is-snumber}
+\lean{SNumbers.isStrictSNumberSequence_gelfandNumber}
+\leanok
+\uses{def:gelfand-number, def:strict-s-number-sequence}
+The Gelfand numbers satisfy all five Pietsch axioms (S1)–(S5) and
+moreover the strengthening (S5$'$): $c_n(\mathrm{id}_X) = 1$ on every
+normed space $X$ with $\dim X > n$. The argument requires only
+\texttt{NontriviallyNormedField} on the scalar field~$\mathbb{K}$;
+unlike its Kolmogorov dual it needs neither \texttt{CompleteSpace}
+$\mathbb{K}$ nor Riesz's lemma.
+\end{theorem}
+\begin{proof}
+\leanok
+The proof is fully formalized in \texttt{SNumbers/Gelfand.lean} and is
+the dual of the Kolmogorov development under the
+domain~$\leftrightarrow$~codomain swap. Where Kolmogorov descends $S$
+through the quotient projection $\pi_V : Y \to Y / V$ for a small $V
+\subseteq Y$, Gelfand restricts $S$ through the inclusion
+$\iota_M : M \hookrightarrow X$ for a large (small-codimension)
+$M \subseteq X$. Concretely:
+\begin{itemize}
+  \item (S1a) $c_0(S) = \|S\|$ via the isometry
+    $\iota_\top : \top \to X$ between the subtype $(\top : \text{Submodule})$
+    and $X$.
+  \item (S2) Triangle inequality on $\iota_M$:
+    $(S+T) \circ \iota_M = S \circ \iota_M + T \circ \iota_M$.
+  \item (S3) For closed $M \subseteq X$ of codimension $\le n$ and
+    $A : W \to X$, set $M' := A^{-1}(M) = M.\text{comap}\,A$. Then
+    $M'$ is closed (preimage of a closed set under a continuous map)
+    and the first isomorphism theorem applied to
+    $\pi_M \circ A : W \to X / M$, whose kernel is exactly $M'$,
+    gives $\dim(W / M') \le \dim(X / M) \le n$. The factorisation
+    $(B \circ S \circ A) \circ \iota_{M'} =
+       B \circ (S \circ \iota_M) \circ \widehat{A}$,
+    where $\widehat{A} : M' \to M$ is the corestriction of
+    $A \circ \iota_{M'}$, then yields the bound by two applications of
+    operator-norm submultiplicativity. No density-of-$\|\mathbb{K}\|$
+    step.
+  \item (S4) Take $M := \ker S$, which is closed because $S$ is
+    continuous; the first iso $X / \ker S \simeq \operatorname{range} S$
+    gives $\dim(X / \ker S) = \mathrm{rank}\,S \le n$, and
+    $S \circ \iota_M = 0$.
+  \item (S5$'$) The inclusion $\iota_M$ is an isometry, so
+    $\|\mathrm{id}_X \circ \iota_M\| = \|\iota_M\| = 1$ for every
+    nontrivial $M$. The constraint
+    $\mathrm{codim}\,M \le n < \dim X$ forces $\dim M \ge 1$ via
+    $\dim(X / M) + \dim M = \dim X$, so $M$ is nontrivial. No Riesz.
+\end{itemize}
+\end{proof}
 
 \section{Kolmogorov numbers $d_n$}
 \label{sec:kol}

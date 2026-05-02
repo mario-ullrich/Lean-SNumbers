@@ -32,9 +32,9 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   to form a strict s-number sequence (S1)–(S5)+(S5').
 * `SNumbers.Bernstein`, `SNumbers.Gelfand`, `SNumbers.Kolmogorov`,
   `SNumbers.Hilbert`: the further canonical examples — `bₙ`, `cₙ`, `dₙ`,
-  `hₙ`. One file per construction. The Kolmogorov numbers are fully
-  proved to form a strict s-number sequence; the other three are stated,
-  with proofs forthcoming.
+  `hₙ`. One file per construction. The Gelfand and Kolmogorov numbers
+  are fully proved to form strict s-number sequences; the remaining two
+  (`bₙ`, `hₙ`) are stated, with proofs forthcoming.
 * `SNumbers.KolmogorovLifting`: an alternative development of the
   Kolmogorov numbers via Pietsch's identity `d_n S = a_n(S ∘ Q_X)`,
   where `Q_X : ℓ¹(B_X) →L[𝕜] X` is the canonical summation surjection.
