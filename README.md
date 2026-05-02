@@ -49,13 +49,11 @@ artifact under *Actions → latest run → blueprint-web*.
 | `IsSNumberSequence` (S1–S5)               | ✅ defined          |
 | `IsStrictSNumberSequence` (adds S5')      | ✅ defined          |
 | `rank` of `X →L[𝕜] Y`                     | ✅ defined          |
-| Approximation number `aₙ`                 | ✅ defined          |
-|   ↳ (S1)–(S5)                             | ✅ proved           |
-|   ↳ (S5') strict normalisation            | ✅ proved (Riesz)   |
+| Approximation number `aₙ`                 | ✅ proved (S1–S5')  |
 | Bernstein number `bₙ`                     | 🟡 defined, no proof|
 | Gelfand number `cₙ`                       | ✅ proved (S1–S5')  |
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
-|   ↳ Pietsch lifting `dₙ S = aₙ(S∘Q_X)`    | ✅ proved (Banach)  |
+|       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
 | Hilbert number `hₙ` (real case)           | 🟡 defined, no proof|
 | Pietsch's sandwich `hₙ ≤ sₙ ≤ aₙ`         | 🟡 upper proved     |
 | Hilbert-space coincidence (`s = a`)       | 🟡 declared, no proof|
