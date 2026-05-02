@@ -196,75 +196,69 @@ lemma kolmogorovNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
   have h_T : deviationFromSubspace T V ≤ ‖T‖ := deviationFromSubspace_le_norm T V
   linarith
 
-/-! ## (S3) Ideal property — the main payoff
+/-! ## (S3) Ideal property
 
-The quotient formulation lets us factor
-
-  `(B(V)).mkQL ∘ B = B̃ ∘ V.mkQL`
-
-where `B̃ = V.liftQL ((B(V)).mkQL.comp B) _` is the descended map
-`Y/V →L[𝕜] Z/B(V)`. Since `‖B̃‖ ≤ ‖(B(V)).mkQL.comp B‖ ≤ ‖B‖`, plain
-operator-norm submultiplicativity finishes the job. No density of `‖𝕜‖`,
-no ε. -/
-
-/-- The natural lift of `B : Y →L[𝕜] Z` to a map between quotients. -/
-private noncomputable def descend (B : Y →L[𝕜] Z) (V : Submodule 𝕜 Y) :
-    (Y ⧸ V) →L[𝕜] (Z ⧸ V.map (B : Y →ₗ[𝕜] Z)) :=
-  V.liftQL ((V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B) <| by
-    intro y hy
-    show ((V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B) y = 0
-    show (V.map (B : Y →ₗ[𝕜] Z)).mkQL (B y) = 0
-    rw [Submodule.mkQL_apply, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
-    exact ⟨y, hy, rfl⟩
-
-private lemma descend_apply (B : Y →L[𝕜] Z) (V : Submodule 𝕜 Y) (y : Y) :
-    descend B V (V.mkQL y) = (V.map (B : Y →ₗ[𝕜] Z)).mkQL (B y) := by
-  show V.liftQL ((V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B) _ (V.mkQL y) = _
-  rw [V.liftQL_mkQL]
-  rfl
-
-private lemma descend_factor (B : Y →L[𝕜] Z) (V : Submodule 𝕜 Y) :
-    (V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B = (descend B V).comp V.mkQL := by
-  ext y
-  show (V.map (B : Y →ₗ[𝕜] Z)).mkQL (B y) = descend B V (V.mkQL y)
-  rw [descend_apply]
-
-private lemma norm_descend_le (B : Y →L[𝕜] Z) (V : Submodule 𝕜 Y) :
-    ‖descend B V‖ ≤ ‖B‖ := by
-  refine (V.norm_liftQL_le _ _).trans ?_
-  calc ‖(V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B‖
-      ≤ ‖(V.map (B : Y →ₗ[𝕜] Z)).mkQL‖ * ‖B‖ := opNorm_comp_le _ _
-    _ ≤ 1 * ‖B‖ :=
-        mul_le_mul_of_nonneg_right (V.map (B : Y →ₗ[𝕜] Z)).norm_mkQL_le (norm_nonneg _)
-    _ = ‖B‖ := one_mul _
+Pointwise, in the style of Pietsch, *Eigenvalues and s-numbers*, §2.4
+(dual to the Gelfand argument). For `w : W` we evaluate the deviation
+at `w` and chain three `le_opNorm` applications:
+one for the descent of `B` to a map `Y/V →L[𝕜] Z/B(V)` (constructed
+inline via `V.liftQL`), one for `V.mkQL.comp S`, and one for `A`. No
+`descend` helper, no factorisation, no `DenselyNormedField`. -/
 
 /-- Per-subspace (S3) bound:
-`deviation(B ∘ S ∘ A, B(V)) ≤ ‖B‖ * ‖A‖ * deviation(S, V)`.
-
-Pure operator-norm submultiplicativity — no `DenselyNormedField` needed. -/
+`deviation(B ∘ S ∘ A, B(V)) ≤ ‖B‖ * ‖A‖ * deviation(S, V)`. -/
 lemma deviationFromSubspace_comp_comp_map_le
     (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (V : Submodule 𝕜 Y) :
     deviationFromSubspace (B.comp (S.comp A)) (V.map (B : Y →ₗ[𝕜] Z))
       ≤ ‖B‖ * ‖A‖ * deviationFromSubspace S V := by
   unfold deviationFromSubspace
-  -- Factor: `(B(V)).mkQL ∘ B ∘ S ∘ A = (descend B V) ∘ V.mkQL ∘ S ∘ A`.
-  have h_factor : (V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp (B.comp (S.comp A))
-      = (descend B V).comp ((V.mkQL.comp S).comp A) := by
-    have : (V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp (B.comp (S.comp A))
-         = ((V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B).comp (S.comp A) := by
-      ext; simp [coe_comp', Function.comp_apply]
-    rw [this, descend_factor]
-    ext; simp [coe_comp', Function.comp_apply]
-  rw [h_factor]
-  -- Submultiplicativity twice.
-  calc ‖(descend B V).comp ((V.mkQL.comp S).comp A)‖
-      ≤ ‖descend B V‖ * ‖(V.mkQL.comp S).comp A‖ := opNorm_comp_le _ _
-    _ ≤ ‖B‖ * ‖(V.mkQL.comp S).comp A‖ :=
-        mul_le_mul_of_nonneg_right (norm_descend_le B V)
-          (norm_nonneg ((V.mkQL.comp S).comp A))
-    _ ≤ ‖B‖ * (‖V.mkQL.comp S‖ * ‖A‖) :=
-        mul_le_mul_of_nonneg_left (opNorm_comp_le _ _) (norm_nonneg _)
-    _ = ‖B‖ * ‖A‖ * ‖V.mkQL.comp S‖ := by ring
+  -- The CLM `(V.map B).mkQL ∘ B : Y →L[𝕜] Z/(V.map B)` has `V` in its
+  -- kernel: for `v ∈ V`, `B v ∈ V.map B`, hence `[B v]_{Z/(V.map B)} = 0`.
+  -- It therefore descends through `V.mkQL` via `V.liftQL` to a CLM
+  -- `Y/V →L[𝕜] Z/(V.map B)` whose norm is bounded by `‖B‖`.
+  set BL : Y →L[𝕜] (Z ⧸ V.map (B : Y →ₗ[𝕜] Z)) :=
+    (V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B with hBL_def
+  have h_ker :
+      V ≤ LinearMap.ker (BL : Y →ₗ[𝕜] (Z ⧸ V.map (B : Y →ₗ[𝕜] Z))) := by
+    intro v hv
+    show (V.map (B : Y →ₗ[𝕜] Z)).mkQL (B v) = 0
+    rw [Submodule.mkQL_apply, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
+    exact ⟨v, hv, rfl⟩
+  have h_BL_norm : ‖BL‖ ≤ ‖B‖ := by
+    rw [hBL_def]
+    calc ‖(V.map (B : Y →ₗ[𝕜] Z)).mkQL.comp B‖
+        ≤ ‖(V.map (B : Y →ₗ[𝕜] Z)).mkQL‖ * ‖B‖ := opNorm_comp_le _ _
+      _ ≤ 1 * ‖B‖ := mul_le_mul_of_nonneg_right
+          (V.map (B : Y →ₗ[𝕜] Z)).norm_mkQL_le (norm_nonneg _)
+      _ = ‖B‖ := one_mul _
+  have h_lift_norm : ‖V.liftQL BL h_ker‖ ≤ ‖B‖ :=
+    (V.norm_liftQL_le BL h_ker).trans h_BL_norm
+  -- Pointwise bound on `w : W`.
+  have h_bound_nn : 0 ≤ ‖B‖ * ‖A‖ * ‖V.mkQL.comp S‖ :=
+    mul_nonneg (mul_nonneg (norm_nonneg B) (norm_nonneg A))
+      (norm_nonneg (V.mkQL.comp S))
+  refine opNorm_le_bound _ h_bound_nn fun w => ?_
+  show ‖(V.map (B : Y →ₗ[𝕜] Z)).mkQL (B (S (A w)))‖ ≤
+       ‖B‖ * ‖A‖ * ‖V.mkQL.comp S‖ * ‖w‖
+  -- Apply the descent: `BL (S (A w)) = V.liftQL BL _ (V.mkQL (S (A w)))`.
+  have h_apply : (V.map (B : Y →ₗ[𝕜] Z)).mkQL (B (S (A w)))
+      = V.liftQL BL h_ker (V.mkQL (S (A w))) :=
+    (V.liftQL_mkQL BL h_ker (S (A w))).symm
+  rw [h_apply]
+  calc ‖V.liftQL BL h_ker (V.mkQL (S (A w)))‖
+      ≤ ‖V.liftQL BL h_ker‖ * ‖(V.mkQL.comp S) (A w)‖ :=
+        (V.liftQL BL h_ker).le_opNorm _
+    _ ≤ ‖B‖ * ‖(V.mkQL.comp S) (A w)‖ :=
+        mul_le_mul_of_nonneg_right h_lift_norm (norm_nonneg _)
+    _ ≤ ‖B‖ * (‖V.mkQL.comp S‖ * ‖A w‖) :=
+        mul_le_mul_of_nonneg_left ((V.mkQL.comp S).le_opNorm (A w))
+          (norm_nonneg B)
+    _ ≤ ‖B‖ * (‖V.mkQL.comp S‖ * (‖A‖ * ‖w‖)) :=
+        mul_le_mul_of_nonneg_left
+          (mul_le_mul_of_nonneg_left (A.le_opNorm w)
+            (norm_nonneg (V.mkQL.comp S)))
+          (norm_nonneg B)
+    _ = ‖B‖ * ‖A‖ * ‖V.mkQL.comp S‖ * ‖w‖ := by ring
 
 lemma kolmogorovNumber_comp_comp_le
     (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (n : ℕ) :

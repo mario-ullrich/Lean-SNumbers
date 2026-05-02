@@ -190,37 +190,17 @@ lemma gelfandNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
   have h_T : deviationFromRestriction T M ≤ ‖T‖ := deviationFromRestriction_le_norm T M
   linarith
 
-/-! ## (S3) Ideal property — the main payoff (dual of Kolmogorov)
+/-! ## (S3) Ideal property
 
 For `M ⊆ X` closed of codim ≤ n and `A : W →L[𝕜] X`, set
 `M' := M.comap A`. Then `M'` is closed (preimage of a closed set under a
 continuous map) and has codim ≤ n: the map `mkQ ∘ A : W →ₗ X/M`
 has kernel exactly `M'`, so `W/M' ↪ X/M` and rank is preserved or
-shrinks. The factorisation
-
-  `(B ∘ S ∘ A) ∘ ι_{M'} = B ∘ ((S ∘ ι_M) ∘ Â)`
-
-where `Â : M' →L M` is the corestriction of `A.comp ι_{M'}`, then
-gives the bound by two applications of submultiplicativity. -/
-
-/-- Corestrict `A.comp ι_{M.comap A}` to land in `M`. -/
-private noncomputable def restrictToComap (A : W →L[𝕜] X) (M : Submodule 𝕜 X) :
-    (M.comap (A : W →ₗ[𝕜] X)) →L[𝕜] M :=
-  (A.comp (M.comap (A : W →ₗ[𝕜] X)).subtypeL).codRestrict M
-    (fun w => w.2)
-
-private lemma subtypeL_comp_restrictToComap (A : W →L[𝕜] X) (M : Submodule 𝕜 X) :
-    M.subtypeL.comp (restrictToComap A M)
-      = A.comp (M.comap (A : W →ₗ[𝕜] X)).subtypeL := by
-  ext w
-  rfl
-
-private lemma norm_restrictToComap_le (A : W →L[𝕜] X) (M : Submodule 𝕜 X) :
-    ‖restrictToComap A M‖ ≤ ‖A‖ := by
-  refine opNorm_le_bound _ (norm_nonneg _) fun w => ?_
-  -- `‖restrictToComap A M w‖ = ‖A (w : W)‖` and `‖w‖ = ‖(w : W)‖`.
-  show ‖A (w : W)‖ ≤ ‖A‖ * ‖w‖
-  exact A.le_opNorm (w : W)
+shrinks. The norm bound on the restriction is then a pointwise estimate
+in the spirit of Pietsch, *Eigenvalues and s-numbers*, §2.4: for
+`w ∈ M'` we have `A w ∈ M`, so
+`‖S(A w)‖ ≤ ‖S|_M‖ · ‖A w‖ ≤ ‖S|_M‖ · ‖A‖ · ‖w‖`, and one more `‖B‖` on
+the left finishes it. No corestriction or factorisation needed. -/
 
 private lemma rank_quotient_comap_le (A : W →L[𝕜] X) (M : Submodule 𝕜 X) :
     Module.rank 𝕜 (W ⧸ M.comap (A : W →ₗ[𝕜] X)) ≤ Module.rank 𝕜 (X ⧸ M) := by
@@ -245,28 +225,24 @@ lemma deviationFromRestriction_comp_comp_comap_le
         (M.comap (A : W →ₗ[𝕜] X))
       ≤ ‖B‖ * ‖A‖ * deviationFromRestriction S M := by
   unfold deviationFromRestriction
-  -- Factor: `(B ∘ S ∘ A) ∘ ι_{M'} = B ∘ ((S ∘ ι_M) ∘ Â)`.
-  have h_factor :
-      (B.comp (S.comp A)).comp (M.comap (A : W →ₗ[𝕜] X)).subtypeL
-        = B.comp ((S.comp M.subtypeL).comp (restrictToComap A M)) := by
-    have h1 :
-        (B.comp (S.comp A)).comp (M.comap (A : W →ₗ[𝕜] X)).subtypeL
-          = B.comp (S.comp (A.comp (M.comap (A : W →ₗ[𝕜] X)).subtypeL)) := by
-      ext; simp [coe_comp', Function.comp_apply]
-    rw [h1, ← subtypeL_comp_restrictToComap]
-    ext; simp [coe_comp', Function.comp_apply]
-  rw [h_factor]
-  -- Submultiplicativity twice.
-  calc ‖B.comp ((S.comp M.subtypeL).comp (restrictToComap A M))‖
-      ≤ ‖B‖ * ‖(S.comp M.subtypeL).comp (restrictToComap A M)‖ :=
-        opNorm_comp_le _ _
-    _ ≤ ‖B‖ * (‖S.comp M.subtypeL‖ * ‖restrictToComap A M‖) :=
-        mul_le_mul_of_nonneg_left (opNorm_comp_le _ _) (norm_nonneg _)
-    _ ≤ ‖B‖ * (‖S.comp M.subtypeL‖ * ‖A‖) :=
-        mul_le_mul_of_nonneg_left
-          (mul_le_mul_of_nonneg_left (norm_restrictToComap_le A M)
-            (norm_nonneg (S.comp M.subtypeL))) (norm_nonneg B)
-    _ = ‖B‖ * ‖A‖ * ‖S.comp M.subtypeL‖ := by ring
+  -- Pointwise on `M' := M.comap A`. For `w ∈ M'` we have `A w ∈ M`, so we can
+  -- evaluate `S ∘ ι_M` at `⟨A w, w.2⟩` and chain `le_opNorm` for `B`, for
+  -- `S ∘ ι_M`, and for `A`.
+  have h_bound_nn : 0 ≤ ‖B‖ * ‖A‖ * ‖S.comp M.subtypeL‖ :=
+    mul_nonneg (mul_nonneg (norm_nonneg B) (norm_nonneg A))
+      (norm_nonneg (S.comp M.subtypeL))
+  refine opNorm_le_bound _ h_bound_nn fun w => ?_
+  set y : M := ⟨A (w : W), w.2⟩
+  show ‖B (S (A (w : W)))‖ ≤ ‖B‖ * ‖A‖ * ‖S.comp M.subtypeL‖ * ‖w‖
+  have h_y : S (A (w : W)) = (S.comp M.subtypeL) y := rfl
+  rw [h_y]
+  calc ‖B ((S.comp M.subtypeL) y)‖
+      ≤ ‖B‖ * ‖(S.comp M.subtypeL) y‖ := B.le_opNorm _
+    _ ≤ ‖B‖ * (‖S.comp M.subtypeL‖ * ‖A (w : W)‖) := by
+        gcongr; exact (S.comp M.subtypeL).le_opNorm y
+    _ ≤ ‖B‖ * (‖S.comp M.subtypeL‖ * (‖A‖ * ‖w‖)) := by
+        gcongr; exact A.le_opNorm (w : W)
+    _ = ‖B‖ * ‖A‖ * ‖S.comp M.subtypeL‖ * ‖w‖ := by ring
 
 lemma gelfandNumber_comp_comp_le
     (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (n : ℕ) :

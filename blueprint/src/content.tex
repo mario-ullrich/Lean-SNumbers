@@ -183,13 +183,14 @@ $M \subseteq X$. Concretely:
     $M'$ is closed (preimage of a closed set under a continuous map)
     and the first isomorphism theorem applied to
     $\pi_M \circ A : W \to X / M$, whose kernel is exactly $M'$,
-    gives $\dim(W / M') \le \dim(X / M) \le n$. The factorisation
-    $(B \circ S \circ A) \circ \iota_{M'} =
-       B \circ (S \circ \iota_M) \circ \widehat{A}$,
-    where $\widehat{A} : M' \to M$ is the corestriction of
-    $A \circ \iota_{M'}$, then yields the bound by two applications of
-    operator-norm submultiplicativity. No density-of-$\|\mathbb{K}\|$
-    step.
+    gives $\dim(W / M') \le \dim(X / M) \le n$. Following Pietsch,
+    \emph{Eigenvalues and s-numbers}, \S2.4, we then bound the
+    deviation pointwise: for $w \in M'$ we have
+    $A w \in M$, so
+    $\|S(A w)\| \le \|S \circ \iota_M\| \cdot \|A w\| \le
+    \|S \circ \iota_M\| \cdot \|A\| \cdot \|w\|$, and one further
+    $\|B\|$ on the left finishes it. No corestriction, no density of
+    $\|\mathbb{K}\|$.
   \item (S4) Take $M := \ker S$, which is closed because $S$ is
     continuous; the first iso $X / \ker S \simeq \operatorname{range} S$
     gives $\dim(X / \ker S) = \mathrm{rank}\,S \le n$, and
