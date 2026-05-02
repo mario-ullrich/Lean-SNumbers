@@ -179,21 +179,70 @@ d_n(S) := \inf_{\substack{V \subseteq Y \\ \dim V \le n}}
 \uses{def:kolmogorov-number, def:strict-s-number-sequence}
 The Kolmogorov numbers satisfy all five Pietsch axioms (S1)–(S5) and
 moreover the strengthening (S5$'$): $d_n(\mathrm{id}_X) = 1$ on every
-Banach space $X$ with $\dim X > n$. The argument requires the scalar
-field $\mathbb{K}$ to be a \texttt{DenselyNormedField} (in particular
-$\mathbb{R}$ or $\mathbb{C}$) and additionally \texttt{CompleteSpace}
-$\mathbb{K}$ for the (S5$'$) step (which closes finite-dimensional
-subspaces via Riesz's lemma).
+Banach space $X$ with $\dim X > n$. The argument requires only
+\texttt{NontriviallyNormedField} on the scalar field $\mathbb{K}$, plus
+\texttt{CompleteSpace} $\mathbb{K}$ for the (S5$'$) step (which closes
+finite-dimensional subspaces via Riesz's lemma); it does \emph{not}
+require \texttt{DenselyNormedField} or completeness on $X$.
 \end{theorem}
 \begin{proof}
 \leanok
-The proof is fully formalized in \texttt{SNumbers/Kolmogorov.lean}. (S1)
-properties and (S4) follow from the definitions and Riesz, (S2)/(S3) use
-the per-subspace deviation lemmas
-\texttt{deviationFromSubspace\_add\_le} and
-\texttt{deviationFromSubspace\_comp\_comp\_map\_le}, and (S5$'$) is
-\texttt{kolmogorovNumber\_strict}.
+The proof is fully formalized in \texttt{SNumbers/Kolmogorov.lean}, via
+the operator-norm-on-quotient identity
+$d_n S = \inf_V \|\pi_V \circ S\|$, where $\pi_V : Y \to Y / V$ is the
+canonical projection. (S2) follows from the triangle inequality applied
+to $\pi_V \circ S$ in the quotient; (S3) uses the per-subspace deviation
+lemma \texttt{deviationFromSubspace\_comp\_comp\_map\_le}; (S5$'$) is
+\texttt{kolmogorovNumber\_strict}, via Riesz's lemma on the closed
+proper subspace $V = \mathrm{range}\,L$.
 \end{proof}
+
+\subsection{Alternative: Pietsch's lifting identity}
+\label{subsec:kol-lifting}
+
+A second formalization of the Kolmogorov numbers, restricted to the
+Banach-space setting, lives in
+\texttt{SNumbers/KolmogorovLifting.lean} (sub-namespace
+\texttt{SNumbers.Lifting}). It uses Pietsch's identity
+\[
+  d_n(S) = a_n(S \circ Q_X),
+\]
+where $a_n$ is the approximation number and
+$Q_X : \ell^1(B_X) \twoheadrightarrow X$ is the canonical summation
+surjection from the $\ell^1$ space indexed by the closed unit ball
+$B_X$, given by
+\[
+  Q_X(\alpha) := \sum_{x \in B_X} \alpha(x) \cdot x.
+\]
+
+\begin{theorem}[$d_n$ via Pietsch's lifting identity]
+\label{thm:kolmogorov-lifting}
+\lean{SNumbers.Lifting.kolmogorovNumber_strict,
+      SNumbers.Lifting.kolmogorovNumber_comp_comp_le,
+      SNumbers.Lifting.kolmogorovNumber_zero_eq_norm}
+\leanok
+\uses{def:kolmogorov-number, def:approximation-number}
+For every Banach space $X$ and every $S \in \mathcal{L}(X, Y)$,
+$d_n(S) = a_n(S \circ Q_X)$, and the Kolmogorov-number axioms
+(S1)–(S5)+(S5$'$) follow from the corresponding axioms for the
+approximation numbers. The (S3) ideal property factors as
+$(B \circ S \circ A) \circ Q_W = B \circ (S \circ Q_X) \circ T_{A,c}$
+through the lift
+$T_{A,c} : \ell^1(B_W) \to \ell^1(B_X)$ defined on basis vectors by
+$T_{A,c}(\delta_w) := \mathrm{lp.single}\,\langle c^{-1} A w\rangle\,c$,
+with $\|T_{A,c}\| \le \|c\|$. Taking $\|c\| \searrow \|A\|$ via density
+of $\|\mathbb{K}\|$ yields the bound $\|B\| \cdot d_n(S) \cdot \|A\|$.
+\end{theorem}
+
+The lifting development requires \texttt{DenselyNormedField} on
+$\mathbb{K}$ (for the density-of-norm scaling) and
+\texttt{CompleteSpace} on the source spaces $X$, $W$ (so $Q_X(\alpha)$
+converges as a series in $X$), in addition to \texttt{CompleteSpace}
+$\mathbb{K}$ for (S5$'$). The two formalizations agree on Banach spaces;
+the equivalence theorem
+\texttt{SNumbers.Lifting.kolmogorovNumber} $=$
+\texttt{SNumbers.kolmogorovNumber} on Banach spaces is left as a
+corollary of Pietsch's identity (not yet formalized).
 
 \section{Hilbert numbers $h_n$}
 \label{sec:hil}
