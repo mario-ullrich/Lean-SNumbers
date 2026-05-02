@@ -307,14 +307,14 @@ lemma approximationNumber_strict {X : Type u} [NormedAddCommGroup X]
       have h_chain : r * ‖x₀‖ ≤ ‖I - L‖ * ‖x₀‖ := h_witness.trans h_op
       -- Cancel the positive factor `‖x₀‖`.
       exact le_of_mul_le_mul_right h_chain hx₀_norm_pos
-    -- ===== Step E: ε → 1 via the helper `le_of_mul_one_sub_le_of_nonneg`. =====
-    -- We have `(1 - ε) ≤ ‖I − L‖` for every small `ε > 0`; conclude `1 ≤ ‖I − L‖`.
-    refine le_of_mul_one_sub_le_of_nonneg (by norm_num : (0 : ℝ) ≤ 1) ?_
-    intro ε hε hε1
-    rw [one_mul]
-    have hε_pos : 0 < 1 - ε := by linarith
-    have hε_lt_one : 1 - ε < 1 := by linarith
-    exact h_aux (1 - ε) hε_pos hε_lt_one
+    -- ===== Step E: ε → 1 via `le_of_forall_pos_le_add`. =====
+    -- We have `(1 - ε) ≤ ‖I − L‖` for every small `ε > 0`. Rephrase as
+    -- `1 ≤ ‖I − L‖ + ε`; the `ε ≥ 1` case is trivial (RHS ≥ 0 + 1).
+    refine le_of_forall_pos_le_add fun ε hε => ?_
+    by_cases hε1 : 1 ≤ ε
+    · linarith [norm_nonneg (I - L)]
+    have hε1' : ε < 1 := lt_of_not_ge hε1
+    linarith [h_aux (1 - ε) (by linarith) (by linarith)]
 
 /-- (S5) Normalisation on `id_{ℓ₂^{n+1}}`: a special case of (S5'). -/
 lemma approximationNumber_id_euclidean (n : ℕ) :

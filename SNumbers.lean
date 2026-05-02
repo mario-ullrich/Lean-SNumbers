@@ -9,6 +9,7 @@ import SNumbers.Approximation
 import SNumbers.Bernstein
 import SNumbers.Gelfand
 import SNumbers.Kolmogorov
+import SNumbers.KolmogorovLifting
 import SNumbers.Hilbert
 import SNumbers.Inequalities
 
@@ -23,15 +24,24 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   axioms (S1)–(S5), packaged as `IsSNumberSequence`. Also the (S5')
   strengthening and the structure `IsStrictSNumberSequence`.
 * `SNumbers.Helpers`: small generic facts shared across the development —
-  rank lemmas for continuous linear maps and the closing-step ε-limit
-  `le_of_mul_one_sub_le_of_nonneg`.
+  rank lemmas for continuous linear maps (`rank_zero`,
+  `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and the
+  `ContinuousLinearMap` packaging of the quotient projection /
+  universal lift (`Submodule.mkQL`, `Submodule.liftQL`).
 * `SNumbers.Approximation`: the approximation numbers `aₙ`, fully proved
   to form a strict s-number sequence (S1)–(S5)+(S5').
 * `SNumbers.Bernstein`, `SNumbers.Gelfand`, `SNumbers.Kolmogorov`,
   `SNumbers.Hilbert`: the further canonical examples — `bₙ`, `cₙ`, `dₙ`,
-  `hₙ`. One file per construction. The Kolmogorov numbers are fully proved
-  to form a strict s-number sequence; the other three are stated, with
-  proofs forthcoming.
+  `hₙ`. One file per construction. The Kolmogorov numbers are fully
+  proved to form a strict s-number sequence; the other three are stated,
+  with proofs forthcoming.
+* `SNumbers.KolmogorovLifting`: an alternative development of the
+  Kolmogorov numbers via Pietsch's identity `d_n S = a_n(S ∘ Q_X)`,
+  where `Q_X : ℓ¹(B_X) →L[𝕜] X` is the canonical summation surjection.
+  Many axioms become one-liners over `a_n`, but the construction needs
+  `[CompleteSpace X]` (an infinite series in `X`) — restricted to
+  Banach spaces. Lives in the sub-namespace `SNumbers.Lifting` to
+  coexist with `SNumbers.Kolmogorov`.
 * `SNumbers.Inequalities`: comparison results, in particular Pietsch's
   sandwich theorem `hₙ ≤ sₙ ≤ aₙ` for every s-number sequence `s`. The
   upper bound is fully proved; the lower bound and the underlying

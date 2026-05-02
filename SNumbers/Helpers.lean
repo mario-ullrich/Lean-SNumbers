@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
 import SNumbers.Basic
+import Mathlib.Analysis.Normed.Group.Quotient
 
 /-!
 # Helpers shared across s-number constructions
@@ -15,15 +16,17 @@ None of the content here is specific to a particular `s`-number sequence.
   `ContinuousLinearMap.rank_zero`, `eq_zero_of_rank_le_zero`,
   `rank_comp_comp_le`. The bare definition `ContinuousLinearMap.rank` lives
   in `SNumbers.Basic`.
-* `SNumbers.le_of_mul_one_sub_le_of_nonneg` — a packaging of the limit
-  `α * (1 - ε) ≤ b` for all `ε ∈ (0, 1)` ⇒ `α ≤ b`. Mathlib provides
-  `le_of_forall_lt_one_mul_le` for ordered multiplicative groups
-  (`Algebra.Order.Group.DenselyOrdered`) and bespoke standalone copies for
-  `ℝ≥0` and `ℝ≥0∞`, but no direct ℝ version — `ℝ` is not a multiplicative
-  group (zero), and `ℝ≥0`/`ℝ≥0∞` are not groups either. Our lemma is a thin
-  wrapper around the additive `le_of_forall_pos_le_add` and is used in the
-  (S3) and (S5') arguments for Kolmogorov numbers and the (S5') argument
-  for approximation numbers.
+* `Submodule.mkQL` — the `ContinuousLinearMap` form of the quotient
+  projection `Submodule.mkQ`, with operator-norm bound `‖V.mkQL‖ ≤ 1`.
+* `Submodule.liftQL` — the `ContinuousLinearMap` form of the universal
+  lift `Submodule.liftQ` (a CLM `f : Y →L[𝕜] Z` with kernel containing
+  `V` lifts to `Y ⧸ V →L[𝕜] Z`), with operator-norm bound
+  `‖V.liftQL f h‖ ≤ ‖f‖`.
+
+Mathlib ships `Submodule.mkQ` and `Submodule.liftQ` as `LinearMap`s and
+the corresponding `NormedAddGroupHom`s in
+`Mathlib.Analysis.Normed.Group.Quotient`, but no `ContinuousLinearMap`
+wrappers — `Submodule.mkQL` and `Submodule.liftQL` close that gap.
 -/
 
 universe u
@@ -79,28 +82,64 @@ end CompRank
 
 end ContinuousLinearMap
 
-namespace SNumbers
+/-! ## Continuous-linear-map versions of `Submodule.mkQ` and `Submodule.liftQ` -/
 
-/-- If `0 ≤ α` and `α * (1 - ε) ≤ b` for every `ε ∈ (0, 1)`, then `α ≤ b`.
+namespace Submodule
 
-Useful as the closing step of proofs that bound `α` from above via a
-density argument that delivers `α * (1 - ε) ≤ b` for arbitrarily small
-positive `ε`. -/
-lemma le_of_mul_one_sub_le_of_nonneg {α b : ℝ} (hα : 0 ≤ α)
-    (h : ∀ ε : ℝ, 0 < ε → ε < 1 → α * (1 - ε) ≤ b) : α ≤ b := by
-  rcases hα.lt_or_eq with hα_pos | hα_eq
-  · refine le_of_forall_pos_le_add fun δ hδ => ?_
-    set ε := min (δ / α) (1 / 2) with hε_def
-    have hε_pos : 0 < ε := lt_min (div_pos hδ hα_pos) (by norm_num)
-    have hε_lt1 : ε < 1 := (min_le_right _ _).trans_lt (by norm_num)
-    have hαε_le : α * ε ≤ δ :=
-      calc α * ε
-          ≤ α * (δ / α) := mul_le_mul_of_nonneg_left (min_le_left _ _) hα_pos.le
-        _ = δ := mul_div_cancel₀ _ hα_pos.ne'
-    have h_at_ε := h ε hε_pos hε_lt1
-    linarith
-  · -- `α = 0`: every `ε ∈ (0, 1)` gives `0 ≤ b`, hence `α ≤ b`.
-    have h0 := h (1 / 2) (by norm_num) (by norm_num)
-    linarith [hα_eq.symm]
+variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+variable {Y Z : Type*}
+variable [SeminormedAddCommGroup Y] [NormedSpace 𝕜 Y]
+variable [SeminormedAddCommGroup Z] [NormedSpace 𝕜 Z]
 
-end SNumbers
+/-- The quotient map `Y →L[𝕜] (Y ⧸ V)` as a continuous linear map.
+The `L` suffix follows the mathlib convention `Submodule.subtype` (a
+`LinearMap`) → `Submodule.subtypeL` (a `ContinuousLinearMap`). -/
+noncomputable def mkQL (V : Submodule 𝕜 Y) : Y →L[𝕜] (Y ⧸ V) :=
+  V.mkQ.mkContinuous 1 fun x => by
+    rw [one_mul, mkQ_apply]
+    exact _root_.Submodule.Quotient.norm_mk_le (S := V) x
+
+@[simp] lemma mkQL_apply (V : Submodule 𝕜 Y) (x : Y) :
+    V.mkQL x = V.mkQ x := rfl
+
+lemma norm_mkQL_le (V : Submodule 𝕜 Y) : ‖V.mkQL‖ ≤ 1 :=
+  LinearMap.mkContinuous_norm_le _ zero_le_one _
+
+/-- Lift a continuous linear map `f : Y →L[𝕜] Z` whose kernel contains `V`
+to a continuous linear map `(Y ⧸ V) →L[𝕜] Z`. The norm bound
+`‖V.liftQL f h‖ ≤ ‖f‖` is `Submodule.norm_liftQL_le`. -/
+noncomputable def liftQL (V : Submodule 𝕜 Y) (f : Y →L[𝕜] Z)
+    (h : V ≤ LinearMap.ker (f : Y →ₗ[𝕜] Z)) : (Y ⧸ V) →L[𝕜] Z :=
+  (V.liftQ (f : Y →ₗ[𝕜] Z) h).mkContinuous ‖f‖ <| by
+    -- For each `x : Y ⧸ V`, take a representative `y` with `‖y‖ ≤ ‖x‖ + ε`.
+    -- Then `liftQ f h x = f y`, so `‖liftQ f h x‖ ≤ ‖f‖ * ‖y‖ ≤ ‖f‖ * (‖x‖ + ε)`,
+    -- and `ε → 0`.
+    intro x
+    refine le_of_forall_pos_le_add fun ε hε => ?_
+    have hf_pos : (0 : ℝ) < ‖f‖ + 1 := by positivity
+    obtain ⟨y, hy_eq, hy_norm⟩ :=
+      Submodule.Quotient.norm_mk_lt x (div_pos hε hf_pos)
+    have h_eq : (V.liftQ (f : Y →ₗ[𝕜] Z) h) x = f y := by
+      rw [← hy_eq]; exact V.liftQ_apply (f : Y →ₗ[𝕜] Z) y
+    rw [h_eq]
+    calc ‖f y‖
+        ≤ ‖f‖ * ‖y‖ := f.le_opNorm y
+      _ ≤ ‖f‖ * (‖x‖ + ε / (‖f‖ + 1)) :=
+          mul_le_mul_of_nonneg_left hy_norm.le (norm_nonneg _)
+      _ = ‖f‖ * ‖x‖ + ‖f‖ / (‖f‖ + 1) * ε := by ring
+      _ ≤ ‖f‖ * ‖x‖ + 1 * ε := by
+          gcongr
+          rw [div_le_one hf_pos]; linarith [norm_nonneg f]
+      _ = ‖f‖ * ‖x‖ + ε := by ring
+
+@[simp] lemma liftQL_mkQL (V : Submodule 𝕜 Y) (f : Y →L[𝕜] Z)
+    (h : V ≤ LinearMap.ker (f : Y →ₗ[𝕜] Z)) (y : Y) :
+    V.liftQL f h (V.mkQL y) = f y :=
+  V.liftQ_apply (f : Y →ₗ[𝕜] Z) y
+
+lemma norm_liftQL_le (V : Submodule 𝕜 Y) (f : Y →L[𝕜] Z)
+    (h : V ≤ LinearMap.ker (f : Y →ₗ[𝕜] Z)) :
+    ‖V.liftQL f h‖ ≤ ‖f‖ :=
+  LinearMap.mkContinuous_norm_le _ (norm_nonneg _) _
+
+end Submodule
