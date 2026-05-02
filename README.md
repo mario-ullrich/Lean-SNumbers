@@ -23,6 +23,8 @@ artifact under *Actions → latest run → blueprint-web*.
 │   ├── Bernstein.lean          ← bernsteinNumber  (statement only)
 │   ├── Gelfand.lean            ← gelfandNumber    (statement only)
 │   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
+│   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
+│   │                              (Banach-only variant; SNumbers.Lifting)
 │   ├── Hilbert.lean            ← hilbertNumber    (statement only)
 │   └── Inequalities.lean       ← Pietsch's sandwich theorem
 ├── BasicResults.lean           ← separate library entry point
@@ -30,6 +32,7 @@ artifact under *Actions → latest run → blueprint-web*.
 │   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
 │   └── SVD.lean                ← compact-operator SVD (blueprint only)
 ├── LICENSE                     ← Apache 2.0
+├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
 └── blueprint/
     └── src/
         ├── plastex.cfg         ← plastex / leanblueprint configuration
@@ -52,6 +55,7 @@ artifact under *Actions → latest run → blueprint-web*.
 | Bernstein number `bₙ`                     | 🟡 defined, no proof|
 | Gelfand number `cₙ`                       | 🟡 defined, no proof|
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
+|   ↳ Pietsch lifting `dₙ S = aₙ(S∘Q_X)`    | ✅ proved (Banach)  |
 | Hilbert number `hₙ` (real case)           | 🟡 defined, no proof|
 | Pietsch's sandwich `hₙ ≤ sₙ ≤ aₙ`         | 🟡 upper proved     |
 | Hilbert-space coincidence (`s = a`)       | 🟡 declared, no proof|
