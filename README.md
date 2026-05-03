@@ -18,9 +18,9 @@ artifact under *Actions → latest run → blueprint-web*.
 ├── SNumbers/
 │   ├── Basic.lean              ← rank API + Pietsch axioms (S1)–(S5)
 │   │                              + IsSNumberSequence / IsStrictSNumberSequence
-│   ├── Helpers.lean            ← shared rank facts + ε-limit lemma
+│   ├── Helpers.lean            ← shared rank facts + Submodule.mkQL/liftQL CLMs
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
-│   ├── Bernstein.lean          ← bernsteinNumber  (statement only)
+│   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
 │   ├── Gelfand.lean            ← gelfandNumber    + (S1)–(S5')
 │   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
 │   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
@@ -50,7 +50,7 @@ artifact under *Actions → latest run → blueprint-web*.
 | `IsStrictSNumberSequence` (adds S5')      | ✅ defined          |
 | `rank` of `X →L[𝕜] Y`                     | ✅ defined          |
 | Approximation number `aₙ`                 | ✅ proved (S1–S5')  |
-| Bernstein number `bₙ`                     | 🟡 defined, no proof|
+| Bernstein number `bₙ`                     | ✅ proved (S1–S5')  |
 | Gelfand number `cₙ`                       | ✅ proved (S1–S5')  |
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
 |       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |

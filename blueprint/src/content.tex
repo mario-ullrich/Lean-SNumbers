@@ -125,16 +125,60 @@ $a_n(S) = \sigma_{n+1}(S)$ for compact $S$.
 For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}$,
 \[
 b_n(S) := \sup_{\dim M = n+1}
-            \inf_{\substack{x \in M \\ \|x\| = 1}} \|Sx\|.
+            \inf_{\substack{x \in M \\ x \neq 0}} \frac{\|Sx\|}{\|x\|}.
 \]
 \end{definition}
 
-\begin{proposition}[$b_n$ is an $s$-number sequence]
-\label{prop:bernstein-is-snumber}
-\lean{SNumbers.isSNumberSequence_bernsteinNumber}
-\notready
-\uses{def:bernstein-number, def:s-number-sequence}
-\end{proposition}
+\begin{theorem}[$b_n$ is a strict $s$-number sequence]
+\label{thm:bernstein-is-snumber}
+\lean{SNumbers.isStrictSNumberSequence_bernsteinNumber}
+\leanok
+\uses{def:bernstein-number, def:strict-s-number-sequence}
+The Bernstein numbers satisfy all five Pietsch axioms (S1)–(S5) and
+moreover the strengthening (S5$'$): $b_n(\mathrm{id}_X) = 1$ on every
+normed space $X$ with $\dim X > n$. The argument requires only
+\texttt{NontriviallyNormedField} on the scalar field~$\mathbb{K}$.
+\end{theorem}
+\begin{proof}
+\leanok
+The proof is fully formalized in \texttt{SNumbers/Bernstein.lean}, with a
+single nontrivial case split for (S3). Concretely:
+\begin{itemize}
+  \item (S1a) For 1-dimensional $M = \operatorname{span}\{v\}$ every
+    nonzero $x \in M$ is $c \cdot v$, so the gain on $M$ is exactly
+    $\|S v\|/\|v\|$. Taking the supremum over $v$ gives $\|S\|$.
+  \item (S1b) Every $(n+2)$-dimensional $M$ contains an
+    $(n+1)$-dimensional $M' \subseteq M$, and shrinking the inf-domain
+    only enlarges the gain: $\operatorname{gain}(S, M) \le
+    \operatorname{gain}(S, M')$.
+  \item (S2) The pointwise bound
+    $\|(S+T)x\|/\|x\| \le \|Sx\|/\|x\| + \|T\|$ for nonzero
+    $x \in M$ pushes through the inner $\inf$, then through the outer
+    $\sup$.
+  \item (S3) For each $M \subseteq W$ of dimension $n+1$, split on
+    whether $A$ is injective on $M$:
+    \begin{itemize}
+      \item If not, some nonzero $x \in M$ satisfies $A x = 0$, hence
+        $(BSA)x = 0$ and the gain on $M$ is forced to $0 \le \|B\|
+        \cdot b_n(S) \cdot \|A\|$.
+      \item If yes, $M' := A.M \subseteq X$ has dimension $n+1$ via the
+        bijection $A : M \xrightarrow{\sim} M'$, and the per-vector
+        bound
+        $\|B(S(Ax))\|/\|x\| \le \|B\| \cdot \|A\| \cdot
+           \|S(Ax)\|/\|Ax\|$
+        gives
+        $\operatorname{gain}(BSA, M) \le \|B\| \cdot \|A\| \cdot
+           \operatorname{gain}(S, M') \le \|B\| \cdot \|A\| \cdot b_n(S)$.
+    \end{itemize}
+  \item (S4) If $\operatorname{rank}\,S \le n$ then $S$ restricted to any
+    $(n+1)$-dim $M$ has rank $< \dim M$, so by rank-nullity
+    $M \cap \ker S \neq \{0\}$ and the gain on $M$ is $0$.
+  \item (S5$'$) For every nonzero $x$, $\|x\|/\|x\| = 1$, so the gain
+    on every nontrivial $M$ is exactly $1$. The constraint
+    $\dim X > n$ guarantees an $(n+1)$-dim $M$ exists, hence
+    $b_n(\mathrm{id}_X) = 1$. No Riesz, no completeness.
+\end{itemize}
+\end{proof}
 
 \section{Gelfand numbers $c_n$}
 \label{sec:gelf}
@@ -301,8 +345,9 @@ $L_2 := \ell_2(\mathbb{N}; \mathbb{R})$.
 \leanok
 For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}$,
 \[
-h_n(S) := \sup \bigl\{ a_n(B \, S \, A) :
-            A : L_2 \to X, \ B : Y \to L_2, \ \|A\|, \|B\| \le 1 \bigr\}.
+h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
+            A : L_2 \to X, \ B : Y \to L_2, \ A \neq 0, \ B \neq 0
+          \biggr\}.
 \]
 \end{definition}
 
