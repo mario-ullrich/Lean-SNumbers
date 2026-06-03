@@ -370,6 +370,19 @@ Let $X, Y$ be Banach spaces. Then the Hilbert numbers $h = (h_n)_n$ form an
 $s$-number sequence: they satisfy axioms (S1)--(S5). (The strict
 normalisation (S5$'$) is not asserted.)
 \end{proposition}
+\begin{proof}
+\leanok
+Each axiom is a named lemma in \texttt{SNumbers/Hilbert.lean}, obtained by
+pushing the corresponding property of the approximation numbers $a_n$
+through the supremum defining $h_n$: nonnegativity and antitonicity (S1),
+subadditivity (S2) and the ideal property (S3) are
+\texttt{hilbertNumber\_nonneg}, \texttt{\_antitone}, \texttt{\_add\_le} and
+\texttt{\_comp\_comp\_le}; (S4) is
+\texttt{hilbertNumber\_eq\_zero\_of\_rank\_le}; and the normalisations
+$h_0(S) = \|S\|$ and $h_n(\mathrm{id}) = 1$ (S5) combine the upper bound
+$h_n \le \|\cdot\|$ with \texttt{norm\_le\_hilbertNumber\_zero} and
+\texttt{one\_le\_hilbertNumber\_id}. All five axioms are \texttt{sorry}-free.
+\end{proof}
 
 \chapter{Pietsch's sandwich theorem}
 \label{ch:sandwich}
