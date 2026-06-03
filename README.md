@@ -19,7 +19,8 @@ artifact under *Actions → latest run → blueprint-web*.
 │   ├── Basic.lean              ← rank API + Pietsch axioms (S1)–(S5)
 │   │                              + IsSNumberSequence / IsStrictSNumberSequence
 │   │                              + homogeneity sₙ(c•T)=‖c‖·sₙ(T) (norm_smul_sn)
-│   ├── Helpers.lean            ← shared rank facts + Submodule.mkQL/liftQL CLMs
+│   ├── Helpers.lean            ← shared rank facts + norm bounds for the
+│   │                              Mathlib quotient CLMs Submodule.mkQL/liftQL
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
 │   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
 │   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')

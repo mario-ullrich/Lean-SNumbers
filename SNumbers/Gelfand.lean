@@ -164,7 +164,7 @@ lemma gelfandNumber_zero_eq_norm (S : X →L[𝕜] Y) :
     rintro _ ⟨M, _, hM_rank, rfl⟩
     -- `rank (X ⧸ M) ≤ 0` ⇒ `X ⧸ M` subsingleton ⇒ `M = ⊤`.
     have h_rank_zero : Module.rank 𝕜 (X ⧸ M) = 0 :=
-      le_antisymm (by exact_mod_cast hM_rank) (Cardinal.zero_le _)
+      le_antisymm (by exact_mod_cast hM_rank) zero_le
     have h_subsingleton : Subsingleton (X ⧸ M) := rank_zero_iff.mp h_rank_zero
     have hM_top : M = ⊤ :=
       Submodule.Quotient.subsingleton_iff.mp h_subsingleton
@@ -335,7 +335,7 @@ lemma gelfandNumber_strict {X : Type u} [NormedAddCommGroup X]
     have h_rank_top : Module.rank 𝕜 (X ⧸ (⊤ : Submodule 𝕜 X)) ≤ (n : Cardinal) := by
       have h0 : Module.rank 𝕜 (X ⧸ (⊤ : Submodule 𝕜 X)) = 0 :=
         rank_zero_iff.mpr inferInstance
-      rw [h0]; exact Cardinal.zero_le _
+      rw [h0]; exact zero_le
     have h_closed : IsClosed ((⊤ : Submodule 𝕜 X) : Set X) := by
       rw [Submodule.top_coe]; exact isClosed_univ
     calc gelfandNumber I n

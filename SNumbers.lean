@@ -28,9 +28,9 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `sₙ(c • T) = ‖c‖ · sₙ(T)`.
 * `SNumbers.Helpers`: small generic facts shared across the development —
   rank lemmas for continuous linear maps (`rank_zero`,
-  `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and the
-  `ContinuousLinearMap` packaging of the quotient projection /
-  universal lift (`Submodule.mkQL`, `Submodule.liftQL`).
+  `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and operator-norm bounds
+  for Mathlib's quotient CLMs `Submodule.mkQL` / `Submodule.liftQL`
+  (`norm_mkQL_le`, `norm_liftQL_le`, `liftQL_mkQL`).
 * `SNumbers.Approximation`: the approximation numbers `aₙ`, proved to form a
   strict s-number sequence (S1)–(S5)+(S5'), and to be the *largest*
   s-number sequence (`sₙ(S) ≤ aₙ(S)`).

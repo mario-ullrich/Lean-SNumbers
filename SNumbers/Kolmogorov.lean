@@ -172,7 +172,7 @@ lemma kolmogorovNumber_zero_eq_norm (S : X →L[𝕜] Y) :
     rintro _ ⟨V, hV, rfl⟩
     have hV_bot : V = ⊥ := by
       rw [← Submodule.rank_eq_zero]
-      exact le_antisymm (by exact_mod_cast hV) (Cardinal.zero_le _)
+      exact le_antisymm (by exact_mod_cast hV) zero_le
     rw [hV_bot, deviationFromSubspace_bot]
 
 
@@ -359,7 +359,7 @@ lemma kolmogorovNumber_strict {X : Type u} [NormedAddCommGroup X]
   refine le_antisymm ?_ ?_
   · -- `≤ 1`: take `V = ⊥`. `deviation(I, ⊥) = ‖I‖ = 1`.
     have h_rank_bot : Module.rank 𝕜 (⊥ : Submodule 𝕜 X) ≤ (n : Cardinal) := by
-      rw [rank_bot]; exact Cardinal.zero_le _
+      rw [rank_bot]; exact zero_le
     calc kolmogorovNumber I n
         ≤ deviationFromSubspace I ⊥ := kolmogorovNumber_le_deviation h_rank_bot
       _ = ‖I‖ := deviationFromSubspace_bot _

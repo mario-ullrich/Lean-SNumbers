@@ -40,7 +40,7 @@ jobs:
             ~/.elan
             .lake/packages
             .lake/build
-          key: ${{ runner.os }}-lean-${{ hashFiles('lakefile.toml') }}
+          key: ${{ runner.os }}-lean-${{ hashFiles('lake-manifest.json') }}
           restore-keys: |
             ${{ runner.os }}-lean-
 
@@ -52,10 +52,11 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
-      - name: Resolve dependencies and download Mathlib cache
-        run: |
-          lake update
-          lake exe cache get || true
+      # Use the Mathlib revision pinned in lake-manifest.json (do NOT run
+      # `lake update`: that pulls bleeding-edge Mathlib, making CI builds
+      # non-reproducible and breaking them whenever Mathlib changes upstream).
+      - name: Download Mathlib cache (pinned by lake-manifest.json)
+        run: lake exe cache get || true
 
       - name: Build the Lean project
         run: lake build

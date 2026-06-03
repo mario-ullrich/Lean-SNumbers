@@ -172,7 +172,7 @@ theorem IsCompactOperator.norm_isSingularValue
     -- ‖xφₙ - u‖² = 2 - 2 Re ⟨xφₙ, u⟩ → 0; hence ‖xφₙ - u‖ → 0.
     rw [tendsto_iff_norm_sub_tendsto_zero]
     have hre : Tendsto (fun n => RCLike.re (inner 𝕜 (x (φ n)) u)) atTop (𝓝 1) := by
-      simpa using (RCLike.continuous_re.tendsto _).comp hi1
+      simpa [Function.comp_def] using (RCLike.continuous_re.tendsto _).comp hi1
     have hsq : Tendsto (fun n => ‖x (φ n) - u‖ ^ 2) atTop (𝓝 0) := by
       have hsub : Tendsto (fun n => (2 : ℝ) - 2 * RCLike.re (inner 𝕜 (x (φ n)) u)) atTop
           (𝓝 ((2 : ℝ) - 2 * 1)) := tendsto_const_nhds.sub (hre.const_mul 2)
