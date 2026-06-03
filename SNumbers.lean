@@ -12,6 +12,8 @@ import SNumbers.Kolmogorov
 import SNumbers.KolmogorovLifting
 import SNumbers.Hilbert
 import SNumbers.Inequalities
+import SNumbers.Uniqueness
+import SNumbers.Injectivity
 
 /-!
 # s-Numbers of bounded linear operators between Banach spaces
@@ -21,35 +23,44 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
 ## Main contents
 
 * `SNumbers.Basic`: the `rank` of a continuous linear map and the Pietsch
-  axioms (S1)–(S5), packaged as `IsSNumberSequence`. Also the (S5')
-  strengthening and the structure `IsStrictSNumberSequence`.
+  axioms (S1)–(S5), packaged as `IsSNumberSequence`; the (S5')
+  strengthening and `IsStrictSNumberSequence`; and absolute homogeneity
+  `sₙ(c • T) = ‖c‖ · sₙ(T)`.
 * `SNumbers.Helpers`: small generic facts shared across the development —
   rank lemmas for continuous linear maps (`rank_zero`,
   `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and the
   `ContinuousLinearMap` packaging of the quotient projection /
   universal lift (`Submodule.mkQL`, `Submodule.liftQL`).
-* `SNumbers.Approximation`: the approximation numbers `aₙ`, fully proved
-  to form a strict s-number sequence (S1)–(S5)+(S5').
+* `SNumbers.Approximation`: the approximation numbers `aₙ`, proved to form a
+  strict s-number sequence (S1)–(S5)+(S5'), and to be the *largest*
+  s-number sequence (`sₙ(S) ≤ aₙ(S)`).
 * `SNumbers.Bernstein`, `SNumbers.Gelfand`, `SNumbers.Kolmogorov`,
-  `SNumbers.Hilbert`: the further canonical examples — `bₙ`, `cₙ`, `dₙ`,
-  `hₙ`. One file per construction. The Bernstein, Gelfand, and Kolmogorov
-  numbers are fully proved to form strict s-number sequences; the
-  remaining `hₙ` is stated, with proofs forthcoming.
+  `SNumbers.Hilbert`: the further canonical examples `bₙ`, `cₙ`, `dₙ`, `hₙ`,
+  one file each, all proved to form s-number sequences (Bernstein, Gelfand,
+  Kolmogorov strict). The Hilbert numbers are developed over any `RCLike`
+  field; their (S5) normalisation rests on the singular value decomposition
+  (see `BasicResults.SVD`).
 * `SNumbers.KolmogorovLifting`: an alternative development of the
   Kolmogorov numbers via Pietsch's identity `d_n S = a_n(S ∘ Q_X)`,
   where `Q_X : ℓ¹(B_X) →L[𝕜] X` is the canonical summation surjection.
   Many axioms become one-liners over `a_n`, but the construction needs
-  `[CompleteSpace X]` (an infinite series in `X`) — restricted to
-  Banach spaces. Lives in the sub-namespace `SNumbers.Lifting` to
-  coexist with `SNumbers.Kolmogorov`.
-* `SNumbers.Inequalities`: comparison results, in particular Pietsch's
-  sandwich theorem `hₙ ≤ sₙ ≤ aₙ` for every s-number sequence `s`. The
-  upper bound is fully proved; the lower bound and the underlying
-  Hilbert-space coincidence theorem are left for a follow-up.
+  `[CompleteSpace X]` (an infinite series in `X`), so it is restricted to
+  Banach spaces. Lives in the sub-namespace `SNumbers.Lifting`.
+* `SNumbers.Uniqueness`: on Hilbert spaces every s-number sequence coincides
+  with the approximation numbers, `sₙ(S) = aₙ(S)` (Pietsch 2.11.9). Proved
+  modulo a single singular value decomposition input
+  (`SVD.exists_scalar_factorisation` in `BasicResults.SVD`).
+* `SNumbers.Inequalities`: the general-space comparison results — the lower
+  bound `hₙ ≤ sₙ` and Pietsch's sandwich theorem `hₙ ≤ sₙ ≤ aₙ`.
+* `SNumbers.Injectivity`: injective and surjective s-number sequences; the
+  Gelfand numbers `cₙ` are injective and the Kolmogorov numbers `dₙ` are
+  surjective.
 
-A companion library `BasicResults` (top-level, sibling of this module)
-collects generic auxiliary material needed by the framework — Auerbach's
-lemma (fully proved) and the compact-operator SVD blueprint.
+A companion library `BasicResults` collects supporting material: Auerbach's
+lemma (fully proved) and the singular value decomposition `BasicResults.SVD`
+(the compact SVD plus the scalar factorisation the uniqueness theorem
+consumes). Auxiliary material on approximable operators lives in the
+`AddOns` library.
 
 ## References
 

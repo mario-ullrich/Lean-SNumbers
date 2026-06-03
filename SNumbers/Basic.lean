@@ -18,7 +18,11 @@ This file collects:
 * The five Pietsch axioms (S1)–(S5) characterising an *s-number sequence*,
   packaged in the structure `IsSNumberSequence`.
 * The strengthening (S5') and the structure `IsStrictSNumberSequence`,
-  introduced *after* the standard axioms.
+  introduced.
+* **Homogeneity** (`norm_smul_sn`): every s-number sequence satisfies
+  `sₙ(c • T) = ‖c‖ · sₙ(T)`, with the two one-sided inequalities
+  `sn_smul_le` and `norm_smul_le_sn`. This is a consequence of the axioms
+  (essentially (S3)), so it belongs here with the abstract theory.
 
 An s-number sequence assigns to every bounded linear operator
 `S : X →L[𝕜] Y` between (real or complex) Banach spaces a sequence
@@ -157,5 +161,71 @@ not just on `ℓ₂^{n+1}`. -/
 structure IsStrictSNumberSequence (s : Family 𝕜) : Prop extends IsSNumberSequence s where
   /-- (S5') `s n (id_X) = 1` whenever `dim X > n`. -/
   strictly_normalised_at_id : StrictlyNormalisedAtId s
+
+/-! ### Homogeneity
+
+Every `s`-number sequence is **absolutely homogeneous**:
+`sₙ(c • T) = ‖c‖ · sₙ(T)` (`norm_smul_sn`), the combination of two one-sided
+inequalities that both come from the (S3) ideal property:
+
+* `sn_smul_le` : `sₙ(c • T) ≤ ‖c‖ · sₙ(T)`, namely (S3) on
+  `c • T = (c • id) ∘ T` with `‖c • id‖ ≤ ‖c‖`;
+* `norm_smul_le_sn` : `‖c‖ · sₙ(T) ≤ sₙ(c • T)` (for `c ≠ 0`), which is just
+  `sn_smul_le` applied to `c • T` with `c` replaced by `c⁻¹`. -/
+
+/-- **Forward homogeneity.** `sₙ(c • T) ≤ ‖c‖ · sₙ(T)`, directly from the
+(S3) ideal property applied to `c • T = (c • id_Y) ∘ T ∘ id_X`
+(with `‖c • id_Y‖ ≤ ‖c‖` and `‖id_X‖ ≤ 1`). -/
+theorem sn_smul_le {s : Family 𝕜} (hs : IsSNumberSequence s)
+    {X Y : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+    [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
+    (c : 𝕜) (T : X →L[𝕜] Y) (n : ℕ) :
+    s (c • T) n ≤ ‖c‖ * s T n := by
+  have h := hs.ideal (ContinuousLinearMap.id 𝕜 X) T (c • ContinuousLinearMap.id 𝕜 Y) n
+  rw [show (c • ContinuousLinearMap.id 𝕜 Y).comp (T.comp (ContinuousLinearMap.id 𝕜 X)) = c • T
+      from by rw [ContinuousLinearMap.comp_id, ContinuousLinearMap.smul_comp,
+        ContinuousLinearMap.id_comp]] at h
+  have hsn : 0 ≤ s T n := hs.nonneg T n
+  have hcid : ‖c • ContinuousLinearMap.id 𝕜 Y‖ ≤ ‖c‖ := by
+    rw [norm_smul]
+    exact (mul_le_mul_of_nonneg_left ContinuousLinearMap.norm_id_le (norm_nonneg c)).trans_eq
+      (mul_one _)
+  calc s (c • T) n
+      ≤ ‖c • ContinuousLinearMap.id 𝕜 Y‖ * s T n * ‖ContinuousLinearMap.id 𝕜 X‖ := h
+    _ ≤ ‖c‖ * s T n * 1 :=
+        mul_le_mul (mul_le_mul_of_nonneg_right hcid hsn) ContinuousLinearMap.norm_id_le
+          (norm_nonneg _) (mul_nonneg (norm_nonneg _) hsn)
+    _ = ‖c‖ * s T n := mul_one _
+
+/-- **Reverse homogeneity.** For a nonzero scalar `c`, `‖c‖ · sₙ(T) ≤ sₙ(c • T)`.
+
+Apply `sn_smul_le` to the operator `c • T` with `c` replaced by `c⁻¹`:
+`sₙ(T) = sₙ(c⁻¹ • (c • T)) ≤ ‖c‖⁻¹ · sₙ(c • T)`; then multiply by `‖c‖ > 0`. -/
+theorem norm_smul_le_sn {s : Family 𝕜} (hs : IsSNumberSequence s)
+    {X Y : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+    [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
+    {c : 𝕜} (hc : c ≠ 0) (T : X →L[𝕜] Y) (n : ℕ) :
+    ‖c‖ * s T n ≤ s (c • T) n := by
+  have h := sn_smul_le hs c⁻¹ (c • T) n
+  rw [smul_smul, inv_mul_cancel₀ hc, one_smul, norm_inv] at h
+  have hcpos : 0 < ‖c‖ := norm_pos_iff.mpr hc
+  calc ‖c‖ * s T n
+      ≤ ‖c‖ * (‖c‖⁻¹ * s (c • T) n) := mul_le_mul_of_nonneg_left h (norm_nonneg c)
+    _ = s (c • T) n := by rw [← mul_assoc, mul_inv_cancel₀ hcpos.ne', one_mul]
+
+/-- **Absolute homogeneity of `s`-numbers.** `sₙ(c • T) = ‖c‖ · sₙ(T)` for
+every scalar `c`: the direct combination of the one-sided inequalities
+`sn_smul_le` and `norm_smul_le_sn`. (For `c = 0` the reverse direction is
+just non-negativity (S1), since `‖0‖ · sₙ(T) = 0`.) -/
+theorem norm_smul_sn {s : Family 𝕜} (hs : IsSNumberSequence s)
+    {X Y : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+    [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
+    (c : 𝕜) (T : X →L[𝕜] Y) (n : ℕ) :
+    s (c • T) n = ‖c‖ * s T n := by
+  rcases eq_or_ne c 0 with rfl | hc
+  · refine le_antisymm (sn_smul_le hs 0 T n) ?_
+    rw [norm_zero, zero_mul]
+    exact hs.nonneg (0 • T) n
+  exact le_antisymm (sn_smul_le hs c T n) (norm_smul_le_sn hs hc T n)
 
 end SNumbers

@@ -110,9 +110,9 @@ x_0\|$ for any $r < 1$, so $\|\mathrm{id} - L\| \ge \|(\mathrm{id}-L) x_0\|
 / \|x_0\| \ge r$; letting $r \to 1$ gives $\|\mathrm{id} - L\| \ge 1$,
 and combined with the trivial upper bound $a_n(\mathrm{id}) \le \|\mathrm{id}\| = 1$
 we obtain equality. The classical (S5) on $\ell_2^{n+1}$ specialises (S5$'$).
-The argument needs neither SVD nor Auerbach; the blueprint stubs in
-\texttt{BasicResults.SVD} are kept for the future identification
-$a_n(S) = \sigma_{n+1}(S)$ for compact $S$.
+The argument needs neither SVD nor Auerbach; the SVD development in
+\texttt{BasicResults.SVD} (Chapter~\ref{ch:svd}) handles the identification
+$a_n(S) = \sigma_{n+1}(S)$ for compact $S$ separately.
 \end{proof}
 
 \section{Bernstein numbers $b_n$}
@@ -354,7 +354,7 @@ h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
 \begin{proposition}[$h_n$ is an $s$-number sequence]
 \label{prop:hilbert-is-snumber}
 \lean{SNumbers.isSNumberSequence_hilbertNumber}
-\notready
+\leanok
 \uses{def:hilbert-number, def:approximation-number, def:s-number-sequence}
 \end{proposition}
 
@@ -364,40 +364,53 @@ h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
 \begin{theorem}[Hilbert-space coincidence]
 \label{thm:all-eq-on-hilbert}
 \lean{SNumbers.allSNumbers_eq_on_HilbertSpace}
-\notready
-\uses{def:s-number-sequence, def:approximation-number}
+\leanok
+\uses{def:s-number-sequence, def:approximation-number, thm:scalar-factorisation}
 On a Hilbert space, every $s$-number sequence agrees with the
 approximation numbers: $s_n(S) = a_n(S)$ for every continuous linear map
 $S$ between Hilbert spaces.
 \end{theorem}
+\begin{proof}
+\leanok
+The upper bound is Theorem~\ref{thm:sandwich}. For the lower bound
+$a_n(S) \le s_n(S)$: given $c < a_n(S)$, the scalar factorisation
+(Theorem~\ref{thm:scalar-factorisation}) gives contractions with
+$B \circ S \circ A = c \cdot \mathrm{id}_{\ell_2^{n+1}}$; chaining (S3) with
+the (S5) normalisation $s_n(\mathrm{id}_{\ell_2^{n+1}}) = 1$ and homogeneity
+yields $c \le s_n(S)$. Letting $c \to a_n(S)$ gives $a_n(S) \le s_n(S)$.
+\end{proof}
 
 \begin{theorem}[Pietsch \emph{sandwich}]
 \label{thm:sandwich}
 \lean{SNumbers.hilbertNumber_le_sn_le_approximationNumber}
-\uses{thm:approx-is-snumber, prop:hilbert-is-snumber}
-For every $s$-number sequence $s$ on real Banach spaces and every operator
-$S$,
+\leanok
+\uses{thm:approx-is-snumber, prop:hilbert-is-snumber, thm:all-eq-on-hilbert}
+For every $s$-number sequence $s$ and every operator $S$,
 \[
 h_n(S) \;\le\; s_n(S) \;\le\; a_n(S).
 \]
 On Hilbert spaces all three numbers agree.
 \end{theorem}
 \begin{proof}
-The upper bound $s_n(S) \le a_n(S)$ is proved without \texttt{sorry}
-in \texttt{SNumbers.sn\_le\_approximationNumber}: for any $A$ with
+\leanok
+The upper bound $s_n(S) \le a_n(S)$ is
+\texttt{SNumbers.sn\_le\_approximationNumber}: for any $A$ with
 $\operatorname{rank}(A) \le n$ axiom (S2) yields
 $s_n(S) \le s_n(A) + \|S - A\| = \|S - A\|$ by (S4); take the infimum.
-The lower bound $h_n(S) \le s_n(S)$ uses (S3) plus the Hilbert-space
-coincidence theorem and is currently \texttt{sorry}.
+The lower bound $h_n(S) \le s_n(S)$: each ratio
+$a_n(B S A)/(\|B\|\|A\|)$ defining $h_n(S)$ has $B S A$ an operator
+between Hilbert spaces, so the coincidence
+(Theorem~\ref{thm:all-eq-on-hilbert}) gives
+$a_n(B S A) = s_n(B S A) \le \|B\| s_n(S) \|A\|$ by (S3); take the
+supremum. Both halves are sorry-free, modulo the scalar factorisation.
 \end{proof}
 
 \chapter{Basic auxiliary results}
 \label{ch:basic-results}
 
 The companion library \texttt{BasicResults} (sibling of \texttt{SNumbers})
-collects two generic functional-analysis results that are independent of
-the s-numbers framework. The first — Auerbach's lemma — is fully proved;
-the second — compact-operator SVD — is a blueprint stub.
+collects generic functional-analysis results that are independent of the
+s-numbers framework: currently Auerbach's lemma, fully proved.
 
 \begin{theorem}[Auerbach's lemma]
 \label{thm:auerbach}
@@ -414,13 +427,208 @@ The strategy maximises $|\det|$ on a product of unit balls, then reads off
 the basis and dual functionals from the maximiser.
 \end{proof}
 
-\begin{theorem}[SVD for compact operators]
-\label{thm:compact-svd}
-\lean{SVD.compactOperator_svd}
-\notready
-For every compact operator $S : H_1 \to H_2$ between Hilbert spaces
-there exist orthonormal sequences $(u_k) \subseteq H_1$,
-$(v_k) \subseteq H_2$ and a non-increasing sequence of non-negative reals
-$\sigma_1 \ge \sigma_2 \ge \dots \ge 0$ with
-$S x = \sum_k \sigma_k \langle x, u_k \rangle v_k$ for every $x \in H_1$.
+\chapter{Singular value decomposition (Pietsch \S2.11)}
+\label{ch:svd}
+
+The singular value decomposition of a compact operator between Hilbert
+spaces is formalised in \texttt{BasicResults.SVD}, following Pietsch,
+\emph{Eigenvalues and s-numbers}, \S2.11, via the \emph{singular-value
+iteration} (repeatedly peeling off the top singular pair). The auxiliary
+class of \emph{approximable} operators (those whose approximation numbers
+$a_n$ tend to zero) and its identification with the compact operators on
+Hilbert spaces live in the separate \texttt{AddOns} library; this split
+mirrors Pietsch and avoids relying on any approximation-property
+hypothesis on the underlying space.
+
+\section{Approximable operators}
+\label{sec:svd-approximable}
+
+\begin{definition}[Approximable operator]
+\label{def:approximable}
+\lean{SVD.IsApproximable}
+\leanok
+\uses{def:approximation-number}
+$S \in \mathcal{L}(X, Y)$ is \emph{approximable} if
+$a_n(S) \xrightarrow{n \to \infty} 0$, equivalently if $S$ is the
+operator-norm limit of a sequence of finite-rank operators.
+\end{definition}
+
+\begin{proposition}[Closure properties of approximable operators]
+\label{prop:approximable-closure}
+\lean{SVD.isApproximable_iff_existsLimit,
+      SVD.isApproximable_zero,
+      SVD.IsApproximable.add,
+      SVD.IsApproximable.smul,
+      SVD.IsApproximable.comp_comp,
+      SVD.IsApproximable.of_rank_le,
+      SVD.isClosed_isApproximable}
+\leanok
+\uses{def:approximable, def:approximation-number}
+The approximable operators form a closed two-sided operator ideal: a
+subspace of $\mathcal{L}(X, Y)$, closed under pre/post-composition with
+bounded operators, closed in operator-norm topology, and containing all
+finite-rank operators.
+\end{proposition}
+\begin{proof}
+\leanok
+Each fact is proved separately in \texttt{AddOns/Approximable.lean}. The
+characterisation \texttt{isApproximable\_iff\_existsLimit} produces near-
+optimal rank-$\le n$ approximants $L_n$ with $\|S - L_n\| < a_n(S) +
+1/(n+1)$ via \texttt{csInf\_lt\_iff}, which feeds back to give the
+existence of a finite-rank limit; the converse is squeeze on
+\texttt{approximationNumber\_le\_norm\_sub}. The (S2) and (S3) axioms of
+$a_n$ pass to the class via squeeze; \texttt{add} uses the
+$L_{\lfloor n/2 \rfloor} + K_{\lceil n/2 \rceil}$ construction together with
+\texttt{LinearMap.rank\_add\_le}.
+\end{proof}
+
+\begin{theorem}[Approximable $\Rightarrow$ compact]
+\label{thm:approximable-implies-compact}
+\lean{SVD.IsApproximable.isCompactOperator}
+\leanok
+\uses{def:approximable}
+Every approximable operator $S : X \to Y$ from a normed space $X$ to a
+Banach space $Y$ over a locally compact field $\mathbb{K}$ is compact.
 \end{theorem}
+\begin{proof}
+\leanok
+Each finite-rank approximant $L_n$ codrestricts to its range, a finite-
+dimensional subspace of $Y$ which is locally compact since $\mathbb{K}$
+is (\texttt{FiniteDimensional.proper}). The codrestricted operator is
+compact (\texttt{isCompactOperator\_of\_locallyCompactSpace\_dom}), and
+post-composition with the inclusion preserves compactness. Compactness
+is then preserved under operator-norm limits
+(\texttt{isCompactOperator\_of\_tendsto}).
+\end{proof}
+
+\section{Schmidt representation}
+\label{sec:svd-schmidt}
+
+For the rest of this chapter, $H_1, H_2$ are Hilbert spaces over
+$\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$.
+
+\begin{theorem}[Norm attained as a singular value (Pietsch \S2.11.7)]
+\label{thm:norm-singular-value}
+\lean{SVD.IsCompactOperator.norm_isSingularValue}
+\leanok
+Every compact $S \in \mathcal{L}(H_1, H_2)$ attains its operator norm as a
+singular value: there are unit vectors $u, v$ with $S u = \|S\| \, v$ and
+$S^* v = \|S\| \, u$.
+\end{theorem}
+\begin{proof}
+\leanok
+Take a maximising sequence $x_n$ of unit vectors with $\|S x_n\| \to \|S\|$;
+by compactness extract a subsequence with $S x_{n_k} \to y$, and set
+$v := \|S\|^{-1} y$, $u' := S^* v$. Cauchy--Schwarz on
+$\langle u', x_{n_k}\rangle = \langle v, S x_{n_k}\rangle \to \|S\|$ gives
+$\|u'\| = \|S\|$; equality in Cauchy--Schwarz forces $x_{n_k} \to u$, so by
+continuity $S u = y = \|S\| v$.
+\end{proof}
+
+\begin{theorem}[Singular value decomposition / Schmidt representation]
+\label{thm:schmidt-representation}
+\lean{SVD.IsCompactOperator.SVD}
+\notready
+\uses{def:approximation-number, thm:norm-singular-value}
+For every compact $S \in \mathcal{L}(H_1, H_2)$ there exist
+orthonormal sequences $(u_k) \subseteq H_1$, $(v_k) \subseteq H_2$ such
+that
+\[
+  S x \;=\; \sum_{k} a_k(S) \, \langle u_k, x \rangle \, v_k
+  \qquad \text{for every } x \in H_1.
+\]
+The singular values are exactly the approximation numbers $a_k(S)$.
+\end{theorem}
+\begin{proof}
+By iterating Theorem~\ref{thm:norm-singular-value}: peel off the top
+singular pair $(\sigma_0, u_0, v_0)$ of $S$, replace $S$ by
+$S - \sigma_0 \langle u_0, \cdot\rangle v_0$ (which is again compact), and
+recurse. The variational characterisation of each $u_k$ forces the $u_k$
+(and dually the $v_k$) to be orthonormal; $\sigma_k \to 0$ follows from
+compactness; and the partial sums converge to $S$ in operator norm because
+the $n$-th residual has norm $\sigma_n$. Eckart--Young
+(Theorem~\ref{thm:eckart-young}) identifies $\sigma_k = a_k(S)$.
+\end{proof}
+
+\begin{theorem}[Eckart--Young: optimal low-rank approximation]
+\label{thm:eckart-young}
+\lean{SVD.IsCompactOperator.truncation_residual_eq_approxNumber}
+\notready
+\uses{def:approximation-number, thm:schmidt-representation}
+For every approximable $S \in \mathcal{L}(H_1, H_2)$ and every
+$n \in \mathbb{N}$ there exists $L \in \mathcal{L}(H_1, H_2)$ with
+$\operatorname{rank}(L) \le n$ and $\|S - L\| = a_n(S)$.
+Concretely, $L = \sum_{k < n} a_k(S) \langle u_k, \cdot \rangle v_k$ is
+the truncated SVD.
+\end{theorem}
+
+\begin{theorem}[Diagonal factorisation through $\ell_2^{n+1}$]
+\label{thm:schmidt-diagonal}
+\lean{SVD.IsCompactOperator.diagonalFactorisation}
+\notready
+\uses{def:approximation-number, thm:norm-singular-value}
+For every compact $S \in \mathcal{L}(H_1, H_2)$ and every
+$n \in \mathbb{N}$ there exist contractions
+$A \in \mathcal{L}(\ell_2^{n+1}, H_1)$ and
+$B \in \mathcal{L}(H_2, \ell_2^{n+1})$ such that, on every basis vector
+$e_k$ of $\ell_2^{n+1}$,
+\[
+  (B \circ S \circ A)(e_k) \;=\; a_k(S) \, e_k,
+  \qquad 0 \le k \le n.
+\]
+Equivalently, $B \circ S \circ A$ is the diagonal operator
+$\operatorname{diag}(a_0(S), \dots, a_n(S))$ on $\ell_2^{n+1}$.
+\end{theorem}
+
+This factorisation needs only the top $n+1$ singular pairs — a finite
+truncation, a sibling of the full SVD rather than a corollary — but,
+pinning the \emph{exact} values $a_k$, it requires $S$ compact.
+
+\begin{theorem}[Scalar factorisation]
+\label{thm:scalar-factorisation}
+\lean{SVD.exists_scalar_factorisation}
+\notready
+\uses{def:approximation-number}
+For \emph{any} bounded $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces
+and any real $c$ with $0 \le c < a_n(S)$, there are contractions
+$A \in \mathcal{L}(\ell_2^{n+1}, H_1)$, $B \in \mathcal{L}(H_2, \ell_2^{n+1})$
+with $B \circ S \circ A = c \cdot \mathrm{id}_{\ell_2^{n+1}}$.
+\end{theorem}
+
+Unlike the diagonal factorisation this holds for \emph{arbitrary} bounded
+$S$ (no compactness): the strict inequality $c < a_n(S)$ needs only an
+$(n+1)$-dimensional subspace on which $\|S x\| \ge c\|x\|$, which exists for
+every bounded operator. It is the precise form of SVD that the uniqueness
+theorem of $s$-numbers on Hilbert spaces (Pietsch 2.11.9,
+Theorem~\ref{thm:all-eq-on-hilbert}) consumes.
+
+\section{Compact $\Leftrightarrow$ approximable on Hilbert spaces}
+\label{sec:svd-compact-equiv}
+
+\begin{theorem}[Compact $\Rightarrow$ approximable on Hilbert spaces]
+\label{thm:compact-implies-approximable}
+\lean{SVD.IsCompactOperator.isApproximable}
+\notready
+\uses{def:approximable, thm:schmidt-representation}
+Every compact $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces is
+approximable.
+\end{theorem}
+\begin{proof}
+The Schmidt representation applied to the compact positive self-adjoint
+operator $S^* S$ yields the orthonormal eigenbasis used to define the
+truncated SVD; the truncations are finite-rank operators converging to
+$S$ in operator norm.
+\end{proof}
+
+\begin{theorem}[Compact $\Leftrightarrow$ approximable on Hilbert spaces]
+\label{thm:compact-iff-approximable}
+\lean{SVD.isApproximable_iff_isCompactOperator}
+\notready
+\uses{thm:approximable-implies-compact, thm:compact-implies-approximable}
+On Hilbert spaces, $S$ is approximable iff $S$ is compact.
+\end{theorem}
+
+The SVD for compact operators is exactly
+Theorem~\ref{thm:schmidt-representation}
+(\texttt{SVD.IsCompactOperator.SVD}), now that the latter is stated for
+compact operators directly.

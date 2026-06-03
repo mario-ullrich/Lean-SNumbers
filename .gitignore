@@ -1,3 +1,6 @@
+# Articles 
+articles/
+
 # Lake / Lean build artefacts
 .lake/
 build/

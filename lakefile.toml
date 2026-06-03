@@ -1,5 +1,5 @@
 name = "snumbers"
-defaultTargets = ["SNumbers", "BasicResults"]
+defaultTargets = ["SNumbers", "BasicResults", "AddOns"]
 
 [[require]]
 name = "mathlib"
@@ -14,3 +14,6 @@ name = "SNumbers"
 
 [[lean_lib]]
 name = "BasicResults"
+
+[[lean_lib]]
+name = "AddOns"

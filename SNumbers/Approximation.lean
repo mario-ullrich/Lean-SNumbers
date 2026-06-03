@@ -20,9 +20,11 @@ Pietsch axioms (S1)–(S5). In fact we prove the stronger normalisation
 (S5') — `a_n (id_X) = 1` for every Banach space `X` with `dim X > n` —
 via Riesz's lemma; (S5) on `ℓ₂^{n+1}` is the corresponding specialisation.
 The argument requires `[CompleteSpace 𝕜]` (so that finite-dimensional
-subspaces are closed) but is otherwise elementary; it does **not** need
-the SVD machinery in `BasicResults.SVD` or Auerbach's lemma in
-`BasicResults.Auerbach`.
+subspaces are closed) but is otherwise elementary.
+
+We also prove here that the approximation numbers are the **largest**
+s-number sequence (`sn_le_approximationNumber` : `sₙ(S) ≤ aₙ(S)` for every
+s-number sequence `s`).
 
 ## Main definitions
 
@@ -44,6 +46,8 @@ the SVD machinery in `BasicResults.SVD` or Auerbach's lemma in
     `a_n (id_{ℓ₂^{n+1}}) = 1`                                               (S5)
 * `SNumbers.isStrictSNumberSequence_approximationNumber` :
     the approximation numbers form a *strict* s-number sequence.
+* `SNumbers.sn_le_approximationNumber` : `s_n S ≤ a_n S` for every s-number
+    sequence `s` — the approximation numbers are the largest.
 -/
 
 universe u
@@ -232,6 +236,28 @@ lemma approximationNumber_comp_comp_le
   have h_reorder : ‖B‖ * ‖A‖ * approximationNumber S n
                     = ‖B‖ * approximationNumber S n * ‖A‖ := by ring
   exact h_inf.trans_eq h_reorder
+
+
+
+/-! ### The approximation numbers are the largest s-number sequence -/
+
+/-- For every `s`-number sequence and every operator `S : X → Y`,
+`sₙ(S) ≤ aₙ(S)`: the approximation numbers are the largest `s`-numbers.
+This is the easy half of Pietsch's sandwich theorem; it uses only axioms
+(S2) and (S4) of `IsSNumberSequence`. -/
+theorem sn_le_approximationNumber
+    {s : Family 𝕜} (hs : IsSNumberSequence s) (S : X →L[𝕜] Y) (n : ℕ) :
+    s S n ≤ approximationNumber S n := by
+  refine le_csInf (approximationSet_nonempty S n) ?_
+  rintro r ⟨A, hA, rfl⟩
+  have hS_eq : S = A + (S - A) := by abel
+  have h_low : s A n = 0 := hs.vanishes_on_low_rank A n hA
+  calc s S n
+      = s (A + (S - A)) n := by rw [← hS_eq]
+    _ ≤ s A n + ‖S - A‖ := hs.subadditive A (S - A) n
+    _ = ‖S - A‖ := by rw [h_low, zero_add]
+
+
 
 /-! ### (S5') Strict normalisation `a_n (id_X) = 1` whenever `dim X > n`
 

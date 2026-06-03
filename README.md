@@ -18,19 +18,34 @@ artifact under *Actions → latest run → blueprint-web*.
 ├── SNumbers/
 │   ├── Basic.lean              ← rank API + Pietsch axioms (S1)–(S5)
 │   │                              + IsSNumberSequence / IsStrictSNumberSequence
+│   │                              + homogeneity sₙ(c•T)=‖c‖·sₙ(T) (norm_smul_sn)
 │   ├── Helpers.lean            ← shared rank facts + Submodule.mkQL/liftQL CLMs
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
+│   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
 │   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
 │   ├── Gelfand.lean            ← gelfandNumber    + (S1)–(S5')
 │   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
 │   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
 │   │                              (Banach-only variant; SNumbers.Lifting)
-│   ├── Hilbert.lean            ← hilbertNumber    (statement only)
-│   └── Inequalities.lean       ← Pietsch's sandwich theorem
-├── BasicResults.lean           ← separate library entry point
+│   ├── Hilbert.lean            ← hilbertNumber + (S1)–(S5)
+│   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9);
+│   │                              Hilbert spaces only (from the SVD blackbox)
+│   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ and
+│   │                              Pietsch sandwich hₙ ≤ sₙ ≤ aₙ
+│   └── Injectivity.lean        ← injective / surjective s-numbers:
+│                                  cₙ injective, dₙ surjective (full proofs)
+├── BasicResults.lean           ← library entry point
 ├── BasicResults/
 │   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
-│   └── SVD.lean                ← compact-operator SVD (blueprint only)
+│   └── SVD.lean                ← compact SVD via singular-value iteration:
+│                                  norm_isSingularValue (proved), `SVD`,
+│                                  Eckart–Young, diagonal factorisation, and
+│                                  the scalar factorisation `B∘S∘A = c·id`
+│                                  (the s-numbers blackbox)
+├── AddOns.lean                 ← auxiliary library entry point
+├── AddOns/
+│   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact
+│   └── Compact.lean            ← compact ⇔ approximable on Hilbert
 ├── LICENSE                     ← Apache 2.0
 ├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
 └── blueprint/
@@ -54,14 +69,71 @@ artifact under *Actions → latest run → blueprint-web*.
 | Gelfand number `cₙ`                       | ✅ proved (S1–S5')  |
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
 |       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
-| Hilbert number `hₙ` (real case)           | 🟡 defined, no proof|
-| Pietsch's sandwich `hₙ ≤ sₙ ≤ aₙ`         | 🟡 upper proved     |
-| Hilbert-space coincidence (`s = a`)       | 🟡 declared, no proof|
+| Hilbert number `hₙ` (any `RCLike 𝕜`)      | ✅ proved (S1)–(S5); forms an s-number sequence |
+| Pietsch's sandwich `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved (modulo SVD blackbox) |
+| Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
+| Hilbert-space coincidence `sₙ = aₙ` (2.11.9) | ✅ proved (modulo SVD blackbox) |
+| Metric injection / surjection classes     | ✅ defined          |
+| `sₙ(J∘S) ≤ sₙ(S)`, `sₙ(S∘Q) ≤ sₙ(S)` (any `s`) | ✅ proved        |
+| Gelfand numbers `cₙ` **injective**        | ✅ proved           |
+| Kolmogorov numbers `dₙ` **surjective**    | ✅ proved           |
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
-| Compact-operator SVD blueprint            | 🟡 declared, no proof|
+| Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
+| `norm_isSingularValue` (compact attains norm) | ✅ proved        |
+| Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | 🟡 declared (singular-value iteration)|
+| Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | 🟡 declared, no proof|
+| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | 🟡 declared, no proof|
+| Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | 🟡 declared, no proof (the SVD blackbox the uniqueness theorem consumes)|
+| Compact ⇔ approximable on Hilbert         | 🟡 declared, no proof|
 
 A green check means fully proved (no `sorry`); 🟡 means the statement is
 in place but the proof is `sorry`.
+
+### Uniqueness on Hilbert spaces, and injective / surjective `s`-numbers
+
+* **Uniqueness (`SNumbers.Uniqueness`).** On Hilbert spaces every `s`-number
+  sequence equals the approximation numbers, `sₙ(S) = aₙ(S)`
+  (`allSNumbers_eq_on_HilbertSpace`, Pietsch 2.11.9). This is **fully proved
+  on top of one SVD input**: the scalar factorisation
+  `SVD.exists_scalar_factorisation` (`B∘S∘A = c·id` for `c < aₙ(S)`,
+  itself a `sorry` blackbox in `BasicResults.SVD`). The reduction uses the
+  reverse-homogeneity lemma `norm_smul_le_sn`, axiom (S3), axiom (S5), and
+  the already-proven upper bound `sn_le_approximationNumber`.
+* **Injective / surjective (`SNumbers.Injectivity`).** A sequence is
+  *injective* if `sₙ(J∘S) = sₙ(S)` for every metric injection `J`
+  (isometric embedding), *surjective* if `sₙ(S∘Q) = sₙ(S)` for every metric
+  surjection `Q` (quotient map). The "easy" inequality `≤` holds for every
+  `s`-number sequence (`sn_comp_metricInjection_le`,
+  `sn_comp_metricSurjection_le`). The two flagship facts are proved in
+  full: the **Gelfand numbers are injective** (`injective_gelfandNumber`)
+  and the **Kolmogorov numbers are surjective** (`surjective_kolmogorovNumber`),
+  because their defining restriction- / quotient-norms are literally
+  unchanged under composition with an isometry / metric surjection
+  (`‖J∘T‖ = ‖T‖`, `‖T∘Q‖ = ‖T‖`).
+
+The approximation numbers `aₙ` are neither injective nor surjective in
+general (their injective and surjective hulls are exactly `cₙ` and `dₙ`).
+The Hilbert numbers `hₙ` are both, though that is not yet formalised here.
+
+
+## Open `sorry`s
+
+The entire `SNumbers/` library is **`sorry`-free**: all five s-number
+sequences (`aₙ, bₙ, cₙ, dₙ, hₙ`) are proved to satisfy the Pietsch axioms,
+and the uniqueness/sandwich/injectivity results are complete *as
+reductions*. Every remaining `sorry` lives on the SVD side.
+
+* **`SVD.exists_scalar_factorisation`** (`BasicResults.SVD`) — *the*
+  important one: the Hilbert-space coincidence `sₙ = aₙ` (Pietsch 2.11.9), 
+  Pietsch's sandwich `hₙ ≤ sₙ ≤ aₙ`, and the whole comparison story are 
+  proved **modulo this one fact** (`B∘S∘A = c·id` for `c < aₙ(S)`, 
+  for *any* bounded `S`).
+  It needs the spectral theorem for bounded, positive (non-compact) operators, specifically the spectral subspace of `S*S` for `[c²,∞)`.
+* `SVD.IsCompactOperator.SVD`, `…truncation_residual_eq_approxNumber`
+  (Eckart–Young), `…diagonalFactorisation`, and
+  `SVD.IsCompactOperator.isApproximable` (compact ⇒ approximable on Hilbert)
+  — the standalone compact-SVD results, built on the *proved*
+  `norm_isSingularValue`. These are **not** consumed by the s-number core.
 
 ## Building
 

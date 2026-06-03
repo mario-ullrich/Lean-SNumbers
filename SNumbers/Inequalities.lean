@@ -3,101 +3,77 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Approximation
 import SNumbers.Hilbert
+import SNumbers.Uniqueness
 
 /-!
-# Comparison of `s`-number sequences
+# Comparison of `s`-number sequences (general spaces)
 
-Pietsch's classical extremality result: among all `s`-number sequences,
-the **Hilbert numbers** `hₙ` are the smallest and the **approximation
-numbers** `aₙ` are the largest.
+Pietsch's classical extremality result: among all `s`-number sequences, the
+**Hilbert numbers** `hₙ` are the smallest and the **approximation numbers**
+`aₙ` are the largest. This file collects the comparison statements that hold
+for operators between **arbitrary** `𝕜`-Banach spaces.
 
 ## Main results
 
-* `allSNumbers_eq_on_HilbertSpace` — on a Hilbert space, every `s`-number
-  sequence agrees with the approximation numbers (`sorry`).
-* `sn_le_approximationNumber` — upper bound `sₙ(S) ≤ aₙ(S)` (proved).
-* `hilbertNumber_le_sn` — lower bound `hₙ(S) ≤ sₙ(S)` over `ℝ` (`sorry`).
-* `hilbertNumber_le_sn_le_approximationNumber` — Pietsch's sandwich
-  theorem `hₙ(S) ≤ sₙ(S) ≤ aₙ(S)` (proved, modulo the two `sorry`s above).
+* `hilbertNumber_le_sn` — lower bound `hₙ(S) ≤ sₙ(S)`.
+* `hilbertNumber_le_sn_le_approximationNumber` — Pietsch's sandwich theorem
+  `hₙ(S) ≤ sₙ(S) ≤ aₙ(S)`.
 
-## Proof strategies
+## Where the ingredients live
 
-* **Hilbert coincidence.** Sketch: use the SVD of `S*S` to identify each
-  `s_n S` with the `(n+1)`-th singular value of `S`, which equals
-  `a_n S` by the Eckart–Young theorem. Left to a follow-up.
-* **Upper bound `sₙ ≤ aₙ`.** For any `A` with `rank A ≤ n` decompose
-  `S = A + (S - A)` and apply (S2): `sₙ(S) ≤ sₙ(A) + ‖S - A‖ = ‖S - A‖`
-  (the second equality by (S4)). Take the infimum over `A`.
-* **Lower bound `hₙ ≤ sₙ`.** For any contractions `A : ℓ₂ → X`, `B : Y → ℓ₂`
-  use (S3) to get `sₙ(BSA) ≤ sₙ(S)`. The Hilbert coincidence then gives
-  `aₙ(BSA) = sₙ(BSA) ≤ sₙ(S)`; supremum over `(A, B)` produces `hₙ(S)`.
-* **Sandwich.** Direct combination of the upper and lower bounds.
+The two halves of the sandwich rest on results in their natural homes:
+
+* the upper bound `sₙ(S) ≤ aₙ(S)` is `SNumbers.sn_le_approximationNumber`
+  (in `SNumbers.Approximation` — "`aₙ` is the largest");
+* reverse homogeneity `‖c‖ · sₙ(T) ≤ sₙ(c • T)` is `SNumbers.norm_smul_le_sn`
+  (in `SNumbers.Basic`);
+* the Hilbert-space coincidence `aₙ = sₙ`, used to bound each ratio
+  `aₙ(B ∘ S ∘ A)/(‖B‖‖A‖)` defining `hₙ`, is
+  `SNumbers.allSNumbers_eq_on_HilbertSpace` / the lower bound
+  `SNumbers.approximationNumber_le_sn` (in `SNumbers.Uniqueness`, Hilbert
+  spaces only, resting on the singular value decomposition).
+
+## Proof strategy for `hₙ ≤ sₙ`
+
+Each ratio `aₙ(B ∘ S ∘ A)/(‖B‖‖A‖)` defining `hₙ(S)` has `B ∘ S ∘ A` an
+operator **between Hilbert spaces** (`ℓ₂ → ℓ₂`), so the coincidence gives
+`aₙ(B ∘ S ∘ A) ≤ sₙ(B ∘ S ∘ A)`; the (S3) ideal property then bounds this by
+`‖B‖ · sₙ(S) · ‖A‖`. Dividing by `‖B‖‖A‖` and taking the supremum over the
+admissible `(A, B)` yields `hₙ(S) ≤ sₙ(S)`.
 -/
 
-namespace SNumbers
+universe u
 
 open ContinuousLinearMap
 
-/-! ### Hilbert-space coincidence theorem -/
+namespace SNumbers
 
-/-- On a Hilbert space, every `s`-number sequence agrees with the
-approximation numbers: `s S n = aₙ S` for every continuous linear map `S`
-between Hilbert spaces. -/
-theorem allSNumbers_eq_on_HilbertSpace
-    {𝕜 : Type u} [RCLike 𝕜]
-    {H₁ H₂ : Type u}
-    [NormedAddCommGroup H₁] [InnerProductSpace 𝕜 H₁] [CompleteSpace H₁]
-    [NormedAddCommGroup H₂] [InnerProductSpace 𝕜 H₂] [CompleteSpace H₂]
-    {s : Family 𝕜} (_hs : IsSNumberSequence s) (S : H₁ →L[𝕜] H₂) (n : ℕ) :
-    s S n = approximationNumber S n := by
-  sorry
+variable {𝕜 : Type u} [RCLike 𝕜]
+variable {X Y : Type u}
+variable [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+variable [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
 
-/-! ### Upper bound: `sₙ ≤ aₙ` -/
-
-variable {𝕜 : Type u} [NontriviallyNormedField 𝕜]
-variable {X : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X] [CompleteSpace X]
-variable {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 Y] [CompleteSpace Y]
-
-omit [CompleteSpace X] [CompleteSpace Y] in
-/-- For every `s`-number sequence and every operator `S : X → Y`,
-`sₙ(S) ≤ aₙ(S)`. The easy half of Pietsch's sandwich theorem; uses only
-axioms (S2) and (S4) of `IsSNumberSequence`. -/
-theorem sn_le_approximationNumber
-    {s : Family 𝕜} (hs : IsSNumberSequence s) (S : X →L[𝕜] Y) (n : ℕ) :
-    s S n ≤ approximationNumber S n := by
-  refine le_csInf (approximationSet_nonempty S n) ?_
-  rintro r ⟨A, hA, rfl⟩
-  have hS_eq : S = A + (S - A) := by abel
-  have h_low : s A n = 0 := hs.vanishes_on_low_rank A n hA
-  calc s S n
-      = s (A + (S - A)) n := by rw [← hS_eq]
-    _ ≤ s A n + ‖S - A‖ := hs.subadditive A (S - A) n
-    _ = ‖S - A‖ := by rw [h_low, zero_add]
-
-/-! ### Lower bound: `hₙ ≤ sₙ` (over `ℝ`)
-
-The Hilbert numbers were introduced for **real** Banach spaces in
-`SNumbers.Hilbert`, so the lower bound is stated only in that setting. -/
-
-variable {Xℝ : Type} [NormedAddCommGroup Xℝ] [NormedSpace ℝ Xℝ] [CompleteSpace Xℝ]
-variable {Yℝ : Type} [NormedAddCommGroup Yℝ] [NormedSpace ℝ Yℝ] [CompleteSpace Yℝ]
-
-/-- For every `s`-number sequence on real Banach spaces and every operator
-`S : Xℝ → Yℝ`, `hₙ(S) ≤ sₙ(S)`. -/
-theorem hilbertNumber_le_sn
-    {s : Family ℝ} (_hs : IsSNumberSequence s) (S : Xℝ →L[ℝ] Yℝ) (n : ℕ) :
+/-- **Lower bound.** The Hilbert numbers are the smallest `s`-number
+sequence: `hₙ(S) ≤ sₙ(S)` for every `s`-number sequence `s`. -/
+theorem hilbertNumber_le_sn {s : Family 𝕜} (hs : IsSNumberSequence s)
+    (S : X →L[𝕜] Y) (n : ℕ) :
     hilbertNumber S n ≤ s S n := by
-  sorry
+  rw [hilbertNumber_def]
+  refine Real.sSup_le ?_ (hs.nonneg S n)
+  rintro r ⟨A, B, hA, hB, rfl⟩
+  have hpos : 0 < ‖B‖ * ‖A‖ := mul_pos (norm_pos_iff.mpr hB) (norm_pos_iff.mpr hA)
+  rw [div_le_iff₀ hpos]
+  -- `B ∘ S ∘ A : ℓ₂ → ℓ₂` is between Hilbert spaces, so `aₙ = sₙ` on it.
+  calc approximationNumber (B.comp (S.comp A)) n
+      ≤ s (B.comp (S.comp A)) n := approximationNumber_le_sn hs (B.comp (S.comp A)) n
+    _ ≤ ‖B‖ * s S n * ‖A‖ := hs.ideal A S B n
+    _ = s S n * (‖B‖ * ‖A‖) := by ring
 
-/-! ### Pietsch's sandwich theorem -/
-
-/-- **Pietsch's sandwich theorem.** For every `s`-number sequence `s` on
-real Banach spaces and every bounded operator `S : Xℝ → Yℝ`:
-`hₙ(S) ≤ sₙ(S) ≤ aₙ(S)`. -/
-theorem hilbertNumber_le_sn_le_approximationNumber
-    {s : Family ℝ} (hs : IsSNumberSequence s) (S : Xℝ →L[ℝ] Yℝ) (n : ℕ) :
+/-- **Pietsch's sandwich theorem.** For every `s`-number sequence `s` and
+every bounded operator `S : X → Y`: `hₙ(S) ≤ sₙ(S) ≤ aₙ(S)`. -/
+theorem hilbertNumber_le_sn_le_approximationNumber {s : Family 𝕜}
+    (hs : IsSNumberSequence s) (S : X →L[𝕜] Y) (n : ℕ) :
     hilbertNumber S n ≤ s S n ∧ s S n ≤ approximationNumber S n :=
   ⟨hilbertNumber_le_sn hs S n, sn_le_approximationNumber hs S n⟩
 
