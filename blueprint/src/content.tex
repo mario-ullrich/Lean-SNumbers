@@ -89,9 +89,10 @@ a_n(S) := \inf \bigl\{ \|S - A\| : A \in \mathcal{L}(X, Y),
 \lean{SNumbers.isStrictSNumberSequence_approximationNumber}
 \leanok
 \uses{def:approximation-number, def:strict-s-number-sequence}
-The family $a = (a_n)_n$ satisfies all axioms (S1)--(S5) and the
-strengthening (S5$'$): $a_n(\mathrm{id}_X) = 1$ on every Banach space
-$X$ with $\dim X > n$.
+Let $X, Y$ be Banach spaces over $\mathbb{K}$. Then the approximation
+numbers $a = (a_n)_n$ form a \emph{strict} $s$-number sequence: they
+satisfy axioms (S1)--(S5) together with the strengthening (S5$'$),
+namely $a_n(\mathrm{id}_X) = 1$ whenever $\dim X > n$.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -134,11 +135,15 @@ b_n(S) := \sup_{\dim M = n+1}
 \lean{SNumbers.isStrictSNumberSequence_bernsteinNumber}
 \leanok
 \uses{def:bernstein-number, def:strict-s-number-sequence}
-The Bernstein numbers satisfy all five Pietsch axioms (S1)–(S5) and
-moreover the strengthening (S5$'$): $b_n(\mathrm{id}_X) = 1$ on every
-normed space $X$ with $\dim X > n$. The argument requires only
-\texttt{NontriviallyNormedField} on the scalar field~$\mathbb{K}$.
+Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
+over $\mathbb{K}$. Then the Bernstein numbers $b = (b_n)_n$ form a
+\emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
+strengthening (S5$'$), namely $b_n(\mathrm{id}_X) = 1$ whenever
+$\dim X > n$.
 \end{theorem}
+
+The argument needs only a non-trivially normed scalar field~$\mathbb{K}$ —
+no completeness, and no Riesz lemma.
 \begin{proof}
 \leanok
 The proof is fully formalized in \texttt{SNumbers/Bernstein.lean}, with a
@@ -200,13 +205,16 @@ c_n(S) := \inf \bigl\{ \|S \restriction_M\| :
 \lean{SNumbers.isStrictSNumberSequence_gelfandNumber}
 \leanok
 \uses{def:gelfand-number, def:strict-s-number-sequence}
-The Gelfand numbers satisfy all five Pietsch axioms (S1)–(S5) and
-moreover the strengthening (S5$'$): $c_n(\mathrm{id}_X) = 1$ on every
-normed space $X$ with $\dim X > n$. The argument requires only
-\texttt{NontriviallyNormedField} on the scalar field~$\mathbb{K}$;
-unlike its Kolmogorov dual it needs neither \texttt{CompleteSpace}
-$\mathbb{K}$ nor Riesz's lemma.
+Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
+over $\mathbb{K}$. Then the Gelfand numbers $c = (c_n)_n$ form a
+\emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
+strengthening (S5$'$), namely $c_n(\mathrm{id}_X) = 1$ whenever
+$\dim X > n$.
 \end{theorem}
+
+The argument needs only a non-trivially normed scalar field~$\mathbb{K}$;
+unlike its Kolmogorov dual it requires neither completeness of
+$\mathbb{K}$ nor Riesz's lemma.
 \begin{proof}
 \leanok
 The proof is fully formalized in \texttt{SNumbers/Gelfand.lean} and is
@@ -266,14 +274,16 @@ d_n(S) := \inf_{\substack{V \subseteq Y \\ \dim V \le n}}
 \lean{SNumbers.isStrictSNumberSequence_kolmogorovNumber}
 \leanok
 \uses{def:kolmogorov-number, def:strict-s-number-sequence}
-The Kolmogorov numbers satisfy all five Pietsch axioms (S1)–(S5) and
-moreover the strengthening (S5$'$): $d_n(\mathrm{id}_X) = 1$ on every
-Banach space $X$ with $\dim X > n$. The argument requires only
-\texttt{NontriviallyNormedField} on the scalar field $\mathbb{K}$, plus
-\texttt{CompleteSpace} $\mathbb{K}$ for the (S5$'$) step (which closes
-finite-dimensional subspaces via Riesz's lemma); it does \emph{not}
-require \texttt{DenselyNormedField} or completeness on $X$.
+Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
+over $\mathbb{K}$. Then the Kolmogorov numbers $d = (d_n)_n$ form a
+\emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
+strengthening (S5$'$), namely $d_n(\mathrm{id}_X) = 1$ whenever
+$\dim X > n$.
 \end{theorem}
+
+The (S5$'$) step additionally needs $\mathbb{K}$ \emph{complete} (to close
+finite-dimensional subspaces via Riesz's lemma); it requires neither a
+densely normed $\mathbb{K}$ nor completeness of $X$.
 \begin{proof}
 \leanok
 The proof is fully formalized in \texttt{SNumbers/Kolmogorov.lean}, via
@@ -356,6 +366,9 @@ h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
 \lean{SNumbers.isSNumberSequence_hilbertNumber}
 \leanok
 \uses{def:hilbert-number, def:approximation-number, def:s-number-sequence}
+Let $X, Y$ be Banach spaces. Then the Hilbert numbers $h = (h_n)_n$ form an
+$s$-number sequence: they satisfy axioms (S1)--(S5). (The strict
+normalisation (S5$'$) is not asserted.)
 \end{proposition}
 
 \chapter{Pietsch's sandwich theorem}
