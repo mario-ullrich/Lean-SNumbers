@@ -71,7 +71,7 @@ artifact under *Actions → latest run → blueprint-web*.
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
 |       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
 | Hilbert number `hₙ` (any `RCLike 𝕜`)      | ✅ proved (S1)–(S5); forms an s-number sequence |
-| Pietsch's sandwich `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved (modulo SVD blackbox) |
+| Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved (modulo SVD blackbox) |
 | Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
 | Hilbert-space coincidence `sₙ = aₙ` (2.11.9) | ✅ proved (modulo SVD blackbox) |
 | Metric injection / surjection classes     | ✅ defined          |
@@ -94,8 +94,7 @@ in place but the proof is `sorry`.
 
 * **Uniqueness (`SNumbers.Uniqueness`).** On Hilbert spaces every `s`-number
   sequence equals the approximation numbers, `sₙ(S) = aₙ(S)`
-  (`allSNumbers_eq_on_HilbertSpace`, Pietsch 2.11.9). This is **fully proved
-  on top of one SVD input**: the scalar factorisation
+  (`allSNumbers_eq_on_HilbertSpace`, Pietsch 2.11.9). This is **proved based on an unproved SVD result**: the scalar factorisation
   `SVD.exists_scalar_factorisation` (`B∘S∘A = c·id` for `c < aₙ(S)`,
   itself a `sorry` blackbox in `BasicResults.SVD`). The reduction uses the
   reverse-homogeneity lemma `norm_smul_le_sn`, axiom (S3), axiom (S5), and
@@ -119,10 +118,8 @@ The Hilbert numbers `hₙ` are both, though that is not yet formalised here.
 
 ## Open `sorry`s
 
-The entire `SNumbers/` library is **`sorry`-free**: all five s-number
-sequences (`aₙ, bₙ, cₙ, dₙ, hₙ`) are proved to satisfy the Pietsch axioms,
-and the uniqueness/sandwich/injectivity results are complete *as
-reductions*. Every remaining `sorry` lives on the SVD side.
+All remaining `sorry`s concern the SVD, as listed below. (This has to be done elsewhere.) 
+Given that, the entire `SNumbers/` library is **`sorry`-free**.
 
 * **`SVD.exists_scalar_factorisation`** (`BasicResults.SVD`) — *the*
   important one: the Hilbert-space coincidence `sₙ = aₙ` (Pietsch 2.11.9), 

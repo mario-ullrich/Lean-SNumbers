@@ -22,10 +22,10 @@ operators that the `s`-numbers uniqueness theorem consumes.
 
 ## Main results
 
-* `SVD.IsCompactOperator.norm_isSingularValue` (Pietsch §2.11.7) — every
+* `SVD.IsCompactOperator.norm_isSingularValue` — every
   compact operator attains its operator norm as a singular value
   (**proved**).
-* `SVD.IsCompactOperator.SVD` (Pietsch §2.11.8) — the singular value
+* `SVD.IsCompactOperator.SVD` — the singular value
   decomposition / Schmidt representation `S x = Σ aₖ ⟨uₖ,x⟩ vₖ`. Needs the
   *infinite* iteration plus the convergence facts `σₖ → 0`, `HasSum`.
 * `SVD.IsCompactOperator.truncation_residual_eq_approxNumber` — Eckart–Young
@@ -66,7 +66,7 @@ private lemma exists_unit (H : Type u) [NormedAddCommGroup H]
   ⟨(‖x‖ : 𝕜)⁻¹ • x, by
     simp [norm_smul, inv_mul_cancel₀ (norm_pos_iff.mpr hx).ne']⟩
 
-/-- **Pietsch §2.11.7.** Every compact operator between Hilbert spaces
+/-- Every compact operator between Hilbert spaces
 attains its norm as a singular value: there exist unit vectors `u`, `v`
 with `S u = ‖S‖ • v` and `S* v = ‖S‖ • u`.
 
@@ -191,8 +191,8 @@ theorem IsCompactOperator.norm_isSingularValue
   · rw [hSu, hvdef, smul_smul, mul_inv_cancel₀ hKne, one_smul]
   · rw [hudef, smul_smul, mul_inv_cancel₀ hKne, one_smul]
 
-/-- **Singular value decomposition / Schmidt representation
-(Pietsch §2.11.8).** Every compact operator between Hilbert spaces has a
+/-- **Singular value decomposition / Schmidt representation.**
+Every compact operator between Hilbert spaces has a
 Schmidt expansion
 
   `S x = Σ σₖ ⟨uₖ, x⟩ vₖ`,
@@ -200,7 +200,7 @@ Schmidt expansion
 with orthonormal sequences `(uₖ) ⊆ H₁`, `(vₖ) ⊆ H₂` and singular values
 `σ₀ ≥ σ₁ ≥ ⋯ → 0`.
 
-**Proof outline** (Pietsch 2.11.8, by iterating `norm_isSingularValue`):
+**Proof outline** (by iterating `norm_isSingularValue`):
 
 1. *Iteration.* Set `S₀ := S`. Given `Sₙ` (compact), apply
    `IsCompactOperator.norm_isSingularValue` to obtain unit vectors

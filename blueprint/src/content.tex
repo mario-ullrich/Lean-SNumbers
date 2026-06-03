@@ -427,18 +427,17 @@ The strategy maximises $|\det|$ on a product of unit balls, then reads off
 the basis and dual functionals from the maximiser.
 \end{proof}
 
-\chapter{Singular value decomposition (Pietsch \S2.11)}
+\chapter{Singular value decomposition}
 \label{ch:svd}
 
-The singular value decomposition of a compact operator between Hilbert
-spaces is formalised in \texttt{BasicResults.SVD}, following Pietsch,
-\emph{Eigenvalues and s-numbers}, \S2.11, via the \emph{singular-value
-iteration} (repeatedly peeling off the top singular pair). The auxiliary
-class of \emph{approximable} operators (those whose approximation numbers
-$a_n$ tend to zero) and its identification with the compact operators on
-Hilbert spaces live in the separate \texttt{AddOns} library; this split
-mirrors Pietsch and avoids relying on any approximation-property
-hypothesis on the underlying space.
+The singular value decomposition (Schmidt representation) of a compact
+operator between Hilbert spaces is formalised in \texttt{BasicResults.SVD},
+via the \emph{singular-value iteration} (repeatedly peeling off the top
+singular pair). The auxiliary class of \emph{approximable} operators (those
+whose approximation numbers $a_n$ tend to zero) and its identification with
+the compact operators on Hilbert spaces live in the separate
+\texttt{AddOns} library; this split avoids relying on any
+approximation-property hypothesis on the underlying space.
 
 \section{Approximable operators}
 \label{sec:svd-approximable}
@@ -507,7 +506,7 @@ is then preserved under operator-norm limits
 For the rest of this chapter, $H_1, H_2$ are Hilbert spaces over
 $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$.
 
-\begin{theorem}[Norm attained as a singular value (Pietsch \S2.11.7)]
+\begin{theorem}[Norm attained as a singular value]
 \label{thm:norm-singular-value}
 \lean{SVD.IsCompactOperator.norm_isSingularValue}
 \leanok
@@ -599,8 +598,8 @@ Unlike the diagonal factorisation this holds for \emph{arbitrary} bounded
 $S$ (no compactness): the strict inequality $c < a_n(S)$ needs only an
 $(n+1)$-dimensional subspace on which $\|S x\| \ge c\|x\|$, which exists for
 every bounded operator. It is the precise form of SVD that the uniqueness
-theorem of $s$-numbers on Hilbert spaces (Pietsch 2.11.9,
-Theorem~\ref{thm:all-eq-on-hilbert}) consumes.
+theorem of $s$-numbers on Hilbert spaces
+(Theorem~\ref{thm:all-eq-on-hilbert}) consumes.
 
 \section{Compact $\Leftrightarrow$ approximable on Hilbert spaces}
 \label{sec:svd-compact-equiv}
