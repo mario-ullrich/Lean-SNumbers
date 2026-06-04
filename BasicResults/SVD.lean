@@ -40,10 +40,10 @@ operators that the `s`-numbers uniqueness theorem consumes.
   for an **arbitrary bounded** `S`. This is the single SVD input consumed
   by `SNumbers.Uniqueness`.
 
-Of these, `norm_isSingularValue` (the analytic heart) and
-`truncation_residual_eq_approxNumber` (Eckart–Young, built on `SVD`) are
-**proved**; `SVD`, `diagonalFactorisation`, and `exists_scalar_factorisation`
-remain `sorry`.
+Of these, `norm_isSingularValue` (the analytic heart),
+`truncation_residual_eq_approxNumber` (Eckart–Young) and
+`diagonalFactorisation` (the latter two built on `SVD`) are **proved**;
+`SVD` and `exists_scalar_factorisation` remain `sorry`.
 -/
 
 universe u
@@ -259,6 +259,150 @@ private lemma norm_sum_smul_sq {ι : Type*} {H : Type u} [NormedAddCommGroup H]
   rw [mul_comm, RCLike.mul_conj]
   simp
 
+/-- From the SVD data, `S uₖ = σₖ vₖ` (collapse the `HasSum` at `uₖ`). -/
+private lemma svd_apply_left {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₂}
+    (hu : Orthonormal 𝕜 u)
+    (hsum : ∀ x, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x)) (k : ℕ) :
+    S (u k) = (σ k : 𝕜) • v k := by
+  refine HasSum.unique (hsum (u k)) ?_
+  have hfun : (fun j => ((σ j : 𝕜) * inner 𝕜 (u j) (u k)) • v j)
+      = fun j => if j = k then (σ k : 𝕜) • v k else 0 := by
+    funext j
+    rw [orthonormal_iff_ite.mp hu j k]
+    by_cases hjk : j = k
+    · subst hjk; simp
+    · simp [hjk]
+  rw [hfun]; exact hasSum_ite_eq k _
+
+/-- From the SVD data, the `m`-th singular value equals the `m`-th approximation
+number, `σ m = aₘ(S)` (the Eckart–Young squeeze, isolated for reuse):
+`aₘ ≤ ‖S - Lₘ‖ ≤ σ m ≤ aₘ`, where `Lₘ` is the rank-`m` truncation and the last
+inequality uses that `span{u₀,…,uₘ}` witnesses `bₘ(S) ≥ σ m` together with
+`bₘ ≤ aₘ`. -/
+private lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁}
+    {v : ℕ → H₂} (hσ0 : ∀ k, 0 ≤ σ k) (hσanti : Antitone σ) (hu : Orthonormal 𝕜 u)
+    (hv : Orthonormal 𝕜 v)
+    (hsum : ∀ x, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x)) (m : ℕ) :
+    σ m = SNumbers.approximationNumber S m := by
+  classical
+  set L : H₁ →L[𝕜] H₂ :=
+    ∑ k ∈ Finset.range m, (σ k : 𝕜) • (innerSL 𝕜 (u k)).smulRight (v k) with hLdef
+  have hLx : ∀ x : H₁, L x =
+      ∑ k ∈ Finset.range m, (σ k : 𝕜) • ((inner 𝕜 (u k) x : 𝕜) • v k) := by
+    intro x
+    simp only [hLdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
+  have hrankL : L.rank ≤ (m : Cardinal) := by
+    have hrange : LinearMap.range (L : H₁ →ₗ[𝕜] H₂) ≤
+        Submodule.span 𝕜 (↑(Finset.image v (Finset.range m)) : Set H₂) := by
+      intro y hy
+      rw [LinearMap.mem_range] at hy
+      obtain ⟨x, rfl⟩ := hy
+      rw [ContinuousLinearMap.coe_coe, hLx x]
+      refine Submodule.sum_mem _ fun k hk =>
+        Submodule.smul_mem _ _ (Submodule.smul_mem _ _ ?_)
+      exact Submodule.subset_span (Finset.mem_coe.mpr (Finset.mem_image_of_mem v hk))
+    show Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂)) ≤ (m : Cardinal)
+    calc Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂))
+        ≤ Module.rank 𝕜 (Submodule.span 𝕜 (↑(Finset.image v (Finset.range m)) : Set H₂)) :=
+          Submodule.rank_mono hrange
+      _ ≤ #(↑(Finset.image v (Finset.range m)) : Set H₂) := rank_span_le _
+      _ = ((Finset.image v (Finset.range m)).card : Cardinal) := Cardinal.mk_coe_finset
+      _ ≤ ((Finset.range m).card : Cardinal) := by exact_mod_cast Finset.card_image_le
+      _ = (m : Cardinal) := by rw [Finset.card_range]
+  have hge : SNumbers.approximationNumber S m ≤ ‖S - L‖ :=
+    SNumbers.approximationNumber_le_norm_sub hrankL
+  have hle : ‖S - L‖ ≤ σ m := by
+    refine ContinuousLinearMap.opNorm_le_bound _ (hσ0 m) fun x => ?_
+    have hLg : L x = ∑ k ∈ Finset.range m, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
+      rw [hLx x]; exact Finset.sum_congr rfl fun k _ => by rw [smul_smul]
+    have hpartial : ∀ w : Finset ℕ, (∀ k ∈ w, m ≤ k) →
+        ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ≤ σ m * ‖x‖ := by
+      intro w hw
+      have hsq : ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ^ 2
+          ≤ (σ m * ‖x‖) ^ 2 := by
+        rw [norm_sum_smul_sq hv (fun k => (σ k : 𝕜) * inner 𝕜 (u k) x) w]
+        calc ∑ k ∈ w, ‖(σ k : 𝕜) * inner 𝕜 (u k) x‖ ^ 2
+            = ∑ k ∈ w, σ k ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 := by
+              refine Finset.sum_congr rfl fun k _ => ?_
+              rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 k)]
+          _ ≤ ∑ k ∈ w, σ m ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 :=
+              Finset.sum_le_sum fun k hk =>
+                mul_le_mul_of_nonneg_right
+                  (pow_le_pow_left₀ (hσ0 k) (hσanti (hw k hk)) 2) (sq_nonneg _)
+          _ = σ m ^ 2 * ∑ k ∈ w, ‖inner 𝕜 (u k) x‖ ^ 2 := by rw [Finset.mul_sum]
+          _ ≤ σ m ^ 2 * ‖x‖ ^ 2 :=
+              mul_le_mul_of_nonneg_left (hu.sum_inner_products_le x) (sq_nonneg _)
+          _ = (σ m * ‖x‖) ^ 2 := by rw [mul_pow]
+      have hnn : 0 ≤ σ m * ‖x‖ := mul_nonneg (hσ0 m) (norm_nonneg _)
+      have hsqrt := Real.sqrt_le_sqrt hsq
+      rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq hnn] at hsqrt
+    have htend0 : Tendsto
+        (fun t : Finset ℕ => ∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k))
+        atTop (𝓝 (S x)) := hsum x
+    have htend : Tendsto
+        (fun t : Finset ℕ => ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖)
+        atTop (𝓝 ‖S x - L x‖) := (htend0.sub_const (L x)).norm
+    have hev : ∀ᶠ t : Finset ℕ in atTop,
+        ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖ ≤ σ m * ‖x‖ := by
+      rw [Filter.eventually_atTop]
+      refine ⟨Finset.range m, fun t ht => ?_⟩
+      have hsub : (∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x
+          = ∑ k ∈ t \ Finset.range m, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
+        rw [hLg, ← Finset.sum_sdiff ht]; abel
+      rw [hsub]
+      exact hpartial _ fun k hk =>
+        not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
+    have hbound : ‖S x - L x‖ ≤ σ m * ‖x‖ := le_of_tendsto htend hev
+    rwa [ContinuousLinearMap.sub_apply]
+  have hσa : σ m ≤ SNumbers.approximationNumber S m := by
+    set M : Submodule 𝕜 H₁ :=
+      Submodule.span 𝕜 (Set.range (fun i : Fin (m + 1) => u i)) with hMdef
+    have he_orth : Orthonormal 𝕜 (fun i : Fin (m + 1) => u i) :=
+      hu.comp _ Fin.val_injective
+    have he_li : LinearIndependent 𝕜 (fun i : Fin (m + 1) => u i) :=
+      he_orth.linearIndependent
+    have hMrank : Module.rank 𝕜 M = ((m + 1 : ℕ) : Cardinal) := by
+      classical
+      haveI : Fintype (Set.range (fun i : Fin (m + 1) => u i)) := Set.fintypeRange _
+      rw [hMdef, rank_span he_li, Cardinal.mk_fintype,
+        Set.card_range_of_injective he_li.injective, Fintype.card_fin]
+    have hMne : M ≠ ⊥ := by
+      intro h; rw [h, rank_bot] at hMrank
+      exact (Nat.cast_ne_zero.mpr (Nat.succ_ne_zero m)) hMrank.symm
+    have hgain : σ m ≤ SNumbers.gainOnSubspace S M := by
+      refine SNumbers.le_gainOnSubspace hMne fun x hxM hxne => ?_
+      rw [le_div_iff₀ (norm_pos_iff.mpr hxne)]
+      obtain ⟨a, ha⟩ := (Submodule.mem_span_range_iff_exists_fun 𝕜).mp hxM
+      have hxnorm : ‖x‖ ^ 2 = ∑ i, ‖a i‖ ^ 2 := by
+        rw [← ha]; exact norm_sum_smul_sq he_orth a Finset.univ
+      have hSx : S x = ∑ i : Fin (m + 1), (a i * (σ (i : ℕ) : 𝕜)) • v i := by
+        rw [← ha, map_sum]
+        exact Finset.sum_congr rfl fun i _ => by
+          simp only [map_smul, svd_apply_left hu hsum, smul_smul]
+      have hSxnorm : ‖S x‖ ^ 2 = ∑ i, ‖a i * (σ (i : ℕ) : 𝕜)‖ ^ 2 := by
+        rw [hSx]; exact norm_sum_smul_sq (hv.comp _ Fin.val_injective) _ Finset.univ
+      have hkey : (σ m) ^ 2 * ‖x‖ ^ 2 ≤ ‖S x‖ ^ 2 := by
+        rw [hxnorm, hSxnorm, Finset.mul_sum]
+        refine Finset.sum_le_sum fun i _ => ?_
+        rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 _),
+          mul_comm (‖a i‖ ^ 2)]
+        exact mul_le_mul_of_nonneg_right
+          (pow_le_pow_left₀ (hσ0 m) (hσanti (Fin.is_le i)) 2) (sq_nonneg _)
+      have hnn : 0 ≤ σ m * ‖x‖ := mul_nonneg (hσ0 m) (norm_nonneg _)
+      have hkey2 : (σ m * ‖x‖) ^ 2 ≤ ‖S x‖ ^ 2 := by rw [mul_pow]; exact hkey
+      have hsqrt := Real.sqrt_le_sqrt hkey2
+      rwa [Real.sqrt_sq hnn, Real.sqrt_sq (norm_nonneg _)] at hsqrt
+    have hbern : σ m ≤ SNumbers.bernsteinNumber S m := by
+      refine hgain.trans ?_
+      unfold SNumbers.bernsteinNumber
+      refine le_csSup ⟨‖S‖, ?_⟩ ⟨M, hMrank, rfl⟩
+      rintro r ⟨M', _, rfl⟩
+      exact SNumbers.gainOnSubspace_le_norm S M'
+    exact hbern.trans (SNumbers.sn_le_approximationNumber
+      SNumbers.isStrictSNumberSequence_bernsteinNumber.toIsSNumberSequence S m)
+  exact le_antisymm hσa (hge.trans hle)
+
 /-- **Eckart–Young.** Some rank-`n` operator `L` attains the approximation
 number: `‖S - L‖ = aₙ(S)` (the truncated SVD). In particular the infimum
 defining `aₙ(S)` is attained on Hilbert spaces. -/
@@ -440,7 +584,73 @@ theorem IsCompactOperator.diagonalFactorisation
         B (S (A (EuclideanSpace.single k (1 : 𝕜)))) =
           (SNumbers.approximationNumber S k : 𝕜) •
             EuclideanSpace.single k (1 : 𝕜) := by
-  sorry
+  obtain ⟨σ, u, v, hσ0, hσanti, hu, hv, _hσlim, hsum⟩ := IsCompactOperator.SVD hS
+  have hσeq : ∀ m, σ m = SNumbers.approximationNumber S m :=
+    svd_sigma_eq_approx hσ0 hσanti hu hv hsum
+  -- `A : eₖ ↦ uₖ` (isometry) and `B : y ↦ ∑ ⟨vₖ,·⟩ eₖ` (contraction).
+  set A : EuclideanSpace 𝕜 (Fin (n + 1)) →L[𝕜] H₁ :=
+    ∑ k : Fin (n + 1), (innerSL 𝕜 (EuclideanSpace.single k (1 : 𝕜))).smulRight (u k)
+    with hAdef
+  set B : H₂ →L[𝕜] EuclideanSpace 𝕜 (Fin (n + 1)) :=
+    ∑ k : Fin (n + 1), (innerSL 𝕜 (v k)).smulRight (EuclideanSpace.single k (1 : 𝕜))
+    with hBdef
+  refine ⟨A, B, ?_, ?_, ?_⟩
+  · -- `‖A‖ ≤ 1`: `A` is an isometry onto `span{u₀,…,uₙ}`.
+    refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => ?_
+    rw [one_mul]
+    have hAx : A x = ∑ k : Fin (n + 1), (x k) • u k := by
+      simp only [hAdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smulRight_apply,
+        innerSL_apply_apply, EuclideanSpace.inner_single_left, map_one, one_mul]
+    have hsq : ‖A x‖ ^ 2 = ‖x‖ ^ 2 := by
+      have h1 : ‖A x‖ ^ 2 = ∑ k : Fin (n + 1), ‖x k‖ ^ 2 := by
+        rw [hAx]
+        exact norm_sum_smul_sq (hu.comp _ Fin.val_injective) (fun k => x k) Finset.univ
+      have h2 : ‖x‖ ^ 2 = ∑ k : Fin (n + 1), ‖x k‖ ^ 2 := by
+        rw [EuclideanSpace.norm_eq, Real.sq_sqrt (Finset.sum_nonneg fun _ _ => sq_nonneg _)]
+      rw [h1, h2]
+    refine le_of_eq ?_
+    calc ‖A x‖ = Real.sqrt (‖A x‖ ^ 2) := (Real.sqrt_sq (norm_nonneg _)).symm
+      _ = Real.sqrt (‖x‖ ^ 2) := by rw [hsq]
+      _ = ‖x‖ := Real.sqrt_sq (norm_nonneg _)
+  · -- `‖B‖ ≤ 1`: Bessel's inequality.
+    refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun y => ?_
+    rw [one_mul]
+    have hBy : B y =
+        ∑ k : Fin (n + 1), (inner 𝕜 (v k) y : 𝕜) • EuclideanSpace.single k (1 : 𝕜) := by
+      simp only [hBdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smulRight_apply,
+        innerSL_apply_apply]
+    have hsq : ‖B y‖ ^ 2 ≤ ‖y‖ ^ 2 := by
+      have h1 : ‖B y‖ ^ 2 = ∑ k : Fin (n + 1), ‖inner 𝕜 (v k) y‖ ^ 2 := by
+        rw [hBy]
+        exact norm_sum_smul_sq
+          (EuclideanSpace.orthonormal_single :
+            Orthonormal 𝕜 (fun i : Fin (n + 1) => EuclideanSpace.single i (1 : 𝕜)))
+          (fun k => inner 𝕜 (v k) y) Finset.univ
+      rw [h1]
+      exact (hv.comp _ Fin.val_injective).sum_inner_products_le y
+    have hsqrt := Real.sqrt_le_sqrt hsq
+    rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)] at hsqrt
+  · -- Diagonalisation: `B (S (A eₖ)) = B (S uₖ) = B (σₖ vₖ) = σₖ eₖ = aₖ eₖ`.
+    intro k
+    have hAk : A (EuclideanSpace.single k (1 : 𝕜)) = u k := by
+      rw [hAdef, ContinuousLinearMap.sum_apply]
+      refine (Finset.sum_eq_single k ?_ ?_).trans ?_
+      · intro j _ hjk
+        simp [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
+          EuclideanSpace.inner_single_left, hjk]
+      · intro h; exact absurd (Finset.mem_univ k) h
+      · simp [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
+          EuclideanSpace.inner_single_left]
+    have hBvk : B (v k) = EuclideanSpace.single k (1 : 𝕜) := by
+      rw [hBdef, ContinuousLinearMap.sum_apply]
+      refine (Finset.sum_eq_single k ?_ ?_).trans ?_
+      · intro j _ hjk
+        simp only [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
+          orthonormal_iff_ite.mp hv ↑j ↑k, if_neg (Fin.val_injective.ne hjk), zero_smul]
+      · intro h; exact absurd (Finset.mem_univ k) h
+      · rw [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
+          orthonormal_iff_ite.mp hv ↑k ↑k, if_pos rfl, one_smul]
+    rw [hAk, svd_apply_left hu hsum (k : ℕ), map_smul, hBvk, hσeq (k : ℕ)]
 
 /-! ### Scalar factorisation (general operators)
 
