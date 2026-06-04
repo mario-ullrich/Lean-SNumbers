@@ -7,6 +7,7 @@ import Mathlib.Analysis.InnerProductSpace.Adjoint
 import Mathlib.Analysis.InnerProductSpace.LinearMap
 import Mathlib.Analysis.Normed.Operator.Compact.Basic
 import SNumbers.Approximation
+import SNumbers.Bernstein
 
 /-!
 # Singular value decomposition of a Hilbert-space operator
@@ -39,8 +40,10 @@ operators that the `s`-numbers uniqueness theorem consumes.
   for an **arbitrary bounded** `S`. This is the single SVD input consumed
   by `SNumbers.Uniqueness`.
 
-All four are currently stated with `sorry`; `norm_isSingularValue` — the
-analytic heart — is proved.
+Of these, `norm_isSingularValue` (the analytic heart) and
+`truncation_residual_eq_approxNumber` (Eckart–Young, built on `SVD`) are
+**proved**; `SVD`, `diagonalFactorisation`, and `exists_scalar_factorisation`
+remain `sorry`.
 -/
 
 universe u
@@ -246,6 +249,16 @@ approximation, with residual `‖S - Sₙ‖ = σₙ`. Since the truncation has
 rank `≤ n`, this is `≥ aₙ(S)`, and minimality gives equality: the `k`-th
 singular value equals the `k`-th approximation number, `σₖ = aₖ(S)`. -/
 
+/-- Finite Pythagoras for an orthonormal family: `‖∑ cₖ • wₖ‖² = ∑ ‖cₖ‖²`. -/
+private lemma norm_sum_smul_sq {ι : Type*} {H : Type u} [NormedAddCommGroup H]
+    [InnerProductSpace 𝕜 H] {w : ι → H} (hw : Orthonormal 𝕜 w) (c : ι → 𝕜)
+    (s : Finset ι) :
+    ‖∑ k ∈ s, c k • w k‖ ^ 2 = ∑ k ∈ s, ‖c k‖ ^ 2 := by
+  rw [← @inner_self_eq_norm_sq 𝕜, hw.inner_sum, map_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [mul_comm, RCLike.mul_conj]
+  simp
+
 /-- **Eckart–Young.** Some rank-`n` operator `L` attains the approximation
 number: `‖S - L‖ = aₙ(S)` (the truncated SVD). In particular the infimum
 defining `aₙ(S)` is attained on Hilbert spaces. -/
@@ -265,8 +278,8 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
     intro x
     simp only [hLdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
       ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
-  refine ⟨L, ?_, ?_⟩
-  · -- `rank L ≤ n`: the range lies in `span {v₀, …, v_{n-1}}`.
+  -- `rank L ≤ n`: the range lies in `span {v₀, …, v_{n-1}}`.
+  have hrankL : L.rank ≤ (n : Cardinal) := by
     have hrange : LinearMap.range (L : H₁ →ₗ[𝕜] H₂) ≤
         Submodule.span 𝕜 (↑(Finset.image v (Finset.range n)) : Set H₂) := by
       intro y hy
@@ -284,15 +297,117 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
       _ = ((Finset.image v (Finset.range n)).card : Cardinal) := Cardinal.mk_coe_finset
       _ ≤ ((Finset.range n).card : Cardinal) := by exact_mod_cast Finset.card_image_le
       _ = (n : Cardinal) := by rw [Finset.card_range]
-  · -- `‖S - L‖ = aₙ(S)`.  Remaining analytic core, in three steps:
-    --  (i)   `aₙ(S) ≤ ‖S - L‖`  — `approximationNumber_le_norm_sub` with `rank L ≤ n`.
-    --  (ii)  `‖S - L‖ ≤ σ n`    — the residual is `∑_{k ≥ n} σₖ⟨uₖ,·⟩vₖ`; orthonormal
-    --        Pythagoras + Bessel bound every finite partial sum by `σ n · ‖x‖`, then
-    --        `le_of_tendsto` on the SVD `HasSum` gives the operator-norm bound.
-    --  (iii) `σ n ≤ aₙ(S)`      — `span{u₀,…,uₙ}` (dimension `n+1`) witnesses
-    --        `bernsteinNumber S n ≥ σ n`, and `bₙ ≤ aₙ` by `sn_le_approximationNumber`.
-    -- Combine: `aₙ ≤ ‖S - L‖ ≤ σ n ≤ aₙ`.
-    sorry
+  refine ⟨L, hrankL, ?_⟩
+  -- (i) `aₙ(S) ≤ ‖S - L‖` since `rank L ≤ n`.
+  have hge : SNumbers.approximationNumber S n ≤ ‖S - L‖ :=
+    SNumbers.approximationNumber_le_norm_sub hrankL
+  -- (ii) `‖S - L‖ ≤ σ n`: the residual is the orthonormal tail `∑_{k ≥ n} σₖ⟨uₖ,·⟩vₖ`.
+  have hle : ‖S - L‖ ≤ σ n := by
+    refine ContinuousLinearMap.opNorm_le_bound _ (hσ0 n) fun x => ?_
+    have hLg : L x = ∑ k ∈ Finset.range n, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
+      rw [hLx x]; exact Finset.sum_congr rfl fun k _ => by rw [smul_smul]
+    -- every finite tail-block has norm `≤ σ n · ‖x‖`.
+    have hpartial : ∀ w : Finset ℕ, (∀ k ∈ w, n ≤ k) →
+        ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ≤ σ n * ‖x‖ := by
+      intro w hw
+      have hsq : ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ^ 2
+          ≤ (σ n * ‖x‖) ^ 2 := by
+        rw [norm_sum_smul_sq hv (fun k => (σ k : 𝕜) * inner 𝕜 (u k) x) w]
+        calc ∑ k ∈ w, ‖(σ k : 𝕜) * inner 𝕜 (u k) x‖ ^ 2
+            = ∑ k ∈ w, σ k ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 := by
+              refine Finset.sum_congr rfl fun k _ => ?_
+              rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 k)]
+          _ ≤ ∑ k ∈ w, σ n ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 :=
+              Finset.sum_le_sum fun k hk =>
+                mul_le_mul_of_nonneg_right
+                  (pow_le_pow_left₀ (hσ0 k) (hσanti (hw k hk)) 2) (sq_nonneg _)
+          _ = σ n ^ 2 * ∑ k ∈ w, ‖inner 𝕜 (u k) x‖ ^ 2 := by rw [Finset.mul_sum]
+          _ ≤ σ n ^ 2 * ‖x‖ ^ 2 :=
+              mul_le_mul_of_nonneg_left (hu.sum_inner_products_le x) (sq_nonneg _)
+          _ = (σ n * ‖x‖) ^ 2 := by rw [mul_pow]
+      have hnn : 0 ≤ σ n * ‖x‖ := mul_nonneg (hσ0 n) (norm_nonneg _)
+      have hsqrt := Real.sqrt_le_sqrt hsq
+      rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq hnn] at hsqrt
+    have htend0 : Tendsto
+        (fun t : Finset ℕ => ∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k))
+        atTop (𝓝 (S x)) := hsum x
+    have htend : Tendsto
+        (fun t : Finset ℕ => ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖)
+        atTop (𝓝 ‖S x - L x‖) := (htend0.sub_const (L x)).norm
+    have hev : ∀ᶠ t : Finset ℕ in atTop,
+        ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖ ≤ σ n * ‖x‖ := by
+      rw [Filter.eventually_atTop]
+      refine ⟨Finset.range n, fun t ht => ?_⟩
+      have hsub : (∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x
+          = ∑ k ∈ t \ Finset.range n, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
+        rw [hLg, ← Finset.sum_sdiff ht]; abel
+      rw [hsub]
+      exact hpartial _ fun k hk =>
+        not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
+    have hbound : ‖S x - L x‖ ≤ σ n * ‖x‖ := le_of_tendsto htend hev
+    rwa [ContinuousLinearMap.sub_apply]
+  -- Singular pairs: `S uₖ = σₖ vₖ` (collapse the SVD `HasSum` at `uₖ`).
+  have hSu : ∀ k : ℕ, S (u k) = (σ k : 𝕜) • v k := by
+    intro k
+    refine HasSum.unique (hsum (u k)) ?_
+    have hfun : (fun j => ((σ j : 𝕜) * inner 𝕜 (u j) (u k)) • v j)
+        = fun j => if j = k then (σ k : 𝕜) • v k else 0 := by
+      funext j
+      rw [orthonormal_iff_ite.mp hu j k]
+      by_cases hjk : j = k
+      · subst hjk; simp
+      · simp [hjk]
+    rw [hfun]; exact hasSum_ite_eq k _
+  -- (iii) `σ n ≤ aₙ(S)`, via the `(n+1)`-dimensional subspace `M = span{u₀,…,uₙ}`.
+  have hσa : σ n ≤ SNumbers.approximationNumber S n := by
+    set M : Submodule 𝕜 H₁ :=
+      Submodule.span 𝕜 (Set.range (fun i : Fin (n + 1) => u i)) with hMdef
+    have he_orth : Orthonormal 𝕜 (fun i : Fin (n + 1) => u i) :=
+      hu.comp _ Fin.val_injective
+    have he_li : LinearIndependent 𝕜 (fun i : Fin (n + 1) => u i) :=
+      he_orth.linearIndependent
+    have hMrank : Module.rank 𝕜 M = ((n + 1 : ℕ) : Cardinal) := by
+      classical
+      haveI : Fintype (Set.range (fun i : Fin (n + 1) => u i)) := Set.fintypeRange _
+      rw [hMdef, rank_span he_li, Cardinal.mk_fintype,
+        Set.card_range_of_injective he_li.injective, Fintype.card_fin]
+    have hMne : M ≠ ⊥ := by
+      intro h; rw [h, rank_bot] at hMrank
+      exact (Nat.cast_ne_zero.mpr (Nat.succ_ne_zero n)) hMrank.symm
+    -- Gain bound: every nonzero `x ∈ M` satisfies `σ n ≤ ‖S x‖ / ‖x‖`.
+    have hgain : σ n ≤ SNumbers.gainOnSubspace S M := by
+      refine SNumbers.le_gainOnSubspace hMne fun x hxM hxne => ?_
+      rw [le_div_iff₀ (norm_pos_iff.mpr hxne)]
+      obtain ⟨a, ha⟩ := (Submodule.mem_span_range_iff_exists_fun 𝕜).mp hxM
+      have hxnorm : ‖x‖ ^ 2 = ∑ i, ‖a i‖ ^ 2 := by
+        rw [← ha]; exact norm_sum_smul_sq he_orth a Finset.univ
+      have hSx : S x = ∑ i : Fin (n + 1), (a i * (σ (i : ℕ) : 𝕜)) • v i := by
+        rw [← ha, map_sum]
+        exact Finset.sum_congr rfl fun i _ => by simp only [map_smul, hSu, smul_smul]
+      have hSxnorm : ‖S x‖ ^ 2 = ∑ i, ‖a i * (σ (i : ℕ) : 𝕜)‖ ^ 2 := by
+        rw [hSx]; exact norm_sum_smul_sq (hv.comp _ Fin.val_injective) _ Finset.univ
+      have hkey : (σ n) ^ 2 * ‖x‖ ^ 2 ≤ ‖S x‖ ^ 2 := by
+        rw [hxnorm, hSxnorm, Finset.mul_sum]
+        refine Finset.sum_le_sum fun i _ => ?_
+        rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 _),
+          mul_comm (‖a i‖ ^ 2)]
+        exact mul_le_mul_of_nonneg_right
+          (pow_le_pow_left₀ (hσ0 n) (hσanti (Fin.is_le i)) 2) (sq_nonneg _)
+      have hnn : 0 ≤ σ n * ‖x‖ := mul_nonneg (hσ0 n) (norm_nonneg _)
+      have hkey2 : (σ n * ‖x‖) ^ 2 ≤ ‖S x‖ ^ 2 := by rw [mul_pow]; exact hkey
+      have hsqrt := Real.sqrt_le_sqrt hkey2
+      rwa [Real.sqrt_sq hnn, Real.sqrt_sq (norm_nonneg _)] at hsqrt
+    -- `σ n ≤ gain ≤ bₙ ≤ aₙ`.
+    have hbern : σ n ≤ SNumbers.bernsteinNumber S n := by
+      refine hgain.trans ?_
+      unfold SNumbers.bernsteinNumber
+      refine le_csSup ⟨‖S‖, ?_⟩ ⟨M, hMrank, rfl⟩
+      rintro r ⟨M', _, rfl⟩
+      exact SNumbers.gainOnSubspace_le_norm S M'
+    exact hbern.trans (SNumbers.sn_le_approximationNumber
+      SNumbers.isStrictSNumberSequence_bernsteinNumber.toIsSNumberSequence S n)
+  -- Combine: `aₙ ≤ ‖S - L‖ ≤ σ n ≤ aₙ`.
+  exact le_antisymm (hle.trans hσa) hge
 
 /-! ### Diagonal factorisation through `ℓ₂ⁿ⁺¹`
 
