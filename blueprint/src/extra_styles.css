@@ -20,10 +20,18 @@ div.proof_content {
 	border-left: .08rem solid grey;
 }
 
-/* Smaller font for the dependency-graph legend. */
+/* Smaller, tighter dependency-graph legend. */
+#Legend dl.legend {
+	line-height: 1.05;
+}
+
 #Legend dl.legend dt,
 #Legend dl.legend dd {
 	font-size: 0.72rem;
+}
+
+#Legend dl.legend dt {
+	margin-top: 0.05rem;
 }
 
 #legend_title {
