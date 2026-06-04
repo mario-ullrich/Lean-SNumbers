@@ -20,9 +20,10 @@ div.proof_content {
 	border-left: .08rem solid grey;
 }
 
-/* Smaller, tighter dependency-graph legend. */
+/* Smaller dependency-graph legend, with tighter colon spacing and a little
+   more separation between entries. */
 #Legend dl.legend {
-	line-height: 1.05;
+	line-height: 1.1;
 }
 
 #Legend dl.legend dt,
@@ -31,7 +32,12 @@ div.proof_content {
 }
 
 #Legend dl.legend dt {
-	margin-top: 0.05rem;
+	margin-top: 0.35rem;
+}
+
+/* Less space after the ":" (overrides dep_graph.css's .5rem). */
+#Legend dl.legend dd {
+	margin-left: 0.15rem;
 }
 
 #legend_title {
