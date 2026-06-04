@@ -259,6 +259,7 @@ private lemma norm_sum_smul_sq {ι : Type*} {H : Type u} [NormedAddCommGroup H]
   rw [mul_comm, RCLike.mul_conj]
   simp
 
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
 /-- From the SVD data, `S uₖ = σₖ vₖ` (collapse the `HasSum` at `uₖ`). -/
 private lemma svd_apply_left {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₂}
     (hu : Orthonormal 𝕜 u)
@@ -639,8 +640,7 @@ theorem IsCompactOperator.diagonalFactorisation
         simp [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
           EuclideanSpace.inner_single_left, hjk]
       · intro h; exact absurd (Finset.mem_univ k) h
-      · simp [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
-          EuclideanSpace.inner_single_left]
+      · simp [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
     have hBvk : B (v k) = EuclideanSpace.single k (1 : 𝕜) := by
       rw [hBdef, ContinuousLinearMap.sum_apply]
       refine (Finset.sum_eq_single k ?_ ?_).trans ?_
