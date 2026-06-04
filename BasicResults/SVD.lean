@@ -46,6 +46,7 @@ analytic heart — is proved.
 universe u
 
 open Filter Topology
+open scoped Cardinal
 
 namespace SVD
 
@@ -232,6 +233,7 @@ theorem IsCompactOperator.SVD
     [Nontrivial H₁] [Nontrivial H₂]
     {S : H₁ →L[𝕜] H₂} (hS : IsCompactOperator S) :
     ∃ (σ : ℕ → ℝ) (u : ℕ → H₁) (v : ℕ → H₂),
+      (∀ k, 0 ≤ σ k) ∧ Antitone σ ∧
       Orthonormal 𝕜 u ∧ Orthonormal 𝕜 v ∧
       Tendsto σ atTop (𝓝 0) ∧
       ∀ x : H₁, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x) := by
@@ -248,10 +250,49 @@ singular value equals the `k`-th approximation number, `σₖ = aₖ(S)`. -/
 number: `‖S - L‖ = aₙ(S)` (the truncated SVD). In particular the infimum
 defining `aₙ(S)` is attained on Hilbert spaces. -/
 theorem IsCompactOperator.truncation_residual_eq_approxNumber
+    [Nontrivial H₁] [Nontrivial H₂]
     {S : H₁ →L[𝕜] H₂} (hS : IsCompactOperator S) (n : ℕ) :
     ∃ L : H₁ →L[𝕜] H₂, L.rank ≤ (n : Cardinal) ∧
       ‖S - L‖ = SNumbers.approximationNumber S n := by
-  sorry
+  classical
+  obtain ⟨σ, u, v, hσ0, hσanti, hu, hv, _hσlim, hsum⟩ := IsCompactOperator.SVD hS
+  -- The truncated SVD `L x = Σ_{k<n} σₖ ⟨uₖ,x⟩ vₖ`, a sum of `n` rank-one maps.
+  set L : H₁ →L[𝕜] H₂ :=
+    ∑ k ∈ Finset.range n, (σ k : 𝕜) • (innerSL 𝕜 (u k)).smulRight (v k) with hLdef
+  -- Pointwise formula for the truncation.
+  have hLx : ∀ x : H₁, L x =
+      ∑ k ∈ Finset.range n, (σ k : 𝕜) • ((inner 𝕜 (u k) x : 𝕜) • v k) := by
+    intro x
+    simp only [hLdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
+  refine ⟨L, ?_, ?_⟩
+  · -- `rank L ≤ n`: the range lies in `span {v₀, …, v_{n-1}}`.
+    have hrange : LinearMap.range (L : H₁ →ₗ[𝕜] H₂) ≤
+        Submodule.span 𝕜 (↑(Finset.image v (Finset.range n)) : Set H₂) := by
+      intro y hy
+      rw [LinearMap.mem_range] at hy
+      obtain ⟨x, rfl⟩ := hy
+      rw [ContinuousLinearMap.coe_coe, hLx x]
+      refine Submodule.sum_mem _ fun k hk =>
+        Submodule.smul_mem _ _ (Submodule.smul_mem _ _ ?_)
+      exact Submodule.subset_span (Finset.mem_coe.mpr (Finset.mem_image_of_mem v hk))
+    show Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂)) ≤ (n : Cardinal)
+    calc Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂))
+        ≤ Module.rank 𝕜 (Submodule.span 𝕜 (↑(Finset.image v (Finset.range n)) : Set H₂)) :=
+          Submodule.rank_mono hrange
+      _ ≤ #(↑(Finset.image v (Finset.range n)) : Set H₂) := rank_span_le _
+      _ = ((Finset.image v (Finset.range n)).card : Cardinal) := Cardinal.mk_coe_finset
+      _ ≤ ((Finset.range n).card : Cardinal) := by exact_mod_cast Finset.card_image_le
+      _ = (n : Cardinal) := by rw [Finset.card_range]
+  · -- `‖S - L‖ = aₙ(S)`.  Remaining analytic core, in three steps:
+    --  (i)   `aₙ(S) ≤ ‖S - L‖`  — `approximationNumber_le_norm_sub` with `rank L ≤ n`.
+    --  (ii)  `‖S - L‖ ≤ σ n`    — the residual is `∑_{k ≥ n} σₖ⟨uₖ,·⟩vₖ`; orthonormal
+    --        Pythagoras + Bessel bound every finite partial sum by `σ n · ‖x‖`, then
+    --        `le_of_tendsto` on the SVD `HasSum` gives the operator-norm bound.
+    --  (iii) `σ n ≤ aₙ(S)`      — `span{u₀,…,uₙ}` (dimension `n+1`) witnesses
+    --        `bernsteinNumber S n ≥ σ n`, and `bₙ ≤ aₙ` by `sn_le_approximationNumber`.
+    -- Combine: `aₙ ≤ ‖S - L‖ ≤ σ n ≤ aₙ`.
+    sorry
 
 /-! ### Diagonal factorisation through `ℓ₂ⁿ⁺¹`
 
