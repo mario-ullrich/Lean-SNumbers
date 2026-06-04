@@ -19,3 +19,13 @@ div.corollary_thmcontent {
 div.proof_content {
 	border-left: .08rem solid grey;
 }
+
+/* Smaller font for the dependency-graph legend. */
+#Legend dl.legend dt,
+#Legend dl.legend dd {
+	font-size: 0.72rem;
+}
+
+#legend_title {
+	font-size: 0.9rem;
+}
