@@ -332,6 +332,18 @@ $T_{A,c}(\delta_w) := \mathrm{lp.single}\,\langle c^{-1} A w\rangle\,c$,
 with $\|T_{A,c}\| \le \|c\|$. Taking $\|c\| \searrow \|A\|$ via density
 of $\|\mathbb{K}\|$ yields the bound $\|B\| \cdot d_n(S) \cdot \|A\|$.
 \end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:approx-is-snumber}
+In this namespace $d_n(S)$ is \emph{defined} as $a_n(S \circ Q_X)$, so each
+axiom reduces to the corresponding fact for the approximation numbers
+(Theorem~\ref{thm:approx-is-snumber}): \texttt{kolmogorovNumber\_zero\_eq\_norm}
+gives (S1a), \texttt{kolmogorovNumber\_comp\_comp\_le} gives the ideal
+property (S3) via the factorisation displayed above, and
+\texttt{kolmogorovNumber\_strict} gives (S5$'$). The identification of this
+$d_n$ with \texttt{SNumbers.kolmogorovNumber} of the previous section is a
+separate statement and is not yet formalized.
+\end{proof}
 
 The lifting development requires \texttt{DenselyNormedField} on
 $\mathbb{K}$ (for the density-of-norm scaling) and

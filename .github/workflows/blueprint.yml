@@ -86,6 +86,14 @@ jobs:
       - name: Build blueprint web
         run: leanblueprint web
 
+      # Lay the dependency graph out left-to-right (rankdir=LR) instead of the
+      # graphviz default top-to-bottom. With many independent example
+      # sequences the default fans out very wide; LR makes it tall and narrow,
+      # which reads better in a browser. plastexdepgraph exposes no rankdir
+      # option, so we inject it into the embedded dot graph attributes.
+      - name: Dependency graph left-to-right layout
+        run: sed -i 's/graph \[bgcolor=transparent\];/graph [bgcolor=transparent, rankdir=LR];/' blueprint/web/dep_graph_document.html
+
       - name: Verify Lean declaration references
         run: leanblueprint checkdecls
         continue-on-error: true   # Don't block on first run; flip to false once stable.
