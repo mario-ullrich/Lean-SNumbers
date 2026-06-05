@@ -1,6 +1,12 @@
 /-
 # Complexification of a real inner product space
 
+*Why this file is needed:* the spectral projection is built with the continuous functional
+calculus, which is only available over `ℂ`. To obtain it over `ℝ` (and uniformly over any `RCLike`
+field), `RealProjection`/`Instances` complexify the space, run the `ℂ` construction, and restrict
+back — and this file supplies the complexification with its complex inner product (a piece Mathlib
+does not yet have).
+
 Given a real inner product space `H`, this file builds its **complexification**
 `Complexification H`: the complex inner product space whose elements are thought
 of as formal sums `x + i·y` with `x, y ∈ H`.
@@ -23,12 +29,12 @@ of a real *inner product space* with its complex inner product. This file
 supplies that missing piece, kept deliberately elementary and self-contained.
 -/
 import Mathlib.Analysis.InnerProductSpace.Basic
+import Mathlib.Analysis.InnerProductSpace.Adjoint
 import Mathlib.Tactic.Module
 
 noncomputable section
 
 open RCLike Filter Topology
-open scoped ComplexConjugate
 
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
 
@@ -41,10 +47,6 @@ namespace Complexification
 
 /-- The underlying additive group is that of `H × H`. -/
 instance : AddCommGroup (Complexification H) := inferInstanceAs (AddCommGroup (H × H))
-
-/-- The ambient real scalar multiplication is the component-wise one of `H × H`.
-It is used only to state that the embedding `ofRealLi` is real-linear. -/
-instance : Module ℝ (Complexification H) := inferInstanceAs (Module ℝ (H × H))
 
 /-- Complex scalar multiplication: `(a + b·i) • (x, y) = (a·x - b·y, a·y + b·x)`. -/
 instance : SMul ℂ (Complexification H) where
@@ -60,8 +62,8 @@ instance : SMul ℂ (Complexification H) where
 @[simp] lemma add_snd (u v : Complexification H) : (u + v).2 = u.2 + v.2 := rfl
 @[simp] lemma zero_fst : (0 : Complexification H).1 = 0 := rfl
 @[simp] lemma zero_snd : (0 : Complexification H).2 = 0 := rfl
-@[simp] lemma rsmul_fst (r : ℝ) (u : Complexification H) : (r • u).1 = r • u.1 := rfl
-@[simp] lemma rsmul_snd (r : ℝ) (u : Complexification H) : (r • u).2 = r • u.2 := rfl
+@[simp] lemma sub_fst (u v : Complexification H) : (u - v).1 = u.1 - v.1 := rfl
+@[simp] lemma sub_snd (u v : Complexification H) : (u - v).2 = u.2 - v.2 := rfl
 
 instance : Module ℂ (Complexification H) where
   one_smul u := by
@@ -134,11 +136,27 @@ instance : InnerProductSpace ℂ (Complexification H) :=
   letI : InnerProductSpace.Core ℂ (Complexification H) := core
   InnerProductSpace.ofCore inferInstance
 
+instance [Nontrivial H] : Nontrivial (Complexification H) :=
+  inferInstanceAs (Nontrivial (H × H))
+
+/-- The real scalar action (the restriction of the complex one) is component-wise. -/
+@[simp] lemma rsmul_fst (r : ℝ) (u : Complexification H) : (r • u).1 = r • u.1 := by
+  rw [RCLike.real_smul_eq_coe_smul (K := ℂ), smul_fst]; simp
+
+@[simp] lemma rsmul_snd (r : ℝ) (u : Complexification H) : (r • u).2 = r • u.2 := by
+  rw [RCLike.real_smul_eq_coe_smul (K := ℂ), smul_snd]; simp
+
 /-- The canonical embedding `x ↦ x + i·0` of `H` into its complexification. -/
 def ofReal (x : H) : Complexification H := (x, 0)
 
 @[simp] lemma ofReal_fst (x : H) : (ofReal x).1 = x := rfl
 @[simp] lemma ofReal_snd (x : H) : (ofReal x).2 = 0 := rfl
+
+@[simp] lemma ofReal_add (x y : H) : ofReal (x + y) = ofReal x + ofReal y := by
+  apply Prod.ext <;> simp [ofReal, add_fst, add_snd]
+
+@[simp] lemma ofReal_sub (x y : H) : ofReal (x - y) = ofReal x - ofReal y := by
+  apply Prod.ext <;> simp [ofReal, sub_fst, sub_snd]
 
 /-- The embedding `ofReal` preserves norms: `‖x + i·0‖ = ‖x‖`. -/
 @[simp] lemma norm_ofReal (x : H) : ‖ofReal x‖ = ‖x‖ := by
@@ -162,9 +180,6 @@ in `Complexification H` has Cauchy components, and converges componentwise; so t
 complexification of a *complete* real inner product space is itself complete — a
 complex Hilbert space. -/
 
-@[simp] lemma sub_fst (u v : Complexification H) : (u - v).1 = u.1 - v.1 := rfl
-@[simp] lemma sub_snd (u v : Complexification H) : (u - v).2 = u.2 - v.2 := rfl
-
 /-- The squared norm is the sum of the squared component norms. -/
 lemma re_inner_self (u : Complexification H) :
     (inner ℂ u u).re = ‖u.1‖ ^ 2 + ‖u.2‖ ^ 2 := by
@@ -184,6 +199,18 @@ lemma norm_le_add (u : Complexification H) : ‖u‖ ≤ ‖u.1‖ + ‖u.2‖ :
   nlinarith [norm_sq_eq u, norm_nonneg u, norm_nonneg u.1, norm_nonneg u.2,
     mul_nonneg (norm_nonneg u.1) (norm_nonneg u.2)]
 
+/-- The real-part projection `(x, y) ↦ x` as an `ℝ`-linear map. -/
+def fstₗ : Complexification H →ₗ[ℝ] H where
+  toFun u := u.1
+  map_add' := add_fst
+  map_smul' r u := rsmul_fst r u
+
+/-- The real-part projection `(x, y) ↦ x` as a continuous `ℝ`-linear map. -/
+def fstL : Complexification H →L[ℝ] H :=
+  fstₗ.mkContinuous 1 fun u => by rw [one_mul]; exact norm_fst_le u
+
+@[simp] lemma fstL_apply (u : Complexification H) : fstL u = u.1 := rfl
+
 instance [CompleteSpace H] : CompleteSpace (Complexification H) := by
   refine Metric.complete_of_cauchySeq_tendsto fun f hf => ?_
   have lip1 : LipschitzWith 1 (fun u : Complexification H => u.1) :=
@@ -200,5 +227,153 @@ instance [CompleteSpace H] : CompleteSpace (Complexification H) := by
   have h2 : Tendsto (fun n => ‖(f n).2 - b‖) atTop (𝓝 0) := tendsto_iff_norm_sub_tendsto_zero.mp hb
   refine squeeze_zero (fun n => norm_nonneg _) (fun n => ?_) (by simpa using h1.add h2)
   exact norm_le_add _
+
+/-! ### Conjugation
+
+Complex conjugation `x + i·y ↦ x - i·y` is the canonical conjugate-linear isometric
+involution of the complexification. Its set of fixed points is exactly the image of
+`ofReal`, i.e. the "real" elements — the fact that lets one detect when a complex
+object descends to the real space. -/
+
+/-- Complex conjugation on the complexification: `(x, y) ↦ (x, -y)`. -/
+def conj (u : Complexification H) : Complexification H := (u.1, -u.2)
+
+@[simp] lemma conj_fst (u : Complexification H) : (conj u).1 = u.1 := rfl
+@[simp] lemma conj_snd (u : Complexification H) : (conj u).2 = -u.2 := rfl
+
+@[simp] lemma conj_conj (u : Complexification H) : conj (conj u) = u := by
+  apply Prod.ext <;> simp
+
+@[simp] lemma conj_ofReal (x : H) : conj (ofReal x) = ofReal x := by
+  apply Prod.ext <;> simp [ofReal]
+
+lemma conj_add (u v : Complexification H) : conj (u + v) = conj u + conj v := by
+  apply Prod.ext <;> simp only [conj_fst, conj_snd, add_fst, add_snd, neg_add]
+
+/-- Conjugation is conjugate-linear: `conj (c • u) = conj c • conj u`. -/
+lemma conj_smul (c : ℂ) (u : Complexification H) :
+    conj (c • u) = (starRingEnd ℂ c) • conj u := by
+  apply Prod.ext <;>
+    simp only [conj_fst, conj_snd, smul_fst, smul_snd, Complex.conj_re, Complex.conj_im] <;> module
+
+@[simp] lemma norm_conj (u : Complexification H) : ‖conj u‖ = ‖u‖ := by
+  have h1 := norm_sq_eq (conj u)
+  have h2 := norm_sq_eq u
+  simp only [conj_fst, conj_snd, norm_neg] at h1
+  have hsq : ‖conj u‖ ^ 2 = ‖u‖ ^ 2 := by rw [h1, h2]
+  have := congrArg Real.sqrt hsq
+  rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)] at this
+
+/-- Conjugation as a real-linear isometry. -/
+def conjLi : Complexification H →ₗᵢ[ℝ] Complexification H where
+  toFun := conj
+  map_add' := conj_add
+  map_smul' r u := by apply Prod.ext <;> simp [smul_neg]
+  norm_map' := norm_conj
+
+/-- Conjugation as a continuous `ℝ`-linear map. -/
+def conjL : Complexification H →L[ℝ] Complexification H := conjLi.toContinuousLinearMap
+
+@[simp] lemma conjL_apply (u : Complexification H) : conjL u = conj u := rfl
+
+/-- The elements fixed by conjugation are exactly the "real" ones, `x + i·0`. -/
+lemma conj_eq_self_iff (u : Complexification H) : conj u = u ↔ ∃ x, u = ofReal x := by
+  constructor
+  · intro h
+    have hsnd : -u.2 = u.2 := by simpa only [conj_snd] using congrArg Prod.snd h
+    have hz : u.2 = 0 := by
+      have h2 : (2 : ℝ) • u.2 = 0 := by rw [two_smul]; exact add_eq_zero_iff_eq_neg.mpr hsnd.symm
+      exact (smul_eq_zero.mp h2).resolve_left (by norm_num)
+    exact ⟨u.1, by apply Prod.ext <;> simp [ofReal, hz]⟩
+  · rintro ⟨x, rfl⟩; exact conj_ofReal x
+
+/-! ### Complexification of operators
+
+A real bounded operator `S : H₁ →L[ℝ] H₂` extends to a complex bounded operator
+`Sℂ : Complexification H₁ →L[ℂ] Complexification H₂`, `(x, y) ↦ (S x, S y)`, with the
+same operator norm. It commutes with conjugation and is compatible with the real
+embedding — the precise senses in which `Sℂ` "is" `S` viewed complex-linearly. -/
+
+section Operator
+
+variable {H₁ H₂ : Type*}
+  [NormedAddCommGroup H₁] [InnerProductSpace ℝ H₁]
+  [NormedAddCommGroup H₂] [InnerProductSpace ℝ H₂]
+
+/-- The complexification of `S` as a `ℂ`-linear map, `(x, y) ↦ (S x, S y)`. -/
+def complexifyₗ (S : H₁ →L[ℝ] H₂) : Complexification H₁ →ₗ[ℂ] Complexification H₂ where
+  toFun u := (S u.1, S u.2)
+  map_add' u v := by apply Prod.ext <;> simp
+  map_smul' c u := by apply Prod.ext <;> simp [map_sub, map_smul]
+
+@[simp] lemma complexifyₗ_fst (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :
+    (complexifyₗ S u).1 = S u.1 := rfl
+@[simp] lemma complexifyₗ_snd (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :
+    (complexifyₗ S u).2 = S u.2 := rfl
+
+lemma norm_complexifyₗ_le (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :
+    ‖complexifyₗ S u‖ ≤ ‖S‖ * ‖u‖ := by
+  rw [← Real.sqrt_sq (norm_nonneg (complexifyₗ S u)),
+    ← Real.sqrt_sq (mul_nonneg (norm_nonneg S) (norm_nonneg u))]
+  apply Real.sqrt_le_sqrt
+  rw [norm_sq_eq]
+  simp only [complexifyₗ_fst, complexifyₗ_snd]
+  have hu := norm_sq_eq u
+  have e1 : ‖S u.1‖ ≤ ‖S‖ * ‖u.1‖ := S.le_opNorm u.1
+  have e2 : ‖S u.2‖ ≤ ‖S‖ * ‖u.2‖ := S.le_opNorm u.2
+  have f1 : ‖S u.1‖ ^ 2 ≤ ‖S‖ ^ 2 * ‖u.1‖ ^ 2 := by
+    nlinarith [e1, norm_nonneg (S u.1), mul_nonneg (norm_nonneg S) (norm_nonneg u.1)]
+  have f2 : ‖S u.2‖ ^ 2 ≤ ‖S‖ ^ 2 * ‖u.2‖ ^ 2 := by
+    nlinarith [e2, norm_nonneg (S u.2), mul_nonneg (norm_nonneg S) (norm_nonneg u.2)]
+  have key : (‖S‖ * ‖u‖) ^ 2 = ‖S‖ ^ 2 * ‖u.1‖ ^ 2 + ‖S‖ ^ 2 * ‖u.2‖ ^ 2 := by
+    rw [mul_pow, hu]; ring
+  rw [key]; linarith [f1, f2]
+
+/-- The complexification of a real bounded operator `S`, as a `ℂ`-linear bounded
+operator `(x, y) ↦ (S x, S y)`. -/
+def complexify (S : H₁ →L[ℝ] H₂) : Complexification H₁ →L[ℂ] Complexification H₂ :=
+  (complexifyₗ S).mkContinuous ‖S‖ (norm_complexifyₗ_le S)
+
+@[simp] lemma complexify_fst (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :
+    (complexify S u).1 = S u.1 := rfl
+@[simp] lemma complexify_snd (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :
+    (complexify S u).2 = S u.2 := rfl
+
+/-- `Sℂ` agrees with `S` on the real subspace: `Sℂ (x + i·0) = (S x) + i·0`. -/
+@[simp] lemma complexify_ofReal (S : H₁ →L[ℝ] H₂) (x : H₁) :
+    complexify S (ofReal x) = ofReal (S x) := by
+  apply Prod.ext <;> simp [ofReal]
+
+/-- `Sℂ` commutes with conjugation (this is what it means for `Sℂ` to be "real"). -/
+@[simp] lemma complexify_conj (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :
+    complexify S (conj u) = conj (complexify S u) := by
+  apply Prod.ext <;> simp [map_neg]
+
+/-- The complexification preserves the operator norm. -/
+@[simp] lemma norm_complexify (S : H₁ →L[ℝ] H₂) : ‖complexify S‖ = ‖S‖ := by
+  apply le_antisymm
+  · exact ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg S) (norm_complexifyₗ_le S)
+  · refine ContinuousLinearMap.opNorm_le_bound S (norm_nonneg (complexify S)) fun x => ?_
+    calc ‖S x‖ = ‖complexify S (ofReal x)‖ := by rw [complexify_ofReal, norm_ofReal]
+      _ ≤ ‖complexify S‖ * ‖ofReal x‖ := (complexify S).le_opNorm _
+      _ = ‖complexify S‖ * ‖x‖ := by rw [norm_ofReal]
+
+section Adjoint
+
+variable [CompleteSpace H₁] [CompleteSpace H₂]
+
+/-- Complexification commutes with taking adjoints: `(Sℂ)* = (S*)ℂ`. -/
+@[simp] lemma adjoint_complexify (S : H₁ →L[ℝ] H₂) :
+    ContinuousLinearMap.adjoint (complexify S) = complexify (ContinuousLinearMap.adjoint S) := by
+  symm
+  rw [ContinuousLinearMap.eq_adjoint_iff]
+  intro u v
+  apply Complex.ext <;>
+    simp only [inner_re, inner_im, complexify_fst, complexify_snd,
+      ContinuousLinearMap.adjoint_inner_left]
+
+end Adjoint
+
+end Operator
 
 end Complexification

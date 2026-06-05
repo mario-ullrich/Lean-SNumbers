@@ -3,17 +3,31 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import BasicResults.Spectral.FunctionalCalculus
+import Mathlib.Analysis.CStarAlgebra.ContinuousLinearMap
+import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Basic
 import BasicResults.Spectral.MonotoneConvergence
 
 /-!
-# Spectral engine, Phase 3: the spectral projection of `S*S`
+# The spectral projection of `S*S` over `ℂ`
 
-This file assembles `SpectralRepresentation.exists_spectral_projection` (over
-`ℂ`) from the analytic machinery in `MonotoneConvergence`: the projection
-`E = E_{[t,∞)}(P)` (`P = S*S`, `t = c²`) is the strong-operator limit of
-`cfc gₙ P`, where `gₙ` is a continuous approximation, decreasing to the
-indicator `𝟙_{[t,∞)}`.
+*Why this file is needed:* it supplies the **complex** spectral projection,
+`exists_spectral_projection_complex`. The real case (`RealProjection`) and the uniform `RCLike`
+projection (`Representation`) both reduce to it.
+
+The complex-Hilbert-space operator algebra `H →L[ℂ] H` is a C⋆-algebra, so Mathlib's continuous
+functional calculus applies to `P = S*S`. The projection `E = E_{[c²,∞)}(P)` is built as the
+strong-operator limit of `cfc gₙ P`, where `gₙ` is a continuous approximation decreasing to the
+indicator `𝟙_{[c²,∞)}`. This file also proves `cfc_comm_of_comm`: anything commuting with `P`
+commutes with `E` — the ingredient that makes the projection conjugation/scalar invariant (used
+by `RealProjection` and `Instances`).
+
+## The approximating family `stepDown`
+
+`stepDown t n` is the continuous function equal to `1` on `[t, ∞)`, ramping
+linearly down to `0` on `[t - 1/(n+1), t]`, and `0` below. As `n → ∞` it
+decreases pointwise to `𝟙_{[t,∞)}`. This part of the file develops its
+elementary properties (continuity, `0 ≤ · ≤ 1`, antitone in `n`, value `1`
+above the threshold).
 
 ## The approximating family `stepDown`
 
@@ -91,11 +105,56 @@ variable {H₁ H₂ : Type*}
 variable [NormedAddCommGroup H₁] [InnerProductSpace ℂ H₁] [CompleteSpace H₁]
 variable [NormedAddCommGroup H₂] [InnerProductSpace ℂ H₂] [CompleteSpace H₂]
 
+/-- **Commutation engine.** A continuous `ℝ`-linear map `J` of `H₁` that commutes with a
+self-adjoint `P` commutes with `cfcHom hP f` for *every* continuous symbol `f`. Proved by the
+Stone–Weierstrass induction on `f` (constants, `id`, sums, products, and a closure step), exactly
+as Mathlib's `Commute.cfcHom` — but here `J` is an *external* map (it may even be conjugate-linear
+over `ℂ`, only `ℝ`-linearity is used), which is why we cannot use the algebra-internal version. -/
+lemma cfcHom_comm_of_comm {P : H₁ →L[ℂ] H₁} (hP : IsSelfAdjoint P)
+    (J : H₁ →L[ℝ] H₁) (hJP : ∀ x, J (P x) = P (J x)) (f : C(spectrum ℝ P, ℝ)) :
+    ∀ x, J (cfcHom hP f x) = cfcHom hP f (J x) := by
+  open scoped ContinuousFunctionalCalculus in
+  induction f using ContinuousMap.induction_on_of_compact with
+  | const r =>
+      intro x
+      rw [show (ContinuousMap.const (spectrum ℝ P) r) = algebraMap ℝ C(spectrum ℝ P, ℝ) r from rfl,
+        AlgHomClass.commutes, Algebra.algebraMap_eq_smul_one]
+      simp only [ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, map_smul]
+  | id => intro x; rw [cfcHom_id hP]; exact hJP x
+  | star_id => intro x; rw [map_star, cfcHom_id hP, hP.star_eq]; exact hJP x
+  | add f g hf hg =>
+      intro x
+      rw [map_add, ContinuousLinearMap.add_apply, ContinuousLinearMap.add_apply, map_add, hf x, hg x]
+  | mul f g hf hg =>
+      intro x
+      rw [map_mul, ContinuousLinearMap.mul_apply, ContinuousLinearMap.mul_apply,
+        hf (cfcHom hP g x), hg x]
+  | frequently f hf =>
+      have hSclosed : IsClosed {g : C(spectrum ℝ P, ℝ) |
+          ∀ x, J (cfcHom hP g x) = cfcHom hP g (J x)} := by
+        rw [Set.setOf_forall]
+        exact isClosed_iInter fun x => isClosed_eq
+          (J.continuous.comp ((cfcHom_continuous hP).clm_apply continuous_const))
+          ((cfcHom_continuous hP).clm_apply continuous_const)
+      have hmem : f ∈ closure {g : C(spectrum ℝ P, ℝ) |
+          ∀ x, J (cfcHom hP g x) = cfcHom hP g (J x)} := mem_closure_iff_frequently.mpr hf
+      rwa [hSclosed.closure_eq] at hmem
+
+/-- A continuous `ℝ`-linear map `J` commuting with a self-adjoint `P` commutes with `cfc g P`
+for every continuous `g`. -/
+lemma cfc_comm_of_comm {P : H₁ →L[ℂ] H₁} (hP : IsSelfAdjoint P) (J : H₁ →L[ℝ] H₁)
+    (hJP : ∀ x, J (P x) = P (J x)) {g : ℝ → ℝ} (hg : Continuous g) (x : H₁) :
+    J (cfc g P x) = cfc g P (J x) := by
+  rw [cfc_apply (a := P) (ha := hP) (hf := hg.continuousOn)]
+  exact cfcHom_comm_of_comm hP J hJP _ x
+
 /-- **Spectral projection of `S*S` (over `ℂ`).** -/
 theorem exists_spectral_projection_complex [Nontrivial H₁]
     (S : H₁ →L[ℂ] H₂) {c : ℝ} (hc0 : 0 ≤ c) :
     ∃ E : H₁ →L[ℂ] H₁,
-      (∀ x : H₁, c * ‖E x‖ ≤ ‖S (E x)‖) ∧ ‖S.comp (1 - E)‖ ≤ c := by
+      (∀ x : H₁, c * ‖E x‖ ≤ ‖S (E x)‖) ∧ ‖S.comp (1 - E)‖ ≤ c ∧
+        ∀ J : H₁ →L[ℝ] H₁, (∀ x, J (((adjoint S).comp S) x) = ((adjoint S).comp S) (J x)) →
+          ∀ x, J (E x) = E (J x) := by
   classical
   set P : H₁ →L[ℂ] H₁ := (adjoint S).comp S with hPdef
   have hPsa : IsSelfAdjoint P := by
@@ -165,7 +224,7 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
   have hQsa : ∀ n, IsSelfAdjoint (1 - T n) := fun n => by
     rw [ContinuousLinearMap.isSelfAdjoint_iff', map_sub, ContinuousLinearMap.adjoint_one,
       ContinuousLinearMap.isSelfAdjoint_iff'.mp (hTpos n).isSelfAdjoint]
-  refine ⟨E, ?_, ?_⟩
+  refine ⟨E, ?_, ?_, ?_⟩
   · -- bound (a): `c · ‖E x‖ ≤ ‖S (E x)‖`.
     set A : H₁ →L[ℂ] H₁ := cfc (fun s => max (s - c ^ 2) 0) P with hA_def
     have hA0 : (0 : H₁ →L[ℂ] H₁) ≤ A := cfc_nonneg fun s _ => le_max_right _ _
@@ -267,5 +326,14 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
     calc ‖S ((1 - E) y)‖ = Real.sqrt (‖S ((1 - E) y)‖ ^ 2) := (Real.sqrt_sq (norm_nonneg _)).symm
       _ ≤ Real.sqrt ((c * ‖y‖) ^ 2) := Real.sqrt_le_sqrt hsq
       _ = c * ‖y‖ := Real.sqrt_sq (mul_nonneg hc0 (norm_nonneg _))
+  · -- commutation: `E` commutes with any `ℝ`-linear `J` commuting with `P = S*S`.
+    intro J hJ x
+    have hcomm : ∀ n, J (T n x) = T n (J x) := fun n =>
+      cfc_comm_of_comm hPsa J hJ (stepDown_continuous (c ^ 2) n) x
+    have l1 : Tendsto (fun n => J (T n x)) atTop (𝓝 (J (E x))) :=
+      (J.continuous.tendsto _).comp (hEtend x)
+    have l2 : Tendsto (fun n => J (T n x)) atTop (𝓝 (E (J x))) := by
+      simp only [hcomm]; exact hEtend (J x)
+    exact tendsto_nhds_unique l1 l2
 
 end SpectralRepresentation

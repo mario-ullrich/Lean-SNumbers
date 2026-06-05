@@ -7,12 +7,11 @@ import Mathlib.Analysis.InnerProductSpace.StarOrder
 import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Order
 
 /-!
-# Spectral engine, Phase 2: towards the spectral projection (analytic core)
+# Monotone convergence of positive operators (analytic core)
 
-Building `SpectralRepresentation.exists_spectral_projection` via the
-strong-operator monotone-limit route (no `L²` representation needed). This
-file develops the analytic foundation: the Cauchy estimate that powers
-monotone convergence of positive operators.
+*Why this file is needed:* the complex spectral projection in `Projection` is a
+strong-operator limit of an antitone sequence of positive operators; this file provides the
+analytic foundation that makes that limit exist and be a bounded operator.
 
 The key inequality is, for a positive operator `A` on a complex Hilbert space,
 `‖A x‖² ≤ ‖A‖ · re⟪A x, x⟫`. It comes from the operator inequality

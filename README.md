@@ -29,8 +29,8 @@ artifact under *Actions → latest run → blueprint-web*.
 │   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
 │   │                              (Banach-only variant; SNumbers.Lifting)
 │   ├── Hilbert.lean            ← hilbertNumber + (S1)–(S5)
-│   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9);
-│   │                              Hilbert spaces only (from the SVD blackbox)
+│   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9),
+│   │                              for all bounded operators (ℝ and ℂ), proved
 │   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
 │   │                              sandwich hₙ ≤ sₙ ≤ aₙ,
 │   │                              aₙ ≤ (1+√n)·min(cₙ,dₙ) via Garling–Gordon
@@ -39,21 +39,23 @@ artifact under *Actions → latest run → blueprint-web*.
 │   │                              (deep inputs left as `sorry`)
 │   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
 │   │                              s-number (sₙ = σₙ) via uniqueness +
-│   │                              Eckart–Young; rests on the compact-SVD
-│   │                              existence `sorry`
+│   │                              Eckart–Young (proved)
 │   └── Injectivity.lean        ← injective / surjective s-numbers:
 │                                  cₙ injective, dₙ surjective (full proofs)
 ├── BasicResults.lean           ← library entry point
 ├── BasicResults/
 │   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
 │   ├── SVD.lean                ← compact SVD via singular-value iteration:
-│   │                              norm_isSingularValue (proved), `SVD` (`sorry`),
+│   │                              norm_isSingularValue, `SVD` (Schmidt decomp.),
 │   │                              Eckart–Young, diagonal factorisation, and
 │   │                              the scalar factorisation `B∘S∘A = c·id`
-│   │                              (input to uniqueness)
-│   └── Determinant.lean        ← det facts: det T* = conj det T, and
-│                                  ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
-│                                  of the maximal difference thm
+│   │                              (input to uniqueness) — all proved
+│   ├── Determinant.lean        ← det facts: det T* = conj det T, and
+│   │                              ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
+│   │                              of the maximal difference thm
+│   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
+│                                  (cfc over ℂ + complexification for ℝ); the
+│                                  input to s-number uniqueness for bounded ops
 ├── AddOns.lean                 ← auxiliary library entry point
 ├── AddOns/
 │   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact
@@ -82,7 +84,7 @@ artifact under *Actions → latest run → blueprint-web*.
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
 |       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
 | Hilbert number `hₙ` (any `RCLike 𝕜`)      | ✅ proved (S1)–(S5); forms an s-number sequence |
-| Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved (modulo the spectral projection) |
+| Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
 | Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared, no proof |
 | Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared, no proof |
@@ -93,11 +95,11 @@ artifact under *Actions → latest run → blueprint-web*.
 | `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
 | `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
 | `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
-| `sₙ(S) = σₙ(S)` (fin-dim: all s-numbers = Mathlib singular numbers) | ✅ proved (modulo compact-SVD existence) |
+| `sₙ(S) = σₙ(S)` (fin-dim: all s-numbers = Mathlib singular numbers) | ✅ proved |
 | Singular-value uniqueness `project σ = Mathlib σ` (`project_singularValues_eq`) | ✅ proved |
-| `IsCompactOperator.SVD` (`OrthonormalOrZero`-indexed) | 🟡 existence is a `sorry` |
+| `IsCompactOperator.SVD` (`OrthonormalOrZero`-indexed) | ✅ proved |
 | Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
-| Hilbert-space coincidence `sₙ = aₙ` (2.11.9) | ✅ proved (modulo the spectral projection) |
+| Hilbert-space coincidence `sₙ = aₙ` (2.11.9, all bounded `S`, ℝ and ℂ) | ✅ proved |
 | Metric injection / surjection classes     | ✅ defined          |
 | `sₙ(J∘S) ≤ sₙ(S)`, `sₙ(S∘Q) ≤ sₙ(S)` (any `s`) | ✅ proved        |
 | Gelfand numbers `cₙ` **injective**        | ✅ proved           |
@@ -105,10 +107,10 @@ artifact under *Actions → latest run → blueprint-web*.
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | `norm_isSingularValue` (compact attains norm) | ✅ proved        |
-| Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | 🟡 declared (singular-value iteration)|
-| Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved (modulo `IsCompactOperator.SVD`)|
-| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved (modulo `IsCompactOperator.SVD`)| 
-| Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | ✅ proved (modulo the spectral projection of `S*S`)|
+| Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved (singular-value iteration)|
+| Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved |
+| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved | 
+| Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | ✅ proved |
 | Compact ⇔ approximable on Hilbert         | 🟡 declared, no proof|
 
 A green check means fully proved (no `sorry`); 🟡 means the statement is
@@ -122,8 +124,10 @@ in place but the proof is `sorry`.
   factorisation `SVD.exists_scalar_factorisation` (`B∘S∘A = c·id` for `c < aₙ(S)`),
   to the reverse-homogeneity lemma `norm_smul_le_sn`, axiom (S3), axiom (S5), and
   the already-proven upper bound `sn_le_approximationNumber`. That factorisation
-  is proved, resting on the spectral projection of `S*S` (the one analytic
-  `sorry`, in `BasicResults.Spectral`).
+  is proved; it rests on the spectral projection of `S*S`, which is proved for
+  every `RCLike` field in `BasicResults.Spectral` (continuous functional calculus
+  over `ℂ`, complexification for `ℝ`). So uniqueness holds unconditionally for all
+  bounded operators on real and complex Hilbert spaces.
 * **Injective / surjective (`SNumbers.Injectivity`).** A sequence is
   *injective* if `sₙ(J∘S) = sₙ(S)` for every metric injection `J`
   (isometric embedding), *surjective* if `sₙ(S∘Q) = sₙ(S)` for every metric
@@ -167,25 +171,17 @@ behind the maximal difference theorem:
   difference theorem are proved on top of these, using the determinant identity
   `∏ aₖ = ‖det‖` (`prod_approximationNumber_eq_norm_det`).
 
-Everything else in `SNumbers/` — including `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, the maximal
-difference theorem (modulo the factorisations above), the singular-value
-uniqueness `project_singularValues_eq`, and the universality `sₙ = σₙ` (modulo
-compact-SVD existence) — is `sorry`-free.
+Everything else in `SNumbers/` and `BasicResults/` is `sorry`-free — including
+`aₙ ≤ (1+√n)·min(cₙ,dₙ)` and the maximal difference theorem (modulo the
+factorisations above), the singular-value uniqueness `project_singularValues_eq`,
+the universality `sₙ = σₙ`, the compact SVD `IsCompactOperator.SVD`, the scalar
+factorisation, and the **spectral projection of `S*S`** itself (`BasicResults.Spectral`,
+for every `RCLike` field). In particular the Hilbert-space coincidence `sₙ = aₙ`
+(Pietsch 2.11.9) and the sandwich `hₙ ≤ sₙ ≤ aₙ` are now fully proved for all
+bounded operators on real and complex Hilbert spaces.
 
-The remaining `sorry`s concern the SVD / spectral theory (to be done elsewhere):
+The only remaining `sorry` outside `SNumbers/Inequalities.lean` is:
 
-* **`SVD.exists_scalar_factorisation`** (`BasicResults.SVD`) is proved, but
-  rests on the **spectral projection** of `S*S`,
-  `SpectralRepresentation.exists_spectral_projection` (`BasicResults.Spectral`,
-  a `sorry`). This single spectral-theory input is what the Hilbert-space
-  coincidence `sₙ = aₙ` (Pietsch 2.11.9) and the sandwich `hₙ ≤ sₙ ≤ aₙ`
-  ultimately rest on — the spectral subspace of `S*S` for `[c²,∞)`, for bounded
-  positive (non-compact) operators.
-* **`SVD.IsCompactOperator.SVD`** — the compact SVD / Schmidt decomposition
-  `S = Σ aₖ⟨uₖ,·⟩vₖ`, built on the proved `norm_isSingularValue`. Its
-  consequences `…truncation_residual_eq_approxNumber` (Eckart–Young),
-  `…diagonalFactorisation`, and `SVD.IsCompactOperator.isApproximable` are
-  **not** consumed by the s-number core.
 * **compact ⇔ approximable on Hilbert** (`AddOns/Compact.lean`).
 
 ## Building

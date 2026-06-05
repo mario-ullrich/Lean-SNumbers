@@ -15,12 +15,13 @@ For an essentially bounded measurable scalar function `f : α → 𝕜` (i.e.
 operator on `L²(μ)`, the **multiplication operator** `M_f`. Its operator
 norm is at most the essential supremum `‖f‖∞`.
 
-This is **Phase 0** of the spectral-representation programme in
-`BasicResults.SpectralRepresentation`: the bounded self-adjoint operator
-`S*S` will be represented, after a unitary change of variables, as such a
-multiplication operator, and the spectral projection used in the
-`s`-numbers uniqueness theorem (Pietsch, *Operator Ideals*, §11.3) is the
-multiplication operator `M_{𝟙}` by an indicator.
+*Why this file is here:* it is the seed of the **multiplication-operator** route to the spectral
+theorem (Pietsch, *Operator Ideals*, §11.3 — represent `S*S` as `M_f` after a unitary change of
+variables, and read off the spectral projection as `M_{𝟙}`). That route is **not** used by the
+current development: the spectral projection is instead built directly via the continuous
+functional calculus (`Projection`) and complexification (`RealProjection`). This file is kept as a
+self-contained, independently useful building block for a possible future multiplication-form
+representation; nothing in the `s`-numbers chain depends on it.
 
 ## Main definitions
 
