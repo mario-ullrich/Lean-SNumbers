@@ -27,7 +27,7 @@ import Mathlib.Tactic.Module
 
 noncomputable section
 
-open RCLike
+open RCLike Filter Topology
 open scoped ComplexConjugate
 
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
@@ -153,5 +153,52 @@ def ofRealLi : H →ₗᵢ[ℝ] Complexification H where
   map_add' x y := by apply Prod.ext <;> simp [ofReal, add_fst, add_snd]
   map_smul' r x := by apply Prod.ext <;> simp [ofReal, rsmul_fst, rsmul_snd]
   norm_map' := norm_ofReal
+
+/-! ### Completeness
+
+The norm `‖(x, y)‖ = √(‖x‖² + ‖y‖²)` controls each component (`‖x‖, ‖y‖ ≤ ‖(x,y)‖`)
+and is in turn controlled by them (`‖(x,y)‖ ≤ ‖x‖ + ‖y‖`). Hence a Cauchy sequence
+in `Complexification H` has Cauchy components, and converges componentwise; so the
+complexification of a *complete* real inner product space is itself complete — a
+complex Hilbert space. -/
+
+@[simp] lemma sub_fst (u v : Complexification H) : (u - v).1 = u.1 - v.1 := rfl
+@[simp] lemma sub_snd (u v : Complexification H) : (u - v).2 = u.2 - v.2 := rfl
+
+/-- The squared norm is the sum of the squared component norms. -/
+lemma re_inner_self (u : Complexification H) :
+    (inner ℂ u u).re = ‖u.1‖ ^ 2 + ‖u.2‖ ^ 2 := by
+  simp only [inner_re, real_inner_self_eq_norm_sq]
+
+lemma norm_sq_eq (u : Complexification H) : ‖u‖ ^ 2 = ‖u.1‖ ^ 2 + ‖u.2‖ ^ 2 := by
+  rw [norm_eq_sqrt_re_inner (𝕜 := ℂ), RCLike.re_to_complex, re_inner_self,
+    Real.sq_sqrt (by positivity)]
+
+lemma norm_fst_le (u : Complexification H) : ‖u.1‖ ≤ ‖u‖ := by
+  nlinarith [norm_sq_eq u, norm_nonneg u, norm_nonneg u.1, norm_nonneg u.2, sq_nonneg ‖u.2‖]
+
+lemma norm_snd_le (u : Complexification H) : ‖u.2‖ ≤ ‖u‖ := by
+  nlinarith [norm_sq_eq u, norm_nonneg u, norm_nonneg u.1, norm_nonneg u.2, sq_nonneg ‖u.1‖]
+
+lemma norm_le_add (u : Complexification H) : ‖u‖ ≤ ‖u.1‖ + ‖u.2‖ := by
+  nlinarith [norm_sq_eq u, norm_nonneg u, norm_nonneg u.1, norm_nonneg u.2,
+    mul_nonneg (norm_nonneg u.1) (norm_nonneg u.2)]
+
+instance [CompleteSpace H] : CompleteSpace (Complexification H) := by
+  refine Metric.complete_of_cauchySeq_tendsto fun f hf => ?_
+  have lip1 : LipschitzWith 1 (fun u : Complexification H => u.1) :=
+    LipschitzWith.of_dist_le_mul fun u v => by
+      simp only [dist_eq_norm, NNReal.coe_one, one_mul]; exact norm_fst_le (u - v)
+  have lip2 : LipschitzWith 1 (fun u : Complexification H => u.2) :=
+    LipschitzWith.of_dist_le_mul fun u v => by
+      simp only [dist_eq_norm, NNReal.coe_one, one_mul]; exact norm_snd_le (u - v)
+  obtain ⟨a, ha⟩ := cauchySeq_tendsto_of_complete (lip1.uniformContinuous.comp_cauchySeq hf)
+  obtain ⟨b, hb⟩ := cauchySeq_tendsto_of_complete (lip2.uniformContinuous.comp_cauchySeq hf)
+  refine ⟨(a, b), ?_⟩
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  have h1 : Tendsto (fun n => ‖(f n).1 - a‖) atTop (𝓝 0) := tendsto_iff_norm_sub_tendsto_zero.mp ha
+  have h2 : Tendsto (fun n => ‖(f n).2 - b‖) atTop (𝓝 0) := tendsto_iff_norm_sub_tendsto_zero.mp hb
+  refine squeeze_zero (fun n => norm_nonneg _) (fun n => ?_) (by simpa using h1.add h2)
+  exact norm_le_add _
 
 end Complexification

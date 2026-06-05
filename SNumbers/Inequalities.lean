@@ -60,7 +60,7 @@ subspace into a finite-rank approximant `L`, using a bounded projection:
 The two projection theorems are deep results of Banach-space geometry.
 They are stated here as `exists_projection_ker_eq_of_codim_le`
 (Garling–Gordon) and `exists_projection_range_eq_of_rank_le`
-(Kadets–Snobar) and are **left as `sorry` for now** — every other lemma
+(Kadets–Snobar) and are **left as `sorry`** (basic inputs) — every other lemma
 in this section is a full proof built on top of them.
 
 ## Where the ingredients live
@@ -144,12 +144,12 @@ See the module docstring for the overall strategy. We work over an
 
 variable [CompleteSpace X] [CompleteSpace Y]
 
-/-! ### The two projection theorems (basic inputs, currently `sorry`)
+/-! ### The two projection theorems (basic inputs, `sorry`)
 
 These are the only unproved statements in this section. -/
 
 /-- **Garling–Gordon theorem** (Garling–Gordon 1971; Pietsch
-[Pie87, 1.7.17]). *Currently a `sorry` placeholder.*
+[Pie87, 1.7.17]). *A `sorry` basic input.*
 
 For a closed subspace `M` of a Banach space `X` whose codimension is at
 most `n`, there is a bounded projection `P : X →L[𝕜] X` (`P ∘ P = P`)
@@ -169,7 +169,7 @@ theorem exists_projection_ker_eq_of_codim_le
   sorry
 
 /-- **Kadets–Snobar theorem** (Kadets–Snobar 1971; Pietsch
-[Pie87, 1.5.5]). *Currently a `sorry` placeholder.*
+[Pie87, 1.5.5]). *A `sorry` basic input.*
 
 Every finite-dimensional subspace `V` of a Banach space `Y` of dimension
 at most `n` is the range of a bounded projection `P : Y →L[𝕜] Y`
@@ -385,13 +385,14 @@ The heart of the proof is a **product (determinant) bound**
 
   `∏_{k=0}^n cₖ(S) ≤ (n+1)^{n+1}·∏_{k=0}^n hₖ(S)`              (★)
 
-and its Kolmogorov analogue. We isolate (★) as the statements
-`prod_gelfandNumber_le` / `prod_kolmogorovNumber_le`, **left as `sorry`**;
-they encapsulate the inductive Auerbach-type construction of the paper:
-one builds near-extremal `x₀, …, xₙ ∈ B_X` and functionals, assembles
-`A : ℓ₂ⁿ⁺¹ → X` and `B : Y → ℓ₂ⁿ⁺¹` with `‖A‖, ‖B‖ ≤ √(n+1)`, observes
-that `BSA` is triangular with `det(BSA) ≥ ∏ cₖ(S)`, and uses that on
-Hilbert spaces `det(BSA) = ∏ aₖ(BSA) ≤ ∏ ‖B‖‖A‖·hₖ(S) ≤ (n+1)^{n+1}∏hₖ(S)`.
+and its Kolmogorov analogue, `prod_gelfandNumber_le` / `prod_kolmogorovNumber_le`.
+These rest on the inductive triangular determinant construction of the paper, isolated as
+`exists_gelfandNumber_det_factorisation` / `exists_kolmogorovNumber_det_factorisation`
+(a `sorry`): one assembles `A : ℓ₂ⁿ⁺¹ → X` and `B : Y → ℓ₂ⁿ⁺¹` with
+`‖A‖, ‖B‖ ≤ √(n+1)` and `BSA` triangular with `∏ cₖ(S) ≤ ‖det(BSA)‖`. The
+determinant is read on Hilbert spaces as
+`‖det(BSA)‖ = ∏ aₖ(BSA) ≤ ∏ ‖B‖‖A‖·hₖ(S) ≤ (n+1)^{n+1}∏hₖ(S)`
+(`prod_approximationNumber_eq_norm_det`).
 
 Everything else is elementary and fully proved here:
 
@@ -456,8 +457,7 @@ lemma approximationNumber_comp_comp_le_mul_hilbertNumber
 space. The approximation numbers are Mathlib's singular values
 (`sn_eq_singularValues_of_finiteDimensional`), and `‖det T‖ = ∏ σₖ`
 (`LinearMap.norm_det_eq_prod_singularValues`). This is the determinant
-ingredient of the maximal difference theorem, obtained without the
-`diagonalFactorisation` isometry machinery. -/
+ingredient of the maximal difference theorem. -/
 theorem prod_approximationNumber_eq_norm_det {E : Type u} [NormedAddCommGroup E]
     [InnerProductSpace 𝕜 E] [FiniteDimensional 𝕜 E] [Nontrivial E] (T : E →L[𝕜] E) :
     ∏ k ∈ Finset.range (Module.finrank 𝕜 E), approximationNumber T k
@@ -543,11 +543,11 @@ lemma prod_le_pow_mul_prod_hilbertNumber_of_factorisation (S : X →L[𝕜] Y) (
           (Finset.prod_nonneg fun k _ => hilbertNumber_nonneg S k)
 
 omit [CompleteSpace X] [CompleteSpace Y] in
-/-- **Auerbach determinant factorisation, Gelfand side** — *the remaining
-geometric `sorry`.* For `c < cₙ(S)`-type extremal subspaces one builds
-`A' : ℓ₂ⁿ⁺¹ → X`, `B' : Y → ℓ₂ⁿ⁺¹` with `‖A'‖, ‖B'‖ ≤ √(n+1)` and `B'∘S∘A'`
-upper-triangular with `∏ cₖ(S) ≤ ‖det(B'∘S∘A')‖`. This is the only input the
-Gelfand product bound still needs; everything downstream is now proved. -/
+/-- **Triangular determinant factorisation, Gelfand side** — a geometric `sorry`.
+For `c < cₙ(S)`-type extremal subspaces one builds `A' : ℓ₂ⁿ⁺¹ → X`,
+`B' : Y → ℓ₂ⁿ⁺¹` with `‖A'‖, ‖B'‖ ≤ √(n+1)` and `B'∘S∘A'` upper-triangular with
+`∏ cₖ(S) ≤ ‖det(B'∘S∘A')‖`. This is the only input the Gelfand product bound
+rests on. -/
 theorem exists_gelfandNumber_det_factorisation (S : X →L[𝕜] Y) (n : ℕ) :
     ∃ (A' : EuclideanSpace 𝕜 (Fin (n + 1)) →L[𝕜] X)
       (B' : Y →L[𝕜] EuclideanSpace 𝕜 (Fin (n + 1))),
@@ -559,8 +559,8 @@ theorem exists_gelfandNumber_det_factorisation (S : X →L[𝕜] Y) (n : ℕ) :
 
 omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Product (determinant) bound, Gelfand side.** `∏ cₖ ≤ (n+1)^{n+1} ∏ hₖ`,
-now reduced (via `prod_le_pow_mul_prod_hilbertNumber_of_factorisation` and the
-determinant identity) to the Auerbach factorisation
+reduced (via `prod_le_pow_mul_prod_hilbertNumber_of_factorisation` and the
+determinant identity) to the triangular factorisation
 `exists_gelfandNumber_det_factorisation`. -/
 theorem prod_gelfandNumber_le (S : X →L[𝕜] Y) (n : ℕ) :
     ∏ k ∈ Finset.range (n + 1), gelfandNumber S k
@@ -569,8 +569,8 @@ theorem prod_gelfandNumber_le (S : X →L[𝕜] Y) (n : ℕ) :
   exact prod_le_pow_mul_prod_hilbertNumber_of_factorisation S n A' B' hA hB hdet
 
 omit [CompleteSpace X] [CompleteSpace Y] in
-/-- **Auerbach determinant factorisation, Kolmogorov side** — *the remaining
-geometric `sorry`*, dual to `exists_gelfandNumber_det_factorisation`. -/
+/-- **Triangular determinant factorisation, Kolmogorov side** — a geometric `sorry`,
+dual to `exists_gelfandNumber_det_factorisation`. -/
 theorem exists_kolmogorovNumber_det_factorisation (S : X →L[𝕜] Y) (n : ℕ) :
     ∃ (A' : EuclideanSpace 𝕜 (Fin (n + 1)) →L[𝕜] X)
       (B' : Y →L[𝕜] EuclideanSpace 𝕜 (Fin (n + 1))),

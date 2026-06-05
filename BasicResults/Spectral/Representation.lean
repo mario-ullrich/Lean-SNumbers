@@ -55,7 +55,7 @@ separable Hilbert space this reads: there is a finite measure space
 
 Phases (each a separate, reusable building block; see the chat plan):
 
-* **Phase 0 — `mulL2`. ✓ DONE** (`BasicResults.MultiplicationOperator`): the
+* **Phase 0 — `mulL2`. ✓ DONE** (`BasicResults.Spectral.MultiplicationOperator`): the
   multiplication operator `M_f` on `Lp 𝕜 2 μ` for bounded measurable `f`;
   `‖M_f‖ ≤ ‖f‖∞`, `M_f ∘ M_g = M_{f g}`, `M_1 = id`, and `M_f` self-adjoint
   when `f` is real. (Adjoint `M_{f̄}` for general `f` still to add if needed.)

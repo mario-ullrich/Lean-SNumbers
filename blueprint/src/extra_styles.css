@@ -43,3 +43,10 @@ div.proof_content {
 #legend_title {
 	font-size: 0.9rem;
 }
+
+/* Center the GitHub repository URL, which \github renders as a bare,
+   left-aligned paragraph immediately below the (centered) title block. The
+   adjacent-sibling selector touches only that one paragraph on the home page. */
+div.titlepage + p {
+	text-align: center;
+}

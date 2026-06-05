@@ -48,9 +48,8 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `[CompleteSpace X]` (an infinite series in `X`), so it is restricted to
   Banach spaces. Lives in the sub-namespace `SNumbers.Lifting`.
 * `SNumbers.Uniqueness`: on Hilbert spaces every s-number sequence coincides
-  with the approximation numbers, `sₙ(S) = aₙ(S)` (Pietsch 2.11.9). Proved
-  modulo a single singular value decomposition input
-  (`SVD.exists_scalar_factorisation` in `BasicResults.SVD`).
+  with the approximation numbers, `sₙ(S) = aₙ(S)` (Pietsch 2.11.9), via the
+  scalar factorisation `SVD.exists_scalar_factorisation` in `BasicResults.SVD`.
 * `SNumbers.Inequalities`: the general-space comparison results — the lower
   bound `hₙ ≤ sₙ`, the sandwich theorem `hₙ ≤ sₙ ≤ aₙ`, the bound
   `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, and the maximal difference theorem

@@ -31,18 +31,29 @@ artifact under *Actions → latest run → blueprint-web*.
 │   ├── Hilbert.lean            ← hilbertNumber + (S1)–(S5)
 │   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9);
 │   │                              Hilbert spaces only (from the SVD blackbox)
-│   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ and
-│   │                              Pietsch sandwich hₙ ≤ sₙ ≤ aₙ
+│   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
+│   │                              sandwich hₙ ≤ sₙ ≤ aₙ,
+│   │                              aₙ ≤ (1+√n)·min(cₙ,dₙ) via Garling–Gordon
+│   │                              / Kadets–Snobar, and the maximal
+│   │                              difference thm max(cₙ,dₙ) ≤ (n+1)·(∏hₖ)^{1/(n+1)}
+│   │                              (deep inputs left as `sorry`)
+│   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
+│   │                              s-number (sₙ = σₙ) via uniqueness +
+│   │                              Eckart–Young; rests on the compact-SVD
+│   │                              existence `sorry`
 │   └── Injectivity.lean        ← injective / surjective s-numbers:
 │                                  cₙ injective, dₙ surjective (full proofs)
 ├── BasicResults.lean           ← library entry point
 ├── BasicResults/
 │   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
-│   └── SVD.lean                ← compact SVD via singular-value iteration:
-│                                  norm_isSingularValue (proved), `SVD`,
-│                                  Eckart–Young, diagonal factorisation, and
-│                                  the scalar factorisation `B∘S∘A = c·id`
-│                                  (the s-numbers blackbox)
+│   ├── SVD.lean                ← compact SVD via singular-value iteration:
+│   │                              norm_isSingularValue (proved), `SVD` (`sorry`),
+│   │                              Eckart–Young, diagonal factorisation, and
+│   │                              the scalar factorisation `B∘S∘A = c·id`
+│   │                              (input to uniqueness)
+│   └── Determinant.lean        ← det facts: det T* = conj det T, and
+│                                  ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
+│                                  of the maximal difference thm
 ├── AddOns.lean                 ← auxiliary library entry point
 ├── AddOns/
 │   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact
@@ -71,9 +82,22 @@ artifact under *Actions → latest run → blueprint-web*.
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
 |       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
 | Hilbert number `hₙ` (any `RCLike 𝕜`)      | ✅ proved (S1)–(S5); forms an s-number sequence |
-| Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved (modulo SVD blackbox) |
+| Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved (modulo the spectral projection) |
+| `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
+| Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared, no proof |
+| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared, no proof |
+| `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved (modulo the triangular factorisation) |
+| Determinant product bound `∏ₖ₌₀ⁿ cₖ ≤ (n+1)ⁿ⁺¹·∏ₖ₌₀ⁿ hₖ` (and `dₖ` analogue) | ✅ proved (modulo the triangular factorisation) |
+| Triangular determinant factorisation `∏ cₖ ≤ ‖det(B∘S∘A)‖` (and `dₖ`) | 🟡 declared, no proof |
+| `det T* = conj(det T)` | ✅ proved |
+| `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
+| `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
+| `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
+| `sₙ(S) = σₙ(S)` (fin-dim: all s-numbers = Mathlib singular numbers) | ✅ proved (modulo compact-SVD existence) |
+| Singular-value uniqueness `project σ = Mathlib σ` (`project_singularValues_eq`) | ✅ proved |
+| `IsCompactOperator.SVD` (`OrthonormalOrZero`-indexed) | 🟡 existence is a `sorry` |
 | Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
-| Hilbert-space coincidence `sₙ = aₙ` (2.11.9) | ✅ proved (modulo SVD blackbox) |
+| Hilbert-space coincidence `sₙ = aₙ` (2.11.9) | ✅ proved (modulo the spectral projection) |
 | Metric injection / surjection classes     | ✅ defined          |
 | `sₙ(J∘S) ≤ sₙ(S)`, `sₙ(S∘Q) ≤ sₙ(S)` (any `s`) | ✅ proved        |
 | Gelfand numbers `cₙ` **injective**        | ✅ proved           |
@@ -82,9 +106,9 @@ artifact under *Actions → latest run → blueprint-web*.
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | `norm_isSingularValue` (compact attains norm) | ✅ proved        |
 | Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | 🟡 declared (singular-value iteration)|
-| Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | 🟡 declared, no proof|
-| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | 🟡 declared, no proof|
-| Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | 🟡 declared, no proof (the SVD blackbox the uniqueness theorem consumes)|
+| Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved (modulo `IsCompactOperator.SVD`)|
+| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved (modulo `IsCompactOperator.SVD`)| 
+| Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | ✅ proved (modulo the spectral projection of `S*S`)|
 | Compact ⇔ approximable on Hilbert         | 🟡 declared, no proof|
 
 A green check means fully proved (no `sorry`); 🟡 means the statement is
@@ -94,11 +118,12 @@ in place but the proof is `sorry`.
 
 * **Uniqueness (`SNumbers.Uniqueness`).** On Hilbert spaces every `s`-number
   sequence equals the approximation numbers, `sₙ(S) = aₙ(S)`
-  (`allSNumbers_eq_on_HilbertSpace`, Pietsch 2.11.9). This is **proved based on an unproved SVD result**: the scalar factorisation
-  `SVD.exists_scalar_factorisation` (`B∘S∘A = c·id` for `c < aₙ(S)`,
-  itself a `sorry` blackbox in `BasicResults.SVD`). The reduction uses the
-  reverse-homogeneity lemma `norm_smul_le_sn`, axiom (S3), axiom (S5), and
-  the already-proven upper bound `sn_le_approximationNumber`.
+  (`allSNumbers_eq_on_HilbertSpace`, Pietsch 2.11.9). It reduces, via the scalar
+  factorisation `SVD.exists_scalar_factorisation` (`B∘S∘A = c·id` for `c < aₙ(S)`),
+  to the reverse-homogeneity lemma `norm_smul_le_sn`, axiom (S3), axiom (S5), and
+  the already-proven upper bound `sn_le_approximationNumber`. That factorisation
+  is proved, resting on the spectral projection of `S*S` (the one analytic
+  `sorry`, in `BasicResults.Spectral`).
 * **Injective / surjective (`SNumbers.Injectivity`).** A sequence is
   *injective* if `sₙ(J∘S) = sₙ(S)` for every metric injection `J`
   (isometric embedding), *surjective* if `sₙ(S∘Q) = sₙ(S)` for every metric
@@ -118,20 +143,50 @@ The Hilbert numbers `hₙ` are both, though that is not yet formalised here.
 
 ## Open `sorry`s
 
-All remaining `sorry`s concern the SVD, as listed below. (This has to be done elsewhere.) 
-Given that, the entire `SNumbers/` library is **`sorry`-free**.
+The `SNumbers/` library has a small number of clearly-flagged `sorry`s.
+Two are in `SNumbers/Inequalities.lean`, classical results of Banach-space
+geometry used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
 
-* **`SVD.exists_scalar_factorisation`** (`BasicResults.SVD`) — *the*
-  important one: the Hilbert-space coincidence `sₙ = aₙ` (Pietsch 2.11.9), 
-  Pietsch's sandwich `hₙ ≤ sₙ ≤ aₙ`, and the whole comparison story are 
-  proved **modulo this one fact** (`B∘S∘A = c·id` for `c < aₙ(S)`, 
-  for *any* bounded `S`).
-  It needs the spectral theorem for bounded, positive (non-compact) operators, specifically the spectral subspace of `S*S` for `[c²,∞)`.
-* `SVD.IsCompactOperator.SVD`, `…truncation_residual_eq_approxNumber`
-  (Eckart–Young), `…diagonalFactorisation`, and
-  `SVD.IsCompactOperator.isApproximable` (compact ⇒ approximable on Hilbert)
-  — the standalone compact-SVD results, built on the *proved*
-  `norm_isSingularValue`. These are **not** consumed by the s-number core.
+* **`exists_projection_ker_eq_of_codim_le`** — the **Garling–Gordon**
+  theorem (Garling–Gordon 1971; Pietsch [Pie87, 1.7.17]): a closed
+  subspace `M ⊆ X` of codimension `≤ n` is the kernel of a bounded
+  projection `P` with `‖P‖ ≤ √n`.
+* **`exists_projection_range_eq_of_rank_le`** — the **Kadets–Snobar**
+  theorem (Kadets–Snobar 1971; Pietsch [Pie87, 1.5.5]): a subspace
+  `V ⊆ Y` of dimension `≤ n` is the range of a bounded projection `P`
+  with `‖P‖ ≤ √n`.
+
+Two more are in the same file, the **triangular determinant factorisations**
+behind the maximal difference theorem:
+
+* **`exists_gelfandNumber_det_factorisation`** /
+  **`exists_kolmogorovNumber_det_factorisation`** — the inductive triangular /
+  determinant construction of arXiv:2405.05509: factors `A : ℓ₂ⁿ⁺¹ → X`,
+  `B : Y → ℓ₂ⁿ⁺¹` with `‖A‖,‖B‖ ≤ √(n+1)` and `∏ cₖ(S) ≤ ‖det(B∘S∘A)‖` (resp.
+  `dₖ`). The product bounds `prod_gelfand/kolmogorovNumber_le` and the maximal
+  difference theorem are proved on top of these, using the determinant identity
+  `∏ aₖ = ‖det‖` (`prod_approximationNumber_eq_norm_det`).
+
+Everything else in `SNumbers/` — including `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, the maximal
+difference theorem (modulo the factorisations above), the singular-value
+uniqueness `project_singularValues_eq`, and the universality `sₙ = σₙ` (modulo
+compact-SVD existence) — is `sorry`-free.
+
+The remaining `sorry`s concern the SVD / spectral theory (to be done elsewhere):
+
+* **`SVD.exists_scalar_factorisation`** (`BasicResults.SVD`) is proved, but
+  rests on the **spectral projection** of `S*S`,
+  `SpectralRepresentation.exists_spectral_projection` (`BasicResults.Spectral`,
+  a `sorry`). This single spectral-theory input is what the Hilbert-space
+  coincidence `sₙ = aₙ` (Pietsch 2.11.9) and the sandwich `hₙ ≤ sₙ ≤ aₙ`
+  ultimately rest on — the spectral subspace of `S*S` for `[c²,∞)`, for bounded
+  positive (non-compact) operators.
+* **`SVD.IsCompactOperator.SVD`** — the compact SVD / Schmidt decomposition
+  `S = Σ aₖ⟨uₖ,·⟩vₖ`, built on the proved `norm_isSingularValue`. Its
+  consequences `…truncation_residual_eq_approxNumber` (Eckart–Young),
+  `…diagonalFactorisation`, and `SVD.IsCompactOperator.isApproximable` are
+  **not** consumed by the s-number core.
+* **compact ⇔ approximable on Hilbert** (`AddOns/Compact.lean`).
 
 ## Building
 
@@ -165,4 +220,4 @@ Apache 2.0 — same as Mathlib. See [LICENSE](LICENSE).
   (1974), 201–223.
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
   mathematics 13, Cambridge University Press, 1987.
-* M. Ullrich, *Inequalities between s-numbers*. <https://doi.org/10.1007/s43036-024-00386-x>
+* M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9** (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).

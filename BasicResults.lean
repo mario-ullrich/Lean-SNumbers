@@ -6,8 +6,8 @@ Authors: Mario Ullrich
 import BasicResults.Auerbach
 import BasicResults.SVD
 import BasicResults.Determinant
-import BasicResults.MultiplicationOperator
 import BasicResults.Spectral.Complexification
+import BasicResults.Spectral.MultiplicationOperator
 import BasicResults.Spectral.Representation
 import BasicResults.Spectral.FunctionalCalculus
 import BasicResults.Spectral.MonotoneConvergence
@@ -30,7 +30,7 @@ that support the s-numbers framework:
   endomorphisms of a finite-dimensional inner product space
   (`det T* = conj (det T)`; isometries and coisometries have `‖det‖ = 1`);
   ingredients of the maximal difference theorem in `SNumbers.Inequalities`.
-* `BasicResults.MultiplicationOperator` — the multiplication operator
+* `BasicResults.Spectral.MultiplicationOperator` — the multiplication operator
   `M_f : L²(μ) →L L²(μ)`, `g ↦ f • g`, for an essentially bounded symbol `f`;
   its norm bound, multiplicativity `M_f ∘ M_g = M_{fg}`, and
   self-adjointness for real symbols. **Phase 0** of the spectral

@@ -42,14 +42,14 @@ theory, alongside the axioms (S1)–(S5):
 | approximation `aₙ`    | no¹       | no¹        |
 | Gelfand `cₙ`          | **yes**   | no         |
 | Kolmogorov `dₙ`       | no        | **yes**    |
-| Hilbert `hₙ`          | yes²      | yes²       |
+| Hilbert `hₙ`          |    ?      |    ?       |
 
 ¹ The approximation numbers are the *largest* `s`-numbers but are neither
 injective nor surjective in general: their approximants must live in the
 original spaces, so they cannot ignore an isometric enlargement of the
 codomain (or a quotient of the domain). The injective/surjective *hulls*
 of `aₙ` are exactly `cₙ` and `dₙ`, which is the reason those sequences are
-introduced. ² Known (Pietsch); not yet formalised here.
+introduced.
 
 The two flagship facts (`cₙ` injective, `dₙ` surjective) are proved here in
 full: the defining infima of `cₙ` and `dₙ` range over restriction- /

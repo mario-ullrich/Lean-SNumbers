@@ -564,7 +564,7 @@ continuity $S u = y = \|S\| v$.
 \begin{theorem}[Singular value decomposition / Schmidt representation]
 \label{thm:schmidt-representation}
 \lean{SVD.IsCompactOperator.SVD}
-\notready
+\leanok
 \uses{def:approximation-number, thm:norm-singular-value}
 For every compact $S \in \mathcal{L}(H_1, H_2)$ there exist
 orthonormal sequences $(u_k) \subseteq H_1$, $(v_k) \subseteq H_2$ such
@@ -623,7 +623,7 @@ pinning the \emph{exact} values $a_k$, it requires $S$ compact.
 \begin{theorem}[Scalar factorisation]
 \label{thm:scalar-factorisation}
 \lean{SVD.exists_scalar_factorisation}
-\notready
+\leanok
 \uses{def:approximation-number}
 For \emph{any} bounded $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces
 and any real $c$ with $0 \le c < a_n(S)$, there are contractions
@@ -644,7 +644,7 @@ theorem of $s$-numbers on Hilbert spaces
 \begin{theorem}[Compact $\Rightarrow$ approximable on Hilbert spaces]
 \label{thm:compact-implies-approximable}
 \lean{SVD.IsCompactOperator.isApproximable}
-\notready
+\leanok
 \uses{def:approximable, thm:schmidt-representation}
 Every compact $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces is
 approximable.
@@ -659,12 +659,372 @@ $S$ in operator norm.
 \begin{theorem}[Compact $\Leftrightarrow$ approximable on Hilbert spaces]
 \label{thm:compact-iff-approximable}
 \lean{SVD.isApproximable_iff_isCompactOperator}
-\notready
+\leanok
 \uses{thm:approximable-implies-compact, thm:compact-implies-approximable}
 On Hilbert spaces, $S$ is approximable iff $S$ is compact.
 \end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:approximable-implies-compact, thm:compact-implies-approximable}
+Two implications. The forward direction $S$ approximable $\Rightarrow$ $S$
+compact is Theorem~\ref{thm:approximable-implies-compact}
+(\texttt{IsApproximable.isCompactOperator}); the reverse, compact
+$\Rightarrow$ approximable, is Theorem~\ref{thm:compact-implies-approximable}
+(\texttt{IsCompactOperator.isApproximable}). The Lean proof packages the two
+as \texttt{⟨IsApproximable.isCompactOperator, IsCompactOperator.isApproximable⟩}.
+\end{proof}
 
 The SVD for compact operators is exactly
 Theorem~\ref{thm:schmidt-representation}
 (\texttt{SVD.IsCompactOperator.SVD}), now that the latter is stated for
 compact operators directly.
+
+\chapter{Inequalities between \texorpdfstring{$s$}{s}-numbers}
+\label{ch:inequalities}
+
+Beyond the qualitative sandwich $h_n(S) \le s_n(S) \le a_n(S)$
+(Theorem~\ref{thm:sandwich}), one can compare the individual example
+sequences \emph{quantitatively}. This chapter formalises two such
+comparisons for operators between Banach spaces over $\mathbb{K}$, both from
+Ullrich, \emph{Inequalities between $s$-numbers} (Adv. Oper. Theory \textbf{9}
+(2024), art.~82; arXiv:2405.05509):
+
+\begin{itemize}
+  \item the \emph{forward} bound $a_n(S) \le (1+\sqrt{n})\min(c_n(S), d_n(S))$
+        — the largest $s$-number exceeds the Gelfand and Kolmogorov numbers by
+        at most a factor $1+\sqrt{n}$;
+  \item the \emph{reverse} (maximal difference) bound
+        $\max(c_n(S), d_n(S)) \le (n+1)\,(\prod_{k=0}^n h_k(S))^{1/(n+1)}$ —
+        the Gelfand/Kolmogorov numbers are controlled by the geometric mean of
+        the smallest $s$-numbers, the Hilbert numbers.
+\end{itemize}
+
+Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean},
+\emph{except} four deep geometric inputs left as explicit \texttt{sorry}
+placeholders: the two classical projection theorems and the two Auerbach-type
+determinant factorisations. These are flagged below; every other result is a
+complete proof built on top of them.
+
+\section{Approximation versus Gelfand and Kolmogorov numbers}
+\label{sec:ineq-forward}
+
+\begin{theorem}[Garling--Gordon projection theorem]
+\label{thm:garling-gordon}
+\lean{SNumbers.exists_projection_ker_eq_of_codim_le}
+\leanok
+Let $X$ be a Banach space and $M \subseteq X$ a closed subspace of
+codimension $\le n$. Then there is a bounded projection $P : X \to X$
+($P \circ P = P$) with $\ker P = M$ and $\|P\| \le \sqrt{n}$.
+\end{theorem}
+\begin{proof}
+A classical result of Banach-space geometry (Garling--Gordon 1971; Pietsch
+\emph{Eigenvalues and s-numbers} 1.7.17). The range of $P$ is an
+$n$-dimensional complement of $M$, and the Garling--Gordon bound on the
+projection constant of an $n$-dimensional space gives $\|P\| \le \sqrt{n}$.
+\emph{Not yet formalised} (\texttt{sorry} in Lean); the statement is in place
+as the input to the Gelfand bound below.
+\end{proof}
+
+\begin{theorem}[Kadets--Snobar projection theorem]
+\label{thm:kadets-snobar}
+\lean{SNumbers.exists_projection_range_eq_of_rank_le}
+\leanok
+Let $Y$ be a Banach space and $V \subseteq Y$ a subspace of dimension $\le n$.
+Then there is a bounded projection $P : Y \to Y$ ($P \circ P = P$) with
+$\operatorname{range} P = V$ and $\|P\| \le \sqrt{n}$.
+\end{theorem}
+\begin{proof}
+A classical result (Kadets--Snobar 1971; Pietsch 1.5.5): every
+$n$-dimensional subspace is the range of a projection of norm $\le \sqrt{n}$.
+\emph{Not yet formalised} (\texttt{sorry} in Lean); used as the input to the
+Kolmogorov bound below.
+\end{proof}
+
+\begin{theorem}[$a_n \le (1+\sqrt n)\,c_n$]
+\label{thm:approx-le-gelfand}
+\lean{SNumbers.approximationNumber_le_sqrt_mul_gelfandNumber}
+\leanok
+\uses{def:approximation-number, def:gelfand-number, thm:garling-gordon}
+For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
+$a_n(S) \le (1 + \sqrt{n})\,c_n(S)$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:garling-gordon}
+Fix a closed $M \subseteq X$ of codimension $\le n$ with $\|S|_M\|$ near
+$c_n(S)$. By Garling--Gordon (Theorem~\ref{thm:garling-gordon}) choose a
+projection $P$ with $\ker P = M$ and $\|P\| \le \sqrt n$. Then
+$L := S \circ P$ has rank $\le \operatorname{codim} M \le n$, and
+$S - L = S \circ (\mathrm{id} - P)$ has range inside $M$ (since
+$\operatorname{range}(\mathrm{id}-P) = \ker P = M$), so
+$\|S - L\| \le \|S|_M\|\,\|\mathrm{id} - P\| \le (1+\sqrt n)\,\|S|_M\|$.
+Hence $a_n(S) \le (1+\sqrt n)\,\|S|_M\|$; taking the infimum over $M$ gives the
+claim. The per-subspace step is
+\texttt{approximationNumber\_le\_sqrt\_mul\_deviationFromRestriction}, passed
+to the infimum defining $c_n$.
+\end{proof}
+
+\begin{theorem}[$a_n \le (1+\sqrt n)\,d_n$]
+\label{thm:approx-le-kolmogorov}
+\lean{SNumbers.approximationNumber_le_sqrt_mul_kolmogorovNumber}
+\leanok
+\uses{def:approximation-number, def:kolmogorov-number, thm:kadets-snobar}
+For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
+$a_n(S) \le (1 + \sqrt{n})\,d_n(S)$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:kadets-snobar}
+Dual to the Gelfand half. Fix $V \subseteq Y$ of dimension $\le n$ with
+$\|\pi_V \circ S\|$ near $d_n(S)$; by Kadets--Snobar
+(Theorem~\ref{thm:kadets-snobar}) choose a projection $P$ onto $V$ with
+$\|P\| \le \sqrt n$. Then $L := P \circ S$ has rank $\le n$, and
+$S - L = (\mathrm{id} - P) \circ S$ factors through the quotient $Y / V$
+(because $\mathrm{id} - P$ vanishes on $V$), so
+$\|S - L\| \le \|\mathrm{id} - P\|\,\|\pi_V \circ S\| \le (1+\sqrt n)\,d_n(S)$
+after taking the infimum. The per-subspace step is
+\texttt{approximationNumber\_le\_sqrt\_mul\_deviationFromSubspace}.
+\end{proof}
+
+\begin{theorem}[Combined bound $a_n \le (1+\sqrt n)\min(c_n, d_n)$]
+\label{thm:approx-le-min}
+\lean{SNumbers.approximationNumber_le_sqrt_mul_min}
+\leanok
+\uses{thm:approx-le-gelfand, thm:approx-le-kolmogorov}
+For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
+$a_n(S) \le (1 + \sqrt{n})\,\min\bigl(c_n(S), d_n(S)\bigr)$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:approx-le-gelfand, thm:approx-le-kolmogorov}
+Immediate from the two halves (Theorems~\ref{thm:approx-le-gelfand}
+and~\ref{thm:approx-le-kolmogorov}) by case analysis on which of $c_n(S)$,
+$d_n(S)$ is the smaller.
+\end{proof}
+
+\section{The maximal difference theorem}
+\label{sec:ineq-maxdiff}
+
+The reverse bound rests on a \emph{product (determinant) bound}
+$\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$ and its Kolmogorov
+analogue; taking $(n+1)$-th roots and using that $c_n$ is the smallest of
+$c_0, \dots, c_n$ then yields the geometric-mean bound.
+
+\begin{lemma}[$\prod_k a_k(T) = \|\det T\|$]
+\label{lem:prod-approx-eq-det}
+\lean{SNumbers.prod_approximationNumber_eq_norm_det}
+\leanok
+\uses{def:approximation-number}
+For an endomorphism $T$ of a finite-dimensional inner-product space,
+$\prod_{k < \dim} a_k(T) = \|\det T\|$. Indeed the approximation numbers equal
+the singular values $\sigma_k(T)$ in finite dimension, and
+$\|\det T\| = \prod_k \sigma_k(T)$.
+\end{lemma}
+\begin{proof}
+\leanok
+The approximation numbers coincide with Mathlib's eigenvalue-defined singular
+values (\texttt{sn\_eq\_singularValues\_of\_finiteDimensional}), and
+$\|\det T\| = \prod_k \sigma_k$ is pure linear algebra
+(\texttt{LinearMap.norm\_det\_eq\_prod\_singularValues}, via
+$\|\det T\|^2 = \det(T^*T) = \prod \lambda_k(T^*T) = \prod \sigma_k^2$).
+\end{proof}
+
+\begin{theorem}[Auerbach determinant factorisation, Gelfand side]
+\label{thm:det-factor-gelfand}
+\lean{SNumbers.exists_gelfandNumber_det_factorisation}
+\leanok
+\uses{def:gelfand-number}
+For $S \in \mathcal{L}(X, Y)$ there exist
+$A' : \ell_2^{n+1} \to X$ and $B' : Y \to \ell_2^{n+1}$ with
+$\|A'\|, \|B'\| \le \sqrt{n+1}$ and
+$\prod_{k=0}^n c_k(S) \le \|\det(B' \circ S \circ A')\|$.
+\end{theorem}
+\begin{proof}
+The inductive Auerbach-type construction of the paper: build near-extremal
+$x_0, \dots, x_n \in B_X$ and dual functionals, assemble $A', B'$ of norm
+$\le \sqrt{n+1}$ so that $B' S A'$ is upper-triangular with diagonal entries
+$\ge c_k(S)$, whence $\det(B'SA') \ge \prod c_k(S)$. \emph{Not yet
+formalised} (\texttt{sorry} in Lean) — this is the only open input to the
+Gelfand product bound.
+\end{proof}
+
+\begin{theorem}[Auerbach determinant factorisation, Kolmogorov side]
+\label{thm:det-factor-kolmogorov}
+\lean{SNumbers.exists_kolmogorovNumber_det_factorisation}
+\leanok
+\uses{def:kolmogorov-number}
+Dual statement with $d_k(S)$ in place of $c_k(S)$: there exist
+$A', B'$ of norm $\le \sqrt{n+1}$ with
+$\prod_{k=0}^n d_k(S) \le \|\det(B' \circ S \circ A')\|$.
+\end{theorem}
+\begin{proof}
+Dual to Theorem~\ref{thm:det-factor-gelfand}. \emph{Not yet formalised}
+(\texttt{sorry} in Lean).
+\end{proof}
+
+\begin{proposition}[Gelfand product bound]
+\label{prop:prod-gelfand-le}
+\lean{SNumbers.prod_gelfandNumber_le}
+\leanok
+\uses{lem:prod-approx-eq-det, thm:det-factor-gelfand, def:hilbert-number}
+$\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$.
+\end{proposition}
+\begin{proof}
+\leanok
+\uses{lem:prod-approx-eq-det, thm:det-factor-gelfand}
+Take the factorisation of Theorem~\ref{thm:det-factor-gelfand}. By
+Lemma~\ref{lem:prod-approx-eq-det},
+$\|\det(B'SA')\| = \prod_k a_k(B'SA')$, and the Hilbert-number ideal bound
+$a_k(B'SA') \le \|B'\|\,\|A'\|\,h_k(S)$
+(\texttt{approximationNumber\_eucl\_comp\_comp\_le\_mul\_hilbertNumber}) gives
+$\prod_k c_k(S) \le \prod_k \|B'\|\|A'\| h_k(S) \le (n+1)^{n+1}\prod_k h_k(S)$,
+using $\|B'\|\|A'\| \le n+1$.
+\end{proof}
+
+\begin{proposition}[Kolmogorov product bound]
+\label{prop:prod-kolmogorov-le}
+\lean{SNumbers.prod_kolmogorovNumber_le}
+\leanok
+\uses{lem:prod-approx-eq-det, thm:det-factor-kolmogorov, def:hilbert-number}
+$\prod_{k=0}^n d_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$.
+\end{proposition}
+\begin{proof}
+\leanok
+\uses{lem:prod-approx-eq-det, thm:det-factor-kolmogorov}
+Identical to Proposition~\ref{prop:prod-gelfand-le}, using the Kolmogorov-side
+factorisation Theorem~\ref{thm:det-factor-kolmogorov}.
+\end{proof}
+
+\begin{theorem}[Maximal difference theorem]
+\label{thm:maximal-difference}
+\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_geomMean_hilbertNumber}
+\leanok
+\uses{prop:prod-gelfand-le, prop:prod-kolmogorov-le, def:hilbert-number}
+For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
+\[
+  \max\bigl(c_n(S), d_n(S)\bigr) \;\le\;
+  (n+1)\,\Bigl(\textstyle\prod_{k=0}^n h_k(S)\Bigr)^{1/(n+1)}.
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{prop:prod-gelfand-le, prop:prod-kolmogorov-le}
+Since $c_n$ is non-increasing, $c_n(S)^{n+1} \le \prod_{k=0}^n c_k(S)$;
+combined with the Gelfand product bound (Proposition~\ref{prop:prod-gelfand-le})
+this gives $c_n(S)^{n+1} \le (n+1)^{n+1}\prod_k h_k(S)$, and taking the
+$(n+1)$-th root yields
+$c_n(S) \le (n+1)(\prod_k h_k(S))^{1/(n+1)}$. The same argument with
+Proposition~\ref{prop:prod-kolmogorov-le} handles $d_n(S)$, and the maximum of
+the two bounds is the common right-hand side. The two elementary steps are
+\texttt{self\_pow\_le\_prod} and \texttt{rpow\_combine}.
+\end{proof}
+
+\chapter{Injective and surjective \texorpdfstring{$s$}{s}-numbers}
+\label{ch:injectivity}
+
+Two further structural properties of an $s$-number sequence, from Pietsch's
+theory, single out the Gelfand and Kolmogorov numbers. They concern the
+behaviour of $s_n$ under composition with two distinguished classes of maps.
+Everything in this chapter is fully formalised in
+\texttt{SNumbers/Injectivity.lean}.
+
+\begin{definition}[Metric injection]
+\label{def:metric-injection}
+\lean{SNumbers.IsMetricInjection}
+\leanok
+A \emph{metric injection} is a continuous linear map $J : Y \to Z$ that
+preserves norms: $\|J y\| = \|y\|$ for all $y$ (an isometric embedding). In
+particular $\|J\| \le 1$.
+\end{definition}
+
+\begin{definition}[Metric surjection]
+\label{def:metric-surjection}
+\lean{SNumbers.IsMetricSurjection}
+\leanok
+A \emph{metric surjection} is a continuous linear map $Q : W \to X$ that is a
+contraction ($\|Q\| \le 1$) and maps the open unit ball \emph{onto} the open
+unit ball: every $x$ has preimages of norm arbitrarily close to $\|x\|$. This
+is the quotient-map condition $\|x\| = \inf\{\|w\| : Q w = x\}$.
+\end{definition}
+
+\begin{lemma}[Norms are preserved under the two compositions]
+\label{lem:metric-norm-comp}
+\lean{SNumbers.IsMetricInjection.norm_comp,
+      SNumbers.IsMetricSurjection.norm_comp}
+\leanok
+\uses{def:metric-injection, def:metric-surjection}
+Post-composition with a metric injection and pre-composition with a metric
+surjection both leave the operator norm unchanged:
+$\|J \circ T\| = \|T\|$ and $\|T \circ Q\| = \|T\|$.
+\end{lemma}
+\begin{proof}
+\leanok
+For the injection, $\|(J \circ T)x\| = \|J(Tx)\| = \|Tx\|$ pointwise, so the
+two operator norms agree. For the surjection, $\|T \circ Q\| \le \|T\|$ since
+$\|Q\| \le 1$; conversely, lifting each $x$ to a preimage $w$ with
+$\|w\| \approx \|x\|$ gives $\|Tx\| = \|(T\circ Q)w\| \le \|T\circ Q\|\,\|w\|$,
+and letting the slack tend to $0$ yields $\|T\| \le \|T \circ Q\|$.
+\end{proof}
+
+\begin{definition}[Injective / surjective $s$-number sequence]
+\label{def:injective-surjective}
+\lean{SNumbers.Injective, SNumbers.Surjective}
+\leanok
+\uses{def:s-number-sequence, def:metric-injection, def:metric-surjection}
+An $s$-number sequence $s$ is \emph{injective} if post-composition with any
+metric injection leaves it unchanged, $s_n(J \circ S) = s_n(S)$; it is
+\emph{surjective} if pre-composition with any metric surjection leaves it
+unchanged, $s_n(S \circ Q) = s_n(S)$.
+\end{definition}
+
+\begin{theorem}[The free inequality]
+\label{thm:free-inequality}
+\lean{SNumbers.sn_comp_metricInjection_le,
+      SNumbers.sn_comp_metricSurjection_le}
+\leanok
+\uses{def:s-number-sequence, def:metric-injection, def:metric-surjection}
+For \emph{every} $s$-number sequence, $s_n(J \circ S) \le s_n(S)$ for any
+metric injection $J$, and $s_n(S \circ Q) \le s_n(S)$ for any metric
+surjection $Q$. (Injectivity / surjectivity assert the reverse inequalities.)
+\end{theorem}
+\begin{proof}
+\leanok
+Both are special cases of the ideal property (S3): with $\|J\| \le 1$,
+$s_n(J \circ S) = s_n(J \circ S \circ \mathrm{id}) \le \|J\|\,s_n(S) \le s_n(S)$,
+and dually with $\|Q\| \le 1$.
+\end{proof}
+
+\begin{theorem}[The Gelfand numbers are injective]
+\label{thm:gelfand-injective}
+\lean{SNumbers.injective_gelfandNumber}
+\leanok
+\uses{def:injective-surjective, def:gelfand-number, lem:metric-norm-comp}
+The Gelfand numbers $c_n$ form an injective $s$-number sequence:
+$c_n(J \circ S) = c_n(S)$ for every metric injection $J$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{lem:metric-norm-comp}
+The infimum defining $c_n$ ranges over restriction norms $\|S|_M\|$, and
+$\|(J \circ S)|_M\| = \|J \circ (S|_M)\| = \|S|_M\|$ by
+Lemma~\ref{lem:metric-norm-comp}. The two infimum sets therefore coincide
+term by term, so the Gelfand numbers agree.
+\end{proof}
+
+\begin{theorem}[The Kolmogorov numbers are surjective]
+\label{thm:kolmogorov-surjective}
+\lean{SNumbers.surjective_kolmogorovNumber}
+\leanok
+\uses{def:injective-surjective, def:kolmogorov-number, lem:metric-norm-comp}
+The Kolmogorov numbers $d_n$ form a surjective $s$-number sequence:
+$d_n(S \circ Q) = d_n(S)$ for every metric surjection $Q$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{lem:metric-norm-comp}
+The infimum defining $d_n$ ranges over quotient norms
+$\|\pi_V \circ S\|$, and
+$\|\pi_V \circ (S \circ Q)\| = \|(\pi_V \circ S) \circ Q\| = \|\pi_V \circ S\|$
+by Lemma~\ref{lem:metric-norm-comp}. The two infimum sets coincide term by
+term, so the Kolmogorov numbers agree.
+\end{proof}
