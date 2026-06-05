@@ -653,7 +653,7 @@ approximable.
 The Schmidt representation applied to the compact positive self-adjoint
 operator $S^* S$ yields the orthonormal eigenbasis used to define the
 truncated SVD; the truncations are finite-rank operators converging to
-$S$ in operator norm.
+$S$ in operator norm. \emph{Not yet formalised} (\texttt{sorry} in Lean).
 \end{proof}
 
 \begin{theorem}[Compact $\Leftrightarrow$ approximable on Hilbert spaces]
@@ -664,14 +664,13 @@ $S$ in operator norm.
 On Hilbert spaces, $S$ is approximable iff $S$ is compact.
 \end{theorem}
 \begin{proof}
-\leanok
 \uses{thm:approximable-implies-compact, thm:compact-implies-approximable}
 Two implications. The forward direction $S$ approximable $\Rightarrow$ $S$
 compact is Theorem~\ref{thm:approximable-implies-compact}
 (\texttt{IsApproximable.isCompactOperator}); the reverse, compact
 $\Rightarrow$ approximable, is Theorem~\ref{thm:compact-implies-approximable}
-(\texttt{IsCompactOperator.isApproximable}). The Lean proof packages the two
-as \texttt{⟨IsApproximable.isCompactOperator, IsCompactOperator.isApproximable⟩}.
+(\texttt{IsCompactOperator.isApproximable}, still a \texttt{sorry}). The Lean proof packages
+the two as \texttt{⟨IsApproximable.isCompactOperator, IsCompactOperator.isApproximable⟩}.
 \end{proof}
 
 The SVD for compact operators is exactly
@@ -701,7 +700,7 @@ Ullrich, \emph{Inequalities between $s$-numbers} (Adv. Oper. Theory \textbf{9}
 
 Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean},
 \emph{except} four deep geometric inputs left as explicit \texttt{sorry}
-placeholders: the two classical projection theorems and the two Auerbach-type
+placeholders: the two classical projection theorems and the two triangular
 determinant factorisations. These are flagged below; every other result is a
 complete proof built on top of them.
 
@@ -829,7 +828,7 @@ $\|\det T\| = \prod_k \sigma_k$ is pure linear algebra
 $\|\det T\|^2 = \det(T^*T) = \prod \lambda_k(T^*T) = \prod \sigma_k^2$).
 \end{proof}
 
-\begin{theorem}[Auerbach determinant factorisation, Gelfand side]
+\begin{theorem}[Triangular determinant factorisation, Gelfand side]
 \label{thm:det-factor-gelfand}
 \lean{SNumbers.exists_gelfandNumber_det_factorisation}
 \leanok
@@ -840,7 +839,7 @@ $\|A'\|, \|B'\| \le \sqrt{n+1}$ and
 $\prod_{k=0}^n c_k(S) \le \|\det(B' \circ S \circ A')\|$.
 \end{theorem}
 \begin{proof}
-The inductive Auerbach-type construction of the paper: build near-extremal
+The inductive triangular determinant construction of the paper: build near-extremal
 $x_0, \dots, x_n \in B_X$ and dual functionals, assemble $A', B'$ of norm
 $\le \sqrt{n+1}$ so that $B' S A'$ is upper-triangular with diagonal entries
 $\ge c_k(S)$, whence $\det(B'SA') \ge \prod c_k(S)$. \emph{Not yet
@@ -848,7 +847,7 @@ formalised} (\texttt{sorry} in Lean) — this is the only open input to the
 Gelfand product bound.
 \end{proof}
 
-\begin{theorem}[Auerbach determinant factorisation, Kolmogorov side]
+\begin{theorem}[Triangular determinant factorisation, Kolmogorov side]
 \label{thm:det-factor-kolmogorov}
 \lean{SNumbers.exists_kolmogorovNumber_det_factorisation}
 \leanok
