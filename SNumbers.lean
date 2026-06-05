@@ -13,6 +13,7 @@ import SNumbers.KolmogorovLifting
 import SNumbers.Hilbert
 import SNumbers.Inequalities
 import SNumbers.Uniqueness
+import SNumbers.SingularValuesFinDim
 import SNumbers.Injectivity
 
 /-!
@@ -51,7 +52,17 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   modulo a single singular value decomposition input
   (`SVD.exists_scalar_factorisation` in `BasicResults.SVD`).
 * `SNumbers.Inequalities`: the general-space comparison results — the lower
-  bound `hₙ ≤ sₙ` and Pietsch's sandwich theorem `hₙ ≤ sₙ ≤ aₙ`.
+  bound `hₙ ≤ sₙ`, the sandwich theorem `hₙ ≤ sₙ ≤ aₙ`, the bound
+  `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, and the maximal difference theorem
+  `max(cₙ,dₙ) ≤ (n+1)·(∏hₖ)^{1/(n+1)}`.
+* `SNumbers.SingularValuesFinDim`: in finite dimension, Mathlib's singular
+  numbers coincide with every s-number sequence
+  (`sn_eq_singularValues_of_finiteDimensional`, `sₙ = σₙ`), via uniqueness
+  and Eckart–Young (`aₙ = σₙ`). The bridge to Mathlib's eigenvalue-defined
+  `σ` (`project_singularValues_eq`) is fully proved: the `uₖ` diagonalise
+  `S* ∘ S` with eigenvalues `σₖ²`, and matching eigenvalue multiplicities
+  (`card_filter_eigenvalues_eq`) identifies them with Mathlib's. The whole
+  file rests only on the SVD existence theorem in `BasicResults.SVD`.
 * `SNumbers.Injectivity`: injective and surjective s-number sequences; the
   Gelfand numbers `cₙ` are injective and the Kolmogorov numbers `dₙ` are
   surjective.
@@ -68,5 +79,7 @@ consumes). Auxiliary material on approximable operators lives in the
   (1974), 201–223.
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
   mathematics 13, Cambridge University Press, 1987.
-* M. Ullrich, *Inequalities between s-numbers*. <https://doi.org/10.1007/s43036-024-00386-x>
+* M. Ullrich, *Inequalities between s-numbers*, Advances in Operator
+  Theory **9** (2024), no. 4, article no. 82.
+  <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
 -/
