@@ -26,8 +26,7 @@ operators that the `s`-numbers uniqueness theorem consumes.
 ## Main results
 
 * `SVD.IsCompactOperator.norm_isSingularValue` — every
-  compact operator attains its operator norm as a singular value
-  (**proved**).
+  compact operator attains its operator norm as a singular value.
 * `SVD.IsCompactOperator.SVD` — the singular value
   decomposition / Schmidt representation `S x = Σ aₖ ⟨uₖ,x⟩ vₖ`. Needs the
   *infinite* iteration plus the convergence facts `σₖ → 0`, `HasSum`.
@@ -42,10 +41,9 @@ operators that the `s`-numbers uniqueness theorem consumes.
   for an **arbitrary bounded** `S`. This is the single SVD input consumed
   by `SNumbers.Uniqueness`.
 
-Of these, `norm_isSingularValue` (the analytic heart),
-`truncation_residual_eq_approxNumber` (Eckart–Young) and
-`diagonalFactorisation` (the latter two built on `SVD`) are **proved**;
-`SVD` and `exists_scalar_factorisation` remain `sorry`.
+Every result above is proved except `IsCompactOperator.SVD` itself, which
+remains `sorry` (the infinite iteration together with its convergence facts
+`σₖ → 0` and the pointwise `HasSum`).
 -/
 
 universe u
@@ -633,8 +631,7 @@ private lemma norm_sum_smul_sq {ι : Type*} {H : Type u} [NormedAddCommGroup H]
   simp
 
 omit [CompleteSpace H₁] [CompleteSpace H₂] in
-/-- From the SVD data, `S uₖ = σₖ vₖ` (collapse the `HasSum` at `uₖ`). Public
-so the finite-dimensional singular-value coincidence can reuse it. -/
+/-- From the SVD data, `S uₖ = σₖ vₖ` (collapse the `HasSum` at `uₖ`). -/
 lemma svd_apply_left {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₂}
     (hu : OrthonormalOrZero 𝕜 u) (htie : ∀ k, σ k ≠ 0 → u k ≠ 0)
     (hsum : ∀ x, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x)) (k : ℕ) :
@@ -649,11 +646,9 @@ lemma svd_apply_left {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → 
     · simp [hjk]
   rw [hfun]; exact hasSum_ite_eq k _
 
-/-- **Eckart–Young, isolated for reuse.** From any SVD of `S`
-(`OrthonormalOrZero` singular vectors with the nonzero-σ tie, and the
-`HasSum` Schmidt expansion), the `m`-th singular value equals the `m`-th
-approximation number: `σ m = aₘ(S)`. Made public so the finite-dimensional
-coincidence `sₙ = σₙ` (`SNumbers.SingularValues`) can consume it. -/
+/-- **Eckart–Young.** From any SVD of `S` (`OrthonormalOrZero` singular vectors
+with the nonzero-σ tie, and the `HasSum` Schmidt expansion), the `m`-th singular
+value equals the `m`-th approximation number: `σ m = aₘ(S)`. -/
 lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁}
     {v : ℕ → H₂} (hσ0 : ∀ k, 0 ≤ σ k) (hσanti : Antitone σ) (hu : OrthonormalOrZero 𝕜 u)
     (hv : OrthonormalOrZero 𝕜 v) (hut : ∀ k, σ k ≠ 0 → u k ≠ 0) (hvt : ∀ k, σ k ≠ 0 → v k ≠ 0)
