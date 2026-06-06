@@ -13,6 +13,8 @@ import BasicResults.Determinant
 import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
 import BasicResults.TriangularFactorisation
+import Mathlib.Analysis.Normed.Module.HahnBanach
+import Mathlib.Analysis.InnerProductSpace.Basic
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
@@ -135,6 +137,212 @@ theorem bernsteinNumber_le_gelfandNumber (S : X →L[𝕜] Y) (n : ℕ) :
     bernsteinNumber S n ≤ gelfandNumber S n :=
   bernsteinNumber_le_of_injective_strict
     isStrictSNumberSequence_gelfandNumber injective_gelfandNumber S n
+
+/-! ## Reverse bound (Hilbert codomain): `cₙ ≤ √(n+1)·bₙ`
+
+The reverse of `bₙ ≤ cₙ`, when the codomain is a Hilbert space:
+`cₙ(S) ≤ √(n+1)·bₙ(S)` (Theorem 8 of arXiv:2406.05509 / 2406.07108). From
+`γ < cₙ(S)`, every closed subspace of codimension `≤ n` carries a unit vector
+that `S` stretches by more than `γ`; assembling `n+1` of these in nested kernels
+makes their images orthonormal, so `S` is bounded below on their span. -/
+
+/-- Boundedness of the supremum set defining `bernsteinNumber` (the version in
+`SNumbers.Bernstein` is private): every gain is `≤ ‖S‖`. -/
+private lemma bSet_bddAbove' (S : X →L[𝕜] Y) (n : ℕ) :
+    BddAbove {r : ℝ | ∃ M : Submodule 𝕜 X,
+        Module.rank 𝕜 M = (n + 1 : ℕ) ∧ r = gainOnSubspace S M} :=
+  ⟨‖S‖, by rintro _ ⟨M, _, rfl⟩; exact gainOnSubspace_le_norm S M⟩
+
+/-- **Analytic heart of the construction.** Given functionals `ρ'` and `m ≤ n`,
+if `γ < cₙ(S)` there is a unit-image vector `eₘ` (`‖S eₘ‖ = 1`, `‖eₘ‖ ≤ 1/γ`) in
+`⋂_i ker(ρ'ᵢ∘S)` and a norming functional `ρₘ`. The kernel `N` is closed with
+`codim ≤ m ≤ n`, so `cₙ(S) ≤ ‖S|_N‖` supplies the stretched vector. -/
+lemma exists_next_vector (S : X →L[𝕜] Y) {n : ℕ} {γ : ℝ} (hγ : 0 < γ)
+    (hγc : γ < gelfandNumber S n) {m : ℕ} (hm : m ≤ n) (ρ' : Fin m → (Y →L[𝕜] 𝕜)) :
+    ∃ (em : X) (ρm : Y →L[𝕜] 𝕜),
+      ‖S em‖ = 1 ∧ ‖em‖ ≤ 1 / γ ∧ ‖ρm‖ = 1 ∧ ρm (S em) = (‖S em‖ : 𝕜) ∧
+      (∀ i : Fin m, ρ' i (S em) = 0) := by
+  classical
+  set Φ : X →L[𝕜] (Fin m → 𝕜) := ContinuousLinearMap.pi (fun i => (ρ' i).comp S) with hΦ
+  have hΦapp : ∀ x i, Φ x i = ρ' i (S x) := by intro x i; simp [hΦ]
+  set N : Submodule 𝕜 X := LinearMap.ker (Φ : X →ₗ[𝕜] (Fin m → 𝕜)) with hN
+  have hN_closed : IsClosed (N : Set X) := Φ.isClosed_ker
+  have hN_rank : Module.rank 𝕜 (X ⧸ N) ≤ (n : Cardinal) := by
+    have heq : Module.rank 𝕜 (X ⧸ N)
+        = Module.rank 𝕜 (LinearMap.range (Φ : X →ₗ[𝕜] (Fin m → 𝕜))) :=
+      (Φ : X →ₗ[𝕜] (Fin m → 𝕜)).quotKerEquivRange.rank_eq
+    rw [heq]
+    calc Module.rank 𝕜 (LinearMap.range (Φ : X →ₗ[𝕜] (Fin m → 𝕜)))
+        ≤ Module.rank 𝕜 (Fin m → 𝕜) := Submodule.rank_le _
+      _ = (m : Cardinal) := rank_fin_fun m
+      _ ≤ (n : Cardinal) := by exact_mod_cast hm
+  have hdev : γ < ‖S.comp N.subtypeL‖ :=
+    lt_of_lt_of_le hγc (gelfandNumber_le_deviation hN_closed hN_rank)
+  obtain ⟨ξ, hξ1, hξγ⟩ := (S.comp N.subtypeL).exists_lt_apply_of_lt_opNorm hdev
+  set u : X := (ξ : X) with hu
+  have hSu : γ < ‖S u‖ := hξγ
+  have hSu_pos : 0 < ‖S u‖ := lt_trans hγ hSu
+  have hu_le : ‖u‖ ≤ 1 := le_of_lt hξ1
+  have hΦu0 : Φ u = 0 := LinearMap.mem_ker.mp ξ.2
+  set em : X := ((‖S u‖ : 𝕜))⁻¹ • u with hem
+  have hSem : ‖S em‖ = 1 := by
+    rw [hem, map_smul, norm_smul, norm_inv, RCLike.norm_ofReal, abs_of_pos hSu_pos,
+      inv_mul_cancel₀ hSu_pos.ne']
+  have hem_norm : ‖em‖ ≤ 1 / γ := by
+    rw [hem, norm_smul, norm_inv, RCLike.norm_ofReal, abs_of_pos hSu_pos]
+    calc (‖S u‖)⁻¹ * ‖u‖
+        ≤ (‖S u‖)⁻¹ * 1 := by apply mul_le_mul_of_nonneg_left hu_le (by positivity)
+      _ = (‖S u‖)⁻¹ := mul_one _
+      _ ≤ 1 / γ := by rw [inv_eq_one_div]; exact one_div_le_one_div_of_le hγ hSu.le
+  have hem_ker : ∀ i : Fin m, ρ' i (S em) = 0 := by
+    intro i
+    have hui : ρ' i (S u) = 0 := by rw [← hΦapp u i, hΦu0]; rfl
+    rw [hem, map_smul, map_smul, hui, smul_zero]
+  obtain ⟨ρm, hρm_norm, hρm_app⟩ :=
+    exists_dual_vector (𝕜 := 𝕜) (S em) (ne_of_eq_of_ne hSem one_ne_zero)
+  exact ⟨em, ρm, hSem, hem_norm, hρm_norm, hρm_app, hem_ker⟩
+
+section Hilbert
+
+variable {H : Type u} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
+
+/-- Orthonormal version of the nested construction: the images `S eⱼ` are
+pairwise orthogonal and of unit norm. -/
+lemma exists_triangular_system_hilbert (S : X →L[𝕜] H) {n : ℕ}
+    {γ : ℝ} (hγ : 0 < γ) (hγc : γ < gelfandNumber S n) :
+    ∀ m : ℕ, m ≤ n + 1 → ∃ e : Fin m → X,
+      (∀ j, ‖S (e j)‖ = 1) ∧ (∀ j, ‖e j‖ ≤ 1 / γ) ∧
+      (∀ i j : Fin m, i < j → inner 𝕜 (S (e i)) (S (e j)) = 0) := by
+  intro m
+  induction m with
+  | zero =>
+    intro _
+    exact ⟨Fin.elim0, (fun j => j.elim0), (fun j => j.elim0), (fun i => i.elim0)⟩
+  | succ k ih =>
+    intro hk
+    obtain ⟨e', h1, h2, h3⟩ := ih (Nat.le_of_succ_le hk)
+    obtain ⟨em, _, hSem, hemn, _, _, hker⟩ :=
+      exists_next_vector S hγ hγc (Nat.le_of_succ_le_succ hk)
+        (fun i => (innerSL 𝕜 (S (e' i)) : H →L[𝕜] 𝕜))
+    refine ⟨Fin.snoc e' em, ?_, ?_, ?_⟩
+    · intro j; induction j using Fin.lastCases with
+      | last => simpa using hSem
+      | cast j' => simpa using h1 j'
+    · intro j; induction j using Fin.lastCases with
+      | last => simpa using hemn
+      | cast j' => simpa using h2 j'
+    · intro i j hij
+      rcases Fin.eq_castSucc_or_eq_last j with ⟨j', rfl⟩ | rfl
+      · have hi : i ≠ Fin.last k := ne_of_lt (hij.trans (Fin.castSucc_lt_last j'))
+        obtain ⟨i', rfl⟩ := Fin.eq_castSucc_of_ne_last hi
+        rw [Fin.snoc_castSucc, Fin.snoc_castSucc]
+        exact h3 i' j' (Fin.castSucc_lt_castSucc_iff.mp hij)
+      · have hi : i ≠ Fin.last k := ne_of_lt hij
+        obtain ⟨i', rfl⟩ := Fin.eq_castSucc_of_ne_last hi
+        rw [Fin.snoc_castSucc, Fin.snoc_last]
+        have hk0 := hker i'
+        simpa using hk0
+
+/-- **Reverse bound, Hilbert codomain.** If `H` is a Hilbert space then
+`cₙ(S) ≤ √(n+1)·bₙ(S)` — sharp polynomial, product-free, pointwise (Theorem 8 of
+arXiv:2406.07108). Orthonormal images give `‖S x‖² = ∑ ‖gⱼ‖²` (Parseval) and
+`∑‖gⱼ‖ ≤ √(n+1)·‖S x‖` (Cauchy–Schwarz). -/
+theorem gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert
+    (S : X →L[𝕜] H) (n : ℕ) :
+    gelfandNumber S n ≤ Real.sqrt ((n : ℝ) + 1) * bernsteinNumber S n := by
+  have hb : 0 ≤ bernsteinNumber S n := bernsteinNumber_nonneg S n
+  have hfacs : (0 : ℝ) < Real.sqrt ((n : ℝ) + 1) := Real.sqrt_pos.mpr (by positivity)
+  by_contra h
+  rw [not_le] at h
+  obtain ⟨γ, hγ1, hγ2⟩ := exists_between h
+  have hγpos : 0 < γ := lt_of_le_of_lt (by positivity) hγ1
+  obtain ⟨e, hSe, hen, hortho⟩ := exists_triangular_system_hilbert S hγpos hγ2 (n + 1) le_rfl
+  have hon : Orthonormal 𝕜 (fun j => S (e j)) := by
+    rw [orthonormal_iff_ite]
+    intro i j
+    rcases lt_trichotomy i j with hlt | heq | hgt
+    · rw [hortho i j hlt]; simp [ne_of_lt hlt]
+    · subst heq; rw [inner_self_eq_norm_sq_to_K, hSe i]; simp
+    · rw [← inner_conj_symm, hortho j i hgt]; simp [ne_of_gt hgt]
+  have hSx : ∀ g : Fin (n + 1) → 𝕜, S (∑ i, g i • e i) = ∑ i, g i • S (e i) := by
+    intro g; rw [map_sum]; simp_rw [map_smul]
+  have hgj : ∀ (g : Fin (n + 1) → 𝕜) (j), inner 𝕜 (S (e j)) (S (∑ i, g i • e i)) = g j := by
+    intro g j
+    rw [hSx g, inner_sum,
+      Finset.sum_eq_single j
+        (fun i _ hij => by
+          rw [inner_smul_right, (orthonormal_iff_ite (𝕜 := 𝕜)).mp hon j i,
+            if_neg (Ne.symm hij), mul_zero])
+        (fun hj => absurd (Finset.mem_univ j) hj)]
+    rw [inner_smul_right, (orthonormal_iff_ite (𝕜 := 𝕜)).mp hon j j, if_pos rfl, mul_one]
+  have hindep : LinearIndependent 𝕜 e := by
+    rw [Fintype.linearIndependent_iff]
+    intro g hg j
+    have hj := hgj g j
+    rw [hg, map_zero, inner_zero_right] at hj
+    exact hj.symm
+  set M : Submodule 𝕜 X := Submodule.span 𝕜 (Set.range e) with hM
+  have hrankM : Module.rank 𝕜 M = ((n + 1 : ℕ) : Cardinal) := by
+    classical
+    haveI : Fintype (Set.range e) := Set.fintypeRange e
+    rw [hM, rank_span hindep, Cardinal.mk_fintype,
+      Set.card_range_of_injective hindep.injective, Fintype.card_fin]
+  have hgain : γ / Real.sqrt ((n : ℝ) + 1) ≤ gainOnSubspace S M := by
+    refine le_gainOnSubspace ?_ ?_
+    · intro hbot
+      have he0 : e 0 ∈ M := Submodule.subset_span ⟨0, rfl⟩
+      rw [hbot, Submodule.mem_bot] at he0
+      have h0 : ‖S (e 0)‖ = 0 := by rw [he0, map_zero, norm_zero]
+      rw [hSe 0] at h0; norm_num at h0
+    · intro x hxM hxne
+      obtain ⟨g, rfl⟩ := (Submodule.mem_span_range_iff_exists_fun 𝕜).mp hxM
+      have hxpos : 0 < ‖∑ i, g i • e i‖ := norm_pos_iff.mpr hxne
+      have hpars : ∑ j, ‖g j‖ ^ 2 = ‖S (∑ i, g i • e i)‖ ^ 2 := by
+        have hK : (∑ j, ‖g j‖ ^ 2 : 𝕜) = (‖S (∑ i, g i • e i)‖ ^ 2 : 𝕜) := by
+          rw [← inner_self_eq_norm_sq_to_K]
+          nth_rewrite 1 [hSx g]
+          rw [sum_inner]
+          refine Finset.sum_congr rfl (fun i _ => ?_)
+          rw [inner_smul_left, hgj g i, RCLike.conj_mul]
+        exact_mod_cast hK
+      have hCS : (∑ j, ‖g j‖) ^ 2 ≤ ((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖ ^ 2 := by
+        have h1 := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
+          (fun j : Fin (n + 1) => ‖g j‖) (fun _ => (1 : ℝ))
+        simp only [mul_one, one_pow] at h1
+        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, mul_one] at h1
+        rw [hpars] at h1
+        push_cast at h1
+        nlinarith [h1]
+      have hsum_abs : ∑ j, ‖g j‖ ≤ Real.sqrt ((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖ := by
+        rw [← Real.sqrt_sq (Finset.sum_nonneg fun j _ => norm_nonneg (g j))]
+        have hrw : Real.sqrt ((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖
+            = Real.sqrt (((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖ ^ 2) := by
+          rw [Real.sqrt_mul (by positivity), Real.sqrt_sq (norm_nonneg _)]
+        rw [hrw]
+        exact Real.sqrt_le_sqrt hCS
+      have hnormx : ‖∑ i, g i • e i‖ ≤ Real.sqrt ((n : ℝ) + 1) / γ * ‖S (∑ i, g i • e i)‖ := by
+        calc ‖∑ i, g i • e i‖
+            ≤ ∑ i, ‖g i • e i‖ := norm_sum_le _ _
+          _ = ∑ i, ‖g i‖ * ‖e i‖ := by simp_rw [norm_smul]
+          _ ≤ ∑ i, ‖g i‖ * (1 / γ) :=
+              Finset.sum_le_sum fun i _ => mul_le_mul_of_nonneg_left (hen i) (norm_nonneg _)
+          _ = (∑ i, ‖g i‖) * (1 / γ) := by rw [← Finset.sum_mul]
+          _ ≤ Real.sqrt ((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖ * (1 / γ) :=
+              mul_le_mul_of_nonneg_right hsum_abs (by positivity)
+          _ = Real.sqrt ((n : ℝ) + 1) / γ * ‖S (∑ i, g i • e i)‖ := by ring
+      rw [le_div_iff₀ hxpos]
+      calc γ / Real.sqrt ((n : ℝ) + 1) * ‖∑ i, g i • e i‖
+          ≤ γ / Real.sqrt ((n : ℝ) + 1) *
+              (Real.sqrt ((n : ℝ) + 1) / γ * ‖S (∑ i, g i • e i)‖) :=
+            mul_le_mul_of_nonneg_left hnormx (by positivity)
+        _ = ‖S (∑ i, g i • e i)‖ := by field_simp
+  have hble : gainOnSubspace S M ≤ bernsteinNumber S n :=
+    le_csSup (bSet_bddAbove' S n) ⟨M, hrankM, rfl⟩
+  have hfin : γ / Real.sqrt ((n : ℝ) + 1) ≤ bernsteinNumber S n := le_trans hgain hble
+  rw [div_le_iff₀ hfacs] at hfin
+  nlinarith [hγ1, hfin]
+
+end Hilbert
 
 /-! ## Comparison of `aₙ` with the Gelfand and Kolmogorov numbers
 
@@ -354,7 +562,7 @@ The heart of the proof is a **product (determinant) bound**
 
   `∏_{k=0}^n cₖ(S) ≤ (n+1)^{n+1}·∏_{k=0}^n hₖ(S)`              (★)
 
-and its Kolmogorov analogue, `prod_gelfandNumber_le` / `prod_kolmogorovNumber_le` (both proved).
+and its Kolmogorov analogue, `prod_gelfandNumber_le` / `prod_kolmogorovNumber_le`.
 These rest on the inductive triangular flag construction of the paper: for each `ε > 0` one
 assembles `A : ℓ₂ⁿ⁺¹ → X`, `B : Y → ℓ₂ⁿ⁺¹` with `‖A‖, ‖B‖ ≤ √(n+1)` and `BSA` triangular with
 diagonal norms `> cₖ(S) − ε` (`exists_factorisation_of_flag` + `exists_gelfand_flag`), so
@@ -478,7 +686,7 @@ lemma approximationNumber_eucl_comp_comp_le_mul_hilbertNumber (S : X →L[𝕜] 
 
 omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Determinant product bound from a factorisation.** Given finite factors
-`A', B'` of norm `≤ √(n+1)` with `∏ Pₖ ≤ ‖det(B'∘S∘A')‖`, the new identity
+`A', B'` of norm `≤ √(n+1)` with `∏ Pₖ ≤ ‖det(B'∘S∘A')‖`, the identity
 `∏ aₖ(T) = ‖det T‖` (`prod_approximationNumber_eq_norm_det`) and ingredient (1)
 give `∏ Pₖ ≤ ∏ aₖ(B'∘S∘A') ≤ ∏ ‖B'‖‖A'‖ hₖ ≤ (n+1)^{n+1} ∏ hₖ`. This isolates
 the determinant accounting; only the existence of the factors (`P = cₖ` or
