@@ -650,10 +650,11 @@ Every compact $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces is
 approximable.
 \end{theorem}
 \begin{proof}
-The Schmidt representation applied to the compact positive self-adjoint
-operator $S^* S$ yields the orthonormal eigenbasis used to define the
-truncated SVD; the truncations are finite-rank operators converging to
-$S$ in operator norm. \emph{Not yet formalised} (\texttt{sorry} in Lean).
+\leanok
+The singular value decomposition gives singular values $\sigma_n \to 0$ which, by
+Eckart–Young, equal the approximation numbers $a_n(S)$; hence $a_n(S) \to 0$.
+Equivalently, the SVD truncations are finite-rank operators converging to $S$ in
+operator norm.
 \end{proof}
 
 \begin{theorem}[Compact $\Leftrightarrow$ approximable on Hilbert spaces]
@@ -664,12 +665,13 @@ $S$ in operator norm. \emph{Not yet formalised} (\texttt{sorry} in Lean).
 On Hilbert spaces, $S$ is approximable iff $S$ is compact.
 \end{theorem}
 \begin{proof}
+\leanok
 \uses{thm:approximable-implies-compact, thm:compact-implies-approximable}
 Two implications. The forward direction $S$ approximable $\Rightarrow$ $S$
 compact is Theorem~\ref{thm:approximable-implies-compact}
 (\texttt{IsApproximable.isCompactOperator}); the reverse, compact
 $\Rightarrow$ approximable, is Theorem~\ref{thm:compact-implies-approximable}
-(\texttt{IsCompactOperator.isApproximable}, still a \texttt{sorry}). The Lean proof packages
+(\texttt{IsCompactOperator.isApproximable}). The Lean proof packages
 the two as \texttt{⟨IsApproximable.isCompactOperator, IsCompactOperator.isApproximable⟩}.
 \end{proof}
 

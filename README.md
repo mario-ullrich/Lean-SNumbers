@@ -169,7 +169,7 @@ in place but the proof is `sorry`.
 | Result                                    | Status              |
 |-------------------------------------------|---------------------|
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
-| Compact ⇔ approximable on Hilbert         | 🟡 declared, no proof|
+| Compact ⇔ approximable on Hilbert         | ✅ proved           |
 
 ## Open `sorry`s
 
@@ -198,11 +198,6 @@ factorisations** behind the maximal difference theorem:
   determinant construction of arXiv:2405.05509: factors `A : ℓ₂ⁿ⁺¹ → X`,
   `B : Y → ℓ₂ⁿ⁺¹` with `‖A‖,‖B‖ ≤ √(n+1)` and `∏ cₖ(S) ≤ ‖det(B∘S∘A)‖` (resp.
   `dₖ`).
-
-The last is in `AddOns/Compact.lean`:
-
-* **compact ⇔ approximable on Hilbert** — a Hilbert-space operator is compact
-  iff its approximation numbers tend to `0`.
 
 ## Building
 
