@@ -58,6 +58,7 @@ examples, which are the central targets of this formalisation:
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
 │   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
 │   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
+│   │                              + bₙ = smallest injective strict s-number
 │   ├── Gelfand.lean            ← gelfandNumber    + (S1)–(S5')
 │   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
 │   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
@@ -141,6 +142,7 @@ in place but the proof is `sorry`.
 | Inequality                                | Status              |
 |-------------------------------------------|---------------------|
 | Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
+| `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
 | `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved (modulo the triangular factorisation) |

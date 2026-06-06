@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
 import SNumbers.Helpers
+import SNumbers.Injectivity
 import Mathlib.LinearAlgebra.Dimension.RankNullity
 
 /-!
@@ -19,21 +20,10 @@ i.e. the largest constant `c ≥ 0` with the property that there exists an
 `(n+1)`-dimensional subspace `M ⊆ X` on which `S` is bounded below by
 `c · ‖·‖`.
 
-## Structure
+The Bernstein numbers are the *smallest injective strict s-number sequence*
+(`bernsteinNumber_le_of_injective_strict`), and hence satisfy (S1)-(S5)+(S5').
 
-The Bernstein numbers are the *smallest* of the canonical s-numbers (and
-are sandwiched between the Hilbert and approximation numbers via
-Pietsch's sandwich theorem). They form a strict s-number sequence:
-(S1)–(S5)+(S5'). The proofs follow Pietsch and use a single nontrivial
-case split — for (S3), we split on whether the outer map `A : W →L[𝕜] X`
-is injective on the chosen `(n+1)`-dim subspace `M ⊆ W`. In the
-non-injective case the gain on `M` is forced to `0`; in the injective
-case `A.M` is itself an `(n+1)`-dim subspace of `X` and the per-vector
-inequality `‖B(S(A x))‖ / ‖x‖ ≤ ‖B‖ · ‖A‖ · ‖S(A x)‖ / ‖A x‖` does
-the rest.
-
-The development requires only `[NontriviallyNormedField 𝕜]` — no Riesz,
-no `[CompleteSpace 𝕜]`, no `[CompleteSpace X]`.
+The development needs only `[NontriviallyNormedField 𝕜]`.
 -/
 
 universe u
@@ -483,5 +473,146 @@ theorem isStrictSNumberSequence_bernsteinNumber :
         (fun {_X _Y} _ _ _ _ S n => bernsteinNumber S n) where
   toIsSNumberSequence := isSNumberSequence_bernsteinNumber
   strictly_normalised_at_id := fun n h => bernsteinNumber_strict n h
+
+/-! ## Bernstein numbers are the smallest injective strict
+`s`-number sequence
+
+For **every** injective strict `s`-number sequence `s` (so in particular for the
+Gelfand numbers, see `SNumbers.bernsteinNumber_le_gelfandNumber` in
+`Inequalities`), one has `bₙ(S) ≤ sₙ(S)`.
+
+The proof is the classical Pietsch argument, elementary and self-contained. Fix
+an `(n+1)`-dimensional subspace `M ⊆ X` and
+let `c := gainOnSubspace S M`, so `S` is bounded below by `c` on `M`. Corestrict
+`f := S|_M` to its range `V ⊆ Y`: there it becomes a continuous linear
+*isomorphism* `f₀ : M ≃ V` with `‖f₀⁻¹‖ ≤ 1/c`. **Injectivity** of `s` discards
+the isometric inclusion `V ↪ Y` (`sₙ(f) = sₙ(f₀)`); the ideal property against
+`f₀⁻¹` together with **strict normalisation** `sₙ(id_M) = 1` (valid because
+`dim M = n+1 > n`) forces `sₙ(f₀) ≥ c`. Finally `f = S ∘ ι_M` with `‖ι_M‖ ≤ 1`,
+so `c ≤ sₙ(f) ≤ sₙ(S)`. Taking the supremum over `M` gives `bₙ(S) ≤ sₙ(S)`. -/
+
+/-- **Core lower bound.** If `f : E →L[𝕜] F` is bounded below by `c > 0` on a
+space `E` with `n < dim E`, then every injective strict `s`-number sequence `s`
+satisfies `c ≤ sₙ(f)`.
+
+This isolates the heart of the extremality theorem: `f` is corestricted to its
+range `V` (an isometric copy inside `F`), where it is a continuous linear
+isomorphism `f₀` with `‖f₀⁻¹‖ ≤ 1/c`. Injectivity of `s` removes the inclusion
+`V ↪ F`, and the ideal property plus strict normalisation `sₙ(id_E) = 1` give the
+bound. -/
+lemma le_sn_of_boundedBelow_strict {s : Family 𝕜}
+    (hs : IsStrictSNumberSequence s) (hinj : Injective s)
+    {E F : Type u} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+    [NormedAddCommGroup F] [NormedSpace 𝕜 F] {n : ℕ}
+    (hE : n < Module.finrank 𝕜 E) {c : ℝ} (hc : 0 < c)
+    (f : E →L[𝕜] F) (hf : ∀ x, c * ‖x‖ ≤ ‖f x‖) :
+    c ≤ s f n := by
+  -- `f` is injective, being bounded below by `c > 0`.
+  have hf_inj : Function.Injective f := by
+    intro a b hab
+    by_contra hne
+    have hpos : 0 < ‖a - b‖ := norm_pos_iff.mpr (sub_ne_zero.mpr hne)
+    have h := hf (a - b)
+    rw [map_sub, hab, sub_self, norm_zero] at h
+    exact absurd h (not_le.2 (mul_pos hc hpos))
+  -- Corestrict `f` to its range `V := range f ⊆ F`.
+  set V : Submodule 𝕜 F := LinearMap.range (f : E →ₗ[𝕜] F) with hV
+  have hmem : ∀ x, f x ∈ V := fun x => ⟨x, rfl⟩
+  set f₀ : E →L[𝕜] V := f.codRestrict V hmem with hf₀_def
+  -- `f₀` is a linear bijection onto `V`.
+  have hf₀_inj : Function.Injective f₀ := fun a b hab =>
+    hf_inj (congrArg Subtype.val hab)
+  have hf₀_surj : Function.Surjective f₀ := by
+    rintro ⟨z, x, rfl⟩
+    exact ⟨x, Subtype.ext rfl⟩
+  have hbij : Function.Bijective (f₀ : E →ₗ[𝕜] V) := ⟨hf₀_inj, hf₀_surj⟩
+  set e : E ≃ₗ[𝕜] V := LinearEquiv.ofBijective (f₀ : E →ₗ[𝕜] V) hbij with he_def
+  have he_apply : ∀ x, e x = f₀ x := fun x => rfl
+  -- The algebraic inverse `e.symm` is bounded by `1/c`; upgrade it to a CLM `g`.
+  have hbound : ∀ v : V, ‖e.symm v‖ ≤ (1 / c) * ‖v‖ := by
+    intro v
+    have hfx : f (e.symm v) = (v : F) := by
+      have h2 : f₀ (e.symm v) = v := by rw [← he_apply]; exact e.apply_symm_apply v
+      exact congrArg Subtype.val h2
+    have h3 := hf (e.symm v)
+    rw [hfx] at h3
+    have hnorm : ‖(v : F)‖ = ‖v‖ := rfl
+    rw [hnorm] at h3
+    rw [show (1 / c) * ‖v‖ = ‖v‖ / c from by ring, le_div_iff₀ hc, mul_comm]
+    exact h3
+  set g : V →L[𝕜] E := (e.symm : V →ₗ[𝕜] E).mkContinuous (1 / c) hbound with hg_def
+  have hg_norm : ‖g‖ ≤ 1 / c := by
+    rw [hg_def]; exact LinearMap.mkContinuous_norm_le _ (by positivity) _
+  -- `g ∘ f₀ = id_E`.
+  have hgf : g.comp f₀ = ContinuousLinearMap.id 𝕜 E := by
+    ext x
+    have : g (f₀ x) = x := by
+      rw [hg_def, LinearMap.mkContinuous_apply]; exact e.symm_apply_apply x
+    simpa using this
+  -- `f = ι_V ∘ f₀` with `ι_V` a metric injection ⟹ `sₙ(f) = sₙ(f₀)`.
+  have hmetric : IsMetricInjection (V.subtypeL) := fun v => rfl
+  have hcomp : V.subtypeL.comp f₀ = f := by ext x; rfl
+  have h_inj_eq : s f n = s f₀ n := by
+    rw [← hcomp]; exact hinj f₀ V.subtypeL hmetric n
+  -- Ideal property against `g = f₀⁻¹` and strict normalisation `sₙ(id_E) = 1`.
+  have h_ideal := hs.ideal (ContinuousLinearMap.id 𝕜 E) f₀ g n
+  rw [ContinuousLinearMap.comp_id, hgf, hs.strictly_normalised_at_id n hE] at h_ideal
+  have hsn : 0 ≤ s f₀ n := hs.nonneg f₀ n
+  have hidle : ‖ContinuousLinearMap.id 𝕜 E‖ ≤ 1 := norm_id_le
+  have h1 : (1 : ℝ) ≤ ‖g‖ * s f₀ n := by
+    nlinarith [h_ideal,
+      mul_nonneg (mul_nonneg (norm_nonneg g) hsn) (sub_nonneg.mpr hidle)]
+  have h2 : c * ‖g‖ ≤ 1 := by
+    have hh := mul_le_mul_of_nonneg_left hg_norm hc.le
+    rwa [mul_one_div, div_self hc.ne'] at hh
+  have key : c ≤ s f₀ n := by
+    nlinarith [h1, h2, hsn, hc.le, mul_nonneg hc.le (norm_nonneg g)]
+  rw [h_inj_eq]; exact key
+
+/-- **The Bernstein numbers are the smallest injective strict `s`-number
+sequence.** For every injective strict `s`-number sequence `s`,
+`bₙ(S) ≤ sₙ(S)`. -/
+theorem bernsteinNumber_le_of_injective_strict {s : Family 𝕜}
+    (hs : IsStrictSNumberSequence s) (hinj : Injective s)
+    (S : X →L[𝕜] Y) (n : ℕ) :
+    bernsteinNumber S n ≤ s S n := by
+  refine Real.sSup_le ?_ (hs.nonneg S n)
+  rintro _ ⟨M, hM_rank, rfl⟩
+  -- Goal: `gainOnSubspace S M ≤ s S n`.
+  set c := gainOnSubspace S M with hc_def
+  rcases lt_or_ge 0 c with hcpos | hc0
+  · -- `dim M = n+1`, so `n < finrank M`.
+    have hfin : n < Module.finrank 𝕜 (M : Submodule 𝕜 X) := by
+      rw [Module.finrank_eq_of_rank_eq hM_rank]; exact Nat.lt_succ_self n
+    -- `S|_M = S ∘ M.subtypeL` is bounded below by `c` on `M`.
+    have hf : ∀ x : M, c * ‖x‖ ≤ ‖(S.comp M.subtypeL) x‖ := by
+      intro x
+      rcases eq_or_ne x 0 with rfl | hx
+      · simp
+      · have hx' : (x : X) ≠ 0 := fun h => hx (Subtype.ext h)
+        have hpos : 0 < ‖(x : X)‖ := norm_pos_iff.mpr hx'
+        have hle : c ≤ ‖S (x : X)‖ / ‖(x : X)‖ :=
+          gainOnSubspace_le_div x.2 hx'
+        have hmul : c * ‖(x : X)‖ ≤ ‖S (x : X)‖ := (le_div_iff₀ hpos).mp hle
+        simpa using hmul
+    -- Core bound and the (S3) step back to `S`.
+    have hcore : c ≤ s (S.comp M.subtypeL) n :=
+      le_sn_of_boundedBelow_strict hs hinj hfin hcpos (S.comp M.subtypeL) hf
+    have hback : s (S.comp M.subtypeL) n ≤ s S n := by
+      have h_ideal := hs.ideal M.subtypeL S (ContinuousLinearMap.id 𝕜 Y) n
+      rw [ContinuousLinearMap.id_comp] at h_ideal
+      have hsn : 0 ≤ s S n := hs.nonneg S n
+      have hidY : ‖ContinuousLinearMap.id 𝕜 Y‖ ≤ 1 := norm_id_le
+      have hsub : ‖M.subtypeL‖ ≤ 1 := M.norm_subtypeL_le
+      have t1 : ‖ContinuousLinearMap.id 𝕜 Y‖ * s S n ≤ 1 * s S n :=
+        mul_le_mul_of_nonneg_right hidY hsn
+      have t2 := mul_le_mul t1 hsub (norm_nonneg M.subtypeL)
+        (by rw [one_mul]; exact hsn)
+      calc s (S.comp M.subtypeL) n
+          ≤ ‖ContinuousLinearMap.id 𝕜 Y‖ * s S n * ‖M.subtypeL‖ := h_ideal
+        _ ≤ 1 * s S n * 1 := t2
+        _ = s S n := by ring
+    exact hcore.trans hback
+  · exact hc0.trans (hs.nonneg S n)
 
 end SNumbers

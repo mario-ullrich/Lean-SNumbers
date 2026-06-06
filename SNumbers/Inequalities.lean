@@ -5,6 +5,7 @@ Authors: Mario Ullrich
 -/
 import SNumbers.Hilbert
 import SNumbers.Uniqueness
+import SNumbers.Bernstein
 import SNumbers.Gelfand
 import SNumbers.Kolmogorov
 import SNumbers.SingularValuesFinDim
@@ -27,6 +28,9 @@ for operators between **arbitrary** `𝕜`-Banach spaces.
 * `hilbertNumber_le_sn` — lower bound `hₙ(S) ≤ sₙ(S)`.
 * `hilbertNumber_le_sn_le_approximationNumber` — the sandwich theorem
   `hₙ(S) ≤ sₙ(S) ≤ aₙ(S)`.
+* `bernsteinNumber_le_gelfandNumber` — the direct bound `bₙ(S) ≤ cₙ(S)`
+  (constant `1`), via the extremality of the Bernstein numbers among
+  injective strict `s`-number sequences.
 * `approximationNumber_le_sqrt_mul_gelfandNumber` —
   `aₙ(S) ≤ (1 + √n)·cₙ(S)`.
 * `approximationNumber_le_sqrt_mul_kolmogorovNumber` —
@@ -118,6 +122,18 @@ theorem hilbertNumber_le_sn_le_approximationNumber {s : Family 𝕜}
     (hs : IsSNumberSequence s) (S : X →L[𝕜] Y) (n : ℕ) :
     hilbertNumber S n ≤ s S n ∧ s S n ≤ approximationNumber S n :=
   ⟨hilbertNumber_le_sn hs S n, sn_le_approximationNumber hs S n⟩
+
+/-- **Direct bound: Bernstein ≤ Gelfand**, `bₙ(S) ≤ cₙ(S)`.
+
+A sharp, direct bound, with constant `1`. It follows at once from the
+extremality of the Bernstein numbers among injective strict `s`-number sequences
+(`bernsteinNumber_le_of_injective_strict`), since the Gelfand numbers are both
+injective (`injective_gelfandNumber`) and a strict `s`-number sequence
+(`isStrictSNumberSequence_gelfandNumber`). -/
+theorem bernsteinNumber_le_gelfandNumber (S : X →L[𝕜] Y) (n : ℕ) :
+    bernsteinNumber S n ≤ gelfandNumber S n :=
+  bernsteinNumber_le_of_injective_strict
+    isStrictSNumberSequence_gelfandNumber injective_gelfandNumber S n
 
 /-! ## Comparison of `aₙ` with the Gelfand and Kolmogorov numbers
 
