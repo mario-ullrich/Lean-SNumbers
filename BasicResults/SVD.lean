@@ -21,7 +21,7 @@ there is a *singular vector pair* `(u, v)`: unit vectors `u ∈ H₁`,
 This file develops the SVD of a compact operator via the **singular-value
 iteration** (peeling off the top singular pair given by
 `norm_isSingularValue`), and the **scalar factorisation** for general
-operators that the `s`-numbers uniqueness theorem consumes.
+operators.
 
 ## Main results
 
@@ -39,10 +39,6 @@ operators that the `s`-numbers uniqueness theorem consumes.
   (pinning the exact `aₖ`) requires `S` compact.
 * `SVD.exists_scalar_factorisation` — `B ∘ S ∘ A = c • id` for `c < aₙ(S)`,
   for an **arbitrary bounded** `S`.
-
-Every result above is proved, including `IsCompactOperator.SVD` itself (the
-infinite iteration together with its convergence facts `σₖ → 0` and the
-pointwise `HasSum`).
 -/
 
 universe u
@@ -1164,83 +1160,10 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
         not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
     have hbound : ‖S x - L x‖ ≤ σ n * ‖x‖ := le_of_tendsto htend hev
     rwa [ContinuousLinearMap.sub_apply]
-  -- Singular pairs: `S uₖ = σₖ vₖ` (collapse the SVD `HasSum` at `uₖ`).
-  have hSu : ∀ k : ℕ, S (u k) = (σ k : 𝕜) • v k := by
-    intro k
-    refine HasSum.unique (hsum (u k)) ?_
-    have hfun : (fun j => ((σ j : 𝕜) * inner 𝕜 (u j) (u k)) • v j)
-        = fun j => if j = k then (σ k : 𝕜) • v k else 0 := by
-      funext j
-      rw [hu.smul_inner_eq hut j k]
-      by_cases hjk : j = k
-      · subst hjk; simp
-      · simp [hjk]
-    rw [hfun]; exact hasSum_ite_eq k _
-  -- (iii) `σ n ≤ aₙ(S)`, via the `(n+1)`-dimensional subspace `M = span{u₀,…,uₙ}`.
-  have hσa : σ n ≤ SNumbers.approximationNumber S n := by
-    by_cases hσn : σ n = 0
-    · rw [hσn]; exact SNumbers.approximationNumber_nonneg S n
-    · have hσpos : 0 < σ n := lt_of_le_of_ne (hσ0 n) (Ne.symm hσn)
-      have hσi : ∀ i : Fin (n + 1), σ (i : ℕ) ≠ 0 := fun i =>
-        ne_of_gt (lt_of_lt_of_le hσpos (hσanti (Fin.is_le i)))
-      have he_orth : Orthonormal 𝕜 (fun i : Fin (n + 1) => u i) := by
-        rw [orthonormal_iff_ite]
-        intro i j
-        by_cases hij : i = j
-        · subst hij
-          rw [if_pos rfl, inner_self_eq_norm_sq_to_K,
-            (hu.1 (i : ℕ)).resolve_right (hut (i : ℕ) (hσi i))]; norm_num
-        · rw [if_neg hij]; exact hu.2 (Fin.val_injective.ne hij)
-      have hv_orth : Orthonormal 𝕜 (fun i : Fin (n + 1) => v i) := by
-        rw [orthonormal_iff_ite]
-        intro i j
-        by_cases hij : i = j
-        · subst hij
-          rw [if_pos rfl, inner_self_eq_norm_sq_to_K,
-            (hv.1 (i : ℕ)).resolve_right (hvt (i : ℕ) (hσi i))]; norm_num
-        · rw [if_neg hij]; exact hv.2 (Fin.val_injective.ne hij)
-      set M : Submodule 𝕜 H₁ :=
-        Submodule.span 𝕜 (Set.range (fun i : Fin (n + 1) => u i)) with hMdef
-      have he_li : LinearIndependent 𝕜 (fun i : Fin (n + 1) => u i) :=
-        he_orth.linearIndependent
-      have hMrank : Module.rank 𝕜 M = ((n + 1 : ℕ) : Cardinal) := by
-        classical
-        haveI : Fintype (Set.range (fun i : Fin (n + 1) => u i)) := Set.fintypeRange _
-        rw [hMdef, rank_span he_li, Cardinal.mk_fintype,
-          Set.card_range_of_injective he_li.injective, Fintype.card_fin]
-      have hMne : M ≠ ⊥ := by
-        intro h; rw [h, rank_bot] at hMrank
-        exact (Nat.cast_ne_zero.mpr (Nat.succ_ne_zero n)) hMrank.symm
-      have hgain : σ n ≤ SNumbers.gainOnSubspace S M := by
-        refine SNumbers.le_gainOnSubspace hMne fun x hxM hxne => ?_
-        rw [le_div_iff₀ (norm_pos_iff.mpr hxne)]
-        obtain ⟨a, ha⟩ := (Submodule.mem_span_range_iff_exists_fun 𝕜).mp hxM
-        have hxnorm : ‖x‖ ^ 2 = ∑ i, ‖a i‖ ^ 2 := by
-          rw [← ha]; exact norm_sum_smul_sq he_orth a Finset.univ
-        have hSx : S x = ∑ i : Fin (n + 1), (a i * (σ (i : ℕ) : 𝕜)) • v i := by
-          rw [← ha, map_sum]
-          exact Finset.sum_congr rfl fun i _ => by simp only [map_smul, hSu, smul_smul]
-        have hSxnorm : ‖S x‖ ^ 2 = ∑ i, ‖a i * (σ (i : ℕ) : 𝕜)‖ ^ 2 := by
-          rw [hSx]; exact norm_sum_smul_sq hv_orth _ Finset.univ
-        have hkey : (σ n) ^ 2 * ‖x‖ ^ 2 ≤ ‖S x‖ ^ 2 := by
-          rw [hxnorm, hSxnorm, Finset.mul_sum]
-          refine Finset.sum_le_sum fun i _ => ?_
-          rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 _),
-            mul_comm (‖a i‖ ^ 2)]
-          exact mul_le_mul_of_nonneg_right
-            (pow_le_pow_left₀ (hσ0 n) (hσanti (Fin.is_le i)) 2) (sq_nonneg _)
-        have hnn : 0 ≤ σ n * ‖x‖ := mul_nonneg (hσ0 n) (norm_nonneg _)
-        have hkey2 : (σ n * ‖x‖) ^ 2 ≤ ‖S x‖ ^ 2 := by rw [mul_pow]; exact hkey
-        have hsqrt := Real.sqrt_le_sqrt hkey2
-        rwa [Real.sqrt_sq hnn, Real.sqrt_sq (norm_nonneg _)] at hsqrt
-      have hbern : σ n ≤ SNumbers.bernsteinNumber S n := by
-        refine hgain.trans ?_
-        unfold SNumbers.bernsteinNumber
-        refine le_csSup ⟨‖S‖, ?_⟩ ⟨M, hMrank, rfl⟩
-        rintro r ⟨M', _, rfl⟩
-        exact SNumbers.gainOnSubspace_le_norm S M'
-      exact hbern.trans (SNumbers.sn_le_approximationNumber
-        SNumbers.isStrictSNumberSequence_bernsteinNumber.toIsSNumberSequence S n)
+  -- (iii) `σ n ≤ aₙ(S)`: the `m`-th singular value equals the `m`-th approximation
+  -- number (`svd_sigma_eq_approx`).
+  have hσa : σ n ≤ SNumbers.approximationNumber S n :=
+    (svd_sigma_eq_approx hσ0 hσanti hu hv hut hvt hsum n).le
   -- Combine: `aₙ ≤ ‖S - L‖ ≤ σ n ≤ aₙ`.
   exact le_antisymm (hle.trans hσa) hge
 

@@ -28,14 +28,6 @@ linearly down to `0` on `[t - 1/(n+1), t]`, and `0` below. As `n → ∞` it
 decreases pointwise to `𝟙_{[t,∞)}`. This part of the file develops its
 elementary properties (continuity, `0 ≤ · ≤ 1`, antitone in `n`, value `1`
 above the threshold).
-
-## The approximating family `stepDown`
-
-`stepDown t n` is the continuous function equal to `1` on `[t, ∞)`, ramping
-linearly down to `0` on `[t - 1/(n+1), t]`, and `0` below. As `n → ∞` it
-decreases pointwise to `𝟙_{[t,∞)}`. This part of the file develops its
-elementary properties (continuity, `0 ≤ · ≤ 1`, antitone in `n`, value `1`
-above the threshold).
 -/
 
 open ContinuousLinearMap

@@ -17,8 +17,7 @@ This file collects:
   `SNumbers.Helpers`.
 * The five Pietsch axioms (S1)–(S5) characterising an *s-number sequence*,
   packaged in the structure `IsSNumberSequence`.
-* The strengthening (S5') and the structure `IsStrictSNumberSequence`,
-  introduced.
+* The strengthening (S5') and the structure `IsStrictSNumberSequence`.
 * **Homogeneity** (`norm_smul_sn`): every s-number sequence satisfies
   `sₙ(c • T) = ‖c‖ · sₙ(T)`, with the two one-sided inequalities
   `sn_smul_le` and `norm_smul_le_sn`. This is a consequence of the axioms

@@ -48,7 +48,7 @@ then reads:
 
   `SNumbers.Lifting.kolmogorovNumber S n = SNumbers.kolmogorovNumber S n`
 
-(theorem to be proven; the two definitions agree on Banach spaces).
+(the two definitions agree on Banach spaces).
 
 ## Hypotheses required
 
@@ -197,8 +197,7 @@ lemma kolmogorovNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
 We isolate a basis-vector lemma `exists_lift_of_pos_norm` packaging
 `α := lp.single 1 ⟨c⁻¹ • x, _⟩ c` with `Q α = x` and `‖α‖ = ‖c‖`. Density of
 `‖𝕜‖` lets us pick `‖c‖ ↘ ‖x‖`, giving `‖S x‖ ≤ ‖S∘Q‖ · ‖c‖`; the limit
-yields `‖S∘Q‖ = ‖S‖`. The same `exists_lift_of_pos_norm` is reused later
-in (S5'). -/
+yields `‖S∘Q‖ = ‖S‖`. -/
 
 section S1a
 variable {𝕜 : Type u} [DenselyNormedField 𝕜]

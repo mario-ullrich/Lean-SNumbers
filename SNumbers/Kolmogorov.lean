@@ -202,8 +202,7 @@ Pointwise, in the style of Pietsch, *Eigenvalues and s-numbers*, §2.4
 (dual to the Gelfand argument). For `w : W` we evaluate the deviation
 at `w` and chain three `le_opNorm` applications:
 one for the descent of `B` to a map `Y/V →L[𝕜] Z/B(V)` (constructed
-inline via `V.liftQL`), one for `V.mkQL.comp S`, and one for `A`. No
-`descend` helper, no factorisation, no `DenselyNormedField`. -/
+inline via `V.liftQL`), one for `V.mkQL.comp S`, and one for `A`. -/
 
 /-- Per-subspace (S3) bound:
 `deviation(B ∘ S ∘ A, B(V)) ≤ ‖B‖ * ‖A‖ * deviation(S, V)`. -/
@@ -265,7 +264,7 @@ lemma kolmogorovNumber_comp_comp_le
     kolmogorovNumber (B.comp (S.comp A)) n ≤
       ‖B‖ * kolmogorovNumber S n * ‖A‖ := by
   -- Same scalar-pull-out trick as for the approximation numbers, but the
-  -- per-subspace bound is now a one-line consequence of operator-norm
+  -- per-subspace bound is a one-line consequence of operator-norm
   -- submultiplicativity.
   have hkey : ∀ V : Submodule 𝕜 Y, Module.rank 𝕜 V ≤ (n : Cardinal) →
       kolmogorovNumber (B.comp (S.comp A)) n ≤ ‖B‖ * ‖A‖ * deviationFromSubspace S V :=
@@ -310,9 +309,7 @@ For any closed proper finite-dim `V ⊆ X`, Riesz's lemma gives
 on the RHS is exactly `‖V.mkQL x₀‖`. Combining with `le_opNorm` and
 cancelling `‖x₀‖ > 0` gives `(1 − ε) ≤ ‖V.mkQL‖`. Letting ε → 0 finishes
 the lower bound. The upper bound `‖V.mkQL.comp id‖ = ‖V.mkQL‖ ≤ 1` is
-already in `Submodule.norm_mkQL_le`.
-
-No second density-rescaling step. -/
+already in `Submodule.norm_mkQL_le`. -/
 
 variable [CompleteSpace 𝕜]
 

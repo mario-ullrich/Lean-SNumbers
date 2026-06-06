@@ -200,7 +200,7 @@ shrinks. The norm bound on the restriction is then a pointwise estimate
 in the spirit of Pietsch, *Eigenvalues and s-numbers*, §2.4: for
 `w ∈ M'` we have `A w ∈ M`, so
 `‖S(A w)‖ ≤ ‖S|_M‖ · ‖A w‖ ≤ ‖S|_M‖ · ‖A‖ · ‖w‖`, and one more `‖B‖` on
-the left finishes it. No corestriction or factorisation needed. -/
+the left finishes it. -/
 
 private lemma rank_quotient_comap_le (A : W →L[𝕜] X) (M : Submodule 𝕜 X) :
     Module.rank 𝕜 (W ⧸ M.comap (A : W →ₗ[𝕜] X)) ≤ Module.rank 𝕜 (X ⧸ M) := by

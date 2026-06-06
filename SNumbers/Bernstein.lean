@@ -477,9 +477,8 @@ theorem isStrictSNumberSequence_bernsteinNumber :
 /-! ## Bernstein numbers are the smallest injective strict
 `s`-number sequence
 
-For **every** injective strict `s`-number sequence `s` (so in particular for the
-Gelfand numbers, see `SNumbers.bernsteinNumber_le_gelfandNumber` in
-`Inequalities`), one has `bₙ(S) ≤ sₙ(S)`.
+For **every** injective strict `s`-number sequence `s`, one has
+`bₙ(S) ≤ sₙ(S)`.
 
 The proof is the classical Pietsch argument, elementary and self-contained. Fix
 an `(n+1)`-dimensional subspace `M ⊆ X` and

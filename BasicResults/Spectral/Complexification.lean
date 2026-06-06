@@ -23,10 +23,10 @@ and prove that this makes `Complexification H` a complex inner product space
 (`InnerProductSpace ℂ`). The canonical real-linear isometric embedding
 `x ↦ x + i·0` is provided as `Complexification.ofRealLi`.
 
-**Note.** Mathlib (as of this writing) has base change of *modules*
+**Note.** Mathlib has base change of *modules*
 (`ℂ ⊗[ℝ] M` is a `Module ℂ`) but no construction equipping the complexification
 of a real *inner product space* with its complex inner product. This file
-supplies that missing piece, kept deliberately elementary and self-contained.
+constructs it, kept deliberately elementary and self-contained.
 -/
 import Mathlib.Analysis.InnerProductSpace.Basic
 import Mathlib.Analysis.InnerProductSpace.Adjoint
