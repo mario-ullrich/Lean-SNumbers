@@ -111,9 +111,7 @@ x_0\|$ for any $r < 1$, so $\|\mathrm{id} - L\| \ge \|(\mathrm{id}-L) x_0\|
 / \|x_0\| \ge r$; letting $r \to 1$ gives $\|\mathrm{id} - L\| \ge 1$,
 and combined with the trivial upper bound $a_n(\mathrm{id}) \le \|\mathrm{id}\| = 1$
 we obtain equality. The classical (S5) on $\ell_2^{n+1}$ specialises (S5$'$).
-The argument needs neither SVD nor Auerbach; the SVD development in
-\texttt{BasicResults.SVD} (Chapter~\ref{ch:svd}) handles the identification
-$a_n(S) = \sigma_{n+1}(S)$ for compact $S$ separately.
+The argument needs neither SVD nor Auerbach.
 \end{proof}
 
 \section{Bernstein numbers $b_n$}
@@ -634,9 +632,7 @@ with $B \circ S \circ A = c \cdot \mathrm{id}_{\ell_2^{n+1}}$.
 Unlike the diagonal factorisation this holds for \emph{arbitrary} bounded
 $S$ (no compactness): the strict inequality $c < a_n(S)$ needs only an
 $(n+1)$-dimensional subspace on which $\|S x\| \ge c\|x\|$, which exists for
-every bounded operator. It is the precise form of SVD that the uniqueness
-theorem of $s$-numbers on Hilbert spaces
-(Theorem~\ref{thm:all-eq-on-hilbert}) consumes.
+every bounded operator.
 
 \section{Compact $\Leftrightarrow$ approximable on Hilbert spaces}
 \label{sec:svd-compact-equiv}
@@ -722,8 +718,7 @@ A classical result of Banach-space geometry (Garling--Gordon 1971; Pietsch
 \emph{Eigenvalues and s-numbers} 1.7.17). The range of $P$ is an
 $n$-dimensional complement of $M$, and the Garling--Gordon bound on the
 projection constant of an $n$-dimensional space gives $\|P\| \le \sqrt{n}$.
-\emph{Not yet formalised} (\texttt{sorry} in Lean); the statement is in place
-as the input to the Gelfand bound below.
+\emph{Not yet formalised} (\texttt{sorry} in Lean).
 \end{proof}
 
 \begin{theorem}[Kadets--Snobar projection theorem]
@@ -737,8 +732,7 @@ $\operatorname{range} P = V$ and $\|P\| \le \sqrt{n}$.
 \begin{proof}
 A classical result (Kadets--Snobar 1971; Pietsch 1.5.5): every
 $n$-dimensional subspace is the range of a projection of norm $\le \sqrt{n}$.
-\emph{Not yet formalised} (\texttt{sorry} in Lean); used as the input to the
-Kolmogorov bound below.
+\emph{Not yet formalised} (\texttt{sorry} in Lean).
 \end{proof}
 
 \begin{theorem}[$a_n \le (1+\sqrt n)\,c_n$]

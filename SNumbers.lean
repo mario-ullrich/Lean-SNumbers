@@ -15,6 +15,8 @@ import SNumbers.Inequalities
 import SNumbers.Uniqueness
 import SNumbers.SingularValuesFinDim
 import SNumbers.Injectivity
+import SNumbers.Examples.DiagonalMatrices
+import SNumbers.Examples.IdentityEmbedding
 
 /-!
 # s-Numbers of bounded linear operators between Banach spaces
@@ -65,11 +67,20 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
 * `SNumbers.Injectivity`: injective and surjective s-number sequences; the
   Gelfand numbers `cₙ` are injective and the Kolmogorov numbers `dₙ` are
   surjective.
+* `SNumbers.Examples.DiagonalMatrices`: a worked example computing the s-numbers
+  of a **diagonal operator** `D_σ : ℓ^p_m → ℓ^p_m`. For every strict s-number
+  sequence `sₙ(D_σ) = ‖σ_n‖` (the `(n+1)`-th largest entry); the Hilbert numbers
+  are only bounded above. Includes the operator norm `‖D_σ‖ = ⨆ i, ‖σ i‖`.
+* `SNumbers.Examples.IdentityEmbedding`: the **identity embedding**
+  `id : ℓ^q_m → ℓ^p_m` between different exponents (`p ≤ q`): the operator norm
+  `‖id‖ = m^{1/p-1/q}`, the universal upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}`, and
+  the exact approximation numbers `aₙ(id) = (m-n)^{1/p-1/q}` (modulo the classical
+  Gelfand-width lower bound).
 
 A companion library `BasicResults` collects supporting material: Auerbach's
 lemma (fully proved) and the singular value decomposition `BasicResults.SVD`
-(the compact SVD plus the scalar factorisation the uniqueness theorem
-consumes). Auxiliary material on approximable operators lives in the
+(the compact SVD plus the scalar factorisation for the uniqueness theorem).
+Auxiliary material on approximable operators lives in the
 `AddOns` library.
 
 ## References
