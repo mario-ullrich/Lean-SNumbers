@@ -830,70 +830,66 @@ $\|\det T\| = \prod_k \sigma_k$ is pure linear algebra
 $\|\det T\|^2 = \det(T^*T) = \prod \lambda_k(T^*T) = \prod \sigma_k^2$).
 \end{proof}
 
-\begin{theorem}[Triangular determinant factorisation, Gelfand side]
-\label{thm:det-factor-gelfand}
-\lean{SNumbers.exists_gelfandNumber_det_factorisation}
+\begin{lemma}[Triangular flag factorisation]
+\label{lem:flag-factorisation}
+\lean{TriangularFactorisation.exists_factorisation_of_flag}
 \leanok
-\uses{def:gelfand-number}
-For $S \in \mathcal{L}(X, Y)$ there exist
-$A' : \ell_2^{n+1} \to X$ and $B' : Y \to \ell_2^{n+1}$ with
-$\|A'\|, \|B'\| \le \sqrt{n+1}$ and
-$\prod_{k=0}^n c_k(S) \le \|\det(B' \circ S \circ A')\|$.
-\end{theorem}
+\uses{def:gelfand-number, def:kolmogorov-number}
+Given unit vectors $x_0, \dots, x_n \in B_X$ and functionals $g_0, \dots, g_n \in B_{Y^*}$ for
+which the matrix $[g_i(S x_j)]$ is triangular (lower or upper), the operators
+$A' : \ell_2^{n+1} \to X$, $A' e_j = x_j$, and $B' : Y \to \ell_2^{n+1}$, $B' y = (g_i y)_i$, have
+norm $\le \sqrt{n+1}$ and $\|\det(B' \circ S \circ A')\| = \prod_{k=0}^n \|g_k(S x_k)\|$.
+\end{lemma}
 \begin{proof}
-The inductive triangular determinant construction of the paper: build near-extremal
-$x_0, \dots, x_n \in B_X$ and dual functionals, assemble $A', B'$ of norm
-$\le \sqrt{n+1}$ so that $B' S A'$ is upper-triangular with diagonal entries
-$\ge c_k(S)$, whence $\det(B'SA') \ge \prod c_k(S)$. \emph{Not yet
-formalised} (\texttt{sorry} in Lean) — this is the only open input to the
-Gelfand product bound.
+\leanok
+In the standard basis $B' S A'$ has matrix $[g_i(S x_j)]$; triangularity gives
+$\det = \prod_k g_k(S x_k)$ (Mathlib's \texttt{det\_of\_lower/upperTriangular}), and the norm is
+multiplicative.
 \end{proof}
 
-\begin{theorem}[Triangular determinant factorisation, Kolmogorov side]
-\label{thm:det-factor-kolmogorov}
-\lean{SNumbers.exists_kolmogorovNumber_det_factorisation}
-\leanok
-\uses{def:kolmogorov-number}
-Dual statement with $d_k(S)$ in place of $c_k(S)$: there exist
-$A', B'$ of norm $\le \sqrt{n+1}$ with
-$\prod_{k=0}^n d_k(S) \le \|\det(B' \circ S \circ A')\|$.
-\end{theorem}
-\begin{proof}
-Dual to Theorem~\ref{thm:det-factor-gelfand}. \emph{Not yet formalised}
-(\texttt{sorry} in Lean).
-\end{proof}
+\begin{remark}
+The naive existential ``for a single $A', B'$, $\prod_k c_k(S) \le \|\det(B'SA')\|$'' is in fact
+\emph{false} for general Banach $S$ (already at $n = 0$, where $c_0 = \|S\|$ need not be attained).
+The flags below achieve only diagonal norms $> c_k - \varepsilon$ (resp.\ $> d_k - \varepsilon$);
+the product bounds are recovered by letting $\varepsilon \to 0^+$, the right-hand side
+$(n+1)^{n+1}\prod_k h_k$ being independent of $\varepsilon$.
+\end{remark}
 
 \begin{proposition}[Gelfand product bound]
 \label{prop:prod-gelfand-le}
 \lean{SNumbers.prod_gelfandNumber_le}
 \leanok
-\uses{lem:prod-approx-eq-det, thm:det-factor-gelfand, def:hilbert-number}
+\uses{lem:prod-approx-eq-det, lem:flag-factorisation, def:hilbert-number}
 $\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$.
 \end{proposition}
 \begin{proof}
 \leanok
-\uses{lem:prod-approx-eq-det, thm:det-factor-gelfand}
-Take the factorisation of Theorem~\ref{thm:det-factor-gelfand}. By
-Lemma~\ref{lem:prod-approx-eq-det},
-$\|\det(B'SA')\| = \prod_k a_k(B'SA')$, and the Hilbert-number ideal bound
-$a_k(B'SA') \le \|B'\|\,\|A'\|\,h_k(S)$
-(\texttt{approximationNumber\_eucl\_comp\_comp\_le\_mul\_hilbertNumber}) gives
-$\prod_k c_k(S) \le \prod_k \|B'\|\|A'\| h_k(S) \le (n+1)^{n+1}\prod_k h_k(S)$,
-using $\|B'\|\|A'\| \le n+1$.
+\uses{lem:prod-approx-eq-det, lem:flag-factorisation}
+Fix $\varepsilon > 0$. The inductive Gelfand flag picks $x_k \in B_X$ in the codimension-$k$
+subspace where $g_0, \dots, g_{k-1}$ vanish on $S\cdot$, with $\|S x_k\| > c_k(S) - \varepsilon$
+(possible since $c_k$ is an infimum of restricted norms), together with a Hahn--Banach functional
+$g_k$ attaining $\|S x_k\|$; then $[g_i(S x_j)]$ is lower-triangular. Lemma~\ref{lem:flag-factorisation}
+and $\|\det(B'SA')\| = \prod_k a_k(B'SA')$ (Lemma~\ref{lem:prod-approx-eq-det}) with the
+Hilbert-number ideal bound $a_k(B'SA') \le \|B'\|\|A'\| h_k(S)$ give
+$\prod_k \max(c_k(S) - \varepsilon, 0) \le (n+1)^{n+1}\prod_k h_k(S)$ (using $\|B'\|\|A'\| \le n+1$);
+letting $\varepsilon \to 0^+$ yields the claim.
 \end{proof}
 
 \begin{proposition}[Kolmogorov product bound]
 \label{prop:prod-kolmogorov-le}
 \lean{SNumbers.prod_kolmogorovNumber_le}
 \leanok
-\uses{lem:prod-approx-eq-det, thm:det-factor-kolmogorov, def:hilbert-number}
+\uses{lem:prod-approx-eq-det, lem:flag-factorisation, def:hilbert-number}
 $\prod_{k=0}^n d_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$.
 \end{proposition}
 \begin{proof}
 \leanok
-\uses{lem:prod-approx-eq-det, thm:det-factor-kolmogorov}
-Identical to Proposition~\ref{prop:prod-gelfand-le}, using the Kolmogorov-side
-factorisation Theorem~\ref{thm:det-factor-kolmogorov}.
+\uses{lem:prod-approx-eq-det, lem:flag-factorisation}
+Dual to Proposition~\ref{prop:prod-gelfand-le}: the Kolmogorov flag picks $x_k$ whose image lies at
+distance $> d_k(S) - \varepsilon$ from $V_k = \operatorname{span}\{S x_0, \dots, S x_{k-1}\}$
+(dimension $\le k$), and $g_k$ a functional on $Y / V_k$ realising that distance, so $[g_i(S x_j)]$
+is upper-triangular with diagonal norms $> d_k - \varepsilon$; the same $\varepsilon \to 0^+$
+passage applies.
 \end{proof}
 
 \begin{theorem}[Maximal difference theorem]

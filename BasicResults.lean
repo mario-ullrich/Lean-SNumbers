@@ -8,6 +8,7 @@ import BasicResults.SVD
 import BasicResults.Determinant
 import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
+import BasicResults.TriangularFactorisation
 import BasicResults.Spectral.MonotoneConvergence
 import BasicResults.Spectral.Complexification
 import BasicResults.Spectral.Projection
@@ -34,6 +35,9 @@ that support the s-numbers framework:
 * `BasicResults.GarlingGordon` / `BasicResults.KadetsSnobar` — the
   Garling–Gordon and Kadets–Snobar projection theorems (`‖P‖ ≤ √n`),
   classical Banach-space geometry, stated as `sorry`.
+* `BasicResults.TriangularFactorisation` — the determinant of a triangular flag
+  `[gᵢ(S xⱼ)]` realised through `ℓ₂ⁿ⁺¹` with factors of norm `≤ √(n+1)`; the
+  linear-algebra engine behind the Gelfand/Kolmogorov product bounds.
 
 ## The `BasicResults.Spectral` subpackage
 

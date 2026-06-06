@@ -12,6 +12,7 @@ import SNumbers.SingularValuesFinDim
 import BasicResults.Determinant
 import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
+import BasicResults.TriangularFactorisation
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
@@ -91,7 +92,7 @@ admissible `(A, B)` yields `hₙ(S) ≤ sₙ(S)`.
 
 universe u
 
-open ContinuousLinearMap
+open ContinuousLinearMap TriangularFactorisation
 
 namespace SNumbers
 
@@ -353,14 +354,15 @@ The heart of the proof is a **product (determinant) bound**
 
   `∏_{k=0}^n cₖ(S) ≤ (n+1)^{n+1}·∏_{k=0}^n hₖ(S)`              (★)
 
-and its Kolmogorov analogue, `prod_gelfandNumber_le` / `prod_kolmogorovNumber_le`.
-These rest on the inductive triangular determinant construction of the paper, isolated as
-`exists_gelfandNumber_det_factorisation` / `exists_kolmogorovNumber_det_factorisation`
-(a `sorry`): one assembles `A : ℓ₂ⁿ⁺¹ → X` and `B : Y → ℓ₂ⁿ⁺¹` with
-`‖A‖, ‖B‖ ≤ √(n+1)` and `BSA` triangular with `∏ cₖ(S) ≤ ‖det(BSA)‖`. The
-determinant is read on Hilbert spaces as
+and its Kolmogorov analogue, `prod_gelfandNumber_le` / `prod_kolmogorovNumber_le` (both proved).
+These rest on the inductive triangular flag construction of the paper: for each `ε > 0` one
+assembles `A : ℓ₂ⁿ⁺¹ → X`, `B : Y → ℓ₂ⁿ⁺¹` with `‖A‖, ‖B‖ ≤ √(n+1)` and `BSA` triangular with
+diagonal norms `> cₖ(S) − ε` (`exists_factorisation_of_flag` + `exists_gelfand_flag`), so
+`∏ₖ max(cₖ − ε, 0) ≤ ‖det(BSA)‖`. The determinant is read on Hilbert spaces as
 `‖det(BSA)‖ = ∏ aₖ(BSA) ≤ ∏ ‖B‖‖A‖·hₖ(S) ≤ (n+1)^{n+1}∏hₖ(S)`
-(`prod_approximationNumber_eq_norm_det`).
+(`prod_approximationNumber_eq_norm_det`); letting `ε → 0⁺` removes the `ε`
+(`prod_le_pow_of_flags`). The single-`A',B'` bound `∏ cₖ ≤ ‖det‖` is *false* in general (norm
+non-attainment), which is why the `ε`-passage is needed.
 
 Everything else is elementary and fully proved here:
 
@@ -511,51 +513,190 @@ lemma prod_le_pow_mul_prod_hilbertNumber_of_factorisation (S : X →L[𝕜] Y) (
           (Finset.prod_nonneg fun k _ => hilbertNumber_nonneg S k)
 
 omit [CompleteSpace X] [CompleteSpace Y] in
-/-- **Triangular determinant factorisation, Gelfand side** — a geometric `sorry`.
-For `c < cₙ(S)`-type extremal subspaces one builds `A' : ℓ₂ⁿ⁺¹ → X`,
-`B' : Y → ℓ₂ⁿ⁺¹` with `‖A'‖, ‖B'‖ ≤ √(n+1)` and `B'∘S∘A'` upper-triangular with
-`∏ cₖ(S) ≤ ‖det(B'∘S∘A')‖`. This is the only input the Gelfand product bound
-rests on. -/
-theorem exists_gelfandNumber_det_factorisation (S : X →L[𝕜] Y) (n : ℕ) :
-    ∃ (A' : EuclideanSpace 𝕜 (Fin (n + 1)) →L[𝕜] X)
-      (B' : Y →L[𝕜] EuclideanSpace 𝕜 (Fin (n + 1))),
-      ‖A'‖ ≤ Real.sqrt ((n : ℝ) + 1) ∧ ‖B'‖ ≤ Real.sqrt ((n : ℝ) + 1) ∧
-      ∏ k ∈ Finset.range (n + 1), gelfandNumber S k
-        ≤ ‖LinearMap.det (B'.comp (S.comp A') :
-            EuclideanSpace 𝕜 (Fin (n + 1)) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin (n + 1)))‖ := by
-  sorry
+/-- **Iterative point selection for the Gelfand numbers.** If `c < cₖ(S)` and `M` is a
+closed subspace of `X` of codimension `≤ k`, then `M` contains a vector `x` with `‖x‖ ≤ 1`
+and `‖S x‖ > c` (since `cₖ(S) ≤ ‖S|_M‖ = ⨆_{x∈M} ‖S x‖`). -/
+lemma exists_mem_norm_gt_of_lt_gelfandNumber (S : X →L[𝕜] Y) {k : ℕ} {M : Submodule 𝕜 X}
+    (hM_closed : IsClosed (M : Set X)) (hM_rank : Module.rank 𝕜 (X ⧸ M) ≤ (k : Cardinal))
+    {c : ℝ} (hc : c < gelfandNumber S k) :
+    ∃ x ∈ M, ‖x‖ ≤ 1 ∧ c < ‖S x‖ := by
+  have hlt : c < ‖S.comp M.subtypeL‖ :=
+    lt_of_lt_of_le hc (gelfandNumber_le_deviation hM_closed hM_rank)
+  obtain ⟨w, hw, hwc⟩ := (S.comp M.subtypeL).exists_lt_apply_of_lt_opNorm hlt
+  exact ⟨(w : X), w.2, by simpa using hw.le, by simpa using hwc⟩
 
 omit [CompleteSpace X] [CompleteSpace Y] in
-/-- **Product (determinant) bound, Gelfand side.** `∏ cₖ ≤ (n+1)^{n+1} ∏ hₖ`,
-reduced (via `prod_le_pow_mul_prod_hilbertNumber_of_factorisation` and the
-determinant identity) to the triangular factorisation
-`exists_gelfandNumber_det_factorisation`. -/
+/-- **The triangular flag (Gelfand side).** For `ε > 0` and length `m`, vectors `xₖ ∈ B_X` and
+functionals `gₖ ∈ B_{Y*}` with `[gᵢ(S xⱼ)]` lower-triangular (`= 0` for `i < j`), real diagonal
+`gₖ(S xₖ) = ‖S xₖ‖ > cₖ(S) − ε`. Built by induction: pick `xₘ` where `g₀,…,g_{m-1}` vanish on
+`S·` with `‖S xₘ‖ > cₘ − ε`, then a Hahn–Banach `gₘ` attaining `‖S xₘ‖`. -/
+private lemma exists_gelfand_flag (S : X →L[𝕜] Y) {ε : ℝ} (hε : 0 < ε) (m : ℕ) :
+    ∃ (x : Fin m → X) (g : Fin m → (Y →L[𝕜] 𝕜)),
+      (∀ j : Fin m, ‖x j‖ ≤ 1) ∧ (∀ i : Fin m, ‖g i‖ ≤ 1) ∧
+      (∀ i j : Fin m, i < j → g i (S (x j)) = 0) ∧
+      (∀ k : Fin m, g k (S (x k)) = (‖S (x k)‖ : 𝕜)) ∧
+      (∀ k : Fin m, gelfandNumber S (k : ℕ) - ε < ‖S (x k)‖) := by
+  induction m with
+  | zero =>
+    exact ⟨Fin.elim0, Fin.elim0, fun j => j.elim0, fun i => i.elim0,
+      fun i => i.elim0, fun k => k.elim0, fun k => k.elim0⟩
+  | succ m ih =>
+    obtain ⟨x, g, hx, hg, htri, hdiag, hgt⟩ := ih
+    obtain ⟨M, hMc, hMr, hM0⟩ := exists_closed_codim_forall_eq_zero S g
+    obtain ⟨z, hzM, hz1, hzgt⟩ :=
+      exists_mem_norm_gt_of_lt_gelfandNumber S hMc hMr
+        (c := gelfandNumber S m - ε) (by linarith)
+    obtain ⟨gm, hgm1, hgmval⟩ := exists_dual_vector'' 𝕜 (S z)
+    refine ⟨Fin.snoc x z, Fin.snoc g gm, ?_, ?_, ?_, ?_, ?_⟩
+    · intro j; induction j using Fin.lastCases with
+      | last => simpa using hz1
+      | cast j' => simpa using hx j'
+    · intro i; induction i using Fin.lastCases with
+      | last => simpa using hgm1
+      | cast i' => simpa using hg i'
+    · intro i j hij
+      induction j using Fin.lastCases with
+      | last =>
+        obtain ⟨i', rfl⟩ := Fin.eq_castSucc_of_ne_last (Fin.ne_last_of_lt hij)
+        rw [Fin.snoc_last, Fin.snoc_castSucc]
+        exact hM0 z hzM i'
+      | cast j' =>
+        obtain ⟨i', rfl⟩ :=
+          Fin.eq_castSucc_of_ne_last (Fin.ne_last_of_lt (hij.trans (Fin.castSucc_lt_last j')))
+        rw [Fin.snoc_castSucc, Fin.snoc_castSucc]
+        exact htri i' j' (Fin.castSucc_lt_castSucc_iff.mp hij)
+    · intro k; induction k using Fin.lastCases with
+      | last => rw [Fin.snoc_last, Fin.snoc_last]; exact hgmval
+      | cast k' => rw [Fin.snoc_castSucc, Fin.snoc_castSucc]; exact hdiag k'
+    · intro k; induction k using Fin.lastCases with
+      | last => rw [Fin.snoc_last]; simpa [Fin.val_last] using hzgt
+      | cast k' => rw [Fin.snoc_castSucc]; simpa using hgt k'
+
+omit [CompleteSpace X] [CompleteSpace Y] in
+/-- **From flags to the product bound (shared `ε → 0` core).** If for every `ε > 0` there is a
+triangular flag whose diagonal entries have norm `> num k − ε`, then
+`∏ num k ≤ (n+1)^{n+1} ∏ hₖ`. -/
+private lemma prod_le_pow_of_flags (S : X →L[𝕜] Y) (n : ℕ) (num : ℕ → ℝ) (hnum : ∀ k, 0 ≤ num k)
+    (hflag : ∀ ε : ℝ, 0 < ε → ∃ (x : Fin (n + 1) → X) (g : Fin (n + 1) → (Y →L[𝕜] 𝕜)),
+      (∀ j, ‖x j‖ ≤ 1) ∧ (∀ i, ‖g i‖ ≤ 1) ∧
+      ((∀ i j : Fin (n + 1), i < j → g i (S (x j)) = 0) ∨
+        (∀ i j : Fin (n + 1), j < i → g i (S (x j)) = 0)) ∧
+      (∀ k : Fin (n + 1), num ↑k - ε < ‖g k (S (x k))‖)) :
+    ∏ k ∈ Finset.range (n + 1), num k
+      ≤ ((n : ℝ) + 1) ^ (n + 1) * ∏ k ∈ Finset.range (n + 1), hilbertNumber S k := by
+  have hFle : ∀ ε, 0 < ε →
+      ∏ k ∈ Finset.range (n + 1), max (num k - ε) 0
+        ≤ ((n : ℝ) + 1) ^ (n + 1) * ∏ k ∈ Finset.range (n + 1), hilbertNumber S k := by
+    intro ε hε
+    obtain ⟨x, g, hx, hg, htri, hbound⟩ := hflag ε hε
+    obtain ⟨A', B', hA, hB, hdet⟩ := exists_factorisation_of_flag S n x g hx hg htri
+    refine prod_le_pow_mul_prod_hilbertNumber_of_factorisation S n A' B' hA hB ?_
+    rw [hdet, ← Fin.prod_univ_eq_prod_range (fun k => max (num k - ε) 0)]
+    exact Finset.prod_le_prod (fun k _ => le_max_right _ _)
+      (fun k _ => max_le (hbound k).le (norm_nonneg _))
+  set F : ℝ → ℝ := fun ε => ∏ k ∈ Finset.range (n + 1), max (num k - ε) 0 with hF
+  have hF0 : F 0 = ∏ k ∈ Finset.range (n + 1), num k := by
+    simp only [hF, sub_zero]; exact Finset.prod_congr rfl fun k _ => max_eq_left (hnum k)
+  have hFcont : Continuous F :=
+    continuous_finsetProd _ fun k _ => (continuous_const.sub continuous_id).max continuous_const
+  rw [← hF0]
+  exact le_of_tendsto ((hFcont.tendsto 0).mono_left nhdsWithin_le_nhds)
+    (eventually_mem_nhdsWithin.mono fun ε hε => hFle ε (Set.mem_Ioi.mp hε))
+
+omit [CompleteSpace X] [CompleteSpace Y] in
+/-- **Product (determinant) bound, Gelfand side.** `∏ cₖ ≤ (n+1)^{n+1} ∏ hₖ`, via the
+lower-triangular Gelfand flag fed to `prod_le_pow_of_flags`. -/
 theorem prod_gelfandNumber_le (S : X →L[𝕜] Y) (n : ℕ) :
     ∏ k ∈ Finset.range (n + 1), gelfandNumber S k
       ≤ ((n : ℝ) + 1) ^ (n + 1) * ∏ k ∈ Finset.range (n + 1), hilbertNumber S k := by
-  obtain ⟨A', B', hA, hB, hdet⟩ := exists_gelfandNumber_det_factorisation S n
-  exact prod_le_pow_mul_prod_hilbertNumber_of_factorisation S n A' B' hA hB hdet
+  refine prod_le_pow_of_flags S n (gelfandNumber S) (fun k => gelfandNumber_nonneg S k) fun ε hε => ?_
+  obtain ⟨x, g, hx, hg, htri, hdiag, hgt⟩ := exists_gelfand_flag S hε (n + 1)
+  refine ⟨x, g, hx, hg, Or.inl htri, fun k => ?_⟩
+  rw [hdiag k, RCLike.norm_ofReal, abs_of_nonneg (norm_nonneg _)]
+  exact hgt k
 
 omit [CompleteSpace X] [CompleteSpace Y] in
-/-- **Triangular determinant factorisation, Kolmogorov side** — a geometric `sorry`,
-dual to `exists_gelfandNumber_det_factorisation`. -/
-theorem exists_kolmogorovNumber_det_factorisation (S : X →L[𝕜] Y) (n : ℕ) :
-    ∃ (A' : EuclideanSpace 𝕜 (Fin (n + 1)) →L[𝕜] X)
-      (B' : Y →L[𝕜] EuclideanSpace 𝕜 (Fin (n + 1))),
-      ‖A'‖ ≤ Real.sqrt ((n : ℝ) + 1) ∧ ‖B'‖ ≤ Real.sqrt ((n : ℝ) + 1) ∧
-      ∏ k ∈ Finset.range (n + 1), kolmogorovNumber S k
-        ≤ ‖LinearMap.det (B'.comp (S.comp A') :
-            EuclideanSpace 𝕜 (Fin (n + 1)) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin (n + 1)))‖ := by
-  sorry
+/-- **Iterative point selection for the Kolmogorov numbers (dual).** If `c < dₖ(S)` and `V` is a
+subspace of `Y` of dimension `≤ k`, there is `x` with `‖x‖ ≤ 1` and `‖π_V(S x)‖ > c`
+(since `dₖ(S) ≤ ‖π_V ∘ S‖`). -/
+lemma exists_norm_mkQL_gt_of_lt_kolmogorovNumber (S : X →L[𝕜] Y) {k : ℕ} {V : Submodule 𝕜 Y}
+    (hV_rank : Module.rank 𝕜 V ≤ (k : Cardinal)) {c : ℝ} (hc : c < kolmogorovNumber S k) :
+    ∃ x : X, ‖x‖ ≤ 1 ∧ c < ‖V.mkQL (S x)‖ := by
+  have hlt : c < ‖V.mkQL.comp S‖ := lt_of_lt_of_le hc (kolmogorovNumber_le_deviation hV_rank)
+  obtain ⟨x, hx, hxc⟩ := (V.mkQL.comp S).exists_lt_apply_of_lt_opNorm hlt
+  exact ⟨x, hx.le, by simpa using hxc⟩
 
 omit [CompleteSpace X] [CompleteSpace Y] in
-/-- **Product (determinant) bound, Kolmogorov side.** `∏ dₖ ≤ (n+1)^{n+1} ∏ hₖ`,
-reduced to `exists_kolmogorovNumber_det_factorisation` as on the Gelfand side. -/
+/-- **The triangular flag (Kolmogorov side).** For `ε > 0` and length `m`, vectors `xₖ ∈ B_X` and
+`gₖ ∈ B_{Y*}` with `[gᵢ(S xⱼ)]` upper-triangular (`= 0` for `j < i`) and
+`‖gₖ(S xₖ)‖ > dₖ(S) − ε`: pick `xₘ` whose image is `> dₘ − ε` from `Vₘ = span{S x₀,…,S x_{m-1}}`
+(dim `≤ m`), then a Hahn–Banach `gₘ` on `Y⧸Vₘ` realising that distance. -/
+private lemma exists_kolmogorov_flag (S : X →L[𝕜] Y) {ε : ℝ} (hε : 0 < ε) (m : ℕ) :
+    ∃ (x : Fin m → X) (g : Fin m → (Y →L[𝕜] 𝕜)),
+      (∀ j : Fin m, ‖x j‖ ≤ 1) ∧ (∀ i : Fin m, ‖g i‖ ≤ 1) ∧
+      (∀ i j : Fin m, j < i → g i (S (x j)) = 0) ∧
+      (∀ k : Fin m, kolmogorovNumber S (k : ℕ) - ε < ‖g k (S (x k))‖) := by
+  classical
+  induction m with
+  | zero =>
+    exact ⟨Fin.elim0, Fin.elim0, fun j => j.elim0, fun i => i.elim0,
+      fun i => i.elim0, fun k => k.elim0⟩
+  | succ m ih =>
+    obtain ⟨x, g, hx, hg, htri, hgt⟩ := ih
+    set V : Submodule 𝕜 Y :=
+      Submodule.span 𝕜 ↑(Finset.image (fun j : Fin m => S (x j)) Finset.univ) with hVdef
+    haveI : FiniteDimensional 𝕜 V := FiniteDimensional.span_of_finite 𝕜 (Finset.finite_toSet _)
+    haveI : IsClosed (V : Set Y) := V.closed_of_finiteDimensional
+    have hVrank : Module.rank 𝕜 V ≤ (m : Cardinal) := by
+      rw [hVdef]
+      refine (rank_span_finset_le _).trans (Nat.cast_le.mpr ?_)
+      exact Finset.card_image_le.trans_eq (by rw [Finset.card_univ, Fintype.card_fin])
+    obtain ⟨z, hz1, hzc⟩ :=
+      exists_norm_mkQL_gt_of_lt_kolmogorovNumber S hVrank (c := kolmogorovNumber S m - ε) (by linarith)
+    obtain ⟨h, hh1, hhval⟩ := exists_dual_vector'' 𝕜 (V.mkQL (S z))
+    set gm : Y →L[𝕜] 𝕜 := h.comp V.mkQL with hgm
+    have hgm_vanish : ∀ y ∈ V, gm y = 0 := by
+      intro y hy
+      rw [hgm, ContinuousLinearMap.comp_apply, V.mkQL_apply, V.mkQ_apply,
+        (Submodule.Quotient.mk_eq_zero V).mpr hy, map_zero]
+    refine ⟨Fin.snoc x z, Fin.snoc g gm, ?_, ?_, ?_, ?_⟩
+    · intro j; induction j using Fin.lastCases with
+      | last => simpa using hz1
+      | cast j' => simpa using hx j'
+    · intro i; induction i using Fin.lastCases with
+      | last =>
+        simpa [hgm] using (h.opNorm_comp_le V.mkQL).trans
+          (mul_le_one₀ hh1 (norm_nonneg _) V.norm_mkQL_le)
+      | cast i' => simpa using hg i'
+    · intro i j hij
+      induction i using Fin.lastCases with
+      | last =>
+        obtain ⟨j', rfl⟩ := Fin.eq_castSucc_of_ne_last (Fin.ne_last_of_lt hij)
+        rw [Fin.snoc_last, Fin.snoc_castSucc]
+        exact hgm_vanish _ (Submodule.subset_span
+          (Finset.mem_coe.mpr (Finset.mem_image_of_mem _ (Finset.mem_univ j'))))
+      | cast i' =>
+        obtain ⟨j', rfl⟩ :=
+          Fin.eq_castSucc_of_ne_last (Fin.ne_last_of_lt (hij.trans (Fin.castSucc_lt_last i')))
+        rw [Fin.snoc_castSucc, Fin.snoc_castSucc]
+        exact htri i' j' (Fin.castSucc_lt_castSucc_iff.mp hij)
+    · intro k; induction k using Fin.lastCases with
+      | last =>
+        rw [Fin.snoc_last, Fin.snoc_last, hgm, ContinuousLinearMap.comp_apply, hhval,
+          RCLike.norm_ofReal, abs_of_nonneg (norm_nonneg _)]
+        simpa [Fin.val_last] using hzc
+      | cast k' => rw [Fin.snoc_castSucc, Fin.snoc_castSucc]; simpa using hgt k'
+
+omit [CompleteSpace X] [CompleteSpace Y] in
+/-- **Product (determinant) bound, Kolmogorov side.** `∏ dₖ ≤ (n+1)^{n+1} ∏ hₖ`, via the
+upper-triangular Kolmogorov flag fed to `prod_le_pow_of_flags`. -/
 theorem prod_kolmogorovNumber_le (S : X →L[𝕜] Y) (n : ℕ) :
     ∏ k ∈ Finset.range (n + 1), kolmogorovNumber S k
       ≤ ((n : ℝ) + 1) ^ (n + 1) * ∏ k ∈ Finset.range (n + 1), hilbertNumber S k := by
-  obtain ⟨A', B', hA, hB, hdet⟩ := exists_kolmogorovNumber_det_factorisation S n
-  exact prod_le_pow_mul_prod_hilbertNumber_of_factorisation S n A' B' hA hB hdet
+  refine prod_le_pow_of_flags S n (kolmogorovNumber S)
+    (fun k => kolmogorovNumber_nonneg S k) fun ε hε => ?_
+  obtain ⟨x, g, hx, hg, htri, hgt⟩ := exists_kolmogorov_flag S hε (n + 1)
+  exact ⟨x, g, hx, hg, Or.inr htri, hgt⟩
 
 omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Gelfand vs. Hilbert numbers.** `cₙ(S) ≤ (n+1)·(∏_{k=0}^n hₖ(S))^{1/(n+1)}`,

@@ -67,16 +67,20 @@ examples, which are the central targets of this formalisation:
 │   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9),
 │   │                              for all bounded operators (ℝ and ℂ), proved
 │   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
-│   │                              sandwich hₙ ≤ sₙ ≤ aₙ,
-│   │                              aₙ ≤ (1+√n)·min(cₙ,dₙ) via Garling–Gordon
-│   │                              / Kadets–Snobar, and the maximal
-│   │                              difference thm max(cₙ,dₙ) ≤ (n+1)·(∏hₖ)^{1/(n+1)}
-│   │                              (deep inputs left as `sorry`)
+│   │                              sandwich hₙ ≤ sₙ ≤ aₙ, the maximal difference
+│   │                              thm max(cₙ,dₙ) ≤ (n+1)·(∏hₖ)^{1/(n+1)} (proved),
+│   │                              and aₙ ≤ (1+√n)·min(cₙ,dₙ) via Garling–Gordon /
+│   │                              Kadets–Snobar (the only `sorry` inputs here)
 │   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
 │   │                              s-number (sₙ = σₙ) via uniqueness +
 │   │                              Eckart–Young (proved)
-│   └── Injectivity.lean        ← injective / surjective s-numbers:
-│                                  cₙ injective, dₙ surjective (full proofs)
+│   ├── Injectivity.lean        ← injective / surjective s-numbers:
+│   │                              cₙ injective, dₙ surjective (full proofs)
+│   └── Examples/
+│       ├── DiagonalMatrices.lean ← worked example: s-numbers of a diagonal
+│       │                          operator D_σ : ℓ^p_m → ℓ^p_m (sₙ = ‖σ_n‖)
+│       └── IdentityEmbedding.lean ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q):
+│                                  ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
 ├── BasicResults.lean           ← library entry point
 ├── BasicResults/
 │   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
@@ -90,6 +94,10 @@ examples, which are the central targets of this formalisation:
 │   │                              of the maximal difference thm
 │   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n, ker = M); `sorry`
 │   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V); `sorry`
+│   ├── TriangularFactorisation.lean ← determinant of a triangular flag [gᵢ(S xⱼ)]
+│   │                              realised through ℓ₂ⁿ⁺¹ (factors of norm ≤ √(n+1));
+│   │                              the engine behind the Gelfand/Kolmogorov product
+│   │                              bounds in the maximal difference thm
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
@@ -145,8 +153,8 @@ in place but the proof is `sorry`.
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
-| `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved (modulo the triangular factorisation) |
-| Triangular determinant factorisation `∏ cₖ ≤ ‖det(B∘S∘A)‖` (and `dₖ`) | 🟡 declared, no proof |
+| `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved |
+| Triangular determinant bound `∏ cₖ ≤ (n+1)^{n+1} ∏ hₖ` (and `dₖ`) | ✅ proved |
 | `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
 
 ### Singular values, SVD and determinants
@@ -164,6 +172,18 @@ in place but the proof is `sorry`.
 | `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
 | `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
 
+### Worked examples
+
+| Result                                    | Status              |
+|-------------------------------------------|---------------------|
+| Diagonal operator `D_σ : ℓ^p_m → ℓ^p_m` and its norm `‖D_σ‖ = ⨆ᵢ‖σᵢ‖` | ✅ proved |
+| `sₙ(D_σ) = ‖σ_n‖` for every **strict** s-number (`aₙ, cₙ, dₙ, bₙ`) | ✅ proved |
+| Hilbert numbers `hₙ(D_σ) ≤ ‖σ_n‖` (equality fails for `p ≠ 2`) | ✅ proved |
+| Unit diagonal = identity, `sₙ(id_{ℓ^p_m}) = 1` for `n < m` | ✅ proved |
+| Identity embedding `id : ℓ^q_m → ℓ^p_m` (`p ≤ q`), `‖id‖ = m^{1/p-1/q}` | ✅ proved |
+| `aₙ(id : ℓ^q_m → ℓ^p_m) ≤ (m-n)^{1/p-1/q}` (all s-numbers) | ✅ proved |
+| `aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}` (`p ≤ q`) | 🟡 modulo Gelfand-width `sorry` |
+
 ### Add ons
 
 | Result                                    | Status              |
@@ -173,13 +193,15 @@ in place but the proof is `sorry`.
 
 ## Open `sorry`s
 
-Only four results are still left as `sorry`. They are deep classical inputs;
-everything that depends on them is proved *modulo* these statements, and
-everything else in `SNumbers/` and `BasicResults/` is `sorry`-free.
-
-Two are in `BasicResults/GarlingGordon.lean` and
-`BasicResults/KadetsSnobar.lean`, classical results of Banach-space geometry
-used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
+Two results in the core theory are left as `sorry` — both deep classical inputs of
+Banach-space geometry, in `BasicResults/GarlingGordon.lean` and
+`BasicResults/KadetsSnobar.lean`, used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`
+(a third, isolated `sorry` in the identity-embedding example is listed below).
+Everything that depends on them is proved *modulo* these statements, and
+everything else in `SNumbers/` and `BasicResults/` is `sorry`-free (including the
+triangular determinant bounds `∏ cₖ, ∏ dₖ ≤ (n+1)^{n+1} ∏ hₖ` behind the maximal
+difference theorem, proved by the inductive flag construction of
+arXiv:2405.05509 + an `ε → 0` passage).
 
 * **`exists_projection_ker_eq_of_codim_le`** — the **Garling–Gordon**
   theorem (Garling–Gordon 1971; Pietsch [Pie87, 1.7.17]): a closed
@@ -190,14 +212,14 @@ used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
   `V ⊆ Y` of dimension `≤ n` is the range of a bounded projection `P`
   with `‖P‖ ≤ √n`.
 
-One is in `SNumbers/Inequalities.lean`, the **triangular determinant
-factorisations** behind the maximal difference theorem:
+A third `sorry` lives in `SNumbers/Examples/IdentityEmbedding.lean`, used only for
+the *lower* bound of the identity-embedding example:
 
-* **`exists_gelfandNumber_det_factorisation`** /
-  **`exists_kolmogorovNumber_det_factorisation`** — the inductive triangular /
-  determinant construction of arXiv:2405.05509: factors `A : ℓ₂ⁿ⁺¹ → X`,
-  `B : Y → ℓ₂ⁿ⁺¹` with `‖A‖,‖B‖ ≤ √(n+1)` and `∏ cₖ(S) ≤ ‖det(B∘S∘A)‖` (resp.
-  `dₖ`).
+* **`exists_norm_ratio_ge_idEmbed`** — the **Gelfand-width lower bound**
+  (Pietsch [Pie87, §11.11]): every subspace of `ℓ^q_m` of dimension `≥ m-n`
+  contains a nonzero vector with `‖x‖_p ≥ (m-n)^{1/p-1/q}·‖x‖_q`. A
+  volumetric/averaging argument. The exact value `aₙ(id) = (m-n)^{1/p-1/q}` is
+  proved *modulo* this; the operator norm and the upper bound are unconditional.
 
 ## Building
 
