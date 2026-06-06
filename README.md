@@ -8,6 +8,40 @@ s-numbers** for bounded linear operators between Banach spaces.
 **Blueprint**: built by GitHub Actions, available as a downloadable
 artifact under *Actions → latest run → blueprint-web*.
 
+## What are s-numbers?
+
+**s-numbers are a generalisation of singular values** to bounded 
+linear operators `T : X → Y` between arbitrary Banach (or normed) 
+spaces, while singular values are only defined for operators 
+between Hilbert spaces. 
+
+Following Pietsch's axiomatic approach, an **s-number sequence** is a rule `s` assigning to each operator `T` a
+non-increasing sequence of non-negative reals `s₀(T) ≥ s₁(T) ≥ ⋯ ≥ 0`
+(indexing starts at `0`) satisfying
+
+* **(S1) norm + monotonicity:** `s₀(T) = ‖T‖` and `s₀(T) ≥ s₁(T) ≥ ⋯ ≥ 0`;
+* **(S2) subadditivity:** `sₙ(S + T) ≤ sₙ(S) + ‖T‖`;
+* **(S3) ideal property:** `sₙ(B ∘ T ∘ A) ≤ ‖B‖ · sₙ(T) · ‖A‖`;
+* **(S4) rank:** `sₙ(T) = 0` whenever `rank T ≤ n`;
+* **(S5) norming:** `sₙ(id : ℓ₂ⁿ⁺¹ → ℓ₂ⁿ⁺¹) = 1`.
+
+A *strict* s-number sequence strengthens (S5) to **(S5')**
+`sₙ(id_X) = 1` for every space `X` with `dim X > n`, not just `ℓ₂ⁿ⁺¹`.
+The classical examples are the **approximation** `aₙ`, **Gelfand** `cₙ`,
+**Kolmogorov** `dₙ`, **Bernstein** `bₙ`, and **Hilbert** `hₙ` numbers.
+
+The whole theory is held together by a few inequalities relating these
+examples, which are the central targets of this formalisation:
+
+* `aₙ` is the **largest** and `hₙ` the **smallest** s-number, giving the
+  sandwich `hₙ(T) ≤ sₙ(T) ≤ aₙ(T)` for every s-number sequence `s`;
+* `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))` (Gelfand and Kolmogorov numbers
+  cannot both be much smaller than the approximation numbers);
+* the **maximal difference theorem**
+  `max(cₙ(T), dₙ(T)) ≤ (n+1) · (∏ₖ₌₀ⁿ hₖ(T))^{1/(n+1)}`;
+* **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
+  the classical singular values `σₙ(T)`.
+
 ## Layout
 
 ```
@@ -75,80 +109,81 @@ artifact under *Actions → latest run → blueprint-web*.
 
 ## What is formalised
 
+A green check means fully proved (no `sorry`); 🟡 means the statement is
+in place but the proof is `sorry`.
+
+### Axioms and framework
+
 | Axiom / Object                            | Status              |
 |-------------------------------------------|---------------------|
 | `IsSNumberSequence` (S1–S5)               | ✅ defined          |
 | `IsStrictSNumberSequence` (adds S5')      | ✅ defined          |
 | `rank` of `X →L[𝕜] Y`                     | ✅ defined          |
+| Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
+| Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
+
+### The classical s-numbers
+
+| Object                                    | Status              |
+|-------------------------------------------|---------------------|
 | Approximation number `aₙ`                 | ✅ proved (S1–S5')  |
 | Bernstein number `bₙ`                     | ✅ proved (S1–S5')  |
 | Gelfand number `cₙ`                       | ✅ proved (S1–S5')  |
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
 |       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
 | Hilbert number `hₙ` (any `RCLike 𝕜`)      | ✅ proved (S1)–(S5); forms an s-number sequence |
+
+### Inequalities between s-numbers
+
+| Inequality                                | Status              |
+|-------------------------------------------|---------------------|
 | Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
+| `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved (modulo the triangular factorisation) |
+| `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
 | Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared, no proof |
 | Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared, no proof |
-| `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved (modulo the triangular factorisation) |
 | Triangular determinant factorisation `∏ cₖ ≤ ‖det(B∘S∘A)‖` (and `dₖ`) | 🟡 declared, no proof |
-| `det T* = conj(det T)` | ✅ proved |
-| `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
-| `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
-| `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
-| `sₙ(S) = σₙ(S)` (fin-dim: all s-numbers = Mathlib singular numbers) | ✅ proved |
-| Singular-value uniqueness `project σ = Mathlib σ` (`project_singularValues_eq`) | ✅ proved |
-| `IsCompactOperator.SVD` (`OrthonormalOrZero`-indexed) | ✅ proved |
-| Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
+
+### Uniqueness, injectivity and surjectivity
+
+| Result                                    | Status              |
+|-------------------------------------------|---------------------|
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on (ℝ and ℂ) Hilbert spaces | ✅ proved |
 | Metric injection / surjection classes     | ✅ defined          |
 | `sₙ(J∘S) ≤ sₙ(S)`, `sₙ(S∘Q) ≤ sₙ(S)` (any `s`) | ✅ proved        |
 | Gelfand numbers `cₙ` **injective**        | ✅ proved           |
 | Kolmogorov numbers `dₙ` **surjective**    | ✅ proved           |
-| Auerbach's lemma                          | ✅ proved (ℝ)       |
-| Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
+
+### Singular values, SVD and determinants
+
+| Result                                    | Status              |
+|-------------------------------------------|---------------------|
+| `sₙ(S) = σₙ(S)` (fin-dim: all s-numbers = Mathlib singular numbers) | ✅ proved |
+| Singular-value uniqueness `project σ = Mathlib σ` (`project_singularValues_eq`) | ✅ proved |
 | `norm_isSingularValue` (compact attains norm) | ✅ proved        |
 | Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved |
 | Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved |
-| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved | 
+| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved |
 | Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | ✅ proved |
+| `det T* = conj(det T)` | ✅ proved |
+| `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
+| `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
+
+### Auerbach's lemma and approximable operators
+
+| Result                                    | Status              |
+|-------------------------------------------|---------------------|
+| Auerbach's lemma                          | ✅ proved (ℝ)       |
+| Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | Compact ⇔ approximable on Hilbert         | 🟡 declared, no proof|
-
-A green check means fully proved (no `sorry`); 🟡 means the statement is
-in place but the proof is `sorry`.
-
-### Uniqueness on Hilbert spaces, and injective / surjective `s`-numbers
-
-* **Uniqueness (`SNumbers.Uniqueness`).** On Hilbert spaces every `s`-number
-  sequence equals the approximation numbers, `sₙ(S) = aₙ(S)`
-  (`allSNumbers_eq_on_HilbertSpace`, Pietsch 2.11.9). It reduces, via the scalar
-  factorisation `SVD.exists_scalar_factorisation` (`B∘S∘A = c·id` for `c < aₙ(S)`),
-  to the reverse-homogeneity lemma `norm_smul_le_sn`, axiom (S3), axiom (S5), and
-  the already-proven upper bound `sn_le_approximationNumber`. That factorisation
-  is proved; it rests on the spectral projection of `S*S`, which is proved for
-  every `RCLike` field in `BasicResults.Spectral` (continuous functional calculus
-  over `ℂ`, complexification for `ℝ`). So uniqueness holds unconditionally for all
-  bounded operators on real and complex Hilbert spaces.
-* **Injective / surjective (`SNumbers.Injectivity`).** A sequence is
-  *injective* if `sₙ(J∘S) = sₙ(S)` for every metric injection `J`
-  (isometric embedding), *surjective* if `sₙ(S∘Q) = sₙ(S)` for every metric
-  surjection `Q` (quotient map). The "easy" inequality `≤` holds for every
-  `s`-number sequence (`sn_comp_metricInjection_le`,
-  `sn_comp_metricSurjection_le`). The two flagship facts are proved in
-  full: the **Gelfand numbers are injective** (`injective_gelfandNumber`)
-  and the **Kolmogorov numbers are surjective** (`surjective_kolmogorovNumber`),
-  because their defining restriction- / quotient-norms are literally
-  unchanged under composition with an isometry / metric surjection
-  (`‖J∘T‖ = ‖T‖`, `‖T∘Q‖ = ‖T‖`).
-
-The approximation numbers `aₙ` are neither injective nor surjective in
-general (their injective and surjective hulls are exactly `cₙ` and `dₙ`).
-The Hilbert numbers `hₙ` are both, though that is not yet formalised here.
-
 
 ## Open `sorry`s
 
-The `SNumbers/` library has a small number of clearly-flagged `sorry`s.
+Only four results are still left as `sorry`. They are deep classical inputs;
+everything that depends on them is proved *modulo* these statements, and
+everything else in `SNumbers/` and `BasicResults/` is `sorry`-free.
+
 Two are in `BasicResults/GarlingGordon.lean` and
 `BasicResults/KadetsSnobar.lean`, classical results of Banach-space geometry
 used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
@@ -162,29 +197,19 @@ used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
   `V ⊆ Y` of dimension `≤ n` is the range of a bounded projection `P`
   with `‖P‖ ≤ √n`.
 
-Two more are in `SNumbers/Inequalities.lean`, the **triangular determinant
+One is in `SNumbers/Inequalities.lean`, the **triangular determinant
 factorisations** behind the maximal difference theorem:
 
 * **`exists_gelfandNumber_det_factorisation`** /
   **`exists_kolmogorovNumber_det_factorisation`** — the inductive triangular /
   determinant construction of arXiv:2405.05509: factors `A : ℓ₂ⁿ⁺¹ → X`,
   `B : Y → ℓ₂ⁿ⁺¹` with `‖A‖,‖B‖ ≤ √(n+1)` and `∏ cₖ(S) ≤ ‖det(B∘S∘A)‖` (resp.
-  `dₖ`). The product bounds `prod_gelfand/kolmogorovNumber_le` and the maximal
-  difference theorem are proved on top of these, using the determinant identity
-  `∏ aₖ = ‖det‖` (`prod_approximationNumber_eq_norm_det`).
+  `dₖ`).
 
-Everything else in `SNumbers/` and `BasicResults/` is `sorry`-free — including
-`aₙ ≤ (1+√n)·min(cₙ,dₙ)` and the maximal difference theorem (modulo the
-factorisations above), the singular-value uniqueness `project_singularValues_eq`,
-the universality `sₙ = σₙ`, the compact SVD `IsCompactOperator.SVD`, the scalar
-factorisation, and the **spectral projection of `S*S`** itself (`BasicResults.Spectral`,
-for every `RCLike` field). In particular the Hilbert-space coincidence `sₙ = aₙ`
-(Pietsch 2.11.9) and the sandwich `hₙ ≤ sₙ ≤ aₙ` are now fully proved for all
-bounded operators on real and complex Hilbert spaces.
+The last is in `AddOns/Compact.lean`:
 
-The only remaining `sorry` outside `SNumbers/Inequalities.lean` is:
-
-* **compact ⇔ approximable on Hilbert** (`AddOns/Compact.lean`).
+* **compact ⇔ approximable on Hilbert** — a Hilbert-space operator is compact
+  iff its approximation numbers tend to `0`.
 
 ## Building
 
