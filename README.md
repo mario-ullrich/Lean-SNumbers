@@ -119,41 +119,33 @@ in place but the proof is `sorry`.
 | `IsSNumberSequence` (S1–S5)               | ✅ defined          |
 | `IsStrictSNumberSequence` (adds S5')      | ✅ defined          |
 | `rank` of `X →L[𝕜] Y`                     | ✅ defined          |
+| Metric injection / surjection classes     | ✅ defined          |
 | Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
-| Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
+| Auerbach's lemma                          | ✅ proved (ℝ)       |
+| Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared, no proof |
+| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared, no proof |
 
 ### The classical s-numbers
 
 | Object                                    | Status              |
 |-------------------------------------------|---------------------|
-| Approximation number `aₙ`                 | ✅ proved (S1–S5')  |
-| Bernstein number `bₙ`                     | ✅ proved (S1–S5')  |
-| Gelfand number `cₙ`                       | ✅ proved (S1–S5')  |
-| Kolmogorov number `dₙ`                    | ✅ proved (S1–S5')  |
+| Approximation number `aₙ`                 | ✅ proved (S1–S5'); strict |
+| Bernstein number `bₙ`                     | ✅ proved (S1–S5'); strict |
+| Gelfand number `cₙ`                       | ✅ proved (S1–S5'); strict + injective |
+| Kolmogorov number `dₙ`                    | ✅ proved (S1–S5'); strict + surjective |
 |       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
-| Hilbert number `hₙ` (any `RCLike 𝕜`)      | ✅ proved (S1)–(S5); forms an s-number sequence |
+| Hilbert number `hₙ`                       | ✅ proved (S1)–(S5) |
 
 ### Inequalities between s-numbers
 
 | Inequality                                | Status              |
 |-------------------------------------------|---------------------|
 | Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
+| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
 | `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved (modulo the triangular factorisation) |
-| `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
-| Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared, no proof |
-| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared, no proof |
 | Triangular determinant factorisation `∏ cₖ ≤ ‖det(B∘S∘A)‖` (and `dₖ`) | 🟡 declared, no proof |
-
-### Uniqueness, injectivity and surjectivity
-
-| Result                                    | Status              |
-|-------------------------------------------|---------------------|
-| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on (ℝ and ℂ) Hilbert spaces | ✅ proved |
-| Metric injection / surjection classes     | ✅ defined          |
-| `sₙ(J∘S) ≤ sₙ(S)`, `sₙ(S∘Q) ≤ sₙ(S)` (any `s`) | ✅ proved        |
-| Gelfand numbers `cₙ` **injective**        | ✅ proved           |
-| Kolmogorov numbers `dₙ` **surjective**    | ✅ proved           |
+| `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
 
 ### Singular values, SVD and determinants
 
@@ -170,11 +162,10 @@ in place but the proof is `sorry`.
 | `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
 | `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
 
-### Auerbach's lemma and approximable operators
+### Add ons
 
 | Result                                    | Status              |
 |-------------------------------------------|---------------------|
-| Auerbach's lemma                          | ✅ proved (ℝ)       |
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | Compact ⇔ approximable on Hilbert         | 🟡 declared, no proof|
 
