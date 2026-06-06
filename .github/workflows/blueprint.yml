@@ -96,31 +96,6 @@ jobs:
         run: |
           sed -i '/<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d' blueprint/web/dep_graph_document.html
 
-      # Narrow the (top-to-bottom) dependency graph: it fans out wide because many
-      # independent chains share the top ranks. graphviz's `unflatten` staggers leaf
-      # nodes onto earlier ranks to add rows and cut width. The dot is embedded in the
-      # page's renderDot(`…`) call, so we extract it, pipe through unflatten, re-inject.
-      # Caveat: unflatten adds chaining edges that DO render, so a few arrows are
-      # layout-only, not genuine dependencies. continue-on-error keeps any mishap from
-      # breaking the build.
-      - name: Narrow dependency graph (unflatten)
-        continue-on-error: true
-        run: |
-          python3 - <<'PY'
-          import re, subprocess, pathlib
-          p = pathlib.Path('blueprint/web/dep_graph_document.html')
-          s = p.read_text(encoding='utf-8')
-          m = re.search(r'renderDot\(`(.*?)`\)', s, re.S)
-          if m:
-              r = subprocess.run(['unflatten', '-f', '-l', '4', '-c', '6'],
-                                  input=m.group(1), capture_output=True, text=True)
-              if r.returncode == 0 and r.stdout.strip():
-                  p.write_text(s[:m.start(1)] + r.stdout + s[m.end(1):], encoding='utf-8')
-                  print('unflatten applied')
-              else:
-                  print('unflatten skipped:', r.returncode, r.stderr[:200])
-          PY
-
       - name: Verify Lean declaration references
         run: leanblueprint checkdecls
         continue-on-error: true   # Don't block on first run; flip to false once stable.
