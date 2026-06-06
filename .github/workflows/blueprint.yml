@@ -87,17 +87,14 @@ jobs:
         run: leanblueprint web
 
       # Tidy the dependency graph. plastexdepgraph exposes no options for
-      # these, so we post-process the generated page:
-      #  * rankdir=LR — lay it out left-to-right instead of the graphviz
-      #    default top-to-bottom (the many independent example sequences
-      #    otherwise fan out very wide); LR is tall and narrow, reads better.
-      #  * drop the "Blue" legend rows — no node in this project is ever blue
-      #    (every result is either formalized=green or not-ready=orange), so
-      #    those legend entries are pure clutter.
-      - name: Tidy dependency graph (left-to-right, drop unused legend rows)
+      # this, so we post-process the generated page: drop the two legend rows
+      # that never occur here. Every statement in the project is formalized, so
+      # no node has an orange or blue *border*; the only blue is the blue
+      # *background* (proof stated but not yet formalized — the results still on
+      # a `sorry`), whose legend row we keep.
+      - name: Tidy dependency graph (drop unused legend rows)
         run: |
-          sed -i 's/graph \[bgcolor=transparent\];/graph [bgcolor=transparent, rankdir=LR];/' blueprint/web/dep_graph_document.html
-          sed -i '/<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d' blueprint/web/dep_graph_document.html
+          sed -i '/<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d' blueprint/web/dep_graph_document.html
 
       - name: Verify Lean declaration references
         run: leanblueprint checkdecls

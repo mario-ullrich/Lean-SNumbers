@@ -976,23 +976,6 @@ metric injection leaves it unchanged, $s_n(J \circ S) = s_n(S)$; it is
 unchanged, $s_n(S \circ Q) = s_n(S)$.
 \end{definition}
 
-\begin{theorem}[The free inequality]
-\label{thm:free-inequality}
-\lean{SNumbers.sn_comp_metricInjection_le,
-      SNumbers.sn_comp_metricSurjection_le}
-\leanok
-\uses{def:s-number-sequence, def:metric-injection, def:metric-surjection}
-For \emph{every} $s$-number sequence, $s_n(J \circ S) \le s_n(S)$ for any
-metric injection $J$, and $s_n(S \circ Q) \le s_n(S)$ for any metric
-surjection $Q$. (Injectivity / surjectivity assert the reverse inequalities.)
-\end{theorem}
-\begin{proof}
-\leanok
-Both are special cases of the ideal property (S3): with $\|J\| \le 1$,
-$s_n(J \circ S) = s_n(J \circ S \circ \mathrm{id}) \le \|J\|\,s_n(S) \le s_n(S)$,
-and dually with $\|Q\| \le 1$.
-\end{proof}
-
 \begin{theorem}[The Gelfand numbers are injective]
 \label{thm:gelfand-injective}
 \lean{SNumbers.injective_gelfandNumber}
