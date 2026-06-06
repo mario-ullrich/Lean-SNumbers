@@ -703,6 +703,21 @@ private lemma svd_sigma_tendsto_zero [Nontrivial H₁] [Nontrivial H₂]
     norm_nonneg (svdT S hS (φ N)), norm_nonneg (svdT S hS (φ (N + 1))),
     norm_nonneg (S (svdU S hS (φ N)) - S (svdU S hS (φ (N + 1))))]
 
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
+/-- The SVD holds trivially for the zero operator (`σ = u = v = 0`). -/
+private theorem svd_of_eq_zero {S : H₁ →L[𝕜] H₂} (hS0 : S = 0) :
+    ∃ (σ : ℕ → ℝ) (u : ℕ → H₁) (v : ℕ → H₂),
+      (∀ k, 0 ≤ σ k) ∧ Antitone σ ∧
+      OrthonormalOrZero 𝕜 u ∧ OrthonormalOrZero 𝕜 v ∧
+      (∀ k, σ k ≠ 0 → u k ≠ 0) ∧ (∀ k, σ k ≠ 0 → v k ≠ 0) ∧
+      Tendsto σ atTop (𝓝 0) ∧
+      ∀ x : H₁, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x) :=
+  ⟨fun _ => 0, fun _ => 0, fun _ => 0, fun _ => le_refl 0, antitone_const,
+    ⟨fun _ => Or.inr rfl, fun _ _ _ => by simp⟩,
+    ⟨fun _ => Or.inr rfl, fun _ _ _ => by simp⟩,
+    fun _ h => absurd rfl h, fun _ h => absurd rfl h, tendsto_const_nhds,
+    fun x => by simp [hS0]⟩
+
 /-- **Singular value decomposition / Schmidt representation.**
 Every compact operator between Hilbert spaces has a
 Schmidt expansion
@@ -741,7 +756,6 @@ with orthonormal sequences `(uₖ) ⊆ H₁`, `(vₖ) ⊆ H₂` and singular val
    so the Schmidt partial sums converge to `S` in operator norm; the
    pointwise `HasSum` follows. -/
 theorem IsCompactOperator.SVD
-    [Nontrivial H₁] [Nontrivial H₂]
     {S : H₁ →L[𝕜] H₂} (hS : IsCompactOperator S) :
     ∃ (σ : ℕ → ℝ) (u : ℕ → H₁) (v : ℕ → H₂),
       (∀ k, 0 ≤ σ k) ∧ Antitone σ ∧
@@ -749,6 +763,13 @@ theorem IsCompactOperator.SVD
       (∀ k, σ k ≠ 0 → u k ≠ 0) ∧ (∀ k, σ k ≠ 0 → v k ≠ 0) ∧
       Tendsto σ atTop (𝓝 0) ∧
       ∀ x : H₁, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x) := by
+  -- The singular-value iteration needs nonzero spaces; otherwise `S = 0`.
+  rcases subsingleton_or_nontrivial H₁ with hs | h1
+  · exact svd_of_eq_zero (by haveI := hs; ext x; rw [Subsingleton.elim x 0]; simp)
+  rcases subsingleton_or_nontrivial H₂ with hs | h2
+  · exact svd_of_eq_zero (by haveI := hs; ext x; exact Subsingleton.elim _ _)
+  haveI := h1
+  haveI := h2
   classical
   -- Mask the singular vectors to `0` at the inactive indices (`σₖ = 0`).
   set u' : ℕ → H₁ := fun n => if ‖svdT S hS n‖ = 0 then 0 else svdU S hS n with hu'

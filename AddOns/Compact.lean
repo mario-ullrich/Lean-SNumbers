@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
 import AddOns.Approximable
+import BasicResults.SVD
 
 /-!
 # Compact ⇔ approximable on Hilbert spaces
@@ -35,15 +36,16 @@ variable {H₁ H₂ : Type u}
 variable [NormedAddCommGroup H₁] [InnerProductSpace 𝕜 H₁] [CompleteSpace H₁]
 variable [NormedAddCommGroup H₂] [InnerProductSpace 𝕜 H₂] [CompleteSpace H₂]
 
-/-- On Hilbert spaces, every compact operator is approximable. The proof
-applies the spectral theorem to the compact positive self-adjoint operator
-`S* ∘ S`: its eigenexpansion produces an orthonormal basis of eigenvectors
-of `S* S`, the truncations of which give finite-rank operators converging
-to `S` in operator norm. -/
+/-- On Hilbert spaces, every compact operator is approximable. The singular
+value decomposition `IsCompactOperator.SVD` produces singular values `σₙ → 0`
+which, by Eckart–Young (`svd_sigma_eq_approx`), equal the approximation numbers
+`aₙ(S)`; hence `aₙ(S) → 0`. -/
 theorem IsCompactOperator.isApproximable {S : H₁ →L[𝕜] H₂}
     (hS : IsCompactOperator S) :
     IsApproximable S := by
-  sorry
+  obtain ⟨σ, u, v, hσ0, hσanti, hu, hv, hut, hvt, hσlim, hsum⟩ := IsCompactOperator.SVD hS
+  exact (Filter.tendsto_congr fun n =>
+    (svd_sigma_eq_approx hσ0 hσanti hu hv hut hvt hsum n).symm).mpr hσlim
 
 /-- On Hilbert spaces, approximable and compact operators coincide. -/
 theorem isApproximable_iff_isCompactOperator (S : H₁ →L[𝕜] H₂) :
