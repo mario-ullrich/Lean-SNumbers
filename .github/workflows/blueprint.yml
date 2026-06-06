@@ -87,14 +87,17 @@ jobs:
         run: leanblueprint web
 
       # Tidy the dependency graph. plastexdepgraph exposes no options for
-      # this, so we post-process the generated page: drop the two legend rows
-      # that never occur here. Every statement in the project is formalized, so
-      # no node has an orange or blue *border*; the only blue is the blue
-      # *background* (proof stated but not yet formalized — the results still on
-      # a `sorry`), whose legend row we keep.
-      - name: Tidy dependency graph (drop unused legend rows)
+      # this, so we post-process the generated page:
+      #   * Recolor the "ready to formalize" nodes from blue (#A3D6FF) to white,
+      #     so the graph reads two-tone: green = proof formalized, white = the
+      #     statement is formalized (green border) but the proof is still a `sorry`.
+      #   * Drop the legend rows that never apply here: "Orange border" and
+      #     "Blue border" (every statement is formalized, so no node has either)
+      #     and "Blue background" (now recolored white; the green-border row
+      #     already explains a stated-but-unproved node).
+      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows)
         run: |
-          sed -i '/<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d' blueprint/web/dep_graph_document.html
+          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d' blueprint/web/dep_graph_document.html
 
       - name: Verify Lean declaration references
         run: leanblueprint checkdecls
