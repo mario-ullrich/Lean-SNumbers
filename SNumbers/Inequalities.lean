@@ -9,6 +9,8 @@ import SNumbers.Gelfand
 import SNumbers.Kolmogorov
 import SNumbers.SingularValuesFinDim
 import BasicResults.Determinant
+import BasicResults.GarlingGordon
+import BasicResults.KadetsSnobar
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
@@ -57,25 +59,11 @@ subspace into a finite-rank approximant `L`, using a bounded projection:
   through the quotient `Y ⧸ V`, so
   `‖S − L‖ ≤ ‖id − P‖·‖π_V ∘ S‖ ≤ (1 + √n)·‖π_V ∘ S‖`.
 
-The two projection theorems are deep results of Banach-space geometry.
-They are stated here as `exists_projection_ker_eq_of_codim_le`
-(Garling–Gordon) and `exists_projection_range_eq_of_rank_le`
-(Kadets–Snobar) and are **left as `sorry`** (basic inputs) — every other lemma
-in this section is a full proof built on top of them.
-
-## Where the ingredients live
-
-The two halves of the sandwich rest on results in their natural homes:
-
-* the upper bound `sₙ(S) ≤ aₙ(S)` is `SNumbers.sn_le_approximationNumber`
-  (in `SNumbers.Approximation` — "`aₙ` is the largest");
-* reverse homogeneity `‖c‖ · sₙ(T) ≤ sₙ(c • T)` is `SNumbers.norm_smul_le_sn`
-  (in `SNumbers.Basic`);
-* the Hilbert-space coincidence `aₙ = sₙ`, used to bound each ratio
-  `aₙ(B ∘ S ∘ A)/(‖B‖‖A‖)` defining `hₙ`, is
-  `SNumbers.allSNumbers_eq_on_HilbertSpace` / the lower bound
-  `SNumbers.approximationNumber_le_sn` (in `SNumbers.Uniqueness`, Hilbert
-  spaces only, resting on the singular value decomposition).
+The two projection theorems are deep results of Banach-space geometry, imported
+as `sorry` basic inputs from `BasicResults.GarlingGordon`
+(`exists_projection_ker_eq_of_codim_le`) and `BasicResults.KadetsSnobar`
+(`exists_projection_range_eq_of_rank_le`); every other lemma in this section is a
+full proof built on top of them.
 
 ## Proof strategy for `hₙ ≤ sₙ`
 
@@ -143,42 +131,6 @@ See the module docstring for the overall strategy. We work over an
 -/
 
 variable [CompleteSpace X] [CompleteSpace Y]
-
-/-! ### The two projection theorems (basic inputs, `sorry`)
-
-These are the only unproved statements in this section. -/
-
-/-- **Garling–Gordon theorem** (Garling–Gordon 1971; Pietsch
-[Pie87, 1.7.17]). *A `sorry` basic input.*
-
-For a closed subspace `M` of a Banach space `X` whose codimension is at
-most `n`, there is a bounded projection `P : X →L[𝕜] X` (`P ∘ P = P`)
-with kernel exactly `M` and operator norm `‖P‖ ≤ √n`.
-
-The range of `P` is then a complement of `M` of dimension equal to
-`codim M ≤ n`; the classical Garling–Gordon bound on the projection
-constant of an `n`-dimensional space gives `‖P‖ ≤ √n`. (The article's
-proof carries an extra `(1 + ε)` coming from the *infimum* defining
-`cₙ`; here that `ε` is handled separately when we pass to the infimum,
-so the clean bound `√n` is exactly what we need.) -/
-theorem exists_projection_ker_eq_of_codim_le
-    {M : Submodule 𝕜 X} (hM_closed : IsClosed (M : Set X)) {n : ℕ}
-    (hM_codim : Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal)) :
-    ∃ P : X →L[𝕜] X, P.comp P = P ∧
-      LinearMap.ker (P : X →ₗ[𝕜] X) = M ∧ ‖P‖ ≤ Real.sqrt n := by
-  sorry
-
-/-- **Kadets–Snobar theorem** (Kadets–Snobar 1971; Pietsch
-[Pie87, 1.5.5]). *A `sorry` basic input.*
-
-Every finite-dimensional subspace `V` of a Banach space `Y` of dimension
-at most `n` is the range of a bounded projection `P : Y →L[𝕜] Y`
-(`P ∘ P = P`) with operator norm `‖P‖ ≤ √n`. -/
-theorem exists_projection_range_eq_of_rank_le
-    {V : Submodule 𝕜 Y} {n : ℕ} (hV_rank : Module.rank 𝕜 V ≤ (n : Cardinal)) :
-    ∃ P : Y →L[𝕜] Y, P.comp P = P ∧
-      LinearMap.range (P : Y →ₗ[𝕜] Y) = V ∧ ‖P‖ ≤ Real.sqrt n := by
-  sorry
 
 /-! ### Two norm lemmas about compositions through a subspace / quotient -/
 

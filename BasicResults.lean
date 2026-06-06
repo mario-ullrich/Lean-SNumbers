@@ -6,6 +6,8 @@ Authors: Mario Ullrich
 import BasicResults.Auerbach
 import BasicResults.SVD
 import BasicResults.Determinant
+import BasicResults.GarlingGordon
+import BasicResults.KadetsSnobar
 import BasicResults.Spectral.MonotoneConvergence
 import BasicResults.Spectral.Complexification
 import BasicResults.Spectral.Projection
@@ -28,8 +30,11 @@ that support the s-numbers framework:
   Following Pietsch, *Eigenvalues and s-numbers*, §2.11.
 * `BasicResults.Determinant` — elementary determinant facts for
   endomorphisms of a finite-dimensional inner product space
-  (`det T* = conj (det T)`; isometries and coisometries have `‖det‖ = 1`);
-  ingredients of the maximal difference theorem in `SNumbers.Inequalities`.
+  (`det T* = conj (det T)` and `‖det T‖ = ∏ₖ σₖ`).
+* `BasicResults.GarlingGordon` / `BasicResults.KadetsSnobar` — the
+  Garling–Gordon and Kadets–Snobar projection theorems (`‖P‖ ≤ √n`),
+  classical Banach-space geometry, stated as `sorry`.
+
 ## The `BasicResults.Spectral` subpackage
 
 This is the spectral-theory input that extends `s`-number uniqueness from compact to **arbitrary

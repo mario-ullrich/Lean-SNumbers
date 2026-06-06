@@ -35,11 +35,10 @@ operators that the `s`-numbers uniqueness theorem consumes.
   numbers.
 * `SVD.IsCompactOperator.diagonalFactorisation` — the factorisation
   `B ∘ S ∘ A = diag(a₀, …, aₙ)` through `ℓ₂ⁿ⁺¹`. Needs only the **top
-  `n+1` singular pairs** — a *finite* truncation, a sibling of `SVD`, and
+  `n+1` singular pairs** — a *finite* truncation that
   (pinning the exact `aₖ`) requires `S` compact.
 * `SVD.exists_scalar_factorisation` — `B ∘ S ∘ A = c • id` for `c < aₙ(S)`,
-  for an **arbitrary bounded** `S`. This is the single SVD input consumed
-  by `SNumbers.Uniqueness`.
+  for an **arbitrary bounded** `S`.
 
 Every result above is proved, including `IsCompactOperator.SVD` itself (the
 infinite iteration together with its convergence facts `σₖ → 0` and the
@@ -1232,8 +1231,7 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
 **This uses only the top `n+1` singular pairs** `(uₖ, vₖ, σₖ)_{k ≤ n}` — a
 *finite* slice of the SVD obtained by `n+1` iterations of
 `norm_isSingularValue`. It needs neither `σₖ → 0` nor the `HasSum`
-convergence of the full `SVD`, so it is a **sibling** of `SVD`, not a
-corollary. (Identifying `σₖ = aₖ` is Eckart–Young above.) -/
+convergence of the full `SVD`. -/
 
 /-- **Diagonal factorisation through `ℓ₂ⁿ⁺¹`.** There is an isometric
 inclusion `A : ℓ₂ⁿ⁺¹ →L[𝕜] H₁` with `‖A‖ ≤ 1` and a contraction

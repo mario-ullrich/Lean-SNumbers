@@ -18,8 +18,7 @@ import Mathlib.LinearAlgebra.Determinant
   `σₖ` are Mathlib's eigenvalue-defined singular values: `‖det T‖² = det(T*∘T)
   = ∏ eigenvalues(T*∘T) = ∏ σₖ²`. This is pure linear algebra over Mathlib's
   singular values (no `s`-number theory); the `s`-number reading
-  `∏ aₖ(T) = ‖det T‖` is then immediate on Hilbert spaces and feeds the
-  **maximal difference theorem**.
+  `∏ aₖ(T) = ‖det T‖` is then immediate on Hilbert spaces.
 -/
 
 open LinearMap

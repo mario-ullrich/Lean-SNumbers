@@ -53,6 +53,8 @@ artifact under *Actions → latest run → blueprint-web*.
 │   ├── Determinant.lean        ← det facts: det T* = conj det T, and
 │   │                              ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
 │   │                              of the maximal difference thm
+│   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n, ker = M); `sorry`
+│   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V); `sorry`
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
@@ -89,7 +91,6 @@ artifact under *Actions → latest run → blueprint-web*.
 | Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared, no proof |
 | Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared, no proof |
 | `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved (modulo the triangular factorisation) |
-| Determinant product bound `∏ₖ₌₀ⁿ cₖ ≤ (n+1)ⁿ⁺¹·∏ₖ₌₀ⁿ hₖ` (and `dₖ` analogue) | ✅ proved (modulo the triangular factorisation) |
 | Triangular determinant factorisation `∏ cₖ ≤ ‖det(B∘S∘A)‖` (and `dₖ`) | 🟡 declared, no proof |
 | `det T* = conj(det T)` | ✅ proved |
 | `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
@@ -99,7 +100,7 @@ artifact under *Actions → latest run → blueprint-web*.
 | Singular-value uniqueness `project σ = Mathlib σ` (`project_singularValues_eq`) | ✅ proved |
 | `IsCompactOperator.SVD` (`OrthonormalOrZero`-indexed) | ✅ proved |
 | Reverse homogeneity `‖c‖·sₙ(T) ≤ sₙ(c·T)` | ✅ proved           |
-| Hilbert-space coincidence `sₙ = aₙ` (2.11.9, all bounded `S`, ℝ and ℂ) | ✅ proved |
+| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on (ℝ and ℂ) Hilbert spaces | ✅ proved |
 | Metric injection / surjection classes     | ✅ defined          |
 | `sₙ(J∘S) ≤ sₙ(S)`, `sₙ(S∘Q) ≤ sₙ(S)` (any `s`) | ✅ proved        |
 | Gelfand numbers `cₙ` **injective**        | ✅ proved           |
@@ -107,7 +108,7 @@ artifact under *Actions → latest run → blueprint-web*.
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | `norm_isSingularValue` (compact attains norm) | ✅ proved        |
-| Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved (singular-value iteration)|
+| Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved |
 | Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved |
 | Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved | 
 | Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | ✅ proved |
@@ -148,8 +149,9 @@ The Hilbert numbers `hₙ` are both, though that is not yet formalised here.
 ## Open `sorry`s
 
 The `SNumbers/` library has a small number of clearly-flagged `sorry`s.
-Two are in `SNumbers/Inequalities.lean`, classical results of Banach-space
-geometry used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
+Two are in `BasicResults/GarlingGordon.lean` and
+`BasicResults/KadetsSnobar.lean`, classical results of Banach-space geometry
+used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
 
 * **`exists_projection_ker_eq_of_codim_le`** — the **Garling–Gordon**
   theorem (Garling–Gordon 1971; Pietsch [Pie87, 1.7.17]): a closed
@@ -160,8 +162,8 @@ geometry used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`:
   `V ⊆ Y` of dimension `≤ n` is the range of a bounded projection `P`
   with `‖P‖ ≤ √n`.
 
-Two more are in the same file, the **triangular determinant factorisations**
-behind the maximal difference theorem:
+Two more are in `SNumbers/Inequalities.lean`, the **triangular determinant
+factorisations** behind the maximal difference theorem:
 
 * **`exists_gelfandNumber_det_factorisation`** /
   **`exists_kolmogorovNumber_det_factorisation`** — the inductive triangular /
