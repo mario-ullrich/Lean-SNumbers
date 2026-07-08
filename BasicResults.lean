@@ -8,6 +8,7 @@ import BasicResults.SVD
 import BasicResults.Determinant
 import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
+import BasicResults.John
 import BasicResults.TriangularFactorisation
 import BasicResults.Spectral.MonotoneConvergence
 import BasicResults.Spectral.Complexification
@@ -35,6 +36,9 @@ that support the s-numbers framework:
 * `BasicResults.GarlingGordon` / `BasicResults.KadetsSnobar` — the
   Garling–Gordon and Kadets–Snobar projection theorems (`‖P‖ ≤ √n`),
   classical Banach-space geometry, stated as `sorry`.
+* `BasicResults.John` — towards the sharp `√n` above: John's ellipsoid theorem.
+  So far, the maximal-volume inscribed ellipsoid exists (`John.exists_maxVolume`);
+  the decomposition of identity from its optimality is in progress.
 * `BasicResults.TriangularFactorisation` — the determinant of a triangular flag
   `[gᵢ(S xⱼ)]` realised through `ℓ₂ⁿ⁺¹` with factors of norm `≤ √(n+1)`; the
   linear-algebra engine behind the Gelfand/Kolmogorov product bounds.
