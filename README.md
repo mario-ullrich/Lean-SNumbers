@@ -182,7 +182,7 @@ in place but the proof is `sorry`.
 | Unit diagonal = identity, `sₙ(id_{ℓ^p_m}) = 1` for `n < m` | ✅ proved |
 | Identity embedding `id : ℓ^q_m → ℓ^p_m` (`p ≤ q`), `‖id‖ = m^{1/p-1/q}` | ✅ proved |
 | `aₙ(id : ℓ^q_m → ℓ^p_m) ≤ (m-n)^{1/p-1/q}` (all s-numbers) | ✅ proved |
-| `aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}` (`p ≤ q`) | 🟡 modulo Gelfand-width `sorry` |
+| `aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}` (`p ≤ q`, `n < m`) | ✅ proved |
 
 ### Add ons
 
@@ -195,13 +195,15 @@ in place but the proof is `sorry`.
 
 Two results in the core theory are left as `sorry` — both deep classical inputs of
 Banach-space geometry, in `BasicResults/GarlingGordon.lean` and
-`BasicResults/KadetsSnobar.lean`, used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`
-(a third, isolated `sorry` in the identity-embedding example is listed below).
+`BasicResults/KadetsSnobar.lean`, used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`.
 Everything that depends on them is proved *modulo* these statements, and
-everything else in `SNumbers/` and `BasicResults/` is `sorry`-free (including the
+everything else in `SNumbers/` and `BasicResults/` is `sorry`-free — including the
 triangular determinant bounds `∏ cₖ, ∏ dₖ ≤ (n+1)^{n+1} ∏ hₖ` behind the maximal
-difference theorem, proved by the inductive flag construction of
-arXiv:2405.05509 + an `ε → 0` passage).
+difference theorem (inductive flag construction of arXiv:2405.05509 + an `ε → 0`
+passage), and the Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed`
+(Pietsch [Pie87, §11.11]) behind the identity embedding's exact approximation
+numbers, proved by a flatness / extreme-point argument (an extreme point of the
+`ℓ^∞`-ball inside the subspace saturates `≥ dim` coordinates).
 
 * **`exists_projection_ker_eq_of_codim_le`** — the **Garling–Gordon**
   theorem (Garling–Gordon 1971; Pietsch [Pie87, 1.7.17]): a closed
@@ -211,15 +213,6 @@ arXiv:2405.05509 + an `ε → 0` passage).
   theorem (Kadets–Snobar 1971; Pietsch [Pie87, 1.5.5]): a subspace
   `V ⊆ Y` of dimension `≤ n` is the range of a bounded projection `P`
   with `‖P‖ ≤ √n`.
-
-A third `sorry` lives in `SNumbers/Examples/IdentityEmbedding.lean`, used only for
-the *lower* bound of the identity-embedding example:
-
-* **`exists_norm_ratio_ge_idEmbed`** — the **Gelfand-width lower bound**
-  (Pietsch [Pie87, §11.11]): every subspace of `ℓ^q_m` of dimension `≥ m-n`
-  contains a nonzero vector with `‖x‖_p ≥ (m-n)^{1/p-1/q}·‖x‖_q`. A
-  volumetric/averaging argument. The exact value `aₙ(id) = (m-n)^{1/p-1/q}` is
-  proved *modulo* this; the operator norm and the upper bound are unconditional.
 
 ## Building
 
