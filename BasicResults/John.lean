@@ -166,4 +166,85 @@ lemma isCompact_contact (q : Seminorm ℝ (EuclideanSpace ℝ (Fin k))) :
       (isClosed_iInter fun x => isClosed_le (continuous_const.inner continuous_id) continuous_const)
   exact (isCompact_sphere 0 1).of_isClosed_subset hcl hsub
 
+/-- The self-adjoint **rank-one operator** `u ⊗ u : x ↦ ⟪u, x⟫ • u`. The John
+decomposition of identity expresses `id` as a positive combination of these over
+contact points. -/
+noncomputable def rankOneSA (u : EuclideanSpace ℝ (Fin k)) :
+    EuclideanSpace ℝ (Fin k) →L[ℝ] EuclideanSpace ℝ (Fin k) :=
+  (innerSL ℝ u).smulRight u
+
+@[simp] lemma rankOneSA_apply (u x : EuclideanSpace ℝ (Fin k)) :
+    rankOneSA u x = ⟪u, x⟫ • u := rfl
+
+/-- **Contact support (both signs).** A contact point `u` has `|⟪x, u⟫| ≤ q x`
+for all `x`. -/
+lemma abs_inner_le_of_contact {q : Seminorm ℝ (EuclideanSpace ℝ (Fin k))}
+    {u : EuclideanSpace ℝ (Fin k)} (hu : u ∈ Contact q) (x : EuclideanSpace ℝ (Fin k)) :
+    |⟪x, u⟫| ≤ q x := by
+  rw [abs_le]
+  refine ⟨?_, hu.2 x⟩
+  have h := hu.2 (-x)
+  rw [inner_neg_left, map_neg_eq_map] at h
+  linarith
+
+/-- **Quadratic form of a decomposition of identity.** If
+`∑ᵢ (cᵢ · ⟪uᵢ, x⟫) • uᵢ = x` for all `x`, then `∑ᵢ cᵢ · ⟪uᵢ, z⟫² = ‖z‖²`. -/
+lemma sum_weight_inner_sq {N : ℕ} (c : Fin N → ℝ) (u : Fin N → EuclideanSpace ℝ (Fin k))
+    (hdec : ∀ x, ∑ i, (c i * ⟪u i, x⟫) • u i = x) (z : EuclideanSpace ℝ (Fin k)) :
+    ∑ i, c i * ⟪u i, z⟫ ^ 2 = ‖z‖ ^ 2 := by
+  have h := congrArg (fun w => ⟪w, z⟫) (hdec z)
+  simp only [sum_inner, real_inner_smul_left, real_inner_self_eq_norm_sq] at h
+  rw [← h]
+  exact Finset.sum_congr rfl fun i _ => by ring
+
+/-- Parseval on the standard basis: `∑ⱼ ⟪w, eⱼ⟫² = ‖w‖²`. -/
+private lemma sum_inner_single_sq (w : EuclideanSpace ℝ (Fin k)) :
+    ∑ j, ⟪w, EuclideanSpace.single j (1 : ℝ)⟫ ^ 2 = ‖w‖ ^ 2 := by
+  rw [EuclideanSpace.norm_eq, Real.sq_sqrt (Finset.sum_nonneg fun _ _ => sq_nonneg _)]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  rw [EuclideanSpace.inner_single_right]
+  simp [Real.norm_eq_abs, sq_abs]
+
+/-- **Weights of a decomposition of identity sum to the dimension.** If
+`∑ᵢ (cᵢ · ⟪uᵢ, x⟫) • uᵢ = x` and each `‖uᵢ‖ = 1`, then `∑ᵢ cᵢ = k`. -/
+lemma sum_weight_eq {N : ℕ} (c : Fin N → ℝ) (u : Fin N → EuclideanSpace ℝ (Fin k))
+    (hdec : ∀ x, ∑ i, (c i * ⟪u i, x⟫) • u i = x) (hu : ∀ i, ‖u i‖ = 1) :
+    ∑ i, c i = (k : ℝ) := by
+  have hpars : ∀ i, ∑ j, ⟪u i, EuclideanSpace.single j (1 : ℝ)⟫ ^ 2 = 1 := fun i => by
+    rw [sum_inner_single_sq, hu i, one_pow]
+  have hone : ∀ j : Fin k, ∑ i, c i * ⟪u i, EuclideanSpace.single j (1 : ℝ)⟫ ^ 2 = 1 := fun j => by
+    rw [sum_weight_inner_sq c u hdec (EuclideanSpace.single j (1 : ℝ)), PiLp.norm_single]
+    simp
+  calc ∑ i, c i = ∑ i, c i * ∑ j, ⟪u i, EuclideanSpace.single j (1 : ℝ)⟫ ^ 2 := by
+        refine Finset.sum_congr rfl fun i _ => ?_; rw [hpars i, mul_one]
+    _ = ∑ i, ∑ j, c i * ⟪u i, EuclideanSpace.single j (1 : ℝ)⟫ ^ 2 := by
+        refine Finset.sum_congr rfl fun i _ => Finset.mul_sum _ _ _
+    _ = ∑ j, ∑ i, c i * ⟪u i, EuclideanSpace.single j (1 : ℝ)⟫ ^ 2 := Finset.sum_comm
+    _ = ∑ _j : Fin k, (1 : ℝ) := Finset.sum_congr rfl fun j _ => hone j
+    _ = (k : ℝ) := by simp
+
+/-- **John decomposition of identity** — the classical core of John's ellipsoid
+theorem (stated here as `sorry`; the remaining hard input).
+
+In John position — the identity is a maximal-volume feasible operator for the body
+seminorm `q` (`q u ≤ ‖u‖`, and `|det S| ≤ 1` for every feasible `S`) — the identity
+is a positive combination of the rank-one projections onto contact points, with
+weights summing to the dimension `k`:
+`∑ᵢ (cᵢ · ⟪uᵢ, x⟫) • uᵢ = x`, with `uᵢ ∈ Contact q`, `cᵢ ≥ 0`, `∑ᵢ cᵢ = k`.
+
+Classical proof (not yet formalised — no Mathlib scaffolding for the analytic
+step): were `k⁻¹ • id ∉ convexHull ℝ {rankOneSA u : u ∈ Contact q}` — a compact
+convex set of operators — `geometric_hahn_banach` would produce a symmetric `H`
+with `⟪H u, u⟫ ≤ tr H` violated on all contacts; then `id ↝ id + t·H` stays
+feasible for small `t > 0` (the delicate compactness / subdifferential argument)
+while `det(id + tH) > 1`, contradicting maximality. `Carathéodory` finally turns
+membership of the convex hull into the finite positive combination. -/
+theorem john_decomposition (q : Seminorm ℝ (EuclideanSpace ℝ (Fin k)))
+    (hq : Continuous q) (hq1 : ∀ u, q u ≤ ‖u‖)
+    (hmax : ∀ S ∈ Feasible q, |S.det| ≤ 1) :
+    ∃ (N : ℕ) (u : Fin N → EuclideanSpace ℝ (Fin k)) (c : Fin N → ℝ),
+      (∀ i, u i ∈ Contact q) ∧ (∀ i, 0 ≤ c i) ∧ (∑ i, c i = (k : ℝ)) ∧
+      (∀ x, ∑ i, (c i * ⟪u i, x⟫) • u i = x) := by
+  sorry
+
 end John
