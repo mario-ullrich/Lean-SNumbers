@@ -109,4 +109,61 @@ theorem exists_maxVolume (p : Seminorm ℝ (EuclideanSpace ℝ (Fin k)))
   have hpos : 0 < |T.det| := lt_of_lt_of_le (abs_pos.mpr hdet₀ne) (hTmax hT₀feas)
   exact fun h => by simp [h] at hpos
 
+open scoped RealInnerProductSpace
+
+/-- **John position.** Replacing the body seminorm `p` by `q = p ∘ T₀` for the
+maximiser `T₀` normalises the maximal-volume ellipsoid to the Euclidean unit
+ball: the identity is feasible for `q`, and every feasible operator has
+`|det| ≤ 1`. -/
+theorem exists_johnPosition (p : Seminorm ℝ (EuclideanSpace ℝ (Fin k)))
+    (hp : Continuous p) {c : ℝ} (hc : 0 < c) (hlo : ∀ x, c * ‖x‖ ≤ p x)
+    {C : ℝ} (hup : ∀ x, p x ≤ C * ‖x‖) :
+    ∃ q : Seminorm ℝ (EuclideanSpace ℝ (Fin k)), Continuous q ∧
+      (∀ u, q u ≤ ‖u‖) ∧ ∀ S ∈ Feasible q, |S.det| ≤ 1 := by
+  obtain ⟨T₀, hfeas, hdet, hmax⟩ := exists_maxVolume p hp hc hlo hup
+  refine ⟨p.comp T₀.toLinearMap, ?_, ?_, fun S hS => ?_⟩
+  · show Continuous (fun u => (p.comp T₀.toLinearMap) u)
+    simp only [Seminorm.comp_apply]
+    exact hp.comp T₀.continuous
+  · intro u; simpa [Seminorm.comp_apply] using hfeas u
+  have hTS : T₀.comp S ∈ Feasible p := fun u => by
+    simpa [Seminorm.comp_apply, ContinuousLinearMap.comp_apply] using hS u
+  have hdc : (T₀.comp S).det = T₀.det * S.det := by
+    simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
+  have hle := hmax (T₀.comp S) hTS
+  rw [hdc, abs_mul] at hle
+  exact (mul_le_iff_le_one_right (abs_pos.mpr hdet)).mp hle
+
+/-- The **contact set** of a body seminorm `q`: unit vectors `u` whose associated
+linear functional `⟪·, u⟫` is dominated by `q`. These are the points where the
+Euclidean unit sphere touches the boundary `{q = 1}` with a shared supporting
+hyperplane; the John decomposition of identity is supported on this set. -/
+def Contact (q : Seminorm ℝ (EuclideanSpace ℝ (Fin k))) :
+    Set (EuclideanSpace ℝ (Fin k)) :=
+  {u | ‖u‖ = 1 ∧ ∀ x, ⟪x, u⟫ ≤ q x}
+
+/-- A contact point has `q u = 1`: `1 = ⟪u,u⟫ ≤ q u`, and `q u ≤ ‖u‖ = 1` when
+`q` is feasible for the identity. -/
+lemma contact_apply_eq_one {q : Seminorm ℝ (EuclideanSpace ℝ (Fin k))}
+    (hq1 : ∀ u, q u ≤ ‖u‖) {u : EuclideanSpace ℝ (Fin k)} (hu : u ∈ Contact q) :
+    q u = 1 := by
+  refine le_antisymm (by simpa [hu.1] using hq1 u) ?_
+  have := hu.2 u
+  rwa [real_inner_self_eq_norm_sq, hu.1, one_pow] at this
+
+/-- The contact set is compact: it is a closed subset of the (compact) unit
+sphere. -/
+lemma isCompact_contact (q : Seminorm ℝ (EuclideanSpace ℝ (Fin k))) :
+    IsCompact (Contact q) := by
+  have hsub : Contact q ⊆ Metric.sphere 0 1 := fun u hu => by
+    simpa using hu.1
+  have hcl : IsClosed (Contact q) := by
+    have heq : Contact q = {u : EuclideanSpace ℝ (Fin k) | ‖u‖ = 1} ∩ ⋂ x, {u | ⟪x, u⟫ ≤ q x} := by
+      ext u
+      simp only [Contact, Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter]
+    rw [heq]
+    exact (isClosed_eq continuous_norm continuous_const).inter
+      (isClosed_iInter fun x => isClosed_le (continuous_const.inner continuous_id) continuous_const)
+  exact (isCompact_sphere 0 1).of_isClosed_subset hcl hsub
+
 end John
