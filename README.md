@@ -37,8 +37,12 @@ examples, which are the central targets of this formalisation:
   sandwich `hₙ(T) ≤ sₙ(T) ≤ aₙ(T)` for every s-number sequence `s`;
 * `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))` (Gelfand and Kolmogorov numbers
   cannot both be much smaller than the approximation numbers);
-* the **maximal difference theorem**
-  `max(cₙ(T), dₙ(T)) ≤ (n+1) · (∏ₖ₌₀ⁿ hₖ(T))^{1/(n+1)}`;
+* the reverse-direction pointwise bound
+  `max(cₙ(T), dₙ(T)) ≤ e · (n+1) · hₙ(T)` — hence `≤ e·(n+1)·sₙ(T)` for
+  every s-number sequence, in particular the **Mityagin–Henkin conjecture**
+  `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e` (sharp constant
+  `(n+1)^{n+1}/nⁿ`; it recovers the maximal difference theorem
+  `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` by telescoping);
 * **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
   the classical singular values `σₙ(T)`.
 
@@ -55,6 +59,8 @@ examples, which are the central targets of this formalisation:
 │   │                              + homogeneity sₙ(c•T)=‖c‖·sₙ(T) (norm_smul_sn)
 │   ├── Helpers.lean            ← shared rank facts + norm bounds for the
 │   │                              Mathlib quotient CLMs Submodule.mkQL/liftQL
+│   ├── PiLpCoordinates.lean    ← coordinate projection/embedding contractions
+│   │                              projFin / padFin between ℓ^p_n and ℓ^p_m
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
 │   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
 │   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
@@ -67,10 +73,15 @@ examples, which are the central targets of this formalisation:
 │   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9),
 │   │                              for all bounded operators (ℝ and ℂ), proved
 │   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
-│   │                              sandwich hₙ ≤ sₙ ≤ aₙ, the maximal difference
-│   │                              thm max(cₙ,dₙ) ≤ (n+1)·(∏hₖ)^{1/(n+1)} (proved),
-│   │                              and aₙ ≤ (1+√n)·min(cₙ,dₙ) via Garling–Gordon /
-│   │                              Kadets–Snobar (the only `sorry` inputs here)
+│   │                              sandwich hₙ ≤ sₙ ≤ aₙ, aₙ ≤ (1+√n)·min(cₙ,dₙ)
+│   │                              via Garling–Gordon / Kadets–Snobar (the only
+│   │                              `sorry` inputs here), and the determinant
+│   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
+│   ├── DetQuantity.lean        ← determinant quantities Δₖ(S) = sup |det(BSA)|
+│   │                              over contractions, with the extension lemma
+│   ├── GelfandKolmogorovVsHilbert.lean ← max(cₙ,dₙ) ≤ e·(n+1)·hₙ (proved), hence
+│   │                              ≤ e·(n+1)·sₙ for every s-number sequence and
+│   │                              the Mityagin–Henkin conjecture up to `e`
 │   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
 │   │                              s-number (sₙ = σₙ) via uniqueness +
 │   │                              Eckart–Young (proved)
@@ -91,13 +102,9 @@ examples, which are the central targets of this formalisation:
 │   │                              (input to uniqueness) — all proved
 │   ├── Determinant.lean        ← det facts: det T* = conj det T, and
 │   │                              ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
-│   │                              of the maximal difference thm
+│   │                              of the Gelfand/Kolmogorov vs. Hilbert bound
 │   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n, ker = M); `sorry`
 │   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V); `sorry`
-│   ├── TriangularFactorisation.lean ← determinant of a triangular flag [gᵢ(S xⱼ)]
-│   │                              realised through ℓ₂ⁿ⁺¹ (factors of norm ≤ √(n+1));
-│   │                              the engine behind the Gelfand/Kolmogorov product
-│   │                              bounds in the maximal difference thm
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
@@ -153,8 +160,9 @@ in place but the proof is `sorry`.
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
-| `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` (maximal difference thm) | ✅ proved |
-| Triangular determinant bound `∏ cₖ ≤ (n+1)^{n+1} ∏ hₖ` (and `dₖ`) | ✅ proved |
+| `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (pointwise reverse bound) | ✅ proved |
+| `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) | ✅ proved |
+| Determinant quantities `Δₖ(S)`: growth lemma + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
 | `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
 
 ### Singular values, SVD and determinants
@@ -198,9 +206,8 @@ Banach-space geometry, in `BasicResults/GarlingGordon.lean` and
 `BasicResults/KadetsSnobar.lean`, used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`.
 Everything that depends on them is proved *modulo* these statements, and
 everything else in `SNumbers/` and `BasicResults/` is `sorry`-free — including the
-triangular determinant bounds `∏ cₖ, ∏ dₖ ≤ (n+1)^{n+1} ∏ hₖ` behind the maximal
-difference theorem (inductive flag construction of arXiv:2405.05509 + an `ε → 0`
-passage), and the Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed`
+pointwise bound `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the determinant quantities `Δₖ`),
+and the Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed`
 (Pietsch [Pie87, §11.11]) behind the identity embedding's exact approximation
 numbers, proved by a flatness / extreme-point argument (an extreme point of the
 `ℓ^∞`-ball inside the subspace saturates `≥ dim` coordinates).

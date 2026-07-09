@@ -9,7 +9,6 @@ import BasicResults.Determinant
 import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
 import BasicResults.John
-import BasicResults.TriangularFactorisation
 import BasicResults.Spectral.MonotoneConvergence
 import BasicResults.Spectral.Complexification
 import BasicResults.Spectral.Projection
@@ -39,9 +38,12 @@ that support the s-numbers framework:
 * `BasicResults.John` — towards the sharp `√n` above: John's ellipsoid theorem.
   So far, the maximal-volume inscribed ellipsoid exists (`John.exists_maxVolume`);
   the decomposition of identity from its optimality is in progress.
-* `BasicResults.TriangularFactorisation` — the determinant of a triangular flag
-  `[gᵢ(S xⱼ)]` realised through `ℓ₂ⁿ⁺¹` with factors of norm `≤ √(n+1)`; the
-  linear-algebra engine behind the Gelfand/Kolmogorov product bounds.
+
+(The former `BasicResults.TriangularFactorisation` — the flag-to-determinant
+engine behind the Gelfand/Kolmogorov product bounds — was removed when the
+product bounds were superseded by the pointwise bound in
+`SNumbers.GelfandKolmogorovVsHilbert`; its surviving lemma
+`exists_closed_codim_forall_eq_zero` moved to `SNumbers.Inequalities`.)
 
 ## The `BasicResults.Spectral` subpackage
 

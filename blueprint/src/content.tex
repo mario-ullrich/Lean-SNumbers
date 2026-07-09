@@ -682,25 +682,29 @@ compact operators directly.
 Beyond the qualitative sandwich $h_n(S) \le s_n(S) \le a_n(S)$
 (Theorem~\ref{thm:sandwich}), one can compare the individual example
 sequences \emph{quantitatively}. This chapter formalises two such
-comparisons for operators between Banach spaces over $\mathbb{K}$, both from
-Ullrich, \emph{Inequalities between $s$-numbers} (Adv. Oper. Theory \textbf{9}
-(2024), art.~82; arXiv:2405.05509):
+comparisons for operators between Banach spaces over $\mathbb{K}$:
 
 \begin{itemize}
   \item the \emph{forward} bound $a_n(S) \le (1+\sqrt{n})\min(c_n(S), d_n(S))$
         — the largest $s$-number exceeds the Gelfand and Kolmogorov numbers by
-        at most a factor $1+\sqrt{n}$;
-  \item the \emph{reverse} (maximal difference) bound
-        $\max(c_n(S), d_n(S)) \le (n+1)\,(\prod_{k=0}^n h_k(S))^{1/(n+1)}$ —
-        the Gelfand/Kolmogorov numbers are controlled by the geometric mean of
-        the smallest $s$-numbers, the Hilbert numbers.
+        at most a factor $1+\sqrt{n}$ (Ullrich, \emph{Inequalities between
+        $s$-numbers}, Adv. Oper. Theory \textbf{9} (2024), art.~82;
+        arXiv:2405.05509);
+  \item the \emph{reverse} pointwise bound
+        $\max(c_n(S), d_n(S)) \le e\,(n+1)\, h_n(S)$ — the Gelfand/Kolmogorov
+        numbers are controlled, up to a factor linear in $n$, by the smallest
+        $s$-numbers, the Hilbert numbers (Ullrich, \emph{Another bound between
+        $s$-numbers}, working note, 2026). Since $h_n$ is the smallest
+        $s$-number sequence this proves the \emph{Mityagin--Henkin conjecture}
+        $\max(c_n, d_n) \lesssim n\, b_n$ up to the constant $e$.
 \end{itemize}
 
 Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean},
-\emph{except} four deep geometric inputs left as explicit \texttt{sorry}
-placeholders: the two classical projection theorems and the two triangular
-determinant factorisations. These are flagged below; every other result is a
-complete proof built on top of them.
+\texttt{SNumbers/DetQuantity.lean} and
+\texttt{SNumbers/GelfandKolmogorovVsHilbert.lean}, \emph{except} two deep
+geometric inputs left as explicit \texttt{sorry} placeholders: the two
+classical projection theorems, used only by the forward bound. These are
+flagged below; every other result is a complete proof built on top of them.
 
 \section{Approximation versus Gelfand and Kolmogorov numbers}
 \label{sec:ineq-forward}
@@ -797,13 +801,31 @@ and~\ref{thm:approx-le-kolmogorov}) by case analysis on which of $c_n(S)$,
 $d_n(S)$ is the smaller.
 \end{proof}
 
-\section{The maximal difference theorem}
+\section{The Gelfand/Kolmogorov versus Hilbert bound}
 \label{sec:ineq-maxdiff}
 
-The reverse bound rests on a \emph{product (determinant) bound}
-$\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$ and its Kolmogorov
-analogue; taking $(n+1)$-th roots and using that $c_n$ is the smallest of
-$c_0, \dots, c_n$ then yields the geometric-mean bound.
+The reverse bound is \emph{pointwise} in the Hilbert numbers. It is driven by
+the \emph{determinant quantities}
+\[
+  \Delta_k(S) \;:=\; \sup\bigl\{\, \|\det(B \circ S \circ A)\| \;:\;
+    A : \ell_2^k \to X,\ B : Y \to \ell_2^k,\ \|A\| \le 1,\ \|B\| \le 1 \,\bigr\},
+\]
+formalised in \texttt{SNumbers/DetQuantity.lean}; the bound itself lives in
+\texttt{SNumbers/GelfandKolmogorovVsHilbert.lean}. Two features make the
+$\Delta_k$ work: they are closed under contractive compressions, and they do
+not decay too fast from $\Delta_k$ to $\Delta_{k+1}$ (the growth lemma below).
+
+\begin{definition}[Determinant quantities]
+\label{def:det-quantity}
+\lean{SNumbers.detNumber}
+\leanok
+For $S \in \mathcal{L}(X, Y)$ and $k \in \mathbb{N}$, $\Delta_k(S)$ is the
+supremum above; here $B \circ S \circ A$ is an endomorphism of the
+$k$-dimensional Hilbert space $\ell_2^k$, so its determinant is a scalar.
+One has $\Delta_0(S) = 1$ (the determinant on the trivial space is $1$) and
+$\Delta_k(S) \le \|S\|^k$, via $\prod_i a_i(T) = \|\det T\|$
+(Lemma~\ref{lem:prod-approx-eq-det}) and $a_i(T) \le \|T\| \le \|S\|$.
+\end{definition}
 
 \begin{lemma}[$\prod_k a_k(T) = \|\det T\|$]
 \label{lem:prod-approx-eq-det}
@@ -824,91 +846,135 @@ $\|\det T\| = \prod_k \sigma_k$ is pure linear algebra
 $\|\det T\|^2 = \det(T^*T) = \prod \lambda_k(T^*T) = \prod \sigma_k^2$).
 \end{proof}
 
-\begin{lemma}[Triangular flag factorisation]
-\label{lem:flag-factorisation}
-\lean{TriangularFactorisation.exists_factorisation_of_flag}
+\begin{lemma}[Extension lemma]
+\label{lem:det-extension}
+\lean{SNumbers.exists_det_extension}
 \leanok
-\uses{def:gelfand-number, def:kolmogorov-number}
-Given unit vectors $x_0, \dots, x_n \in B_X$ and functionals $g_0, \dots, g_n \in B_{Y^*}$ for
-which the matrix $[g_i(S x_j)]$ is triangular (lower or upper), the operators
-$A' : \ell_2^{n+1} \to X$, $A' e_j = x_j$, and $B' : Y \to \ell_2^{n+1}$, $B' y = (g_i y)_i$, have
-norm $\le \sqrt{n+1}$ and $\|\det(B' \circ S \circ A')\| = \prod_{k=0}^n \|g_k(S x_k)\|$.
+\uses{def:det-quantity}
+Let $(A, B)$ be admissible for $\Delta_k(S)$, let $u \in B_X$,
+$\rho \in B_{Y^*}$, and $\lambda, \mu \ge 0$ with $\lambda^2 + \mu^2 = 1$.
+If either $B(Su) = 0$ or $\rho(S(A e_j)) = 0$ for all $j$, then there is an
+admissible pair $(A', B')$ for $\Delta_{k+1}(S)$ with
+\[
+  \|\det(B' \circ S \circ A')\| \;=\;
+  \lambda^{2k} \mu^2\, \|\rho(Su)\|\, \|\det(B \circ S \circ A)\|.
+\]
 \end{lemma}
 \begin{proof}
 \leanok
-In the standard basis $B' S A'$ has matrix $[g_i(S x_j)]$; triangularity gives
-$\det = \prod_k g_k(S x_k)$ (Mathlib's \texttt{det\_of\_lower/upperTriangular}), and the norm is
-multiplicative.
+Take $A'(s \oplus t) := \lambda\, A s + \mu\, t\, u$ and
+$B'y := (\lambda\, B y) \oplus (\mu\, \rho(y))$. Contractivity of $A'$ is the
+two-term Cauchy--Schwarz inequality
+$\lambda a + \mu b \le \sqrt{a^2 + b^2}$, and
+$\|B'y\|^2 = \lambda^2\|By\|^2 + \mu^2|\rho(y)|^2 \le \|y\|^2$. In the
+standard basis the matrix of $B'SA'$ is the old matrix scaled by $\lambda^2$,
+bordered by one row and one column of which (by hypothesis) one vanishes
+outside the corner entry $\mu^2 \rho(Su)$; Laplace expansion along that line
+gives the determinant identity.
 \end{proof}
 
-\begin{remark}
-The naive existential ``for a single $A', B'$, $\prod_k c_k(S) \le \|\det(B'SA')\|$'' is in fact
-\emph{false} for general Banach $S$ (already at $n = 0$, where $c_0 = \|S\|$ need not be attained).
-The flags below achieve only diagonal norms $> c_k - \varepsilon$ (resp.\ $> d_k - \varepsilon$);
-the product bounds are recovered by letting $\varepsilon \to 0^+$, the right-hand side
-$(n+1)^{n+1}\prod_k h_k$ being independent of $\varepsilon$.
-\end{remark}
-
-\begin{proposition}[Gelfand product bound]
-\label{prop:prod-gelfand-le}
-\lean{SNumbers.prod_gelfandNumber_le}
+\begin{lemma}[Growth lemma]
+\label{lem:det-growth}
+\lean{SNumbers.mul_detNumber_le_detNumber_succ}
 \leanok
-\uses{lem:prod-approx-eq-det, lem:flag-factorisation, def:hilbert-number}
-$\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$.
-\end{proposition}
-\begin{proof}
-\leanok
-\uses{lem:prod-approx-eq-det, lem:flag-factorisation}
-Fix $\varepsilon > 0$. The inductive Gelfand flag picks $x_k \in B_X$ in the codimension-$k$
-subspace where $g_0, \dots, g_{k-1}$ vanish on $S\cdot$, with $\|S x_k\| > c_k(S) - \varepsilon$
-(possible since $c_k$ is an infimum of restricted norms), together with a Hahn--Banach functional
-$g_k$ attaining $\|S x_k\|$; then $[g_i(S x_j)]$ is lower-triangular. Lemma~\ref{lem:flag-factorisation}
-and $\|\det(B'SA')\| = \prod_k a_k(B'SA')$ (Lemma~\ref{lem:prod-approx-eq-det}) with the
-Hilbert-number ideal bound $a_k(B'SA') \le \|B'\|\|A'\| h_k(S)$ give
-$\prod_k \max(c_k(S) - \varepsilon, 0) \le (n+1)^{n+1}\prod_k h_k(S)$ (using $\|B'\|\|A'\| \le n+1$);
-letting $\varepsilon \to 0^+$ yields the claim.
-\end{proof}
-
-\begin{proposition}[Kolmogorov product bound]
-\label{prop:prod-kolmogorov-le}
-\lean{SNumbers.prod_kolmogorovNumber_le}
-\leanok
-\uses{lem:prod-approx-eq-det, lem:flag-factorisation, def:hilbert-number}
-$\prod_{k=0}^n d_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$.
-\end{proposition}
-\begin{proof}
-\leanok
-\uses{lem:prod-approx-eq-det, lem:flag-factorisation}
-Dual to Proposition~\ref{prop:prod-gelfand-le}: the Kolmogorov flag picks $x_k$ whose image lies at
-distance $> d_k(S) - \varepsilon$ from $V_k = \operatorname{span}\{S x_0, \dots, S x_{k-1}\}$
-(dimension $\le k$), and $g_k$ a functional on $Y / V_k$ realising that distance, so $[g_i(S x_j)]$
-is upper-triangular with diagonal norms $> d_k - \varepsilon$; the same $\varepsilon \to 0^+$
-passage applies.
-\end{proof}
-
-\begin{theorem}[Maximal difference theorem]
-\label{thm:maximal-difference}
-\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_geomMean_hilbertNumber}
-\leanok
-\uses{prop:prod-gelfand-le, prop:prod-kolmogorov-le, def:hilbert-number}
-For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
+\uses{def:det-quantity, lem:det-extension, def:gelfand-number, def:kolmogorov-number}
+Let $0 \le \gamma$ with $\gamma < c_n(S)$ or $\gamma < d_n(S)$. Then for every
+$k \le n$,
 \[
-  \max\bigl(c_n(S), d_n(S)\bigr) \;\le\;
-  (n+1)\,\Bigl(\textstyle\prod_{k=0}^n h_k(S)\Bigr)^{1/(n+1)}.
+  \frac{k^k}{(k+1)^{k+1}}\; \gamma\; \Delta_k(S) \;\le\; \Delta_{k+1}(S).
+\]
+In particular $\Delta_k(S) > 0$ for all $k \le n+1$ when $\gamma > 0$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:det-extension}
+For each admissible pair $(A, B)$ for $\Delta_k$, an oracle provides the input
+of the extension lemma. If $\gamma < c_n(S)$: the common kernel of the rows of
+$B$ composed with $S$ is closed of codimension $\le k \le n$, so it contains
+$u \in B_X$ with $B(Su) = 0$ and $\|Su\| > \gamma$, and Hahn--Banach provides
+a norming functional $\rho$ (\texttt{exists\_gelfand\_pair}). If
+$\gamma < d_n(S)$: some $u \in B_X$ has $Su$ at distance $> \gamma$ from
+$V := \operatorname{span}\{S(A e_j)\}$ (dimension $\le k \le n$), and a
+functional vanishing on $V$ realises that distance
+(\texttt{exists\_kolmogorov\_pair}). The weights $\lambda^2 = k/(k+1)$,
+$\mu^2 = 1/(k+1)$ maximise $\lambda^{2k}\mu^2$, giving exactly
+$k^k/(k+1)^{k+1}$; taking the supremum over $(A, B)$ finishes. Note that no
+near-maximiser has to be selected — \emph{every} admissible pair is improved,
+so no $\varepsilon \to 0$ passage is needed here.
+\end{proof}
+
+\begin{lemma}[Upper bound $\Delta_{n+1} \le h_n \Delta_n$]
+\label{lem:det-upper}
+\lean{SNumbers.detNumber_succ_le_hilbertNumber_mul}
+\leanok
+\uses{def:det-quantity, lem:prod-approx-eq-det, thm:schmidt-diagonal, def:hilbert-number}
+$\Delta_{n+1}(S) \le h_n(S)\, \Delta_n(S)$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:prod-approx-eq-det, thm:schmidt-diagonal}
+For admissible $(A, B)$ and $T := B S A$ on $\ell_2^{n+1}$,
+$\|\det T\| = \prod_{k \le n} a_k(T)$ (Lemma~\ref{lem:prod-approx-eq-det}).
+The last factor satisfies $a_n(T) \le \|B\|\|A\|\, h_n(S) \le h_n(S)$. For the
+top $n$ factors, the diagonal factorisation
+$B_1 T A_1 = \operatorname{diag}(a_0(T), \dots, a_n(T))$ through contractions
+(Theorem~\ref{thm:schmidt-diagonal}), compressed to the first $n$ coordinates
+by the coordinate embedding/projection, is itself admissible for
+$\Delta_n(S)$, whence $\prod_{k < n} a_k(T) \le \Delta_n(S)$. Again every
+admissible pair is bounded, so the bound passes to the supremum
+$\Delta_{n+1}(S)$.
+\end{proof}
+
+\begin{theorem}[Gelfand/Kolmogorov versus Hilbert numbers]
+\label{thm:gelfand-kolmogorov-hilbert}
+\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber}
+\leanok
+\uses{lem:det-growth, lem:det-upper, def:hilbert-number}
+For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
+\[
+  \max\bigl(c_n(S), d_n(S)\bigr) \;\le\; \frac{(n+1)^{n+1}}{n^n}\, h_n(S)
+  \;\le\; e\,(n+1)\, h_n(S).
 \]
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{prop:prod-gelfand-le, prop:prod-kolmogorov-le}
-Since $c_n$ is non-increasing, $c_n(S)^{n+1} \le \prod_{k=0}^n c_k(S)$;
-combined with the Gelfand product bound (Proposition~\ref{prop:prod-gelfand-le})
-this gives $c_n(S)^{n+1} \le (n+1)^{n+1}\prod_k h_k(S)$, and taking the
-$(n+1)$-th root yields
-$c_n(S) \le (n+1)(\prod_k h_k(S))^{1/(n+1)}$. The same argument with
-Proposition~\ref{prop:prod-kolmogorov-le} handles $d_n(S)$, and the maximum of
-the two bounds is the common right-hand side. The two elementary steps are
-\texttt{self\_pow\_le\_prod} and \texttt{rpow\_combine}.
+\uses{lem:det-growth, lem:det-upper}
+For $0 < \gamma < c_n(S)$ (resp.\ $< d_n(S)$), chain the growth lemma at
+$k = n$ with the upper bound:
+$\frac{n^n}{(n+1)^{n+1}}\, \gamma\, \Delta_n(S) \le \Delta_{n+1}(S) \le
+h_n(S)\, \Delta_n(S)$, and cancel $\Delta_n(S) > 0$. Letting $\gamma$ tend to
+$c_n(S)$ (resp.\ $d_n(S)$) gives the sharp constant; finally
+$(n+1)^{n+1}/n^n = (n+1)(1 + 1/n)^n \le e\,(n+1)$ from $1 + x \le e^x$ at
+$x = 1/n$.
 \end{proof}
+
+\begin{corollary}[Mityagin--Henkin up to the constant $e$]
+\label{cor:mityagin-henkin}
+\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
+\leanok
+\uses{thm:gelfand-kolmogorov-hilbert, thm:sandwich, def:bernstein-number}
+$\max(c_n(S), d_n(S)) \le e\,(n+1)\, s_n(S)$ for every $s$-number sequence
+$s$; in particular $\max(c_n(S), d_n(S)) \le e\,(n+1)\, b_n(S)$ for the
+Bernstein numbers.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:gelfand-kolmogorov-hilbert}
+The Hilbert numbers are the smallest $s$-number sequence
+(\texttt{hilbertNumber\_le\_sn}, part of Theorem~\ref{thm:sandwich}).
+\end{proof}
+
+\begin{remark}
+Since the sharp constants telescope,
+$\prod_{k=0}^n (k+1)^{k+1}/k^k = (n+1)^{n+1}$,
+Theorem~\ref{thm:gelfand-kolmogorov-hilbert} immediately recovers the product
+bound $\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$ (and its
+Kolmogorov analogue), hence also the \emph{maximal difference theorem}
+$\max(c_n, d_n) \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$ of arXiv:2405.05509,
+with identical constants. Those statements — and the triangular-flag
+machinery with its $\varepsilon \to 0$ passage that used to prove them — have
+been removed from the library as superseded.
+\end{remark}
 
 \chapter{Injective and surjective \texorpdfstring{$s$}{s}-numbers}
 \label{ch:injectivity}
