@@ -29,8 +29,8 @@ We treat the case where domain and codomain carry the **same** exponent `p`
 
 * `DiagCLM p σ` — the diagonal operator as a continuous linear map, with operator
   norm `norm_DiagCLM : ‖D_σ‖ = ⨆ i, ‖σ i‖`.
-* `projFin` / `padFin` — the coordinate projection and embedding between `ℓ^p_n`
-  and `ℓ^p_m`, both contractions (`norm_projFin_clm_le`, `norm_padFin_clm_le`).
+* `finrank_piLp` / `rank_id_piLp` — dimension and identity-rank of `ℓ^p_k`
+  (the coordinate maps `projFin` / `padFin` are in `SNumbers.PiLpCoordinates`).
 * `sn_DiagCLM_eq` — the main result: for every **strict** s-number sequence `s`,
   `sₙ(D_σ) = ‖σ_n‖` (the `(n+1)`-th largest entry) when the diagonal is
   non-increasing in modulus and `n < m`. Specialised to the named examples:
@@ -125,14 +125,12 @@ theorem norm_DiagCLM [Nonempty (Fin m)] (σ : Fin m → 𝕜) :
     rw [hDe, PiLp.norm_single, he, mul_one] at hbound
     exact hbound
 
-/-! ## Coordinate embedding and projection between `ℓ^p_n` and `ℓ^p_m`
+/-! ## Dimension and rank of `ℓ^p_k`
 
 To compute the s-numbers we relate `ℓ^p_m` to the lower-dimensional `ℓ^p_n`
 via the coordinate maps `projFin` (keep the first `n` coordinates) and
-`padFin` (extend by zeros), both contractions with `projFin ∘ padFin = id`.
-They now live in `SNumbers.PiLpCoordinates` (they are also used by the
-determinant quantities in `SNumbers.MaxDifference`); only the two rank
-lemmas specific to this example remain here. -/
+`padFin` (extend by zeros) from `SNumbers.PiLpCoordinates`, both contractions
+with `projFin ∘ padFin = id`. Here we record the two rank facts this needs. -/
 
 omit [Fact (1 ≤ p)] in
 /-- The dimension of `ℓ^p_k = PiLp p (Fin k → 𝕜)` is `k`. -/

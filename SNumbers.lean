@@ -36,6 +36,8 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and operator-norm bounds
   for Mathlib's quotient CLMs `Submodule.mkQL` / `Submodule.liftQL`
   (`norm_mkQL_le`, `norm_liftQL_le`, `liftQL_mkQL`).
+* `SNumbers.PiLpCoordinates`: the coordinate projection/embedding
+  contractions `projFin` / `padFin` between `ℓ^p_n` and `ℓ^p_m`.
 * `SNumbers.Approximation`: the approximation numbers `aₙ`, proved to form a
   strict s-number sequence (S1)–(S5)+(S5'), and to be the *largest*
   s-number sequence (`sₙ(S) ≤ aₙ(S)`).
@@ -57,17 +59,13 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
 * `SNumbers.Inequalities`: the general-space comparison results — the lower
   bound `hₙ ≤ sₙ`, the sandwich theorem `hₙ ≤ sₙ ≤ aₙ`, the bound
   `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, and the determinant ingredients
-  (`∏ aₖ(T) = ‖det T‖`, point selection) for the reverse bound below.
+  (`∏ aₖ(T) = ‖det T‖`, point selection) for the maximal difference theorem.
 * `SNumbers.MaxDifference`: the **maximal difference theorem**
   `max(cₙ,dₙ) ≤ e·(n+1)·hₙ`, proved via the determinant quantities
   `Δₖ(S) = sup{|det(B∘S∘A)| : ‖A‖, ‖B‖ ≤ 1}` — hence
   `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular the
-  Mityagin–Henkin conjecture `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e`.
-  (The sharp constant is `(n+1)^{n+1}/nⁿ`; by telescoping it recovers the
-  former product bound `∏cₖ ≤ (n+1)^{n+1}∏hₖ` and the earlier geometric-mean
-  bound, which were removed as superseded.)
-* `SNumbers.PiLpCoordinates`: the coordinate projection/embedding
-  contractions `projFin` / `padFin` between `ℓ^p_n` and `ℓ^p_m`.
+  Mityagin–Henkin conjecture `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e`
+  (sharp constant `(n+1)^{n+1}/nⁿ`).
 * `SNumbers.SingularValuesFinDim`: in finite dimension, Mathlib's singular
   numbers coincide with every s-number sequence
   (`sn_eq_singularValues_of_finiteDimensional`, `sₙ = σₙ`), via uniqueness
@@ -104,4 +102,6 @@ Auxiliary material on approximable operators lives in the
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator
   Theory **9** (2024), no. 4, article no. 82.
   <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
+* M. Ullrich, *On bounds between s-numbers and widths of convex sets*,
+  preprint, 2026 (the maximal difference theorem).
 -/

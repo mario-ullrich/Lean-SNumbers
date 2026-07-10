@@ -41,8 +41,7 @@ examples, which are the central targets of this formalisation:
   `max(cₙ(T), dₙ(T)) ≤ e · (n+1) · hₙ(T)` — hence `≤ e·(n+1)·sₙ(T)` for
   every s-number sequence, in particular the **Mityagin–Henkin conjecture**
   `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e` (sharp constant
-  `(n+1)^{n+1}/nⁿ`; it recovers the earlier geometric-mean bound
-  `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` by telescoping);
+  `(n+1)^{n+1}/nⁿ`);
 * **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
   the classical singular values `σₙ(T)`.
 
@@ -102,9 +101,12 @@ examples, which are the central targets of this formalisation:
 │   │                              (input to uniqueness) — all proved
 │   ├── Determinant.lean        ← det facts: det T* = conj det T, and
 │   │                              ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
-│   │                              of the Gelfand/Kolmogorov vs. Hilbert bound
+│   │                              of the maximal difference theorem
 │   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n, ker = M); `sorry`
 │   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V); `sorry`
+│   ├── John.lean               ← John's ellipsoid: max-volume position + the ℝ
+│   │                              Kadets–Snobar `exists_projection_real` (‖P‖ ≤ √dim),
+│   │                              proved modulo one core lemma `john_decomposition`
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
@@ -138,8 +140,11 @@ in place but the proof is `sorry`.
 | Metric injection / surjection classes     | ✅ defined          |
 | Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
-| Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared, no proof |
-| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared, no proof |
+| Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared (RCLike), no proof |
+| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared (RCLike), no proof |
+| John's ellipsoid: max-volume position (`exists_maxVolume`) | ✅ proved |
+| Kadets–Snobar over `ℝ` (`John.exists_projection_real`, `‖P‖ ≤ √dim`) | 🟡 proved modulo `john_decomposition` |
+| John decomposition of identity (`john_decomposition`) | 🔴 `sorry` (classical core) |
 
 ### The classical s-numbers
 
@@ -254,3 +259,4 @@ Apache 2.0 — same as Mathlib. See [LICENSE](LICENSE).
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
   mathematics 13, Cambridge University Press, 1987.
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9** (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
+* M. Ullrich, *On bounds between s-numbers and widths of convex sets*, preprint, 2026 (the maximal difference theorem).

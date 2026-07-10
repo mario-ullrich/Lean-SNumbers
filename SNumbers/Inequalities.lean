@@ -152,9 +152,8 @@ private lemma bSet_bddAbove' (S : X →L[𝕜] Y) (n : ℕ) :
   ⟨‖S‖, by rintro _ ⟨M, _, rfl⟩; exact gainOnSubspace_le_norm S M⟩
 
 /-- The common kernel `{x | ∀ i, gᵢ(S x) = 0}` of `k` continuous functionals `gᵢ ∘ S` is a
-closed subspace of codimension `≤ k` (kernel of `x ↦ (gᵢ(S x))ᵢ : X → 𝕜ᵏ`).
-(Moved here from the former `BasicResults.TriangularFactorisation`; used by the
-oracles in `SNumbers.MaxDifference`.) -/
+closed subspace of codimension `≤ k` (kernel of `x ↦ (gᵢ(S x))ᵢ : X → 𝕜ᵏ`). Used by the
+oracles in `SNumbers.MaxDifference`. -/
 lemma exists_closed_codim_forall_eq_zero (S : X →L[𝕜] Y) {k : ℕ}
     (g : Fin k → (Y →L[𝕜] 𝕜)) :
     ∃ M : Submodule 𝕜 X, IsClosed (M : Set X) ∧
@@ -601,7 +600,7 @@ lemma approximationNumber_comp_comp_le_mul_hilbertNumber
 space. The approximation numbers are Mathlib's singular values
 (`sn_eq_singularValues_of_finiteDimensional`), and `‖det T‖ = ∏ σₖ`
 (`LinearMap.norm_det_eq_prod_singularValues`). This is the determinant
-ingredient of the Gelfand/Kolmogorov vs. Hilbert bound. -/
+ingredient of the maximal difference theorem. -/
 theorem prod_approximationNumber_eq_norm_det {E : Type u} [NormedAddCommGroup E]
     [InnerProductSpace 𝕜 E] [FiniteDimensional 𝕜 E] [Nontrivial E] (T : E →L[𝕜] E) :
     ∏ k ∈ Finset.range (Module.finrank 𝕜 E), approximationNumber T k

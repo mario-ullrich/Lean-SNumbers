@@ -24,15 +24,11 @@ Bernstein numbers — this proves the **Mityagin–Henkin conjecture** up to the
 constant `e` (`max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber`).
 
 The proof in fact gives the slightly sharper constant
-`(n+1)^{n+1}/nⁿ ≤ e·(n+1)` (the `..._le_mul_hilbertNumber` versions). Since
-the sharp constants telescope, `∏_{k=0}^n (k+1)^{k+1}/kᵏ = (n+1)^{n+1}`, the
-pointwise bound immediately implies the product bound
-`∏ cₖ ≤ (n+1)^{n+1}·∏ hₖ` and hence the earlier geometric-mean bound
-`max(cₙ, dₙ) ≤ (n+1)·(∏_{k=0}^n hₖ)^{1/(n+1)}` (Ullrich, *Inequalities
-between s-numbers*, arXiv:2405.05509, Thm 3) with identical constants; those
-statements were removed from the library as superseded, and can be re-derived
-from `gelfandNumber_le_mul_hilbertNumber` /
-`kolmogorovNumber_le_mul_hilbertNumber` in a few lines if ever needed.
+`(n+1)^{n+1}/nⁿ ≤ e·(n+1)` (the `..._le_mul_hilbertNumber` versions). By
+telescoping, `∏_{k=0}^n (k+1)^{k+1}/kᵏ = (n+1)^{n+1}`, the theorem recovers
+the previous geometric-mean bound
+`max(cₙ, dₙ) ≤ (n+1)·(∏_{k=0}^n hₖ)^{1/(n+1)}` (Pietsch; see also Ullrich,
+*Inequalities between s-numbers*, arXiv:2405.05509).
 
 ## The determinant quantities `Δₖ(S)`
 
@@ -95,9 +91,9 @@ they **do not decay too fast** from `Δₖ` to `Δₖ₊₁`:
 
 ## Reference
 
-M. Ullrich, *Another bound between s-numbers* (working note, 2026): the
-bound `max(cₙ, dₙ) ≤ e·(n+1)·hₙ`, which proves the Mityagin–Henkin/Pietsch
-conjecture `cₙ ≲ n·bₙ` up to the constant `e`.
+M. Ullrich, *On bounds between s-numbers and widths of convex sets*
+(preprint, 2026): the bound `max(cₙ, dₙ) ≤ e·(n+1)·hₙ`, which proves the
+Mityagin–Henkin/Pietsch conjecture `cₙ ≲ n·bₙ` up to the constant `e`.
 -/
 
 universe u

@@ -694,7 +694,8 @@ comparisons for operators between Banach spaces over $\mathbb{K}$:
         $\max(c_n(S), d_n(S)) \le e\,(n+1)\, h_n(S)$ — the maximal possible
         difference between the Gelfand/Kolmogorov numbers and the smallest
         $s$-numbers, the Hilbert numbers, is a factor linear in $n$ (Ullrich,
-        \emph{Another bound between $s$-numbers}, working note, 2026). Since
+        \emph{On bounds between $s$-numbers and widths of convex sets},
+        preprint, 2026). Since
         $h_n$ is the smallest $s$-number sequence this proves the
         \emph{Mityagin--Henkin conjecture} $\max(c_n, d_n) \lesssim n\, b_n$
         up to the constant $e$.
@@ -965,15 +966,10 @@ The Hilbert numbers are the smallest $s$-number sequence
 \end{proof}
 
 \begin{remark}
-Since the sharp constants telescope,
-$\prod_{k=0}^n (k+1)^{k+1}/k^k = (n+1)^{n+1}$,
-Theorem~\ref{thm:maximal-difference} immediately recovers the product
-bound $\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$ (and its
-Kolmogorov analogue), hence also the earlier geometric-mean bound
-$\max(c_n, d_n) \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$ of arXiv:2405.05509,
-with identical constants. Those statements — and the triangular-flag
-machinery with its $\varepsilon \to 0$ passage that used to prove them — have
-been removed from the library as superseded.
+By telescoping, $\prod_{k=0}^n (k+1)^{k+1}/k^k = (n+1)^{n+1}$,
+Theorem~\ref{thm:maximal-difference} recovers the previous geometric-mean
+bound $\max(c_n, d_n) \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$
+(Pietsch; see also Ullrich, arXiv:2405.05509).
 \end{remark}
 
 \chapter{Injective and surjective \texorpdfstring{$s$}{s}-numbers}
