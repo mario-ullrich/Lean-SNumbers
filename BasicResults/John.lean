@@ -5,6 +5,7 @@ Authors: Mario Ullrich
 -/
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.Normed.Module.FiniteDimension
+import Mathlib.Analysis.Normed.Module.HahnBanach
 import Mathlib.Analysis.Seminorm
 import Mathlib.Topology.Order.Compact
 
@@ -23,12 +24,21 @@ proportional to `|det T|`. The body is described by a norm, given here as a
 norm (`c‖x‖ ≤ p x ≤ C‖x‖`, `c > 0`). The ellipsoid `T (B₂)` lies in the body
 `{p ≤ 1}` exactly when `T` is *feasible*: `p (T u) ≤ ‖u‖` for all `u`.
 
-## Main result
+## Main results
 
 * `John.exists_maxVolume` — among the feasible operators there is one, `T₀`, of
   maximal `|det|`; it is invertible (`det ≠ 0`). This is the maximal-volume
-  inscribed ellipsoid. The John decomposition of identity from its first-order
-  optimality (the next step) is not yet formalised.
+  inscribed ellipsoid.
+* `John.exists_johnPosition` — normalising by `T₀` puts the maximal ellipsoid at
+  the Euclidean unit ball (`q u ≤ ‖u‖`, and `|det S| ≤ 1` for every feasible `S`).
+* `John.john_decomposition` — the **decomposition of identity** in John position,
+  `∑ᵢ cᵢ uᵢ⊗uᵢ = id` over contact points with `∑ᵢ cᵢ = dim`. This is the one
+  classical analytic input still stated as `sorry` (its first-order-optimality
+  proof has no Mathlib scaffolding yet); everything downstream is proved from it.
+* `John.exists_projection_real` — **Kadets–Snobar over `ℝ`** modulo the above:
+  every finite-dimensional subspace of a real normed space is the range of a
+  projection `P` with `‖P‖ ≤ √(dim)`. Its analytic core is the weighted
+  Cauchy–Schwarz bound `John.norm_sum_weight_smul_le`.
 -/
 
 universe u
@@ -247,4 +257,223 @@ theorem john_decomposition (q : Seminorm ℝ (EuclideanSpace ℝ (Fin k)))
       (∀ x, ∑ i, (c i * ⟪u i, x⟫) • u i = x) := by
   sorry
 
+/-- **Weighted Cauchy–Schwarz for a decomposition of identity** (the analytic
+heart of the Kadets–Snobar estimate). If `∑ᵢ (cᵢ·⟪uᵢ,x⟫)•uᵢ = x` and `cᵢ ≥ 0`,
+then for any scalars `aᵢ`, `‖∑ᵢ (cᵢ·aᵢ)•uᵢ‖ ≤ √(∑ᵢ cᵢ·aᵢ²)`. -/
+lemma norm_sum_weight_smul_le {N : ℕ} (c : Fin N → ℝ)
+    (u : Fin N → EuclideanSpace ℝ (Fin k)) (hdec : ∀ x, ∑ i, (c i * ⟪u i, x⟫) • u i = x)
+    (hc : ∀ i, 0 ≤ c i) (a : Fin N → ℝ) :
+    ‖∑ i, (c i * a i) • u i‖ ≤ Real.sqrt (∑ i, c i * a i ^ 2) := by
+  set w := ∑ i, (c i * a i) • u i with hw
+  have hB : 0 ≤ ∑ i, c i * a i ^ 2 := Finset.sum_nonneg fun i _ => mul_nonneg (hc i) (sq_nonneg _)
+  have hww : ‖w‖ ^ 2 = ∑ i, c i * a i * ⟪u i, w⟫ := by
+    rw [← real_inner_self_eq_norm_sq]
+    nth_rewrite 1 [hw]
+    rw [sum_inner]
+    exact Finset.sum_congr rfl fun i _ => real_inner_smul_left _ _ _
+  have hCS : (∑ i, c i * a i * ⟪u i, w⟫) ^ 2
+      ≤ (∑ i, c i * a i ^ 2) * (∑ i, c i * ⟪u i, w⟫ ^ 2) := by
+    have h := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
+      (fun i => Real.sqrt (c i) * a i) (fun i => Real.sqrt (c i) * ⟪u i, w⟫)
+    have e1 : ∀ i, Real.sqrt (c i) * a i * (Real.sqrt (c i) * ⟪u i, w⟫)
+        = c i * a i * ⟪u i, w⟫ := fun i => by
+      rw [mul_mul_mul_comm, Real.mul_self_sqrt (hc i)]; ring
+    have e2 : ∀ i, (Real.sqrt (c i) * a i) ^ 2 = c i * a i ^ 2 := fun i => by
+      rw [mul_pow, Real.sq_sqrt (hc i)]
+    have e3 : ∀ i, (Real.sqrt (c i) * ⟪u i, w⟫) ^ 2 = c i * ⟪u i, w⟫ ^ 2 := fun i => by
+      rw [mul_pow, Real.sq_sqrt (hc i)]
+    simpa only [e1, e2, e3] using h
+  rw [sum_weight_inner_sq c u hdec w, ← hww] at hCS
+  rcases eq_or_lt_of_le (norm_nonneg w) with h0 | hpos
+  · rw [← h0]; exact Real.sqrt_nonneg _
+  · have ht : (0 : ℝ) < ‖w‖ ^ 2 := by positivity
+    have hle : ‖w‖ ^ 2 ≤ ∑ i, c i * a i ^ 2 := by
+      refine le_of_mul_le_mul_right ?_ ht
+      calc ‖w‖ ^ 2 * ‖w‖ ^ 2 = (‖w‖ ^ 2) ^ 2 := (pow_two _).symm
+        _ ≤ (∑ i, c i * a i ^ 2) * ‖w‖ ^ 2 := hCS
+    calc ‖w‖ = Real.sqrt (‖w‖ ^ 2) := (Real.sqrt_sq (norm_nonneg w)).symm
+      _ ≤ Real.sqrt (∑ i, c i * a i ^ 2) := Real.sqrt_le_sqrt hle
+
+/-- **Kadets–Snobar over `ℝ`** (modulo `john_decomposition`). Every
+finite-dimensional subspace `V` of a real normed space `Y` is the range of a
+bounded projection `P : Y →L[ℝ] Y` with `‖P‖ ≤ √(dim V)`.
+
+The proof puts `V` in John position: transport the Euclidean structure of
+`ℝ^{dim V}` to `V` through the maximal-volume ellipsoid `M` (built from the John
+decomposition of identity `∑ᵢ cᵢ uᵢ⊗uᵢ = id`). The contact points `uᵢ` give unit
+vectors `vᵢ = M uᵢ ∈ V` and functionals `φᵢ = ⟪uᵢ, M⁻¹ ·⟫ ∈ V*` of norm `≤ 1`,
+which Hahn–Banach (`exists_extension_norm_eq`) extends to `gᵢ ∈ Y*` without
+increasing the norm. Then `P = ∑ᵢ cᵢ · gᵢ ⊗ vᵢ` is the identity on `V` (so it is
+a projection onto `V`), and the weighted Cauchy–Schwarz estimate
+`norm_sum_weight_smul_le` together with `∑ᵢ cᵢ = dim V` yields `‖P‖ ≤ √(dim V)`. -/
+theorem exists_projection_real {Y : Type u} [NormedAddCommGroup Y] [NormedSpace ℝ Y]
+    (V : Submodule ℝ Y) [FiniteDimensional ℝ V] :
+    ∃ P : Y →L[ℝ] Y, P.comp P = P ∧
+      LinearMap.range (P : Y →ₗ[ℝ] Y) = V ∧ ‖P‖ ≤ Real.sqrt (Module.finrank ℝ V) := by
+  classical
+  set k := Module.finrank ℝ V with hk
+  rcases Nat.eq_zero_or_pos k with hk0 | hkpos
+  · -- `V = ⊥`: the zero map works.
+    refine ⟨0, by simp, ?_, ?_⟩
+    · have hV : V = ⊥ := Submodule.finrank_eq_zero.mp (hk.symm.trans hk0)
+      rw [hV]; simp
+    · rw [hk0]; simp
+  -- From now on `0 < k`.
+  -- A continuous linear equivalence `ℝ^k ≃L V` (both have dimension `k`).
+  have hEfin : Module.finrank ℝ (EuclideanSpace ℝ (Fin k)) = k := by
+    rw [(WithLp.linearEquiv 2 ℝ (Fin k → ℝ)).finrank_eq, Module.finrank_pi ℝ, Fintype.card_fin]
+  set L : EuclideanSpace ℝ (Fin k) ≃L[ℝ] V :=
+    ContinuousLinearEquiv.ofFinrankEq (hEfin.trans hk) with hLdef
+  -- The body seminorm on `ℝ^k`: `p x = ‖L x‖`, equivalent to the Euclidean norm.
+  set p : Seminorm ℝ (EuclideanSpace ℝ (Fin k)) :=
+    (normSeminorm ℝ Y).comp (V.subtypeL.comp (L : EuclideanSpace ℝ (Fin k) →L[ℝ] V)).toLinearMap
+    with hpdef
+  have hp_apply : ∀ x, p x = ‖((L x : V) : Y)‖ := fun x => by
+    simp only [hpdef, Seminorm.comp_apply, coe_normSeminorm, ContinuousLinearMap.coe_coe,
+      ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply, ContinuousLinearEquiv.coe_coe]
+  have hpc : Continuous p := by
+    have hcont : Continuous fun x => V.subtypeL (L x) := V.subtypeL.continuous.comp L.continuous
+    refine (continuous_norm.comp hcont).congr fun x => ?_
+    show ‖V.subtypeL (L x)‖ = p x
+    rw [Submodule.subtypeL_apply]
+    exact (hp_apply x).symm
+  -- Upper bound `p x ≤ ‖L‖ ‖x‖`.
+  set C : ℝ := ‖(L : EuclideanSpace ℝ (Fin k) →L[ℝ] V)‖ with hC
+  have hup : ∀ x, p x ≤ C * ‖x‖ := fun x => by
+    rw [hp_apply]
+    exact (L : EuclideanSpace ℝ (Fin k) →L[ℝ] V).le_opNorm x
+  -- Lower bound `‖L.symm‖⁻¹ ‖x‖ ≤ p x`; the constant is positive since `0 < k`.
+  set D : ℝ := ‖(L.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k))‖ with hD
+  have hDpos : 0 < D := by
+    have hne : (L.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k)) ≠ 0 := by
+      intro hzero
+      have he1 : ‖(EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : ℝ))‖ = 1 := by
+        rw [PiLp.norm_single, norm_one]
+      have hcontra : (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : ℝ)) = 0 := by
+        have h2 : (L.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k))
+            (L (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : ℝ))) = 0 := by
+          rw [hzero]; rfl
+        rwa [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply] at h2
+      rw [hcontra, norm_zero] at he1
+      exact one_ne_zero he1.symm
+    rw [hD]
+    rcases eq_or_lt_of_le (norm_nonneg (L.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k))) with h | h
+    · exact absurd ((ContinuousLinearMap.opNorm_zero_iff _).mp h.symm) hne
+    · exact h
+  have hlo : ∀ x, D⁻¹ * ‖x‖ ≤ p x := fun x => by
+    have hbound : ‖x‖ ≤ D * p x := by
+      rw [hp_apply]
+      have e : ‖x‖ = ‖(L.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k)) (L x)‖ := by
+        rw [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply]
+      rw [e]
+      calc ‖(L.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k)) (L x)‖
+          ≤ D * ‖L x‖ := (L.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k)).le_opNorm (L x)
+        _ = D * ‖((L x : V) : Y)‖ := by rw [Submodule.norm_coe]
+    have := mul_le_mul_of_nonneg_left hbound (le_of_lt (inv_pos.mpr hDpos))
+    rwa [← mul_assoc, inv_mul_cancel₀ (ne_of_gt hDpos), one_mul] at this
+  -- The maximal-volume ellipsoid `T₀` and the John-position seminorm `q = p ∘ T₀`.
+  obtain ⟨T₀, hT₀feas, hT₀det, hT₀max⟩ :=
+    exists_maxVolume p hpc (inv_pos.mpr hDpos) hlo hup
+  set q : Seminorm ℝ (EuclideanSpace ℝ (Fin k)) := p.comp T₀.toLinearMap with hqdef
+  have hq1 : ∀ u, q u ≤ ‖u‖ := fun u => by
+    rw [hqdef, Seminorm.comp_apply]; exact hT₀feas u
+  have hqc : Continuous q := by
+    rw [hqdef]; exact hpc.comp T₀.continuous
+  have hqmax : ∀ S ∈ Feasible q, |S.det| ≤ 1 := fun S hS => by
+    have hTS : T₀.comp S ∈ Feasible p := fun u => by
+      have h := hS u
+      rw [hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe] at h
+      simpa [ContinuousLinearMap.comp_apply] using h
+    have hdc : (T₀.comp S).det = T₀.det * S.det := by
+      simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
+    have hle := hT₀max (T₀.comp S) hTS
+    rw [hdc, abs_mul] at hle
+    exact (mul_le_iff_le_one_right (abs_pos.mpr hT₀det)).mp hle
+  -- The composite equivalence `M = L ∘ T₀ : ℝ^k ≃L V`; `‖M z‖ = q z`.
+  set T₀e : EuclideanSpace ℝ (Fin k) ≃L[ℝ] EuclideanSpace ℝ (Fin k) :=
+    T₀.toContinuousLinearEquivOfDetNeZero hT₀det with hT₀e
+  set M : EuclideanSpace ℝ (Fin k) ≃L[ℝ] V := T₀e.trans L with hMdef
+  have hMapply : ∀ z, M z = L (T₀ z) := fun z => by
+    rw [hMdef, ContinuousLinearEquiv.trans_apply, hT₀e,
+      ContinuousLinearMap.toContinuousLinearEquivOfDetNeZero_apply]
+  have hqM : ∀ z, ‖(M z : Y)‖ = q z := fun z => by
+    rw [hMapply, hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe, hp_apply]
+  -- The John decomposition of identity in John position.
+  obtain ⟨N, u, c, hcontact, hcnn, hcsum, hdec⟩ := john_decomposition q hqc hq1 hqmax
+  -- Functionals `φ i = ⟪u i, M.symm ·⟫` on `V`, of norm `≤ 1`.
+  set φ : Fin N → (V →L[ℝ] ℝ) :=
+    fun i => (innerSL ℝ (u i)).comp (M.symm : V →L[ℝ] EuclideanSpace ℝ (Fin k)) with hφ
+  have hφapply : ∀ i (w : V), φ i w = ⟪u i, M.symm w⟫ := fun i w => by
+    simp only [hφ, ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
+      innerSL_apply_apply]
+  have hφnorm : ∀ i, ‖φ i‖ ≤ 1 := fun i => by
+    refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun w => ?_
+    rw [one_mul, hφapply, Real.norm_eq_abs, real_inner_comm]
+    calc |⟪M.symm w, u i⟫| ≤ q (M.symm w) := abs_inner_le_of_contact (hcontact i) (M.symm w)
+      _ = ‖(M (M.symm w) : Y)‖ := (hqM (M.symm w)).symm
+      _ = ‖w‖ := by rw [M.apply_symm_apply, Submodule.norm_coe]
+  -- Hahn–Banach: extend each `φ i` to `g i ∈ Y*` without increasing the norm.
+  choose g hg_ext hg_norm using fun i => exists_extension_norm_eq V (φ i)
+  have hgnorm1 : ∀ i, ‖g i‖ ≤ 1 := fun i => (hg_norm i).trans_le (hφnorm i)
+  -- The projection `P = ∑ᵢ cᵢ · g i ⊗ (M (u i))`.
+  set P : Y →L[ℝ] Y := ∑ i, (c i) • ((g i).smulRight ((M (u i) : V) : Y)) with hP
+  have hPapply : ∀ y, P y = ∑ i, (c i * g i y) • ((M (u i) : Y)) := fun y => by
+    rw [hP]
+    simp only [ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.smulRight_apply, smul_smul]
+  have hPmem : ∀ y, P y ∈ V := fun y => by
+    rw [hPapply]
+    exact V.sum_mem fun i _ => V.smul_mem _ (M (u i)).2
+  -- `P` is the identity on `V`.
+  have hPV : ∀ w : V, P (w : Y) = (w : Y) := fun w => by
+    rw [hPapply]
+    have hgi : ∀ i, g i (w : Y) = ⟪u i, M.symm w⟫ := fun i => by rw [hg_ext i w, hφapply i w]
+    simp only [hgi]
+    have hpull : ((M (∑ i, (c i * ⟪u i, M.symm w⟫) • u i) : V) : Y)
+        = ∑ i, (c i * ⟪u i, M.symm w⟫) • ((M (u i) : V) : Y) := by
+      rw [map_sum, Submodule.coe_sum]
+      exact Finset.sum_congr rfl fun i _ => by rw [map_smul, Submodule.coe_smul]
+    rw [← hpull, hdec (M.symm w), M.apply_symm_apply]
+  refine ⟨P, ?_, ?_, ?_⟩
+  · -- `P ∘ P = P`, since `P` fixes its range `⊆ V`.
+    ext y
+    simpa [ContinuousLinearMap.comp_apply] using hPV ⟨P y, hPmem y⟩
+  · -- `range P = V`.
+    apply le_antisymm
+    · rintro x hx
+      rw [LinearMap.mem_range] at hx
+      obtain ⟨y, rfl⟩ := hx
+      exact hPmem y
+    · intro w hw
+      rw [LinearMap.mem_range]
+      exact ⟨w, by simpa using hPV ⟨w, hw⟩⟩
+  · -- `‖P‖ ≤ √k`.
+    refine ContinuousLinearMap.opNorm_le_bound P (Real.sqrt_nonneg _) fun y => ?_
+    have hpull : ((M (∑ i, (c i * g i y) • u i) : V) : Y)
+        = ∑ i, (c i * g i y) • ((M (u i) : V) : Y) := by
+      rw [map_sum, Submodule.coe_sum]
+      exact Finset.sum_congr rfl fun i _ => by rw [map_smul, Submodule.coe_smul]
+    have hPyeq : P y = ((M (∑ i, (c i * g i y) • u i) : V) : Y) := by rw [hPapply, hpull]
+    have hb : ∑ i, c i * (g i y) ^ 2 ≤ (k : ℝ) * ‖y‖ ^ 2 := by
+      have hstep : ∀ i, c i * (g i y) ^ 2 ≤ c i * ‖y‖ ^ 2 := fun i => by
+        apply mul_le_mul_of_nonneg_left _ (hcnn i)
+        calc (g i y) ^ 2 = ‖g i y‖ ^ 2 := by rw [Real.norm_eq_abs, sq_abs]
+          _ ≤ (‖g i‖ * ‖y‖) ^ 2 := by
+              apply pow_le_pow_left₀ (norm_nonneg _) ((g i).le_opNorm y)
+          _ ≤ (1 * ‖y‖) ^ 2 := by
+              apply pow_le_pow_left₀ (by positivity)
+              exact mul_le_mul_of_nonneg_right (hgnorm1 i) (norm_nonneg _)
+          _ = ‖y‖ ^ 2 := by rw [one_mul]
+      calc ∑ i, c i * (g i y) ^ 2 ≤ ∑ i, c i * ‖y‖ ^ 2 := Finset.sum_le_sum fun i _ => hstep i
+        _ = (∑ i, c i) * ‖y‖ ^ 2 := (Finset.sum_mul _ _ _).symm
+        _ = (k : ℝ) * ‖y‖ ^ 2 := by rw [hcsum]
+    calc ‖P y‖ = q (∑ i, (c i * g i y) • u i) := by rw [hPyeq, hqM]
+      _ ≤ ‖∑ i, (c i * g i y) • u i‖ := hq1 _
+      _ ≤ Real.sqrt (∑ i, c i * (g i y) ^ 2) :=
+          norm_sum_weight_smul_le c u hdec hcnn (fun i => g i y)
+      _ ≤ Real.sqrt ((k : ℝ) * ‖y‖ ^ 2) := Real.sqrt_le_sqrt hb
+      _ = Real.sqrt (k : ℝ) * ‖y‖ := by
+          rw [Real.sqrt_mul (Nat.cast_nonneg k), Real.sqrt_sq (norm_nonneg _)]
+
 end John
+
