@@ -41,8 +41,8 @@ that support the s-numbers framework:
 
 (The former `BasicResults.TriangularFactorisation` — the flag-to-determinant
 engine behind the Gelfand/Kolmogorov product bounds — was removed when the
-product bounds were superseded by the pointwise bound in
-`SNumbers.GelfandKolmogorovVsHilbert`; its surviving lemma
+product bounds were superseded by the maximal difference theorem in
+`SNumbers.MaxDifference`; its surviving lemma
 `exists_closed_codim_forall_eq_zero` moved to `SNumbers.Inequalities`.)
 
 ## The `BasicResults.Spectral` subpackage

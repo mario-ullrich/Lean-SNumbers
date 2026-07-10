@@ -131,7 +131,7 @@ To compute the s-numbers we relate `ℓ^p_m` to the lower-dimensional `ℓ^p_n`
 via the coordinate maps `projFin` (keep the first `n` coordinates) and
 `padFin` (extend by zeros), both contractions with `projFin ∘ padFin = id`.
 They now live in `SNumbers.PiLpCoordinates` (they are also used by the
-determinant quantities in `SNumbers.DetQuantity`); only the two rank
+determinant quantities in `SNumbers.MaxDifference`); only the two rank
 lemmas specific to this example remain here. -/
 
 omit [Fact (1 ≤ p)] in

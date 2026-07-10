@@ -20,7 +20,7 @@ Both are contractions (`norm_projFin_clm_le`, `norm_padFin_clm_le`;
 `padFin` is in fact an isometry), and `projFin ∘ padFin = id`. They are used
 to build finite-rank approximants and compressions: in the diagonal-operator
 example (`SNumbers.Examples.DiagonalMatrices`) and in the determinant
-quantities `Δₖ(S)` (`SNumbers.DetQuantity`).
+quantities `Δₖ(S)` (`SNumbers.MaxDifference`).
 
 This is generic `PiLp` material (no s-number content); it is a candidate for
 upstreaming to `Mathlib.Analysis.Normed.Lp.PiLp`.

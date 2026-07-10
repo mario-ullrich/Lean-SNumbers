@@ -690,18 +690,18 @@ comparisons for operators between Banach spaces over $\mathbb{K}$:
         at most a factor $1+\sqrt{n}$ (Ullrich, \emph{Inequalities between
         $s$-numbers}, Adv. Oper. Theory \textbf{9} (2024), art.~82;
         arXiv:2405.05509);
-  \item the \emph{reverse} pointwise bound
-        $\max(c_n(S), d_n(S)) \le e\,(n+1)\, h_n(S)$ — the Gelfand/Kolmogorov
-        numbers are controlled, up to a factor linear in $n$, by the smallest
-        $s$-numbers, the Hilbert numbers (Ullrich, \emph{Another bound between
-        $s$-numbers}, working note, 2026). Since $h_n$ is the smallest
-        $s$-number sequence this proves the \emph{Mityagin--Henkin conjecture}
-        $\max(c_n, d_n) \lesssim n\, b_n$ up to the constant $e$.
+  \item the \emph{reverse} bound, the \emph{maximal difference theorem}
+        $\max(c_n(S), d_n(S)) \le e\,(n+1)\, h_n(S)$ — the maximal possible
+        difference between the Gelfand/Kolmogorov numbers and the smallest
+        $s$-numbers, the Hilbert numbers, is a factor linear in $n$ (Ullrich,
+        \emph{Another bound between $s$-numbers}, working note, 2026). Since
+        $h_n$ is the smallest $s$-number sequence this proves the
+        \emph{Mityagin--Henkin conjecture} $\max(c_n, d_n) \lesssim n\, b_n$
+        up to the constant $e$.
 \end{itemize}
 
-Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean},
-\texttt{SNumbers/DetQuantity.lean} and
-\texttt{SNumbers/GelfandKolmogorovVsHilbert.lean}, \emph{except} two deep
+Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean}
+and \texttt{SNumbers/MaxDifference.lean}, \emph{except} two deep
 geometric inputs left as explicit \texttt{sorry} placeholders: the two
 classical projection theorems, used only by the forward bound. These are
 flagged below; every other result is a complete proof built on top of them.
@@ -801,17 +801,17 @@ and~\ref{thm:approx-le-kolmogorov}) by case analysis on which of $c_n(S)$,
 $d_n(S)$ is the smaller.
 \end{proof}
 
-\section{The Gelfand/Kolmogorov versus Hilbert bound}
+\section{The maximal difference theorem}
 \label{sec:ineq-maxdiff}
 
-The reverse bound is \emph{pointwise} in the Hilbert numbers. It is driven by
-the \emph{determinant quantities}
+The maximal difference theorem is \emph{pointwise} in the Hilbert numbers.
+It is driven by the \emph{determinant quantities}
 \[
   \Delta_k(S) \;:=\; \sup\bigl\{\, \|\det(B \circ S \circ A)\| \;:\;
     A : \ell_2^k \to X,\ B : Y \to \ell_2^k,\ \|A\| \le 1,\ \|B\| \le 1 \,\bigr\},
 \]
-formalised in \texttt{SNumbers/DetQuantity.lean}; the bound itself lives in
-\texttt{SNumbers/GelfandKolmogorovVsHilbert.lean}. Two features make the
+formalised, together with the theorem itself, in
+\texttt{SNumbers/MaxDifference.lean}. Two features make the
 $\Delta_k$ work: they are closed under contractive compressions, and they do
 not decay too fast from $\Delta_k$ to $\Delta_{k+1}$ (the growth lemma below).
 
@@ -925,8 +925,8 @@ admissible pair is bounded, so the bound passes to the supremum
 $\Delta_{n+1}(S)$.
 \end{proof}
 
-\begin{theorem}[Gelfand/Kolmogorov versus Hilbert numbers]
-\label{thm:gelfand-kolmogorov-hilbert}
+\begin{theorem}[Maximal difference theorem]
+\label{thm:maximal-difference}
 \lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber}
 \leanok
 \uses{lem:det-growth, lem:det-upper, def:hilbert-number}
@@ -952,14 +952,14 @@ $x = 1/n$.
 \label{cor:mityagin-henkin}
 \lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
 \leanok
-\uses{thm:gelfand-kolmogorov-hilbert, thm:sandwich, def:bernstein-number}
+\uses{thm:maximal-difference, thm:sandwich, def:bernstein-number}
 $\max(c_n(S), d_n(S)) \le e\,(n+1)\, s_n(S)$ for every $s$-number sequence
 $s$; in particular $\max(c_n(S), d_n(S)) \le e\,(n+1)\, b_n(S)$ for the
 Bernstein numbers.
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{thm:gelfand-kolmogorov-hilbert}
+\uses{thm:maximal-difference}
 The Hilbert numbers are the smallest $s$-number sequence
 (\texttt{hilbertNumber\_le\_sn}, part of Theorem~\ref{thm:sandwich}).
 \end{proof}
@@ -967,9 +967,9 @@ The Hilbert numbers are the smallest $s$-number sequence
 \begin{remark}
 Since the sharp constants telescope,
 $\prod_{k=0}^n (k+1)^{k+1}/k^k = (n+1)^{n+1}$,
-Theorem~\ref{thm:gelfand-kolmogorov-hilbert} immediately recovers the product
+Theorem~\ref{thm:maximal-difference} immediately recovers the product
 bound $\prod_{k=0}^n c_k(S) \le (n+1)^{n+1} \prod_{k=0}^n h_k(S)$ (and its
-Kolmogorov analogue), hence also the \emph{maximal difference theorem}
+Kolmogorov analogue), hence also the earlier geometric-mean bound
 $\max(c_n, d_n) \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$ of arXiv:2405.05509,
 with identical constants. Those statements — and the triangular-flag
 machinery with its $\varepsilon \to 0$ passage that used to prove them — have

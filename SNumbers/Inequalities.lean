@@ -37,12 +37,10 @@ for operators between **arbitrary** `𝕜`-Banach spaces.
 * `approximationNumber_le_sqrt_mul_kolmogorovNumber` —
   `aₙ(S) ≤ (1 + √n)·dₙ(S)`.
 * `approximationNumber_le_sqrt_mul_min` — the combined bound
-  `aₙ(S) ≤ (1 + √n)·min(cₙ(S), dₙ(S))` (Ullrich, *Inequalities between
-  s-numbers*, Prop. on `aₙ` vs `cₙ`, `dₙ`; Pietsch [Pie87, 2.10.2]).
-* Ingredients for the reverse-direction pointwise bound
-  `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)` (proved in
-  `SNumbers.GelfandKolmogorovVsHilbert` via the determinant quantities of
-  `SNumbers.DetQuantity`): the identity `∏ aₖ(T) = ‖det T‖`
+  `aₙ(S) ≤ (1 + √n)·min(cₙ(S), dₙ(S))` (Pietsch [Pie87, 2.10.2]).
+* Ingredients for the **maximal difference theorem**
+  `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)` (proved in `SNumbers.MaxDifference`
+  via the determinant quantities `Δₖ`): the identity `∏ aₖ(T) = ‖det T‖`
   (`prod_approximationNumber_eq_norm_det`), the (S3)-type bound
   `aₖ(B∘S∘A) ≤ ‖B‖·‖A‖·hₖ(S)`, and the point-selection lemmas
   `exists_mem_norm_gt_of_lt_gelfandNumber` /
@@ -156,7 +154,7 @@ private lemma bSet_bddAbove' (S : X →L[𝕜] Y) (n : ℕ) :
 /-- The common kernel `{x | ∀ i, gᵢ(S x) = 0}` of `k` continuous functionals `gᵢ ∘ S` is a
 closed subspace of codimension `≤ k` (kernel of `x ↦ (gᵢ(S x))ᵢ : X → 𝕜ᵏ`).
 (Moved here from the former `BasicResults.TriangularFactorisation`; used by the
-oracles in `SNumbers.GelfandKolmogorovVsHilbert`.) -/
+oracles in `SNumbers.MaxDifference`.) -/
 lemma exists_closed_codim_forall_eq_zero (S : X →L[𝕜] Y) {k : ℕ}
     (g : Fin k → (Y →L[𝕜] 𝕜)) :
     ∃ M : Submodule 𝕜 X, IsClosed (M : Set X) ∧
@@ -561,12 +559,12 @@ theorem approximationNumber_le_sqrt_mul_min (S : X →L[𝕜] Y) (n : ℕ) :
   · rw [min_eq_right h]
     exact approximationNumber_le_sqrt_mul_kolmogorovNumber S n
 
-/-! ## Determinant ingredients for the Gelfand/Kolmogorov vs. Hilbert bound
+/-! ## Determinant ingredients for the maximal difference theorem
 
-The reverse-direction pointwise bound `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)`
-lives in `SNumbers.GelfandKolmogorovVsHilbert`, built on the determinant
-quantities `Δₖ(S)` of `SNumbers.DetQuantity`. This section provides the
-ingredients that belong to the comparison theory developed here:
+The maximal difference theorem `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)`
+lives in `SNumbers.MaxDifference`, built on the determinant quantities
+`Δₖ(S)` defined there. This section provides the ingredients that belong to
+the comparison theory developed here:
 
 * `approximationNumber_comp_comp_le_mul_hilbertNumber` and its
   finite-dimensional form

@@ -13,8 +13,7 @@ import SNumbers.Kolmogorov
 import SNumbers.KolmogorovLifting
 import SNumbers.Hilbert
 import SNumbers.Inequalities
-import SNumbers.DetQuantity
-import SNumbers.GelfandKolmogorovVsHilbert
+import SNumbers.MaxDifference
 import SNumbers.Uniqueness
 import SNumbers.SingularValuesFinDim
 import SNumbers.Injectivity
@@ -59,14 +58,14 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   bound `hₙ ≤ sₙ`, the sandwich theorem `hₙ ≤ sₙ ≤ aₙ`, the bound
   `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, and the determinant ingredients
   (`∏ aₖ(T) = ‖det T‖`, point selection) for the reverse bound below.
-* `SNumbers.DetQuantity` and `SNumbers.GelfandKolmogorovVsHilbert`: the
-  determinant quantities `Δₖ(S) = sup{|det(B∘S∘A)| : ‖A‖, ‖B‖ ≤ 1}` and the
-  reverse-direction pointwise bound `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` — hence
+* `SNumbers.MaxDifference`: the **maximal difference theorem**
+  `max(cₙ,dₙ) ≤ e·(n+1)·hₙ`, proved via the determinant quantities
+  `Δₖ(S) = sup{|det(B∘S∘A)| : ‖A‖, ‖B‖ ≤ 1}` — hence
   `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular the
   Mityagin–Henkin conjecture `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e`.
   (The sharp constant is `(n+1)^{n+1}/nⁿ`; by telescoping it recovers the
-  former product bound `∏cₖ ≤ (n+1)^{n+1}∏hₖ` and the maximal difference
-  theorem, which were removed as superseded.)
+  former product bound `∏cₖ ≤ (n+1)^{n+1}∏hₖ` and the earlier geometric-mean
+  bound, which were removed as superseded.)
 * `SNumbers.PiLpCoordinates`: the coordinate projection/embedding
   contractions `projFin` / `padFin` between `ℓ^p_n` and `ℓ^p_m`.
 * `SNumbers.SingularValuesFinDim`: in finite dimension, Mathlib's singular

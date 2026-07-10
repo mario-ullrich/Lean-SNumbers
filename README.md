@@ -37,11 +37,11 @@ examples, which are the central targets of this formalisation:
   sandwich `hₙ(T) ≤ sₙ(T) ≤ aₙ(T)` for every s-number sequence `s`;
 * `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))` (Gelfand and Kolmogorov numbers
   cannot both be much smaller than the approximation numbers);
-* the reverse-direction pointwise bound
+* the **maximal difference theorem**
   `max(cₙ(T), dₙ(T)) ≤ e · (n+1) · hₙ(T)` — hence `≤ e·(n+1)·sₙ(T)` for
   every s-number sequence, in particular the **Mityagin–Henkin conjecture**
   `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e` (sharp constant
-  `(n+1)^{n+1}/nⁿ`; it recovers the maximal difference theorem
+  `(n+1)^{n+1}/nⁿ`; it recovers the earlier geometric-mean bound
   `max(cₙ,dₙ) ≤ (n+1)·(∏ₖ₌₀ⁿ hₖ)^{1/(n+1)}` by telescoping);
 * **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
   the classical singular values `σₙ(T)`.
@@ -77,11 +77,11 @@ examples, which are the central targets of this formalisation:
 │   │                              via Garling–Gordon / Kadets–Snobar (the only
 │   │                              `sorry` inputs here), and the determinant
 │   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
-│   ├── DetQuantity.lean        ← determinant quantities Δₖ(S) = sup |det(BSA)|
-│   │                              over contractions, with the extension lemma
-│   ├── GelfandKolmogorovVsHilbert.lean ← max(cₙ,dₙ) ≤ e·(n+1)·hₙ (proved), hence
+│   ├── MaxDifference.lean      ← the maximal difference theorem
+│   │                              max(cₙ,dₙ) ≤ e·(n+1)·hₙ (proved), hence
 │   │                              ≤ e·(n+1)·sₙ for every s-number sequence and
-│   │                              the Mityagin–Henkin conjecture up to `e`
+│   │                              the Mityagin–Henkin conjecture up to `e`;
+│   │                              via the determinant quantities Δₖ(S)
 │   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
 │   │                              s-number (sₙ = σₙ) via uniqueness +
 │   │                              Eckart–Young (proved)
@@ -160,7 +160,7 @@ in place but the proof is `sorry`.
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
-| `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (pointwise reverse bound) | ✅ proved |
+| `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference thm) | ✅ proved |
 | `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) | ✅ proved |
 | Determinant quantities `Δₖ(S)`: growth lemma + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
 | `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
@@ -205,9 +205,9 @@ Two results in the core theory are left as `sorry` — both deep classical input
 Banach-space geometry, in `BasicResults/GarlingGordon.lean` and
 `BasicResults/KadetsSnobar.lean`, used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`.
 Everything that depends on them is proved *modulo* these statements, and
-everything else in `SNumbers/` and `BasicResults/` is `sorry`-free — including the
-pointwise bound `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the determinant quantities `Δₖ`),
-and the Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed`
+everything else in `SNumbers/` and `BasicResults/` is `sorry`-free — including
+the maximal difference theorem `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the determinant
+quantities `Δₖ`), and the Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed`
 (Pietsch [Pie87, §11.11]) behind the identity embedding's exact approximation
 numbers, proved by a flatness / extreme-point argument (an extreme point of the
 `ℓ^∞`-ball inside the subspace saturates `≥ dim` coordinates).
