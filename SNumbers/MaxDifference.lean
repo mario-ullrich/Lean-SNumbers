@@ -27,8 +27,8 @@ The proof in fact gives the slightly sharper constant
 `(n+1)^{n+1}/nⁿ ≤ e·(n+1)` (the `..._le_mul_hilbertNumber` versions). By
 telescoping, `∏_{k=0}^n (k+1)^{k+1}/kᵏ = (n+1)^{n+1}`, the theorem recovers
 the previous geometric-mean bound
-`max(cₙ, dₙ) ≤ (n+1)·(∏_{k=0}^n hₖ)^{1/(n+1)}` (Pietsch; see also Ullrich,
-*Inequalities between s-numbers*, arXiv:2405.05509).
+`max(cₙ, dₙ) ≤ (n+1)·(∏_{k=0}^n hₖ)^{1/(n+1)}` (Pietsch, *Operator Ideals*;
+see also Ullrich, *Inequalities between s-numbers*, arXiv:2405.05509).
 
 ## The determinant quantities `Δₖ(S)`
 
@@ -89,11 +89,13 @@ they **do not decay too fast** from `Δₖ` to `Δₖ₊₁`:
    the theorem; finally `(n+1)^{n+1}/nⁿ = (n+1)·(1+1/n)ⁿ ≤ e·(n+1)` via
    `1 + x ≤ eˣ`.
 
-## Reference
+## References
 
-M. Ullrich, *On bounds between s-numbers and widths of convex sets*
-(preprint, 2026): the bound `max(cₙ, dₙ) ≤ e·(n+1)·hₙ`, which proves the
-Mityagin–Henkin/Pietsch conjecture `cₙ ≲ n·bₙ` up to the constant `e`.
+* M. Ullrich, *On bounds between s-numbers and widths of convex sets*
+  (preprint, 2026): the bound `max(cₙ, dₙ) ≤ e·(n+1)·hₙ`, which proves the
+  Mityagin–Henkin/Pietsch conjecture `cₙ ≲ n·bₙ` up to the constant `e`.
+* A. Pietsch, *Operator Ideals*, North-Holland, 1980: the geometric-mean
+  bound.
 -/
 
 universe u
