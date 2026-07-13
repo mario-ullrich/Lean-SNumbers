@@ -511,27 +511,6 @@ theorem exists_projection {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 
       _ = Real.sqrt (k : ℝ) * ‖y‖ := by
           rw [Real.sqrt_mul (Nat.cast_nonneg k), Real.sqrt_sq (norm_nonneg _)]
 
-/-- **Finite-dimensional reflexivity, isometric form.** In a finite-dimensional
-normed `𝕜`-space `E`, every element `Ψ` of the double strong dual is evaluation at
-a (unique) vector `w` with `‖w‖ = ‖Ψ‖`. This is `NormedSpace.inclusionInDoubleDualLi`
-(an isometry) being surjective, which holds because it is injective between spaces
-of equal finite dimension.
-
-**Status: `sorry`.** The statement is a standard, obviously-true fact (finite-dim
-reflexivity of `NormedSpace.inclusionInDoubleDualLi`), but a direct proof through
-the *topological* double dual `StrongDual 𝕜 (StrongDual 𝕜 E)` makes the elaborator
-time out in `whnf` (the `StrongDual (StrongDual ·)` instance diamonds are too
-expensive), even at 10⁶ heartbeats. The perf-safe route avoids the double dual:
-for our use, `Ψ = ⟪u, Φ.symm ·⟫`, so `w` is obtained by solving the *single*-dual
-equation `Φ.flip w = toDual u` — `Φ.flip : E ≃ (𝕜^k)*` is a linear iso (all
-finrank comparisons stay at dimension `k`), and the norm bound `‖w‖ ≤ ‖Ψ‖` comes
-from `NormedSpace.norm_le_dual_bound` (no isometry-surjectivity needed). To be
-completed. -/
-private lemma exists_repr_doubleDual {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
-    [FiniteDimensional 𝕜 E] (Ψ : StrongDual 𝕜 (StrongDual 𝕜 E)) :
-    ∃ w : E, ‖w‖ = ‖Ψ‖ ∧ ∀ g : StrongDual 𝕜 E, g w = Ψ g := by
-  sorry
-
 set_option maxHeartbeats 1000000 in
 /-- **Garling–Gordon, ε-form** (modulo `john_decomposition`). Every closed
 subspace `M` of a normed `𝕜`-space `X` with finite-dimensional quotient is the
@@ -675,25 +654,56 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
       exact hℓapply z
     · rw [LinearIsometryEquiv.norm_map]
       exact hℓnorm
-  -- The contact-support functionals on `D`, of norm `≤ 1`.
-  set Ψ : Fin N → StrongDual 𝕜 (StrongDual 𝕜 (X ⧸ M)) := fun i =>
-    (innerSL 𝕜 (u i)).comp
-      (Φ.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) with hΨ
-  have hΨapply : ∀ i g, Ψ i g = ⟪u i, Φ.symm g⟫_𝕜 := fun i g => by
-    simp only [hΨ, ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
-      innerSL_apply_apply]
-  have hΨnorm : ∀ i, ‖Ψ i‖ ≤ 1 := fun i => by
-    refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun g => ?_
-    rw [one_mul, hΨapply]
+  -- Represent each contact point `u i` by a vector `w i ∈ X ⧸ M`, solving the
+  -- *single*-dual equation `Φ.flip (w i) = toDual (u i)`. `Φ.flip` is a linear
+  -- isomorphism `X ⧸ M ≃ (𝕜^k)*` (all dimensions stay `k`), so this avoids the
+  -- topological double dual entirely.
+  set T : (X ⧸ M) →L[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) :=
+    (Φ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)).flip with hT
+  have hTapply : ∀ (v : X ⧸ M) (z : EuclideanSpace 𝕜 (Fin k)), T v z = Φ z v :=
+    fun v z => ContinuousLinearMap.flip_apply _ z v
+  haveI : FiniteDimensional 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) :=
+    Module.Finite.equiv
+      (LinearMap.toContinuousLinearMap :
+        ((EuclideanSpace 𝕜 (Fin k)) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((EuclideanSpace 𝕜 (Fin k)) →L[𝕜] 𝕜))
+  have hkSD : Module.finrank 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) = k := by
+    rw [← (LinearMap.toContinuousLinearMap :
+          ((EuclideanSpace 𝕜 (Fin k)) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜]
+            ((EuclideanSpace 𝕜 (Fin k)) →L[𝕜] 𝕜)).finrank_eq,
+        Subspace.dual_finrank_eq, hEfin]
+  have hTinj : Function.Injective
+      (T : (X ⧸ M) →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
+    rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+    intro v hv
+    refine norm_le_zero_iff.mp (NormedSpace.norm_le_dual_bound 𝕜 v le_rfl fun g => ?_)
+    have hgv : g v = 0 := by
+      have h2 := hTapply v (Φ.symm g)
+      rw [Φ.apply_symm_apply] at h2
+      rw [← h2, show T v = 0 from hv]; rfl
+    simp [hgv]
+  have hTsurj : Function.Surjective
+      (T : (X ⧸ M) →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
+    have hrank : Module.finrank 𝕜 (LinearMap.range
+        (T : (X ⧸ M) →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))))
+        = Module.finrank 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
+      rw [LinearMap.finrank_range_of_inj hTinj, hkSD, ← hk]
+    rw [← LinearMap.range_eq_top]
+    exact Submodule.eq_top_of_finrank_eq hrank
+  choose w hw using fun i =>
+    hTsurj (InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) (u i))
+  have hweval : ∀ i (g : StrongDual 𝕜 (X ⧸ M)), g (w i) = ⟪u i, Φ.symm g⟫_𝕜 := fun i g => by
+    have h1 : T (w i) (Φ.symm g) = ⟪u i, Φ.symm g⟫_𝕜 := by
+      rw [show T (w i) = InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) (u i) from hw i,
+        InnerProductSpace.toDual_apply_apply]
+    rwa [hTapply (w i) (Φ.symm g), Φ.apply_symm_apply] at h1
+  have hwnorm : ∀ i, ‖w i‖ ≤ 1 := fun i => by
+    refine NormedSpace.norm_le_dual_bound 𝕜 (w i) zero_le_one fun g => ?_
+    rw [one_mul, hweval i g]
     calc ‖⟪u i, Φ.symm g⟫_𝕜‖ = ‖⟪Φ.symm g, u i⟫_𝕜‖ := by
           rw [← inner_conj_symm (Φ.symm g) (u i), RCLike.norm_conj]
       _ ≤ q (Φ.symm g) := norm_inner_le_of_contact (hcontact i) (Φ.symm g)
       _ = ‖Φ (Φ.symm g)‖ := (hqΦ (Φ.symm g)).symm
       _ = ‖g‖ := by rw [Φ.apply_symm_apply]
-  -- Finite-dimensional reflexivity: `Ψ i` is evaluation at a vector `w i ∈ X ⧸ M`
-  -- of norm `≤ 1`.
-  choose w hwval hweval using fun i => exists_repr_doubleDual (Ψ i)
-  have hwnorm : ∀ i, ‖w i‖ ≤ 1 := fun i => (hwval i).trans_le (hΨnorm i)
   -- Lift each `w i` to a representative `x i ∈ X` with `‖x i‖ < 1 + ε'` — the
   -- sole source of the `ε`.
   set ε' : ℝ := ε / Real.sqrt k with hε'def
@@ -736,7 +746,7 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
     calc ∑ i, ((c i : 𝕜) * (Φ (u i)) v) * g (w i)
         = ∑ i, (c i : 𝕜) * ⟪u i, z⟫_𝕜 * ⟪r, u i⟫_𝕜 := by
           refine Finset.sum_congr rfl fun i _ => ?_
-          rw [hweval i g, hΨapply, ← hz, hr (u i)]; ring
+          rw [hweval i g, ← hz, hr (u i)]; ring
       _ = ⟪r, ∑ i, ((c i : 𝕜) * ⟪u i, z⟫_𝕜) • u i⟫_𝕜 := by
           rw [inner_sum]
           exact Finset.sum_congr rfl fun i _ => by
