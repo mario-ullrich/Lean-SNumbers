@@ -3,7 +3,10 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
+import Mathlib.Analysis.InnerProductSpace.Dual
 import Mathlib.Analysis.InnerProductSpace.PiL2
+import Mathlib.Analysis.Normed.Group.Quotient
+import Mathlib.Analysis.Normed.Module.DoubleDual
 import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.Analysis.Normed.Module.HahnBanach
 import Mathlib.Analysis.Seminorm
@@ -507,5 +510,318 @@ theorem exists_projection {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 
       _ ≤ Real.sqrt ((k : ℝ) * ‖y‖ ^ 2) := Real.sqrt_le_sqrt hb
       _ = Real.sqrt (k : ℝ) * ‖y‖ := by
           rw [Real.sqrt_mul (Nat.cast_nonneg k), Real.sqrt_sq (norm_nonneg _)]
+
+/-- **Finite-dimensional reflexivity, isometric form.** In a finite-dimensional
+normed `𝕜`-space `E`, every element `Ψ` of the double strong dual is evaluation at
+a (unique) vector `w` with `‖w‖ = ‖Ψ‖`. This is `NormedSpace.inclusionInDoubleDualLi`
+(an isometry) being surjective, which holds because it is injective between spaces
+of equal finite dimension.
+
+**Status: `sorry`.** The statement is a standard, obviously-true fact (finite-dim
+reflexivity of `NormedSpace.inclusionInDoubleDualLi`), but a direct proof through
+the *topological* double dual `StrongDual 𝕜 (StrongDual 𝕜 E)` makes the elaborator
+time out in `whnf` (the `StrongDual (StrongDual ·)` instance diamonds are too
+expensive), even at 10⁶ heartbeats. The perf-safe route avoids the double dual:
+for our use, `Ψ = ⟪u, Φ.symm ·⟫`, so `w` is obtained by solving the *single*-dual
+equation `Φ.flip w = toDual u` — `Φ.flip : E ≃ (𝕜^k)*` is a linear iso (all
+finrank comparisons stay at dimension `k`), and the norm bound `‖w‖ ≤ ‖Ψ‖` comes
+from `NormedSpace.norm_le_dual_bound` (no isometry-surjectivity needed). To be
+completed. -/
+private lemma exists_repr_doubleDual {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
+    [FiniteDimensional 𝕜 E] (Ψ : StrongDual 𝕜 (StrongDual 𝕜 E)) :
+    ∃ w : E, ‖w‖ = ‖Ψ‖ ∧ ∀ g : StrongDual 𝕜 E, g w = Ψ g := by
+  sorry
+
+set_option maxHeartbeats 1000000 in
+/-- **Garling–Gordon, ε-form** (modulo `john_decomposition`). Every closed
+subspace `M` of a normed `𝕜`-space `X` with finite-dimensional quotient is the
+kernel of a bounded projection `P : X →L[𝕜] X` with
+`‖P‖ ≤ √(codim M) + ε`, for every `ε > 0`.
+
+This is the dual of `exists_projection`, run in the finite-dimensional dual
+`D = (X ⧸ M)*` (so no dual of `X` is needed). John position of the unit ball of
+`D` gives contact points `uᵢ` and weights `cᵢ` with `∑ᵢ cᵢ = codim M`; the
+`uᵢ` become unit functionals `fᵢ = Φ uᵢ ∈ D` on the quotient, and the contact
+supports become norm-`≤ 1` functionals on `D`, i.e. — since `X ⧸ M` is
+finite-dimensional, hence isometrically reflexive
+(`NormedSpace.inclusionInDoubleDualLi`) — vectors `wᵢ ∈ X ⧸ M` with `‖wᵢ‖ ≤ 1`.
+Lifting each `wᵢ` to a representative `xᵢ ∈ X` with `‖xᵢ‖ < 1 + ε'`
+(`Submodule.Quotient.norm_mk_lt` — the quotient norm is an infimum; this is the
+sole source of the `ε`), the operator `P y = ∑ᵢ cᵢ · fᵢ(π y) · xᵢ` satisfies
+`π ∘ P = π` (via the decomposition of identity and the Riesz representation on
+the Euclidean model), hence is a projection with kernel `M`; Cauchy–Schwarz and
+the quadratic identity `sum_weight_inner_sq` give `‖P‖ ≤ (1 + ε')·√(codim M)`. -/
+theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+    (M : Submodule 𝕜 X) [IsClosed (M : Set X)] [FiniteDimensional 𝕜 (X ⧸ M)]
+    {ε : ℝ} (hε : 0 < ε) :
+    ∃ P : X →L[𝕜] X, P.comp P = P ∧ LinearMap.ker (P : X →ₗ[𝕜] X) = M ∧
+      ‖P‖ ≤ Real.sqrt (Module.finrank 𝕜 (X ⧸ M)) + ε := by
+  classical
+  set k := Module.finrank 𝕜 (X ⧸ M) with hk
+  rcases Nat.eq_zero_or_pos k with hk0 | hkpos
+  · -- `codim M = 0`: the quotient is trivial, `M = ⊤`, and `P = 0` works.
+    have hsub : Subsingleton (X ⧸ M) :=
+      Module.finrank_zero_iff.mp (hk.symm.trans hk0)
+    have hM : M = ⊤ := by
+      ext x0
+      simp only [Submodule.mem_top, iff_true]
+      have := Subsingleton.elim (Submodule.Quotient.mk x0 : X ⧸ M) 0
+      exact (Submodule.Quotient.mk_eq_zero M).mp this
+    refine ⟨0, by simp, ?_, ?_⟩
+    · rw [hM]; simp [LinearMap.ker_zero]
+    · simp only [norm_zero]; positivity
+  -- From now on `0 < k`. The finite-dimensional dual `D := (X ⧸ M)*`.
+  have hEfin : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := by
+    rw [(WithLp.linearEquiv 2 𝕜 (Fin k → 𝕜)).finrank_eq, Module.finrank_pi 𝕜, Fintype.card_fin]
+  haveI hDfin : FiniteDimensional 𝕜 (StrongDual 𝕜 (X ⧸ M)) :=
+    Module.Finite.equiv
+      (LinearMap.toContinuousLinearMap : ((X ⧸ M) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((X ⧸ M) →L[𝕜] 𝕜))
+  have hkD : Module.finrank 𝕜 (StrongDual 𝕜 (X ⧸ M)) = k := by
+    rw [← (LinearMap.toContinuousLinearMap :
+          ((X ⧸ M) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((X ⧸ M) →L[𝕜] 𝕜)).finrank_eq]
+    exact (Subspace.dual_finrank_eq (K := 𝕜) (V := X ⧸ M)).trans hk.symm
+  -- A continuous linear equivalence `𝕜^k ≃L D`.
+  set L : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 (X ⧸ M) :=
+    ContinuousLinearEquiv.ofFinrankEq (hEfin.trans hkD.symm) with hLdef
+  -- The body seminorm on `𝕜^k`: `p x = ‖L x‖`, equivalent to the Euclidean norm.
+  set p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) :=
+    (normSeminorm 𝕜 (StrongDual 𝕜 (X ⧸ M))).comp
+      (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)).toLinearMap with hpdef
+  have hp_apply : ∀ x, p x = ‖L x‖ := fun x => by
+    simp only [hpdef, Seminorm.comp_apply, coe_normSeminorm, ContinuousLinearMap.coe_coe,
+      ContinuousLinearEquiv.coe_coe]
+  have hpc : Continuous p := by
+    refine (continuous_norm.comp L.continuous).congr fun x => ?_
+    exact (hp_apply x).symm
+  -- Norm equivalence constants, as for `exists_projection`.
+  set C : ℝ := ‖(L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M))‖ with hC
+  have hup : ∀ x, p x ≤ C * ‖x‖ := fun x => by
+    rw [hp_apply]
+    exact (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)).le_opNorm x
+  set D0 : ℝ := ‖(L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k))‖ with hD0
+  have hD0pos : 0 < D0 := by
+    have hne : (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) ≠ 0 := by
+      intro hzero
+      have he1 : ‖(EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜))‖ = 1 := by
+        rw [PiLp.norm_single, norm_one]
+      have hcontra : (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜)) = 0 := by
+        have h2 : (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k))
+            (L (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜))) = 0 := by
+          rw [hzero]; rfl
+        rwa [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply] at h2
+      rw [hcontra, norm_zero] at he1
+      exact one_ne_zero he1.symm
+    rw [hD0]
+    rcases eq_or_lt_of_le (norm_nonneg
+        (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k))) with h | h
+    · exact absurd ((ContinuousLinearMap.opNorm_zero_iff _).mp h.symm) hne
+    · exact h
+  have hlo : ∀ x, D0⁻¹ * ‖x‖ ≤ p x := fun x => by
+    have hbound : ‖x‖ ≤ D0 * p x := by
+      rw [hp_apply]
+      have e : ‖x‖ = ‖(L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) (L x)‖ := by
+        rw [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply]
+      rw [e]
+      exact (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)).le_opNorm (L x)
+    have := mul_le_mul_of_nonneg_left hbound (le_of_lt (inv_pos.mpr hD0pos))
+    rwa [← mul_assoc, inv_mul_cancel₀ (ne_of_gt hD0pos), one_mul] at this
+  -- The maximal-volume ellipsoid `T₀` and the John-position seminorm `q = p ∘ T₀`.
+  obtain ⟨T₀, hT₀feas, hT₀det, hT₀max⟩ :=
+    exists_maxVolume p hpc (inv_pos.mpr hD0pos) hlo hup
+  set q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) := p.comp T₀.toLinearMap with hqdef
+  have hq1 : ∀ u, q u ≤ ‖u‖ := fun u => by
+    rw [hqdef, Seminorm.comp_apply]; exact hT₀feas u
+  have hqc : Continuous q := by
+    rw [hqdef]; exact hpc.comp T₀.continuous
+  have hqmax : ∀ S ∈ Feasible q, ‖S.det‖ ≤ 1 := fun S hS => by
+    have hTS : T₀.comp S ∈ Feasible p := fun u => by
+      have h := hS u
+      rw [hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe] at h
+      simpa [ContinuousLinearMap.comp_apply] using h
+    have hdc : (T₀.comp S).det = T₀.det * S.det := by
+      simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
+    have hle := hT₀max (T₀.comp S) hTS
+    rw [hdc, norm_mul] at hle
+    exact (mul_le_iff_le_one_right (norm_pos_iff.mpr hT₀det)).mp hle
+  -- The composite equivalence `Φ = L ∘ T₀ : 𝕜^k ≃L D`; `‖Φ z‖ = q z`.
+  set T₀e : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] EuclideanSpace 𝕜 (Fin k) :=
+    T₀.toContinuousLinearEquivOfDetNeZero hT₀det with hT₀e
+  set Φ : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 (X ⧸ M) := T₀e.trans L with hΦdef
+  have hΦapply : ∀ z, Φ z = L (T₀ z) := fun z => by
+    rw [hΦdef, ContinuousLinearEquiv.trans_apply, hT₀e,
+      ContinuousLinearMap.toContinuousLinearEquivOfDetNeZero_apply]
+  have hqΦ : ∀ z, ‖Φ z‖ = q z := fun z => by
+    rw [hΦapply, hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe, hp_apply]
+  -- The John decomposition of identity in John position.
+  obtain ⟨N, u, c, hcontact, hcnn, hcsum, hdec⟩ := john_decomposition q hqc hq1 hqmax
+  -- Riesz representation: for `v ∈ X ⧸ M`, evaluation at `v` pulls back through
+  -- `Φ` to an inner product against a vector `r` with `‖r‖ ≤ ‖v‖`.
+  have hRiesz : ∀ v : X ⧸ M, ∃ r : EuclideanSpace 𝕜 (Fin k),
+      (∀ z, ⟪r, z⟫_𝕜 = (Φ z) v) ∧ ‖r‖ ≤ ‖v‖ := by
+    intro v
+    set ℓ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] 𝕜 :=
+      ((NormedSpace.inclusionInDoubleDual 𝕜 (X ⧸ M)) v).comp
+        (Φ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)) with hℓ
+    have hℓapply : ∀ z, ℓ z = (Φ z) v := fun z => rfl
+    have hℓnorm : ‖ℓ‖ ≤ ‖v‖ := by
+      refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg v) fun z => ?_
+      rw [hℓapply z]
+      calc ‖(Φ z) v‖ ≤ ‖Φ z‖ * ‖v‖ := (Φ z).le_opNorm v
+        _ = q z * ‖v‖ := by rw [hqΦ]
+        _ ≤ ‖z‖ * ‖v‖ := mul_le_mul_of_nonneg_right (hq1 z) (norm_nonneg v)
+        _ = ‖v‖ * ‖z‖ := mul_comm _ _
+    refine ⟨(InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k))).symm ℓ, fun z => ?_, ?_⟩
+    · rw [InnerProductSpace.toDual_symm_apply]
+      exact hℓapply z
+    · rw [LinearIsometryEquiv.norm_map]
+      exact hℓnorm
+  -- The contact-support functionals on `D`, of norm `≤ 1`.
+  set Ψ : Fin N → StrongDual 𝕜 (StrongDual 𝕜 (X ⧸ M)) := fun i =>
+    (innerSL 𝕜 (u i)).comp
+      (Φ.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) with hΨ
+  have hΨapply : ∀ i g, Ψ i g = ⟪u i, Φ.symm g⟫_𝕜 := fun i g => by
+    simp only [hΨ, ContinuousLinearMap.comp_apply, ContinuousLinearEquiv.coe_coe,
+      innerSL_apply_apply]
+  have hΨnorm : ∀ i, ‖Ψ i‖ ≤ 1 := fun i => by
+    refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun g => ?_
+    rw [one_mul, hΨapply]
+    calc ‖⟪u i, Φ.symm g⟫_𝕜‖ = ‖⟪Φ.symm g, u i⟫_𝕜‖ := by
+          rw [← inner_conj_symm (Φ.symm g) (u i), RCLike.norm_conj]
+      _ ≤ q (Φ.symm g) := norm_inner_le_of_contact (hcontact i) (Φ.symm g)
+      _ = ‖Φ (Φ.symm g)‖ := (hqΦ (Φ.symm g)).symm
+      _ = ‖g‖ := by rw [Φ.apply_symm_apply]
+  -- Finite-dimensional reflexivity: `Ψ i` is evaluation at a vector `w i ∈ X ⧸ M`
+  -- of norm `≤ 1`.
+  choose w hwval hweval using fun i => exists_repr_doubleDual (Ψ i)
+  have hwnorm : ∀ i, ‖w i‖ ≤ 1 := fun i => (hwval i).trans_le (hΨnorm i)
+  -- Lift each `w i` to a representative `x i ∈ X` with `‖x i‖ < 1 + ε'` — the
+  -- sole source of the `ε`.
+  set ε' : ℝ := ε / Real.sqrt k with hε'def
+  have hsqrtk : 0 < Real.sqrt k := Real.sqrt_pos.mpr (by exact_mod_cast hkpos)
+  have hε' : 0 < ε' := div_pos hε hsqrtk
+  choose x hxmk hxnorm using fun i => Submodule.Quotient.norm_mk_lt (w i) hε'
+  have hxbound : ∀ i, ‖x i‖ ≤ 1 + ε' := fun i => by
+    linarith [hxnorm i, hwnorm i]
+  -- The projection `P = ∑ᵢ cᵢ · (Φ uᵢ)(π ·) · xᵢ`.
+  set π : X →L[𝕜] X ⧸ M := M.mkQL with hπdef
+  have hπmk : ∀ y : X, π y = Submodule.Quotient.mk y := fun y => by
+    rw [hπdef, Submodule.mkQL_apply, Submodule.mkQ_apply]
+  have hπx : ∀ i, π (x i) = w i := fun i => by rw [hπmk]; exact hxmk i
+  have hπle : ∀ y : X, ‖π y‖ ≤ ‖y‖ := fun y => by
+    rw [hπmk]; exact Submodule.Quotient.norm_mk_le M y
+  set P : X →L[𝕜] X := ∑ i, (c i : 𝕜) • (((Φ (u i)).comp π).smulRight (x i)) with hP
+  have hPapply : ∀ y, P y = ∑ i, ((c i : 𝕜) * (Φ (u i)) (π y)) • x i := fun y => by
+    rw [hP]
+    simp only [ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+      ContinuousLinearMap.smulRight_apply, ContinuousLinearMap.comp_apply, smul_smul]
+  -- Key identity: the weighted combination of the `w i` reproduces every `v`.
+  have hkey : ∀ v : X ⧸ M, (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = v := by
+    intro v
+    obtain ⟨r, hr, _⟩ := hRiesz v
+    apply (NormedSpace.inclusionInDoubleDualLi (E := X ⧸ M) 𝕜).injective
+    apply ContinuousLinearMap.ext
+    intro g
+    have hLHS : (NormedSpace.inclusionInDoubleDualLi (E := X ⧸ M) 𝕜)
+        (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) g
+        = ∑ i, ((c i : 𝕜) * (Φ (u i)) v) * g (w i) := by
+      show g (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = _
+      rw [map_sum]
+      exact Finset.sum_congr rfl fun i _ => by
+        rw [map_smul, smul_eq_mul]
+    have hRHS : (NormedSpace.inclusionInDoubleDualLi (E := X ⧸ M) 𝕜) v g = g v := rfl
+    rw [hLHS, hRHS]
+    -- Rewrite through the Riesz vector and the decomposition of identity.
+    set z := Φ.symm g with hz
+    have hgz : g = Φ z := by rw [hz, Φ.apply_symm_apply]
+    calc ∑ i, ((c i : 𝕜) * (Φ (u i)) v) * g (w i)
+        = ∑ i, (c i : 𝕜) * ⟪u i, z⟫_𝕜 * ⟪r, u i⟫_𝕜 := by
+          refine Finset.sum_congr rfl fun i _ => ?_
+          rw [hweval i g, hΨapply, ← hz, hr (u i)]; ring
+      _ = ⟪r, ∑ i, ((c i : 𝕜) * ⟪u i, z⟫_𝕜) • u i⟫_𝕜 := by
+          rw [inner_sum]
+          exact Finset.sum_congr rfl fun i _ => by
+            rw [inner_smul_right]
+      _ = ⟪r, z⟫_𝕜 := by rw [hdec z]
+      _ = (Φ z) v := hr z
+      _ = g v := by rw [← hgz]
+  have hπP : ∀ y, π (P y) = π y := fun y => by
+    have hsum : π (P y) = ∑ i, ((c i : 𝕜) * (Φ (u i)) (π y)) • w i := by
+      rw [hPapply, map_sum]
+      exact Finset.sum_congr rfl fun i _ => by rw [map_smul, hπx i]
+    rw [hsum, hkey (π y)]
+  refine ⟨P, ?_, ?_, ?_⟩
+  · -- `P ∘ P = P`, since `π ∘ P = π`.
+    ext y
+    show P (P y) = P y
+    rw [hPapply (P y), hπP y, ← hPapply y]
+  · -- `ker P = M`.
+    ext x0
+    simp only [LinearMap.mem_ker, ContinuousLinearMap.coe_coe]
+    constructor
+    · intro hPx
+      have h0 : π x0 = 0 := by rw [← hπP x0, hPx, map_zero]
+      rw [hπmk] at h0
+      exact (Submodule.Quotient.mk_eq_zero M).mp h0
+    · intro hx0
+      have h0 : π x0 = 0 := by rw [hπmk]; exact (Submodule.Quotient.mk_eq_zero M).mpr hx0
+      rw [hPapply, h0]
+      simp
+  · -- `‖P‖ ≤ √k + ε`.
+    have hbnd : (0 : ℝ) ≤ Real.sqrt k + ε := by positivity
+    refine ContinuousLinearMap.opNorm_le_bound P hbnd fun y => ?_
+    obtain ⟨r, hr, hrnorm⟩ := hRiesz (π y)
+    -- `∑ᵢ cᵢ ‖fᵢ(πy)‖² = ‖r‖² ≤ ‖y‖²` via the quadratic identity.
+    have hquad : ∑ i, c i * ‖(Φ (u i)) (π y)‖ ^ 2 ≤ ‖y‖ ^ 2 := by
+      have h1 : ∀ i, ‖(Φ (u i)) (π y)‖ = ‖⟪u i, r⟫_𝕜‖ := fun i => by
+        rw [← hr (u i), ← inner_conj_symm r (u i), RCLike.norm_conj]
+      calc ∑ i, c i * ‖(Φ (u i)) (π y)‖ ^ 2
+          = ∑ i, c i * ‖⟪u i, r⟫_𝕜‖ ^ 2 := by
+            exact Finset.sum_congr rfl fun i _ => by rw [h1 i]
+        _ = ‖r‖ ^ 2 := sum_weight_inner_sq c u hdec r
+        _ ≤ ‖π y‖ ^ 2 := pow_le_pow_left₀ (norm_nonneg r) hrnorm 2
+        _ ≤ ‖y‖ ^ 2 := pow_le_pow_left₀ (norm_nonneg _) (hπle y) 2
+    -- Cauchy–Schwarz: `∑ᵢ cᵢ ‖fᵢ(πy)‖ ≤ √k · ‖y‖`.
+    have hCS : ∑ i, c i * ‖(Φ (u i)) (π y)‖ ≤ Real.sqrt k * ‖y‖ := by
+      have h := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
+        (fun i => Real.sqrt (c i)) (fun i => Real.sqrt (c i) * ‖(Φ (u i)) (π y)‖)
+      have e1 : ∀ i, Real.sqrt (c i) * (Real.sqrt (c i) * ‖(Φ (u i)) (π y)‖)
+          = c i * ‖(Φ (u i)) (π y)‖ := fun i => by
+        rw [← mul_assoc, Real.mul_self_sqrt (hcnn i)]
+      have e2 : ∀ i, (Real.sqrt (c i)) ^ 2 = c i := fun i => Real.sq_sqrt (hcnn i)
+      have e3 : ∀ i, (Real.sqrt (c i) * ‖(Φ (u i)) (π y)‖) ^ 2
+          = c i * ‖(Φ (u i)) (π y)‖ ^ 2 := fun i => by
+        rw [mul_pow, Real.sq_sqrt (hcnn i)]
+      simp only [e1, e2, e3] at h
+      -- `h : (∑ᵢ cᵢ‖fᵢ(πy)‖)² ≤ (∑ᵢ cᵢ) · ∑ᵢ cᵢ‖fᵢ(πy)‖²`
+      have hA0 : 0 ≤ ∑ i, c i * ‖(Φ (u i)) (π y)‖ :=
+        Finset.sum_nonneg fun i _ => mul_nonneg (hcnn i) (norm_nonneg _)
+      have hupper : (∑ i, c i * ‖(Φ (u i)) (π y)‖) ^ 2 ≤ (k : ℝ) * ‖y‖ ^ 2 := by
+        calc (∑ i, c i * ‖(Φ (u i)) (π y)‖) ^ 2
+            ≤ (∑ i, c i) * ∑ i, c i * ‖(Φ (u i)) (π y)‖ ^ 2 := h
+          _ = (k : ℝ) * ∑ i, c i * ‖(Φ (u i)) (π y)‖ ^ 2 := by rw [hcsum]
+          _ ≤ (k : ℝ) * ‖y‖ ^ 2 :=
+              mul_le_mul_of_nonneg_left hquad (Nat.cast_nonneg k)
+      calc ∑ i, c i * ‖(Φ (u i)) (π y)‖
+          = Real.sqrt ((∑ i, c i * ‖(Φ (u i)) (π y)‖) ^ 2) := (Real.sqrt_sq hA0).symm
+        _ ≤ Real.sqrt ((k : ℝ) * ‖y‖ ^ 2) := Real.sqrt_le_sqrt hupper
+        _ = Real.sqrt k * ‖y‖ := by
+            rw [Real.sqrt_mul (Nat.cast_nonneg k), Real.sqrt_sq (norm_nonneg _)]
+    -- Assemble.
+    calc ‖P y‖ ≤ ∑ i, ‖((c i : 𝕜) * (Φ (u i)) (π y)) • x i‖ := by
+          rw [hPapply]; exact norm_sum_le _ _
+      _ = ∑ i, c i * ‖(Φ (u i)) (π y)‖ * ‖x i‖ := by
+          refine Finset.sum_congr rfl fun i _ => ?_
+          rw [norm_smul, norm_mul, RCLike.norm_ofReal, abs_of_nonneg (hcnn i)]
+      _ ≤ ∑ i, c i * ‖(Φ (u i)) (π y)‖ * (1 + ε') := by
+          refine Finset.sum_le_sum fun i _ => ?_
+          exact mul_le_mul_of_nonneg_left (hxbound i)
+            (mul_nonneg (hcnn i) (norm_nonneg _))
+      _ = (1 + ε') * ∑ i, c i * ‖(Φ (u i)) (π y)‖ := by
+          rw [← Finset.sum_mul, mul_comm]
+      _ ≤ (1 + ε') * (Real.sqrt k * ‖y‖) :=
+          mul_le_mul_of_nonneg_left hCS (by positivity)
+      _ = (Real.sqrt k + ε) * ‖y‖ := by
+          rw [← mul_assoc, show (1 + ε') * Real.sqrt k = Real.sqrt k + ε from by
+            rw [hε'def, add_mul, one_mul, div_mul_cancel₀ ε (ne_of_gt hsqrtk)]]
 
 end John
