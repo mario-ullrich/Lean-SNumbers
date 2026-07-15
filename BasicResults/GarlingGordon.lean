@@ -6,30 +6,24 @@ Authors: Mario Ullrich
 import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.Analysis.SpecialFunctions.Sqrt
+import BasicResults.John
 
 /-!
 # The Garling–Gordon projection theorem
 
 A closed subspace of a Banach space whose codimension is at most `n` is the
-kernel of a bounded projection of norm at most `√n`. This is a classical fact of
-Banach-space geometry (Garling–Gordon 1971; Pietsch, *Eigenvalues and s-numbers*
-1.7.17). It is the *dual* of Kadets–Snobar (`BasicResults.KadetsSnobar`, proved
-via `BasicResults.John`).
+kernel of a bounded projection of norm at most `√n + ε`, for every `ε > 0`. This
+is a classical fact of Banach-space geometry (Garling–Gordon 1971; Pietsch,
+*Eigenvalues and s-numbers* 1.7.17). It is the *dual* of Kadets–Snobar
+(`BasicResults.KadetsSnobar`).
 
-The statement is `sorry`. Intended proof (dual to Kadets–Snobar, still to be
-formalised):
-
-* A projection `P : X →L[𝕜] X` with `ker P = M` is exactly the **preadjoint** of a
-  projection `Q : X* →L[𝕜] X*` onto `M^⊥` (`M^⊥ ≅ (X ⧸ M)*` has dimension
-  `codim M ≤ n`), with `‖P‖ = ‖Q‖`.
-* Applying the John development `John.exists_projection` to the finite-dimensional
-  subspace `M^⊥ ⊆ X*` yields such a `Q` with `‖Q‖ ≤ √n` **exactly** (no `ε`).
-* The one remaining subtlety is weak-* continuity: the functionals of `Q` are
-  Hahn–Banach extensions in `X**`, so `Q` need not be a preadjoint `P*`. Any
-  constructive repair (lifting across `X → X ⧸ M`, or extending inside `X`)
-  reintroduces an `ε` through a non-attained quotient infimum; the exact `√n`
-  bound needs a weak-* limit / Banach–Alaoglu argument (immediate when `X` is
-  reflexive). This is the sole gap.
+The theorem is reduced to the John's-ellipsoid development in `BasicResults.John`:
+`John.exists_projection_ker` supplies, for each `ε > 0`, a projection with kernel
+`M` and `‖P‖ ≤ √(codim M) + ε`, and we weaken `codim M` to `n`. That reduction is
+complete; it rests only on the single `sorry` `John.john_decomposition` (the John
+decomposition of identity). The `ε` is intrinsic to the general Banach setting
+(the quotient norm is an infimum that need not be attained); the applications in
+`SNumbers.Inequalities` recover the sharp constant by letting `ε → 0`.
 -/
 
 universe u
@@ -39,18 +33,25 @@ open ContinuousLinearMap
 namespace SNumbers
 
 variable {𝕜 : Type u} [RCLike 𝕜]
-variable {X : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X] [CompleteSpace X]
+variable {X : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
 
-/-- **Garling–Gordon theorem.** For a closed subspace `M` of a Banach space `X`
-of codimension at most `n`, there is a bounded projection `P : X →L[𝕜] X`
-(`P ∘ P = P`) with kernel exactly `M` and operator norm `‖P‖ ≤ √n`. The range of
-`P` is a complement of `M` of dimension `codim M ≤ n`, and the Garling–Gordon
-bound on the projection constant of an `n`-dimensional space gives `‖P‖ ≤ √n`. -/
+/-- **Garling–Gordon theorem (ε-form).** For a closed subspace `M` of a normed
+space `X` of codimension at most `n` and every `ε > 0`, there is a bounded
+projection `P : X →L[𝕜] X` (`P ∘ P = P`) with kernel exactly `M` and operator
+norm `‖P‖ ≤ √n + ε`. -/
 theorem exists_projection_ker_eq_of_codim_le
     {M : Submodule 𝕜 X} (hM_closed : IsClosed (M : Set X)) {n : ℕ}
-    (hM_codim : Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal)) :
+    (hM_codim : Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal)) {ε : ℝ} (hε : 0 < ε) :
     ∃ P : X →L[𝕜] X, P.comp P = P ∧
-      LinearMap.ker (P : X →ₗ[𝕜] X) = M ∧ ‖P‖ ≤ Real.sqrt n := by
-  sorry
+      LinearMap.ker (P : X →ₗ[𝕜] X) = M ∧ ‖P‖ ≤ Real.sqrt n + ε := by
+  haveI : IsClosed (M : Set X) := hM_closed
+  haveI : FiniteDimensional 𝕜 (X ⧸ M) :=
+    Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hM_codim Cardinal.natCast_lt_aleph0)
+  have hfrn : Module.finrank 𝕜 (X ⧸ M) ≤ n := by
+    rw [← Nat.cast_le (α := Cardinal), Module.finrank_eq_rank]; exact hM_codim
+  have hfr : (Module.finrank 𝕜 (X ⧸ M) : ℝ) ≤ (n : ℝ) := by exact_mod_cast hfrn
+  obtain ⟨P, hPP, hPker, hPnorm⟩ := John.exists_projection_ker M hε
+  refine ⟨P, hPP, hPker, hPnorm.trans ?_⟩
+  gcongr
 
 end SNumbers

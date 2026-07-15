@@ -428,8 +428,13 @@ lemma approximationNumber_le_sqrt_mul_deviationFromRestriction
     (hM_closed : IsClosed (M : Set X))
     (hM_codim : Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal)) :
     approximationNumber S n ≤ (1 + Real.sqrt n) * deviationFromRestriction S M := by
+  have hdev0 : 0 ≤ deviationFromRestriction S M := deviationFromRestriction_nonneg S M
+  -- The Garling–Gordon projection is available only up to `ε`; take `ε → 0`.
+  refine le_of_forall_pos_le_add fun δ hδ => ?_
+  set ε : ℝ := δ / (deviationFromRestriction S M + 1) with hεdef
+  have hε : 0 < ε := div_pos hδ (by positivity)
   obtain ⟨P, hP_idem, hP_ker, hP_norm⟩ :=
-    exists_projection_ker_eq_of_codim_le hM_closed hM_codim
+    exists_projection_ker_eq_of_codim_le hM_closed hM_codim hε
   -- `rank P = codim (ker P) = codim M ≤ n`.
   have hPrank : P.rank ≤ (n : Cardinal) := by
     have e : Module.rank 𝕜 (X ⧸ LinearMap.ker (P : X →ₗ[𝕜] X))
@@ -455,9 +460,13 @@ lemma approximationNumber_le_sqrt_mul_deviationFromRestriction
         hPP, sub_self]
     rw [← hP_ker, LinearMap.mem_ker]
     exact hkey
-  -- `‖id − P‖ ≤ 1 + √n`.
-  have h4 : ‖(ContinuousLinearMap.id 𝕜 X - P : X →L[𝕜] X)‖ ≤ 1 + Real.sqrt n :=
+  -- `‖id − P‖ ≤ 1 + (√n + ε)`.
+  have h4 : ‖(ContinuousLinearMap.id 𝕜 X - P : X →L[𝕜] X)‖ ≤ 1 + (Real.sqrt n + ε) :=
     (norm_sub_le _ _).trans (add_le_add ContinuousLinearMap.norm_id_le hP_norm)
+  -- `dev · ε ≤ δ`, so the `ε` term is absorbed into `δ`.
+  have hdevε : deviationFromRestriction S M * ε ≤ δ := by
+    rw [hεdef, ← mul_div_assoc, div_le_iff₀ (by positivity)]
+    nlinarith [hdev0, hδ.le]
   calc approximationNumber S n
       ≤ ‖S - S.comp P‖ := approximationNumber_le_norm_sub hL_rank
     _ = ‖S.comp (ContinuousLinearMap.id 𝕜 X - P)‖ := by
@@ -465,9 +474,11 @@ lemma approximationNumber_le_sqrt_mul_deviationFromRestriction
     _ ≤ deviationFromRestriction S M *
           ‖(ContinuousLinearMap.id 𝕜 X - P : X →L[𝕜] X)‖ :=
         norm_comp_le_deviationFromRestriction_mul hR
-    _ ≤ deviationFromRestriction S M * (1 + Real.sqrt n) :=
-        mul_le_mul_of_nonneg_left h4 (deviationFromRestriction_nonneg S M)
-    _ = (1 + Real.sqrt n) * deviationFromRestriction S M := by ring
+    _ ≤ deviationFromRestriction S M * (1 + (Real.sqrt n + ε)) :=
+        mul_le_mul_of_nonneg_left h4 hdev0
+    _ = (1 + Real.sqrt n) * deviationFromRestriction S M
+          + deviationFromRestriction S M * ε := by ring
+    _ ≤ (1 + Real.sqrt n) * deviationFromRestriction S M + δ := by gcongr
 
 omit [CompleteSpace X] in
 /-- **Kolmogorov half, per subspace.** For `V ⊆ Y` of dimension `≤ n`,
