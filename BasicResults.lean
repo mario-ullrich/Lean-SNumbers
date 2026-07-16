@@ -33,17 +33,16 @@ that support the s-numbers framework:
   endomorphisms of a finite-dimensional inner product space
   (`det T* = conj (det T)` and `‖det T‖ = ∏ₖ σₖ`).
 * `BasicResults.GarlingGordon` / `BasicResults.KadetsSnobar` — the
-  Garling–Gordon and Kadets–Snobar projection theorems (`‖P‖ ≤ √n`),
-  classical Banach-space geometry, stated as `sorry`.
-* `BasicResults.John` — towards the sharp `√n` above: John's ellipsoid theorem.
-  So far, the maximal-volume inscribed ellipsoid exists (`John.exists_maxVolume`);
-  the decomposition of identity from its optimality is in progress.
-
-(The former `BasicResults.TriangularFactorisation` — the flag-to-determinant
-engine behind the Gelfand/Kolmogorov product bounds — was removed when the
-product bounds were superseded by the maximal difference theorem in
-`SNumbers.MaxDifference`; its surviving lemma
-`exists_closed_codim_forall_eq_zero` moved to `SNumbers.Inequalities`.)
+  Garling–Gordon and Kadets–Snobar projection theorems (`‖P‖ ≤ √n`), classical
+  Banach-space geometry, both proved (over any `RCLike 𝕜`) by reduction to the
+  John development: Kadets–Snobar via `John.exists_projection`, and Garling–Gordon
+  (ε-form, `‖P‖ ≤ √n + ε`) via `John.exists_projection_ker`.
+* `BasicResults.John` — the sharp `√n` engine above: John's ellipsoid theorem
+  over any `RCLike 𝕜`. The maximal-volume inscribed ellipsoid exists
+  (`John.exists_maxVolume`) and, modulo the single classical core
+  `John.john_decomposition` (the decomposition of identity, still `sorry`),
+  Kadets–Snobar is proved: `John.exists_projection` gives a projection onto any
+  finite-dimensional subspace with `‖P‖ ≤ √(dim)`.
 
 ## The `BasicResults.Spectral` subpackage
 

@@ -73,8 +73,8 @@ examples, which are the central targets of this formalisation:
 │   │                              for all bounded operators (ℝ and ℂ), proved
 │   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
 │   │                              sandwich hₙ ≤ sₙ ≤ aₙ, aₙ ≤ (1+√n)·min(cₙ,dₙ)
-│   │                              via Garling–Gordon / Kadets–Snobar (the only
-│   │                              `sorry` inputs here), and the determinant
+│   │                              via Garling–Gordon / Kadets–Snobar (now proved
+│   │                              through John), and the determinant
 │   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
 │   ├── MaxDifference.lean      ← the maximal difference theorem
 │   │                              max(cₙ,dₙ) ≤ e·(n+1)·hₙ (proved), hence
@@ -102,11 +102,14 @@ examples, which are the central targets of this formalisation:
 │   ├── Determinant.lean        ← det facts: det T* = conj det T, and
 │   │                              ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
 │   │                              of the maximal difference theorem
-│   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n, ker = M); `sorry`
-│   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V); `sorry`
-│   ├── John.lean               ← John's ellipsoid: max-volume position + the ℝ
-│   │                              Kadets–Snobar `exists_projection_real` (‖P‖ ≤ √dim),
-│   │                              proved modulo one core lemma `john_decomposition`
+│   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n + ε, ker = M),
+│   │                              reduced to `John.exists_projection_ker`
+│   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V),
+│   │                              reduced to `John.exists_projection`
+│   ├── John.lean               ← John's ellipsoid over any RCLike 𝕜: max-volume
+│   │                              position + Kadets–Snobar `exists_projection`
+│   │                              (‖P‖ ≤ √dim) + Garling–Gordon `exists_projection_ker`
+│   │                              (‖P‖ ≤ √dim + ε); all modulo `john_decomposition`
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
@@ -140,10 +143,10 @@ in place but the proof is `sorry`.
 | Metric injection / surjection classes     | ✅ defined          |
 | Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
-| Garling–Gordon projection (`‖P‖ ≤ √n`, ker `P` = `M`) | 🟡 declared (RCLike), no proof |
-| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 declared (RCLike), no proof |
-| John's ellipsoid: max-volume position (`exists_maxVolume`) | ✅ proved |
-| Kadets–Snobar over `ℝ` (`John.exists_projection_real`, `‖P‖ ≤ √dim`) | 🟡 proved modulo `john_decomposition` |
+| Garling–Gordon projection (`‖P‖ ≤ √n + ε`, ker `P` = `M`) | 🟡 proved (RCLike, ε-form) modulo `john_decomposition` |
+| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 proved (RCLike) modulo `john_decomposition` |
+| John's ellipsoid: max-volume position (`exists_maxVolume`) | ✅ proved (RCLike) |
+| Kadets–Snobar via John (`John.exists_projection`, `‖P‖ ≤ √dim`) | 🟡 proved (RCLike) modulo `john_decomposition` |
 | John decomposition of identity (`john_decomposition`) | 🔴 `sorry` (classical core) |
 
 ### The classical s-numbers
@@ -164,7 +167,7 @@ in place but the proof is `sorry`.
 | Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
-| `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo Garling–Gordon / Kadets–Snobar) |
+| `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo `john_decomposition`) |
 | `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference thm) | ✅ proved |
 | `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) | ✅ proved |
 | Determinant quantities `Δₖ(S)`: growth lemma + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
@@ -204,27 +207,28 @@ in place but the proof is `sorry`.
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | Compact ⇔ approximable on Hilbert         | ✅ proved           |
 
-## Open `sorry`s
+## The single open `sorry`
 
-Two results in the core theory are left as `sorry` — both deep classical inputs of
-Banach-space geometry, in `BasicResults/GarlingGordon.lean` and
-`BasicResults/KadetsSnobar.lean`, used as inputs to `aₙ ≤ (1+√n)·min(cₙ,dₙ)`.
-Everything that depends on them is proved *modulo* these statements, and
-everything else in `SNumbers/` and `BasicResults/` is `sorry`-free — including
-the maximal difference theorem `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the determinant
-quantities `Δₖ`), and the Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed`
-(Pietsch [Pie87, §11.11]) behind the identity embedding's exact approximation
-numbers, proved by a flatness / extreme-point argument (an extreme point of the
-`ℓ^∞`-ball inside the subspace saturates `≥ dim` coordinates).
+The whole project builds with exactly **one** `sorry`, `John.john_decomposition`
+in `BasicResults/John.lean` — the classical core of John's ellipsoid theorem.
+Everything depending on it (the Garling–Gordon and Kadets–Snobar projection
+theorems, and hence `aₙ ≤ (1+√n)·min(cₙ,dₙ)`) is proved *modulo* this one
+statement; everything else in `SNumbers/` and `BasicResults/` is `sorry`-free —
+including the maximal difference theorem `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the
+determinant quantities `Δₖ`), and the Gelfand-width lower bound
+`exists_norm_ratio_ge_idEmbed` (Pietsch [Pie87, §11.11]) behind the identity
+embedding's exact approximation numbers, proved by a flatness / extreme-point
+argument (an extreme point of the `ℓ^∞`-ball inside the subspace saturates `≥ dim`
+coordinates).
 
-* **`exists_projection_ker_eq_of_codim_le`** — the **Garling–Gordon**
-  theorem (Garling–Gordon 1971; Pietsch [Pie87, 1.7.17]): a closed
-  subspace `M ⊆ X` of codimension `≤ n` is the kernel of a bounded
-  projection `P` with `‖P‖ ≤ √n`.
-* **`exists_projection_range_eq_of_rank_le`** — the **Kadets–Snobar**
-  theorem (Kadets–Snobar 1971; Pietsch [Pie87, 1.5.5]): a subspace
-  `V ⊆ Y` of dimension `≤ n` is the range of a bounded projection `P`
-  with `‖P‖ ≤ √n`.
+* **`John.john_decomposition`** — the **John decomposition of identity**: in John
+  position (the identity is a maximal-volume feasible operator for the body
+  seminorm), `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points `uᵢ`, with `cᵢ ≥ 0` and
+  `∑ᵢ cᵢ = k`. The first-order-optimality / perturbation argument has no Mathlib
+  scaffolding yet. Everything else in `BasicResults/John.lean` — the max-volume
+  ellipsoid `exists_maxVolume`, the Kadets–Snobar `exists_projection`
+  (`‖P‖ ≤ √dim`), and the Garling–Gordon `exists_projection_ker`
+  (`‖P‖ ≤ √dim + ε`), all over any `RCLike 𝕜` — is a complete proof on top of it.
 
 ## Building
 

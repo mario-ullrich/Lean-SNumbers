@@ -43,6 +43,11 @@ norm (`c‖x‖ ≤ p x ≤ C‖x‖`, `c > 0`). The ellipsoid `T (B₂)` lies i
   finite-dimensional subspace of a normed `𝕜`-space is the range of a projection
   `P` with `‖P‖ ≤ √(dim)`. Its analytic core is the weighted Cauchy–Schwarz
   bound `John.norm_sum_weight_smul_le`.
+* `John.exists_projection_ker` — **Garling–Gordon** (ε-form) modulo the above,
+  dual to Kadets–Snobar: every closed subspace `M` with finite-dimensional
+  quotient is the kernel of a projection `P` with `‖P‖ ≤ √(codim M) + ε`, for
+  every `ε > 0`. Built on the dual `(X ⧸ M)*`, representing contact points via
+  `Φ.flip` (avoiding the topological double dual).
 -/
 
 universe u

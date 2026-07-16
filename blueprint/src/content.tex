@@ -702,43 +702,118 @@ comparisons for operators between Banach spaces over $\mathbb{K}$:
 \end{itemize}
 
 Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean}
-and \texttt{SNumbers/MaxDifference.lean}, \emph{except} two deep
-geometric inputs left as explicit \texttt{sorry} placeholders: the two
-classical projection theorems, used only by the forward bound. These are
-flagged below; every other result is a complete proof built on top of them.
+and \texttt{SNumbers/MaxDifference.lean}. The two classical projection theorems
+that drive the forward bound (Garling--Gordon and Kadets--Snobar) are themselves
+now formalised, over any \texttt{RCLike} field, by the John's-ellipsoid
+development in \texttt{BasicResults/John.lean}
+(Section~\ref{sec:john-ellipsoid}). That development rests on a \emph{single}
+remaining \texttt{sorry} --- the John decomposition of identity
+(Theorem~\ref{thm:john-decomposition}) --- on which the entire project now
+depends; every other result is a complete proof built on top of it.
 
-\section{Approximation versus Gelfand and Kolmogorov numbers}
-\label{sec:ineq-forward}
+\section{John's ellipsoid and the projection theorems}
+\label{sec:john-ellipsoid}
 
-\begin{theorem}[Garling--Gordon projection theorem]
-\label{thm:garling-gordon}
-\lean{SNumbers.exists_projection_ker_eq_of_codim_le}
+The sharp constant $\sqrt{n}$ in both classical projection theorems below rests
+on \emph{John's ellipsoid theorem}, which is absent from Mathlib. It is developed
+here in \texttt{BasicResults/John.lean} over an arbitrary \texttt{RCLike} field
+$\mathbb{K}$ (so the real and complex cases are covered at once), modelling an
+inscribed ellipsoid as the image $T(B_2)$ of the Euclidean unit ball under a
+linear map and maximising its volume $|\det T|$. The whole development is a
+complete proof except for one classical analytic input, the John decomposition
+of identity (Theorem~\ref{thm:john-decomposition}), which is the single remaining
+\texttt{sorry} in the project.
+
+\begin{theorem}[Maximal-volume inscribed ellipsoid]
+\label{thm:john-maxvolume}
+\lean{John.exists_maxVolume}
 \leanok
-Let $X$ be a Banach space and $M \subseteq X$ a closed subspace of
-codimension $\le n$. Then there is a bounded projection $P : X \to X$
-($P \circ P = P$) with $\ker P = M$ and $\|P\| \le \sqrt{n}$.
+For a body seminorm $p$ on $\mathbb{K}^k$ equivalent to the Euclidean norm, among
+the \emph{feasible} operators (those $T$ with $p(Tu) \le \|u\|$ for all $u$) there
+is one, $T_0$, of maximal $|\det|$, and it is invertible ($\det T_0 \ne 0$).
 \end{theorem}
 \begin{proof}
-A classical result of Banach-space geometry (Garling--Gordon 1971; Pietsch
-\emph{Eigenvalues and s-numbers} 1.7.17). The range of $P$ is an
-$n$-dimensional complement of $M$, and the Garling--Gordon bound on the
-projection constant of an $n$-dimensional space gives $\|P\| \le \sqrt{n}$.
-\emph{Not yet formalised} (\texttt{sorry} in Lean).
+\leanok
+The feasible set is closed (each $T \mapsto p(Tu)$ is continuous) and bounded
+(the lower norm bound forces $\|T\| \le 1/c$), hence compact; $|\det|$ is
+continuous, so it attains a maximum. A small multiple of the identity is feasible
+and has nonzero determinant, so the maximiser does too.
+\end{proof}
+
+\begin{theorem}[John decomposition of identity]
+\label{thm:john-decomposition}
+\lean{John.john_decomposition}
+In John position --- the identity is a maximal-volume feasible operator for the
+body seminorm $q$ --- the identity is a positive combination of the rank-one
+projections onto contact points:
+\[
+  \sum_i c_i \, \langle u_i, x\rangle \, u_i = x \quad (x \in \mathbb{K}^k),
+  \qquad u_i \in \operatorname{Contact}(q),\ c_i \ge 0,\ \sum_i c_i = k,
+\]
+where a contact point is a unit vector $u$ with $\operatorname{re}\langle x, u\rangle
+\le q(x)$ for all $x$.
+\end{theorem}
+\begin{proof}
+The classical core of John's theorem, from first-order optimality of the
+maximal-volume ellipsoid: were $k^{-1}\mathrm{id}$ outside the convex hull of the
+contact rank-ones, a separating hyperplane would give a symmetric perturbation
+$\mathrm{id} + tH$ that stays feasible for small $t>0$ while increasing $|\det|$,
+contradicting maximality; Carathéodory then yields the finite combination.
+\emph{Not yet formalised} (the sole \texttt{sorry} in Lean; no Mathlib
+scaffolding for the perturbation/subdifferential step).
 \end{proof}
 
 \begin{theorem}[Kadets--Snobar projection theorem]
 \label{thm:kadets-snobar}
 \lean{SNumbers.exists_projection_range_eq_of_rank_le}
 \leanok
-Let $Y$ be a Banach space and $V \subseteq Y$ a subspace of dimension $\le n$.
-Then there is a bounded projection $P : Y \to Y$ ($P \circ P = P$) with
+\uses{thm:john-decomposition}
+Let $Y$ be a normed $\mathbb{K}$-space and $V \subseteq Y$ a subspace of dimension
+$\le n$. Then there is a bounded projection $P : Y \to Y$ ($P \circ P = P$) with
 $\operatorname{range} P = V$ and $\|P\| \le \sqrt{n}$.
 \end{theorem}
 \begin{proof}
-A classical result (Kadets--Snobar 1971; Pietsch 1.5.5): every
-$n$-dimensional subspace is the range of a projection of norm $\le \sqrt{n}$.
-\emph{Not yet formalised} (\texttt{sorry} in Lean).
+\leanok
+\uses{thm:john-decomposition}
+A classical result (Kadets--Snobar 1971; Pietsch 1.5.5). Put $V$ in John position
+via the maximal-volume ellipsoid: the decomposition of identity
+(Theorem~\ref{thm:john-decomposition}) gives contact points $u_i$, unit vectors
+$v_i = M u_i \in V$, and functionals $\varphi_i = \langle u_i, M^{-1}\cdot\rangle$
+of norm $\le 1$, which Hahn--Banach extends to $g_i \in Y^*$ without increasing
+the norm. Then $P = \sum_i c_i\, g_i \otimes v_i$ is the identity on $V$, hence a
+projection onto $V$, and weighted Cauchy--Schwarz with $\sum_i c_i = \dim V$ gives
+$\|P\| \le \sqrt{\dim V} \le \sqrt{n}$. Formalised in \texttt{John.exists\_projection}.
 \end{proof}
+
+\begin{theorem}[Garling--Gordon projection theorem, $\varepsilon$-form]
+\label{thm:garling-gordon}
+\lean{SNumbers.exists_projection_ker_eq_of_codim_le}
+\leanok
+\uses{thm:john-decomposition}
+Let $X$ be a normed $\mathbb{K}$-space and $M \subseteq X$ a closed subspace of
+codimension $\le n$. Then for every $\varepsilon > 0$ there is a bounded
+projection $P : X \to X$ ($P \circ P = P$) with $\ker P = M$ and
+$\|P\| \le \sqrt{n} + \varepsilon$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:john-decomposition}
+The dual of Kadets--Snobar (Garling--Gordon 1971; Pietsch 1.7.17). Run the John
+development on the finite-dimensional dual $(X/M)^*$: the contact points are
+represented by vectors $w_i \in X/M$ with $\|w_i\| \le 1$ (obtained by solving
+the single-dual equation $\Phi^{\mathrm{flip}} w_i = \operatorname{toDual} u_i$,
+avoiding the topological double dual), each lifted to $x_i \in X$ with
+$\|x_i\| < 1 + \varepsilon'$ (the quotient norm is an infimum --- the sole source
+of $\varepsilon$). Then $P y = \sum_i c_i\,(\Phi u_i)(\pi y)\, x_i$ has kernel $M$
+and $\|P\| \le \sqrt{\operatorname{codim} M} + \varepsilon \le \sqrt{n} +
+\varepsilon$. Formalised in \texttt{John.exists\_projection\_ker}. The exact bound
+$\sqrt{n}$ (removing $\varepsilon$) needs a weak-$*$ limit argument; it is not
+needed here, since the applications recover the sharp constant by letting
+$\varepsilon \to 0$.
+\end{proof}
+
+\section{Approximation versus Gelfand and Kolmogorov numbers}
+\label{sec:ineq-forward}
 
 \begin{theorem}[$a_n \le (1+\sqrt n)\,c_n$]
 \label{thm:approx-le-gelfand}
@@ -752,14 +827,14 @@ $a_n(S) \le (1 + \sqrt{n})\,c_n(S)$.
 \leanok
 \uses{thm:garling-gordon}
 Fix a closed $M \subseteq X$ of codimension $\le n$ with $\|S|_M\|$ near
-$c_n(S)$. By Garling--Gordon (Theorem~\ref{thm:garling-gordon}) choose a
-projection $P$ with $\ker P = M$ and $\|P\| \le \sqrt n$. Then
-$L := S \circ P$ has rank $\le \operatorname{codim} M \le n$, and
-$S - L = S \circ (\mathrm{id} - P)$ has range inside $M$ (since
-$\operatorname{range}(\mathrm{id}-P) = \ker P = M$), so
-$\|S - L\| \le \|S|_M\|\,\|\mathrm{id} - P\| \le (1+\sqrt n)\,\|S|_M\|$.
-Hence $a_n(S) \le (1+\sqrt n)\,\|S|_M\|$; taking the infimum over $M$ gives the
-claim. The per-subspace step is
+$c_n(S)$. By Garling--Gordon (Theorem~\ref{thm:garling-gordon}), for each
+$\varepsilon>0$ choose a projection $P$ with $\ker P = M$ and
+$\|P\| \le \sqrt n + \varepsilon$. Then $L := S \circ P$ has rank
+$\le \operatorname{codim} M \le n$, and $S - L = S \circ (\mathrm{id} - P)$ has
+range inside $M$ (since $\operatorname{range}(\mathrm{id}-P) = \ker P = M$), so
+$\|S - L\| \le \|S|_M\|\,\|\mathrm{id} - P\| \le (1+\sqrt n+\varepsilon)\,\|S|_M\|$.
+Letting $\varepsilon \to 0$ gives $a_n(S) \le (1+\sqrt n)\,\|S|_M\|$; taking the
+infimum over $M$ gives the claim. The per-subspace step is
 \texttt{approximationNumber\_le\_sqrt\_mul\_deviationFromRestriction}, passed
 to the infimum defining $c_n$.
 \end{proof}
