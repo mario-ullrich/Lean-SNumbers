@@ -107,9 +107,13 @@ examples, which are the central targets of this formalisation:
 │   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V),
 │   │                              reduced to `John.exists_projection`
 │   ├── John.lean               ← John's ellipsoid over any RCLike 𝕜: max-volume
-│   │                              position + Kadets–Snobar `exists_projection`
-│   │                              (‖P‖ ≤ √dim) + Garling–Gordon `exists_projection_ker`
-│   │                              (‖P‖ ≤ √dim + ε); all modulo `john_decomposition`
+│   │                              position + decomposition of identity
+│   │                              `john_decomposition` + Kadets–Snobar
+│   │                              `exists_projection` (‖P‖ ≤ √dim) + Garling–Gordon
+│   │                              `exists_projection_ker` (‖P‖ ≤ √dim + ε); all proved
+│   ├── JohnAux.lean            ← general ingredients (Mathlib candidates): compact
+│   │                              convex hulls, seminorm Hahn–Banach, trace duality,
+│   │                              det from an eigenbasis, ∏(1+aᵢ) ≥ 1−2∑aᵢ²
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
@@ -130,8 +134,7 @@ examples, which are the central targets of this formalisation:
 
 ## What is formalised
 
-A green check means fully proved (no `sorry`); 🟡 means the statement is
-in place but the proof is `sorry`.
+A green check means fully proved (no `sorry`).
 
 ### Axioms and framework
 
@@ -143,11 +146,11 @@ in place but the proof is `sorry`.
 | Metric injection / surjection classes     | ✅ defined          |
 | Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
-| Garling–Gordon projection (`‖P‖ ≤ √n + ε`, ker `P` = `M`) | 🟡 proved (RCLike, ε-form) modulo `john_decomposition` |
-| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | 🟡 proved (RCLike) modulo `john_decomposition` |
+| Garling–Gordon projection (`‖P‖ ≤ √n + ε`, ker `P` = `M`) | ✅ proved (RCLike, ε-form) |
+| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | ✅ proved (RCLike) |
 | John's ellipsoid: max-volume position (`exists_maxVolume`) | ✅ proved (RCLike) |
-| Kadets–Snobar via John (`John.exists_projection`, `‖P‖ ≤ √dim`) | 🟡 proved (RCLike) modulo `john_decomposition` |
-| John decomposition of identity (`john_decomposition`) | 🔴 `sorry` (classical core) |
+| Kadets–Snobar via John (`John.exists_projection`, `‖P‖ ≤ √dim`) | ✅ proved (RCLike) |
+| John decomposition of identity (`john_decomposition`) | ✅ proved (RCLike) |
 
 ### The classical s-numbers
 
@@ -167,7 +170,7 @@ in place but the proof is `sorry`.
 | Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
-| `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved (modulo `john_decomposition`) |
+| `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved |
 | `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference thm) | ✅ proved |
 | `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) | ✅ proved |
 | Determinant quantities `Δₖ(S)`: growth lemma + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
@@ -207,28 +210,36 @@ in place but the proof is `sorry`.
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | Compact ⇔ approximable on Hilbert         | ✅ proved           |
 
-## The single open `sorry`
+## Completeness
 
-The whole project builds with exactly **one** `sorry`, `John.john_decomposition`
-in `BasicResults/John.lean` — the classical core of John's ellipsoid theorem.
-Everything depending on it (the Garling–Gordon and Kadets–Snobar projection
-theorems, and hence `aₙ ≤ (1+√n)·min(cₙ,dₙ)`) is proved *modulo* this one
-statement; everything else in `SNumbers/` and `BasicResults/` is `sorry`-free —
-including the maximal difference theorem `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the
-determinant quantities `Δₖ`), and the Gelfand-width lower bound
-`exists_norm_ratio_ge_idEmbed` (Pietsch [Pie87, §11.11]) behind the identity
-embedding's exact approximation numbers, proved by a flatness / extreme-point
-argument (an extreme point of the `ℓ^∞`-ball inside the subspace saturates `≥ dim`
-coordinates).
+The whole project builds **`sorry`-free**. The last classical core,
+`John.john_decomposition` in `BasicResults/John.lean` — the **John decomposition
+of identity**: in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points
+`uᵢ`, with `cᵢ ≥ 0` and `∑ᵢ cᵢ = k` — is proved by the classical variational
+argument (Hahn–Banach separation of `k⁻¹·id` from the compact convex hull of the
+contact projections, trace duality, the first-order perturbation
+`(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and Carathéodory).
+Its general-purpose ingredients live in `BasicResults/JohnAux.lean` and are
+candidates for upstreaming to Mathlib:
 
-* **`John.john_decomposition`** — the **John decomposition of identity**: in John
-  position (the identity is a maximal-volume feasible operator for the body
-  seminorm), `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points `uᵢ`, with `cᵢ ≥ 0` and
-  `∑ᵢ cᵢ = k`. The first-order-optimality / perturbation argument has no Mathlib
-  scaffolding yet. Everything else in `BasicResults/John.lean` — the max-volume
-  ellipsoid `exists_maxVolume`, the Kadets–Snobar `exists_projection`
-  (`‖P‖ ≤ √dim`), and the Garling–Gordon `exists_projection_ker`
-  (`‖P‖ ≤ √dim + ε`), all over any `RCLike 𝕜` — is a complete proof on top of it.
+* the convex hull of a compact set in a finite-dimensional real normed space is
+  compact (`IsCompact.convexHull`);
+* Hahn–Banach dominated by a *seminorm* on an inner product space over `RCLike`
+  (`Seminorm.exists_inner_le_of_apply`);
+* trace duality: every functional on the endomorphisms is `A ↦ tr (A ∘ G)`
+  (`ContinuousLinearMap.exists_trace_repr`);
+* the determinant of an endomorphism diagonal in a basis
+  (`LinearMap.det_eq_prod_of_apply_eq_smul`);
+* the product bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` for `∑aᵢ = 0`, `|aᵢ| ≤ 1/2`
+  (`one_sub_two_mul_sum_sq_le_prod_one_add`).
+
+On top of it sit the Garling–Gordon and Kadets–Snobar projection theorems and
+hence `aₙ ≤ (1+√n)·min(cₙ,dₙ)`; independent of it are the maximal difference
+theorem `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the determinant quantities `Δₖ`) and the
+Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed` (Pietsch [Pie87,
+§11.11]) behind the identity embedding's exact approximation numbers, proved by
+a flatness / extreme-point argument (an extreme point of the `ℓ^∞`-ball inside
+the subspace saturates `≥ dim` coordinates).
 
 ## Building
 

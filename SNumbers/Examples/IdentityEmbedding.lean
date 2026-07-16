@@ -24,14 +24,10 @@ This file develops the case `1 ≤ p ≤ q < ∞`:
 * `approximationNumber_idEmbed_le` — the upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}`
   (hence `sₙ(id) ≤ (m-n)^{1/p-1/q}` for every s-number, via `sₙ ≤ aₙ`);
 * `approximationNumber_idEmbed_eq` — the exact value `aₙ(id) = (m-n)^{1/p-1/q}`,
-  modulo the one geometric input `exists_norm_ratio_ge_idEmbed` (the classical
-  Gelfand-width lower bound, Pietsch §11.11; left as a `sorry` deep input).
-
-## Remaining `sorry`
-
-* `exists_norm_ratio_ge_idEmbed` — every subspace of dimension `≥ m-n` contains a
-  vector with `p`/`q`-norm ratio `≥ (m-n)^{1/p-1/q}`. A volumetric/averaging
-  argument.
+  via the geometric input `exists_norm_ratio_ge_idEmbed` (the classical
+  Gelfand-width lower bound, Pietsch §11.11): every subspace of dimension `≥ m-n`
+  contains a vector with `p`/`q`-norm ratio `≥ (m-n)^{1/p-1/q}`, proved by a
+  flatness / extreme-point argument (`exists_flat_vector`).
 -/
 
 universe u

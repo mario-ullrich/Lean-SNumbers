@@ -9,6 +9,7 @@ import BasicResults.Determinant
 import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
 import BasicResults.John
+import BasicResults.JohnAux
 import BasicResults.Spectral.MonotoneConvergence
 import BasicResults.Spectral.Complexification
 import BasicResults.Spectral.Projection
@@ -38,11 +39,16 @@ that support the s-numbers framework:
   John development: Kadets–Snobar via `John.exists_projection`, and Garling–Gordon
   (ε-form, `‖P‖ ≤ √n + ε`) via `John.exists_projection_ker`.
 * `BasicResults.John` — the sharp `√n` engine above: John's ellipsoid theorem
-  over any `RCLike 𝕜`. The maximal-volume inscribed ellipsoid exists
-  (`John.exists_maxVolume`) and, modulo the single classical core
-  `John.john_decomposition` (the decomposition of identity, still `sorry`),
-  Kadets–Snobar is proved: `John.exists_projection` gives a projection onto any
-  finite-dimensional subspace with `‖P‖ ≤ √(dim)`.
+  over any `RCLike 𝕜`, fully proved. The maximal-volume inscribed ellipsoid
+  exists (`John.exists_maxVolume`), the John decomposition of identity
+  (`John.john_decomposition`) is established by the classical variational
+  argument, and Kadets–Snobar follows: `John.exists_projection` gives a
+  projection onto any finite-dimensional subspace with `‖P‖ ≤ √(dim)`.
+* `BasicResults.JohnAux` — general-purpose ingredients for the above, each a
+  Mathlib-upstream candidate: compactness of convex hulls of compact sets in
+  finite dimensions, Hahn–Banach dominated by a seminorm on an inner product
+  space, trace duality for endomorphisms, the determinant of an endomorphism
+  diagonal in a basis, and the product bound `∏(1+aᵢ) ≥ 1 - 2∑aᵢ²` for `∑aᵢ = 0`.
 
 ## The `BasicResults.Spectral` subpackage
 

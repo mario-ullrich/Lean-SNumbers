@@ -19,9 +19,9 @@ is a classical fact of Banach-space geometry (Garling–Gordon 1971; Pietsch,
 
 The theorem is reduced to the John's-ellipsoid development in `BasicResults.John`:
 `John.exists_projection_ker` supplies, for each `ε > 0`, a projection with kernel
-`M` and `‖P‖ ≤ √(codim M) + ε`, and we weaken `codim M` to `n`. That reduction is
-complete; it rests only on the single `sorry` `John.john_decomposition` (the John
-decomposition of identity). The `ε` is intrinsic to the general Banach setting
+`M` and `‖P‖ ≤ √(codim M) + ε`, and we weaken `codim M` to `n`. The result is
+fully proved: `John.john_decomposition` (the John decomposition of identity) is
+established in `BasicResults.John`. The `ε` is intrinsic to the general Banach setting
 (the quotient norm is an infimum that need not be attained); the applications in
 `SNumbers.Inequalities` recover the sharp constant by letting `ε → 0`.
 -/

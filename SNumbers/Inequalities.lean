@@ -66,10 +66,11 @@ subspace into a finite-rank approximant `L`, using a bounded projection:
   `‖S − L‖ ≤ ‖id − P‖·‖π_V ∘ S‖ ≤ (1 + √n)·‖π_V ∘ S‖`.
 
 The two projection theorems are deep results of Banach-space geometry, imported
-as `sorry` basic inputs from `BasicResults.GarlingGordon`
+fully proved from `BasicResults.GarlingGordon`
 (`exists_projection_ker_eq_of_codim_le`) and `BasicResults.KadetsSnobar`
-(`exists_projection_range_eq_of_rank_le`); every other lemma in this section is a
-full proof built on top of them.
+(`exists_projection_range_eq_of_rank_le`), both resting on John's ellipsoid
+theorem in `BasicResults.John`; every other lemma in this section is a full proof
+built on top of them.
 
 ## Proof strategy for `hₙ ≤ sₙ`
 
