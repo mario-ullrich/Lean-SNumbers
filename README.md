@@ -146,11 +146,11 @@ A green check means fully proved (no `sorry`).
 | Metric injection / surjection classes     | ✅ defined          |
 | Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
-| Garling–Gordon projection (`‖P‖ ≤ √n + ε`, ker `P` = `M`) | ✅ proved (RCLike, ε-form) |
-| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | ✅ proved (RCLike) |
-| John's ellipsoid: max-volume position (`exists_maxVolume`) | ✅ proved (RCLike) |
-| Kadets–Snobar via John (`John.exists_projection`, `‖P‖ ≤ √dim`) | ✅ proved (RCLike) |
-| John decomposition of identity (`john_decomposition`) | ✅ proved (RCLike) |
+| Garling–Gordon projection (`‖P‖ ≤ √n + ε`, ker `P` = `M`) | ✅ proved |
+| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | ✅ proved |
+| John's ellipsoid: max-volume position (`exists_maxVolume`) | ✅ proved |
+| Kadets–Snobar via John (`John.exists_projection`, `‖P‖ ≤ √dim`) | ✅ proved |
+| John decomposition of identity (`john_decomposition`) | ✅ proved |
 
 ### The classical s-numbers
 
@@ -169,7 +169,7 @@ A green check means fully proved (no `sorry`).
 |-------------------------------------------|---------------------|
 | Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
-| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved (over ℝ and ℂ) | 
+| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved | 
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved |
 | `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference thm) | ✅ proved |
 | `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) | ✅ proved |
@@ -212,15 +212,17 @@ A green check means fully proved (no `sorry`).
 
 ## Completeness
 
-The whole project builds **`sorry`-free**. The last classical core,
-`John.john_decomposition` in `BasicResults/John.lean` — the **John decomposition
-of identity**: in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points
-`uᵢ`, with `cᵢ ≥ 0` and `∑ᵢ cᵢ = k` — is proved by the classical variational
-argument (Hahn–Banach separation of `k⁻¹·id` from the compact convex hull of the
-contact projections, trace duality, the first-order perturbation
-`(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and Carathéodory).
-Its general-purpose ingredients live in `BasicResults/JohnAux.lean` and are
-candidates for upstreaming to Mathlib:
+The whole project builds **`sorry`-free**. The last classical core, 
+the **John decomposition of identity** `John.john_decomposition` in 
+`BasicResults/John.lean`: in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` 
+over contact points `uᵢ`, with `cᵢ ≥ 0` and `∑ᵢ cᵢ = k`. 
+**It was formalized by AI (Fable 5) and not checked by myself!** 
+It is apparently proved by the classical variational argument 
+(Hahn–Banach separation of `k⁻¹·id` from the compact convex hull of 
+the contact projections, trace duality, the first-order perturbation 
+`(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and 
+Carathéodory). Its general-purpose ingredients live in 
+`BasicResults/JohnAux.lean` and are future candidates Mathlib:
 
 * the convex hull of a compact set in a finite-dimensional real normed space is
   compact (`IsCompact.convexHull`);
@@ -233,13 +235,13 @@ candidates for upstreaming to Mathlib:
 * the product bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` for `∑aᵢ = 0`, `|aᵢ| ≤ 1/2`
   (`one_sub_two_mul_sum_sq_le_prod_one_add`).
 
-On top of it sit the Garling–Gordon and Kadets–Snobar projection theorems and
-hence `aₙ ≤ (1+√n)·min(cₙ,dₙ)`; independent of it are the maximal difference
-theorem `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` (via the determinant quantities `Δₖ`) and the
-Gelfand-width lower bound `exists_norm_ratio_ge_idEmbed` (Pietsch [Pie87,
-§11.11]) behind the identity embedding's exact approximation numbers, proved by
-a flatness / extreme-point argument (an extreme point of the `ℓ^∞`-ball inside
-the subspace saturates `≥ dim` coordinates).
+The John development (`BasicResults/John.lean`, `BasicResults/JohnAux.lean`) is a
+self-contained subtree. It yields the Kadets–Snobar and Garling–Gordon projection
+theorems (`John.exists_projection`, `John.exists_projection_ker`), and its sole
+consumer is the sharp forward bound `aₙ ≤ (1+√n)·min(cₙ,dₙ)` — the `√n` is exactly
+what John's ellipsoid provides (projections exist more cheaply, e.g. from an
+Auerbach basis, but with a weaker constant). Nothing else in the project depends
+on it.
 
 ## Building
 
