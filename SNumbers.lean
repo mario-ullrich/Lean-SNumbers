@@ -84,8 +84,8 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
 * `SNumbers.Examples.IdentityEmbedding`: the **identity embedding**
   `id : ℓ^q_m → ℓ^p_m` between different exponents (`p ≤ q`): the operator norm
   `‖id‖ = m^{1/p-1/q}`, the universal upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}`, and
-  the exact approximation numbers `aₙ(id) = (m-n)^{1/p-1/q}` (modulo the classical
-  Gelfand-width lower bound).
+  the exact approximation numbers `aₙ(id) = (m-n)^{1/p-1/q}` (via the classical
+  Gelfand-width lower bound, proved there).
 
 A companion library `BasicResults` collects supporting material: Auerbach's
 lemma (fully proved) and the singular value decomposition `BasicResults.SVD`

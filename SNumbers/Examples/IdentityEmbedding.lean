@@ -278,12 +278,12 @@ private lemma exists_flat_vector {V : Submodule 𝕜 (Fin m → 𝕜)} {k : ℕ}
     intro i; rw [hSdef, Finset.mem_filter]; simp [Finset.mem_univ]
   have hcard : Module.finrank 𝕜 V ≤ S.card := by
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     obtain ⟨w, hwV, hw0, hwS⟩ := exists_mem_ker_coords (V := V) (A := S) hlt
     have hSc : (Finset.univ.filter (fun i => i ∉ S)).Nonempty := by
       rw [Finset.filter_nonempty_iff]
       by_contra h
-      push_neg at h
+      push Not at h
       have : S = Finset.univ := Finset.eq_univ_of_forall fun i => h i (Finset.mem_univ i)
       rw [this, Finset.card_univ, Fintype.card_fin] at hlt
       exact absurd (lt_of_lt_of_le hlt (Submodule.finrank_le V)) (by simp)
@@ -412,7 +412,7 @@ lemma exists_norm_ratio_ge_idEmbed {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact (1 
     norm_ratio_of_flat hpq hq (by omega) w hwle hwcard⟩
 
 /-- **Lower bound.** `(m-n)^{1/p-1/q} ≤ aₙ(id : ℓ^q_m → ℓ^p_m)` (`p ≤ q`),
-modulo the geometric input `exists_norm_ratio_ge_idEmbed`. -/
+via the geometric input `exists_norm_ratio_ge_idEmbed`. -/
 theorem le_approximationNumber_idEmbed {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact (1 ≤ q)]
     (hpq : p ≤ q) (hq : q ≠ ∞) {n : ℕ} (hn : n < m) :
     ((m - n : ℕ) : ℝ) ^ (1 / p.toReal - 1 / q.toReal)
@@ -441,7 +441,8 @@ theorem le_approximationNumber_idEmbed {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact
         (idEmbed (𝕜 := 𝕜) (m := m) p q - L).le_opNorm x
 
 /-- **The approximation numbers of the identity embedding** (`p ≤ q`):
-`aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}`, modulo the geometric input. -/
+`aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}`, via the geometric input
+`exists_norm_ratio_ge_idEmbed`. -/
 theorem approximationNumber_idEmbed_eq {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact (1 ≤ q)]
     (hpq : p ≤ q) (hq : q ≠ ∞) {n : ℕ} (hn : n < m) :
     approximationNumber (idEmbed (𝕜 := 𝕜) (m := m) p q) n

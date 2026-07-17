@@ -38,8 +38,10 @@ norm (`c‖x‖ ≤ p x ≤ C‖x‖`, `c > 0`). The ellipsoid `T (B₂)` lies i
 * `John.exists_maxVolume` — among the feasible operators there is one, `T₀`, of
   maximal `‖det‖`; it is invertible (`det ≠ 0`). This is the maximal-volume
   inscribed ellipsoid.
-* `John.exists_johnPosition` — normalising by `T₀` puts the maximal ellipsoid at
-  the Euclidean unit ball (`q u ≤ ‖u‖`, and `‖det S‖ ≤ 1` for every feasible `S`).
+* `John.exists_johnPosition` — the John position along any continuous linear
+  equivalence `L : 𝕜^k ≃L W`: an equivalence `M` and a body seminorm `q` with
+  `q u ≤ ‖u‖`, `‖det S‖ ≤ 1` for every feasible `S`, and `‖M z‖ = q z`. The
+  common core of both projection theorems below.
 * `John.john_decomposition` — the **decomposition of identity** in John position,
   `∑ᵢ cᵢ uᵢ⊗uᵢ = id` over contact points with `∑ᵢ cᵢ = dim`. Fully proved, by the
   classical variational argument: Hahn–Banach separation of `k⁻¹ • id` from the
@@ -146,28 +148,88 @@ theorem exists_maxVolume (p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)))
     lt_of_lt_of_le (norm_pos_iff.mpr hdet₀ne) (hTmax hT₀feas)
   exact fun h => by simp [h] at hpos
 
-/-- **John position.** Replacing the body seminorm `p` by `q = p ∘ T₀` for the
-maximiser `T₀` normalises the maximal-volume ellipsoid to the Euclidean unit
-ball: the identity is feasible for `q`, and every feasible operator has
-`‖det‖ ≤ 1`. -/
-theorem exists_johnPosition (p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)))
-    (hp : Continuous p) {c : ℝ} (hc : 0 < c) (hlo : ∀ x, c * ‖x‖ ≤ p x)
-    {C : ℝ} (hup : ∀ x, p x ≤ C * ‖x‖) :
-    ∃ q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)), Continuous q ∧
-      (∀ u, q u ≤ ‖u‖) ∧ ∀ S ∈ Feasible q, ‖S.det‖ ≤ 1 := by
-  obtain ⟨T₀, hfeas, hdet, hmax⟩ := exists_maxVolume p hp hc hlo hup
-  refine ⟨p.comp T₀.toLinearMap, ?_, ?_, fun S hS => ?_⟩
-  · show Continuous (fun u => (p.comp T₀.toLinearMap) u)
-    simp only [Seminorm.comp_apply]
-    exact hp.comp T₀.continuous
-  · intro u; simpa [Seminorm.comp_apply] using hfeas u
-  have hTS : T₀.comp S ∈ Feasible p := fun u => by
-    simpa [Seminorm.comp_apply, ContinuousLinearMap.comp_apply] using hS u
-  have hdc : (T₀.comp S).det = T₀.det * S.det := by
-    simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
-  have hle := hmax (T₀.comp S) hTS
-  rw [hdc, norm_mul] at hle
-  exact (mul_le_iff_le_one_right (norm_pos_iff.mpr hdet)).mp hle
+/-- **John position along an equivalence.** Given a continuous linear equivalence
+`L : 𝕜^k ≃L W` onto a normed space `W` (with `0 < k`), there are an equivalence
+`M : 𝕜^k ≃L W` and a body seminorm `q` in *John position*: `q` is continuous, the
+identity is feasible for `q` (`q u ≤ ‖u‖`), every feasible operator has `‖det‖ ≤ 1`,
+and `q` is the pullback of the norm of `W` along `M` (`‖M z‖ = q z`).
+
+Mathematically: pull the norm of `W` back to a body seminorm `p = ‖L ·‖` on `𝕜^k`
+(equivalent to the Euclidean norm since `L` is an equivalence and `k > 0`), take a
+maximal-volume feasible operator `T₀` (`exists_maxVolume`), and set `q = p ∘ T₀`,
+`M = L ∘ T₀`. This is the common core of the Kadets–Snobar and Garling–Gordon
+projection theorems below. -/
+theorem exists_johnPosition {W : Type u} [NormedAddCommGroup W] [NormedSpace 𝕜 W]
+    (hk : 0 < k) (L : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] W) :
+    ∃ (M : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] W)
+      (q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k))),
+      Continuous q ∧ (∀ u, q u ≤ ‖u‖) ∧ (∀ S ∈ Feasible q, ‖S.det‖ ≤ 1) ∧
+      ∀ z, ‖M z‖ = q z := by
+  classical
+  -- the body seminorm `p x = ‖L x‖`, equivalent to the Euclidean norm
+  set p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) :=
+    (normSeminorm 𝕜 W).comp (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] W).toLinearMap with hpdef
+  have hp_apply : ∀ x, p x = ‖L x‖ := fun x => by
+    simp only [hpdef, Seminorm.comp_apply, coe_normSeminorm, ContinuousLinearMap.coe_coe,
+      ContinuousLinearEquiv.coe_coe]
+  have hpc : Continuous p := by
+    refine (continuous_norm.comp L.continuous).congr fun x => ?_
+    exact (hp_apply x).symm
+  -- upper bound `p x ≤ ‖L‖ ‖x‖`
+  have hup : ∀ x, p x ≤ ‖(L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] W)‖ * ‖x‖ := fun x => by
+    rw [hp_apply]
+    exact (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] W).le_opNorm x
+  -- lower bound `‖L.symm‖⁻¹ ‖x‖ ≤ p x`; the constant is positive since `0 < k`
+  set D : ℝ := ‖(L.symm : W →L[𝕜] EuclideanSpace 𝕜 (Fin k))‖ with hD
+  have hDpos : 0 < D := by
+    have hne : (L.symm : W →L[𝕜] EuclideanSpace 𝕜 (Fin k)) ≠ 0 := by
+      intro hzero
+      have he1 : ‖(EuclideanSpace.single (⟨0, hk⟩ : Fin k) (1 : 𝕜))‖ = 1 := by
+        rw [PiLp.norm_single, norm_one]
+      have hcontra : (EuclideanSpace.single (⟨0, hk⟩ : Fin k) (1 : 𝕜)) = 0 := by
+        have h2 : (L.symm : W →L[𝕜] EuclideanSpace 𝕜 (Fin k))
+            (L (EuclideanSpace.single (⟨0, hk⟩ : Fin k) (1 : 𝕜))) = 0 := by
+          rw [hzero]; rfl
+        rwa [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply] at h2
+      rw [hcontra, norm_zero] at he1
+      exact one_ne_zero he1.symm
+    rw [hD]
+    rcases eq_or_lt_of_le (norm_nonneg (L.symm : W →L[𝕜] EuclideanSpace 𝕜 (Fin k))) with h | h
+    · exact absurd ((ContinuousLinearMap.opNorm_zero_iff _).mp h.symm) hne
+    · exact h
+  have hlo : ∀ x, D⁻¹ * ‖x‖ ≤ p x := fun x => by
+    have hbound : ‖x‖ ≤ D * p x := by
+      rw [hp_apply]
+      have e : ‖x‖ = ‖(L.symm : W →L[𝕜] EuclideanSpace 𝕜 (Fin k)) (L x)‖ := by
+        rw [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply]
+      rw [e]
+      exact (L.symm : W →L[𝕜] EuclideanSpace 𝕜 (Fin k)).le_opNorm (L x)
+    have h2 := mul_le_mul_of_nonneg_left hbound (le_of_lt (inv_pos.mpr hDpos))
+    rwa [← mul_assoc, inv_mul_cancel₀ (ne_of_gt hDpos), one_mul] at h2
+  -- the maximal-volume ellipsoid `T₀` and the John-position seminorm `q = p ∘ T₀`
+  obtain ⟨T₀, hT₀feas, hT₀det, hT₀max⟩ :=
+    exists_maxVolume p hpc (inv_pos.mpr hDpos) hlo hup
+  set q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) := p.comp T₀.toLinearMap with hqdef
+  have hq1 : ∀ u, q u ≤ ‖u‖ := fun u => by
+    rw [hqdef, Seminorm.comp_apply]; exact hT₀feas u
+  have hqc : Continuous q := by
+    rw [hqdef]; exact hpc.comp T₀.continuous
+  have hqmax : ∀ S ∈ Feasible q, ‖S.det‖ ≤ 1 := fun S hS => by
+    have hTS : T₀.comp S ∈ Feasible p := fun u => by
+      have h := hS u
+      rw [hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe] at h
+      simpa [ContinuousLinearMap.comp_apply] using h
+    have hdc : (T₀.comp S).det = T₀.det * S.det := by
+      simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
+    have hle := hT₀max (T₀.comp S) hTS
+    rw [hdc, norm_mul] at hle
+    exact (mul_le_iff_le_one_right (norm_pos_iff.mpr hT₀det)).mp hle
+  -- the composite equivalence `M = L ∘ T₀`
+  refine ⟨(T₀.toContinuousLinearEquivOfDetNeZero hT₀det).trans L, q, hqc, hq1, hqmax,
+    fun z => ?_⟩
+  rw [ContinuousLinearEquiv.trans_apply,
+    ContinuousLinearMap.toContinuousLinearEquivOfDetNeZero_apply, hqdef,
+    Seminorm.comp_apply, ContinuousLinearMap.coe_coe, hp_apply]
 
 /-- The **contact set** of a body seminorm `q`: unit vectors `u` whose associated
 linear functional `x ↦ re ⟪x, u⟫` is dominated by `q`. These are the points where
@@ -176,15 +238,6 @@ hyperplane; the John decomposition of identity is supported on this set. -/
 def Contact (q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k))) :
     Set (EuclideanSpace 𝕜 (Fin k)) :=
   {u | ‖u‖ = 1 ∧ ∀ x, re ⟪x, u⟫_𝕜 ≤ q x}
-
-/-- A contact point has `q u = 1`: `1 = re ⟪u,u⟫ ≤ q u`, and `q u ≤ ‖u‖ = 1` when
-`q` is feasible for the identity. -/
-lemma contact_apply_eq_one {q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k))}
-    (hq1 : ∀ u, q u ≤ ‖u‖) {u : EuclideanSpace 𝕜 (Fin k)} (hu : u ∈ Contact q) :
-    q u = 1 := by
-  refine le_antisymm (by simpa [hu.1] using hq1 u) ?_
-  have := hu.2 u
-  rwa [inner_self_eq_norm_sq, hu.1, one_pow] at this
 
 /-- The contact set is compact: it is a closed subset of the (compact) unit
 sphere. -/
@@ -244,32 +297,6 @@ lemma sum_weight_inner_sq {N : ℕ} (c : Fin N → ℝ) (u : Fin N → Euclidean
   refine Finset.sum_congr rfl fun i _ => ?_
   rw [inner_smul_left, map_mul (starRingEnd 𝕜), RCLike.conj_ofReal, mul_assoc, RCLike.conj_mul,
     ← RCLike.ofReal_pow, RCLike.re_ofReal_mul, RCLike.ofReal_re]
-
-/-- Parseval on the standard basis: `∑ⱼ ‖⟪w, eⱼ⟫‖² = ‖w‖²`. -/
-private lemma sum_inner_single_sq (w : EuclideanSpace 𝕜 (Fin k)) :
-    ∑ j, ‖⟪w, EuclideanSpace.single j (1 : 𝕜)⟫_𝕜‖ ^ 2 = ‖w‖ ^ 2 := by
-  rw [EuclideanSpace.norm_eq, Real.sq_sqrt (Finset.sum_nonneg fun _ _ => sq_nonneg _)]
-  refine Finset.sum_congr rfl fun j _ => ?_
-  rw [EuclideanSpace.inner_single_right, one_mul, RCLike.norm_conj]
-
-/-- **Weights of a decomposition of identity sum to the dimension.** If
-`∑ᵢ ((cᵢ:𝕜) · ⟪uᵢ, x⟫) • uᵢ = x` and each `‖uᵢ‖ = 1`, then `∑ᵢ cᵢ = k`. -/
-lemma sum_weight_eq {N : ℕ} (c : Fin N → ℝ) (u : Fin N → EuclideanSpace 𝕜 (Fin k))
-    (hdec : ∀ x, ∑ i, ((c i : 𝕜) * ⟪u i, x⟫_𝕜) • u i = x) (hu : ∀ i, ‖u i‖ = 1) :
-    ∑ i, c i = (k : ℝ) := by
-  have hpars : ∀ i, ∑ j, ‖⟪u i, EuclideanSpace.single j (1 : 𝕜)⟫_𝕜‖ ^ 2 = 1 := fun i => by
-    rw [sum_inner_single_sq, hu i, one_pow]
-  have hone : ∀ j : Fin k, ∑ i, c i * ‖⟪u i, EuclideanSpace.single j (1 : 𝕜)⟫_𝕜‖ ^ 2 = 1 :=
-    fun j => by
-      rw [sum_weight_inner_sq c u hdec (EuclideanSpace.single j (1 : 𝕜)), PiLp.norm_single]
-      simp
-  calc ∑ i, c i = ∑ i, c i * ∑ j, ‖⟪u i, EuclideanSpace.single j (1 : 𝕜)⟫_𝕜‖ ^ 2 := by
-        refine Finset.sum_congr rfl fun i _ => ?_; rw [hpars i, mul_one]
-    _ = ∑ i, ∑ j, c i * ‖⟪u i, EuclideanSpace.single j (1 : 𝕜)⟫_𝕜‖ ^ 2 := by
-        refine Finset.sum_congr rfl fun i _ => Finset.mul_sum _ _ _
-    _ = ∑ j, ∑ i, c i * ‖⟪u i, EuclideanSpace.single j (1 : 𝕜)⟫_𝕜‖ ^ 2 := Finset.sum_comm
-    _ = ∑ _j : Fin k, (1 : ℝ) := Finset.sum_congr rfl fun j _ => hone j
-    _ = (k : ℝ) := by simp
 
 /-! ### Ingredients for the John decomposition of identity
 
@@ -639,7 +666,6 @@ lemma no_neg_direction_of_maxVolume (hk : 0 < k)
     (hneg : ∀ u, ‖u‖ = 1 → q u = 1 → re ⟪u, H u⟫_𝕜 ≤ -δ) : False := by
   classical
   set CH : ℝ := ‖H‖ with hCH
-  have hCH0 : 0 ≤ CH := norm_nonneg _
   -- the set `B` of unit vectors where `H` does not improve, and its `q`-gap `η`
   set B : Set (EuclideanSpace 𝕜 (Fin k)) :=
     {u | ‖u‖ = 1 ∧ -(δ / 2) ≤ re ⟪u, H u⟫_𝕜} with hB
@@ -883,9 +909,9 @@ lemma norm_sum_weight_smul_le {N : ℕ} (c : Fin N → ℝ)
     calc ‖w‖ = Real.sqrt (‖w‖ ^ 2) := (Real.sqrt_sq (norm_nonneg w)).symm
       _ ≤ Real.sqrt (∑ i, c i * ‖a i‖ ^ 2) := Real.sqrt_le_sqrt hle
 
-/-- **Kadets–Snobar** (modulo `john_decomposition`). Every finite-dimensional
-subspace `V` of a normed `𝕜`-space `Y` is the range of a bounded projection
-`P : Y →L[𝕜] Y` with `‖P‖ ≤ √(dim V)`.
+/-- **Kadets–Snobar.** Every finite-dimensional subspace `V` of a normed
+`𝕜`-space `Y` is the range of a bounded projection `P : Y →L[𝕜] Y` with
+`‖P‖ ≤ √(dim V)`.
 
 The proof puts `V` in John position: transport the Euclidean structure of
 `𝕜^{dim V}` to `V` through the maximal-volume ellipsoid `M` (built from the John
@@ -908,85 +934,15 @@ theorem exists_projection {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 
       rw [hV]; simp
     · rw [hk0]; simp
   -- From now on `0 < k`.
-  -- A continuous linear equivalence `𝕜^k ≃L V` (both have dimension `k`).
+  -- A continuous linear equivalence `𝕜^k ≃L V` (both have dimension `k`), and the
+  -- John position along it: `M = L ∘ T₀` with `‖M z‖ = q z`.
   have hEfin : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := by
     rw [(WithLp.linearEquiv 2 𝕜 (Fin k → 𝕜)).finrank_eq, Module.finrank_pi 𝕜, Fintype.card_fin]
-  set L : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] V :=
-    ContinuousLinearEquiv.ofFinrankEq (hEfin.trans hk) with hLdef
-  -- The body seminorm on `𝕜^k`: `p x = ‖L x‖`, equivalent to the Euclidean norm.
-  set p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) :=
-    (normSeminorm 𝕜 Y).comp (V.subtypeL.comp (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] V)).toLinearMap
-    with hpdef
-  have hp_apply : ∀ x, p x = ‖((L x : V) : Y)‖ := fun x => by
-    simp only [hpdef, Seminorm.comp_apply, coe_normSeminorm, ContinuousLinearMap.coe_coe,
-      ContinuousLinearMap.comp_apply, Submodule.subtypeL_apply, ContinuousLinearEquiv.coe_coe]
-  have hpc : Continuous p := by
-    have hcont : Continuous fun x => V.subtypeL (L x) := V.subtypeL.continuous.comp L.continuous
-    refine (continuous_norm.comp hcont).congr fun x => ?_
-    show ‖V.subtypeL (L x)‖ = p x
-    rw [Submodule.subtypeL_apply]
-    exact (hp_apply x).symm
-  -- Upper bound `p x ≤ ‖L‖ ‖x‖`.
-  set C : ℝ := ‖(L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] V)‖ with hC
-  have hup : ∀ x, p x ≤ C * ‖x‖ := fun x => by
-    rw [hp_apply]
-    exact (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] V).le_opNorm x
-  -- Lower bound `‖L.symm‖⁻¹ ‖x‖ ≤ p x`; the constant is positive since `0 < k`.
-  set D : ℝ := ‖(L.symm : V →L[𝕜] EuclideanSpace 𝕜 (Fin k))‖ with hD
-  have hDpos : 0 < D := by
-    have hne : (L.symm : V →L[𝕜] EuclideanSpace 𝕜 (Fin k)) ≠ 0 := by
-      intro hzero
-      have he1 : ‖(EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜))‖ = 1 := by
-        rw [PiLp.norm_single, norm_one]
-      have hcontra : (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜)) = 0 := by
-        have h2 : (L.symm : V →L[𝕜] EuclideanSpace 𝕜 (Fin k))
-            (L (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜))) = 0 := by
-          rw [hzero]; rfl
-        rwa [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply] at h2
-      rw [hcontra, norm_zero] at he1
-      exact one_ne_zero he1.symm
-    rw [hD]
-    rcases eq_or_lt_of_le (norm_nonneg (L.symm : V →L[𝕜] EuclideanSpace 𝕜 (Fin k))) with h | h
-    · exact absurd ((ContinuousLinearMap.opNorm_zero_iff _).mp h.symm) hne
-    · exact h
-  have hlo : ∀ x, D⁻¹ * ‖x‖ ≤ p x := fun x => by
-    have hbound : ‖x‖ ≤ D * p x := by
-      rw [hp_apply]
-      have e : ‖x‖ = ‖(L.symm : V →L[𝕜] EuclideanSpace 𝕜 (Fin k)) (L x)‖ := by
-        rw [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply]
-      rw [e]
-      calc ‖(L.symm : V →L[𝕜] EuclideanSpace 𝕜 (Fin k)) (L x)‖
-          ≤ D * ‖L x‖ := (L.symm : V →L[𝕜] EuclideanSpace 𝕜 (Fin k)).le_opNorm (L x)
-        _ = D * ‖((L x : V) : Y)‖ := by rw [Submodule.norm_coe]
-    have := mul_le_mul_of_nonneg_left hbound (le_of_lt (inv_pos.mpr hDpos))
-    rwa [← mul_assoc, inv_mul_cancel₀ (ne_of_gt hDpos), one_mul] at this
-  -- The maximal-volume ellipsoid `T₀` and the John-position seminorm `q = p ∘ T₀`.
-  obtain ⟨T₀, hT₀feas, hT₀det, hT₀max⟩ :=
-    exists_maxVolume p hpc (inv_pos.mpr hDpos) hlo hup
-  set q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) := p.comp T₀.toLinearMap with hqdef
-  have hq1 : ∀ u, q u ≤ ‖u‖ := fun u => by
-    rw [hqdef, Seminorm.comp_apply]; exact hT₀feas u
-  have hqc : Continuous q := by
-    rw [hqdef]; exact hpc.comp T₀.continuous
-  have hqmax : ∀ S ∈ Feasible q, ‖S.det‖ ≤ 1 := fun S hS => by
-    have hTS : T₀.comp S ∈ Feasible p := fun u => by
-      have h := hS u
-      rw [hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe] at h
-      simpa [ContinuousLinearMap.comp_apply] using h
-    have hdc : (T₀.comp S).det = T₀.det * S.det := by
-      simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
-    have hle := hT₀max (T₀.comp S) hTS
-    rw [hdc, norm_mul] at hle
-    exact (mul_le_iff_le_one_right (norm_pos_iff.mpr hT₀det)).mp hle
-  -- The composite equivalence `M = L ∘ T₀ : 𝕜^k ≃L V`; `‖M z‖ = q z`.
-  set T₀e : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] EuclideanSpace 𝕜 (Fin k) :=
-    T₀.toContinuousLinearEquivOfDetNeZero hT₀det with hT₀e
-  set M : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] V := T₀e.trans L with hMdef
-  have hMapply : ∀ z, M z = L (T₀ z) := fun z => by
-    rw [hMdef, ContinuousLinearEquiv.trans_apply, hT₀e,
-      ContinuousLinearMap.toContinuousLinearEquivOfDetNeZero_apply]
+  obtain ⟨M, q, hqc, hq1, hqmax, hqM₀⟩ :=
+    exists_johnPosition hkpos (ContinuousLinearEquiv.ofFinrankEq (hEfin.trans hk) :
+      EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] V)
   have hqM : ∀ z, ‖(M z : Y)‖ = q z := fun z => by
-    rw [hMapply, hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe, hp_apply]
+    rw [Submodule.norm_coe]; exact hqM₀ z
   -- The John decomposition of identity in John position.
   obtain ⟨N, u, c, hcontact, hcnn, hcsum, hdec⟩ := john_decomposition q hqc hq1 hqmax
   -- Functionals `φ i = ⟪u i, M.symm ·⟫` on `V`, of norm `≤ 1`.
@@ -1066,10 +1022,9 @@ theorem exists_projection {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 
           rw [Real.sqrt_mul (Nat.cast_nonneg k), Real.sqrt_sq (norm_nonneg _)]
 
 set_option maxHeartbeats 1000000 in
-/-- **Garling–Gordon, ε-form** (modulo `john_decomposition`). Every closed
-subspace `M` of a normed `𝕜`-space `X` with finite-dimensional quotient is the
-kernel of a bounded projection `P : X →L[𝕜] X` with
-`‖P‖ ≤ √(codim M) + ε`, for every `ε > 0`.
+/-- **Garling–Gordon, ε-form.** Every closed subspace `M` of a normed `𝕜`-space
+`X` with finite-dimensional quotient is the kernel of a bounded projection
+`P : X →L[𝕜] X` with `‖P‖ ≤ √(codim M) + ε`, for every `ε > 0`.
 
 This is the dual of `exists_projection`, run in the finite-dimensional dual
 `D = (X ⧸ M)*` (so no dual of `X` is needed). John position of the unit ball of
@@ -1113,78 +1068,11 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
     rw [← (LinearMap.toContinuousLinearMap :
           ((X ⧸ M) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((X ⧸ M) →L[𝕜] 𝕜)).finrank_eq]
     exact (Subspace.dual_finrank_eq (K := 𝕜) (V := X ⧸ M)).trans hk.symm
-  -- A continuous linear equivalence `𝕜^k ≃L D`.
-  set L : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 (X ⧸ M) :=
-    ContinuousLinearEquiv.ofFinrankEq (hEfin.trans hkD.symm) with hLdef
-  -- The body seminorm on `𝕜^k`: `p x = ‖L x‖`, equivalent to the Euclidean norm.
-  set p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) :=
-    (normSeminorm 𝕜 (StrongDual 𝕜 (X ⧸ M))).comp
-      (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)).toLinearMap with hpdef
-  have hp_apply : ∀ x, p x = ‖L x‖ := fun x => by
-    simp only [hpdef, Seminorm.comp_apply, coe_normSeminorm, ContinuousLinearMap.coe_coe,
-      ContinuousLinearEquiv.coe_coe]
-  have hpc : Continuous p := by
-    refine (continuous_norm.comp L.continuous).congr fun x => ?_
-    exact (hp_apply x).symm
-  -- Norm equivalence constants, as for `exists_projection`.
-  set C : ℝ := ‖(L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M))‖ with hC
-  have hup : ∀ x, p x ≤ C * ‖x‖ := fun x => by
-    rw [hp_apply]
-    exact (L : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)).le_opNorm x
-  set D0 : ℝ := ‖(L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k))‖ with hD0
-  have hD0pos : 0 < D0 := by
-    have hne : (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) ≠ 0 := by
-      intro hzero
-      have he1 : ‖(EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜))‖ = 1 := by
-        rw [PiLp.norm_single, norm_one]
-      have hcontra : (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜)) = 0 := by
-        have h2 : (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k))
-            (L (EuclideanSpace.single (⟨0, hkpos⟩ : Fin k) (1 : 𝕜))) = 0 := by
-          rw [hzero]; rfl
-        rwa [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply] at h2
-      rw [hcontra, norm_zero] at he1
-      exact one_ne_zero he1.symm
-    rw [hD0]
-    rcases eq_or_lt_of_le (norm_nonneg
-        (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k))) with h | h
-    · exact absurd ((ContinuousLinearMap.opNorm_zero_iff _).mp h.symm) hne
-    · exact h
-  have hlo : ∀ x, D0⁻¹ * ‖x‖ ≤ p x := fun x => by
-    have hbound : ‖x‖ ≤ D0 * p x := by
-      rw [hp_apply]
-      have e : ‖x‖ = ‖(L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) (L x)‖ := by
-        rw [ContinuousLinearEquiv.coe_coe, L.symm_apply_apply]
-      rw [e]
-      exact (L.symm : StrongDual 𝕜 (X ⧸ M) →L[𝕜] EuclideanSpace 𝕜 (Fin k)).le_opNorm (L x)
-    have := mul_le_mul_of_nonneg_left hbound (le_of_lt (inv_pos.mpr hD0pos))
-    rwa [← mul_assoc, inv_mul_cancel₀ (ne_of_gt hD0pos), one_mul] at this
-  -- The maximal-volume ellipsoid `T₀` and the John-position seminorm `q = p ∘ T₀`.
-  obtain ⟨T₀, hT₀feas, hT₀det, hT₀max⟩ :=
-    exists_maxVolume p hpc (inv_pos.mpr hD0pos) hlo hup
-  set q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)) := p.comp T₀.toLinearMap with hqdef
-  have hq1 : ∀ u, q u ≤ ‖u‖ := fun u => by
-    rw [hqdef, Seminorm.comp_apply]; exact hT₀feas u
-  have hqc : Continuous q := by
-    rw [hqdef]; exact hpc.comp T₀.continuous
-  have hqmax : ∀ S ∈ Feasible q, ‖S.det‖ ≤ 1 := fun S hS => by
-    have hTS : T₀.comp S ∈ Feasible p := fun u => by
-      have h := hS u
-      rw [hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe] at h
-      simpa [ContinuousLinearMap.comp_apply] using h
-    have hdc : (T₀.comp S).det = T₀.det * S.det := by
-      simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
-    have hle := hT₀max (T₀.comp S) hTS
-    rw [hdc, norm_mul] at hle
-    exact (mul_le_iff_le_one_right (norm_pos_iff.mpr hT₀det)).mp hle
-  -- The composite equivalence `Φ = L ∘ T₀ : 𝕜^k ≃L D`; `‖Φ z‖ = q z`.
-  set T₀e : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] EuclideanSpace 𝕜 (Fin k) :=
-    T₀.toContinuousLinearEquivOfDetNeZero hT₀det with hT₀e
-  set Φ : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 (X ⧸ M) := T₀e.trans L with hΦdef
-  have hΦapply : ∀ z, Φ z = L (T₀ z) := fun z => by
-    rw [hΦdef, ContinuousLinearEquiv.trans_apply, hT₀e,
-      ContinuousLinearMap.toContinuousLinearEquivOfDetNeZero_apply]
-  have hqΦ : ∀ z, ‖Φ z‖ = q z := fun z => by
-    rw [hΦapply, hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe, hp_apply]
+  -- A continuous linear equivalence `𝕜^k ≃L D`, and the John position along it:
+  -- `Φ = L ∘ T₀` with `‖Φ z‖ = q z`.
+  obtain ⟨Φ, q, hqc, hq1, hqmax, hqΦ⟩ :=
+    exists_johnPosition hkpos (ContinuousLinearEquiv.ofFinrankEq (hEfin.trans hkD.symm) :
+      EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 (X ⧸ M))
   -- The John decomposition of identity in John position.
   obtain ⟨N, u, c, hcontact, hcnn, hcsum, hdec⟩ := john_decomposition q hqc hq1 hqmax
   -- Riesz representation: for `v ∈ X ⧸ M`, evaluation at `v` pulls back through
