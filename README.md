@@ -222,7 +222,7 @@ It is apparently proved by the classical variational argument
 the contact projections, trace duality, the first-order perturbation 
 `(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and 
 Carathéodory). Its general-purpose ingredients live in 
-`BasicResults/JohnAux.lean` and are future candidates Mathlib:
+`BasicResults/JohnAux.lean` and are future candidates for Mathlib:
 
 * the convex hull of a compact set in a finite-dimensional real normed space is
   compact (`IsCompact.convexHull`);
