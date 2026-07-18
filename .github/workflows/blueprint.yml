@@ -95,9 +95,12 @@ jobs:
       #     "Blue border" (every statement is formalized, so no node has either)
       #     and "Blue background" (now recolored white; the green-border row
       #     already explains a stated-but-unproved node).
-      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows)
+      #   * Reorient the graph left-to-right (rankdir=LR): base results on the
+      #     left, derived results on the right. plastexdepgraph sets no rankdir,
+      #     so we inject one right after the "digraph ... {" opening brace.
+      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows, lay out left-to-right)
         run: |
-          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d' blueprint/web/dep_graph_document.html
+          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\(digraph[^{]*{\)/\1 rankdir="LR";/' blueprint/web/dep_graph_document.html
 
       - name: Verify Lean declaration references
         run: leanblueprint checkdecls

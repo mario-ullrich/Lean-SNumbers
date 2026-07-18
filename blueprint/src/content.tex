@@ -576,6 +576,8 @@ that
 The singular values are exactly the approximation numbers $a_k(S)$.
 \end{theorem}
 \begin{proof}
+\leanok
+\uses{thm:norm-singular-value}
 By iterating Theorem~\ref{thm:norm-singular-value}: peel off the top
 singular pair $(\sigma_0, u_0, v_0)$ of $S$, replace $S$ by
 $S - \sigma_0 \langle u_0, \cdot\rangle v_0$ (which is again compact), and
@@ -597,6 +599,16 @@ $\operatorname{rank}(L) \le n$ and $\|S - L\| = a_n(S)$.
 Concretely, $L = \sum_{k < n} a_k(S) \langle u_k, \cdot \rangle v_k$ is
 the truncated SVD.
 \end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:schmidt-representation}
+Take the truncated SVD $L = \sum_{k < n} a_k(S)\langle u_k, \cdot\rangle v_k$
+from Theorem~\ref{thm:schmidt-representation}, which has rank $\le n$. The
+residual $S - L = \sum_{k \ge n} a_k(S)\langle u_k, \cdot\rangle v_k$ acts on the
+orthonormal $(u_k)_{k \ge n}$ with weights $a_k(S) \le a_n(S)$, so its operator
+norm is exactly $a_n(S)$; no rank-$\le n$ operator does better, since $a_n(S)$
+is by definition the infimum of $\|S - L'\|$ over such $L'$.
+\end{proof}
 
 \begin{theorem}[Diagonal factorisation through $\ell_2^{n+1}$]
 \label{thm:schmidt-diagonal}
@@ -615,6 +627,17 @@ $e_k$ of $\ell_2^{n+1}$,
 Equivalently, $B \circ S \circ A$ is the diagonal operator
 $\operatorname{diag}(a_0(S), \dots, a_n(S))$ on $\ell_2^{n+1}$.
 \end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:schmidt-representation}
+Using the top $n+1$ singular pairs of Theorem~\ref{thm:schmidt-representation},
+let $A \in \mathcal{L}(\ell_2^{n+1}, H_1)$ send the basis vector $e_k$ to the
+right singular vector $u_k$, and let $B \in \mathcal{L}(H_2, \ell_2^{n+1})$ send
+$y$ to $\sum_{k \le n} \langle v_k, y\rangle e_k$, i.e.\ project onto the span of
+the left singular vectors. Both are contractions because $(u_k)$ and $(v_k)$ are
+orthonormal. Then $S u_k = a_k(S)\, v_k$ gives
+$(B \circ S \circ A) e_k = a_k(S)\, e_k$ for $0 \le k \le n$.
+\end{proof}
 
 This factorisation needs only the top $n+1$ singular pairs — a finite
 truncation, a sibling of the full SVD rather than a corollary — but,
@@ -630,6 +653,17 @@ and any real $c$ with $0 \le c < a_n(S)$, there are contractions
 $A \in \mathcal{L}(\ell_2^{n+1}, H_1)$, $B \in \mathcal{L}(H_2, \ell_2^{n+1})$
 with $B \circ S \circ A = c \cdot \mathrm{id}_{\ell_2^{n+1}}$.
 \end{theorem}
+\begin{proof}
+\leanok
+\uses{def:approximation-number}
+Since $c < a_n(S)$, no rank-$\le n$ operator approximates $S$ to within $c$, so
+there is an $(n+1)$-dimensional subspace $M \subseteq H_1$ on which
+$\|S x\| \ge c\,\|x\|$. Let $A$ embed $\ell_2^{n+1}$ isometrically onto $M$; then
+$S \circ A$ is bounded below by $c$, so $c\,(S \circ A)^{-1}$ is a contraction on
+its range, and composing it with the orthogonal projection onto that range gives
+a contraction $B$ with $B \circ S \circ A = c \cdot \mathrm{id}_{\ell_2^{n+1}}$.
+No compactness is used.
+\end{proof}
 
 Unlike the diagonal factorisation this holds for \emph{arbitrary} bounded
 $S$ (no compactness): the strict inequality $c < a_n(S)$ needs only an
@@ -689,9 +723,9 @@ comparisons for operators between Banach spaces over $\mathbb{K}$:
 \begin{itemize}
   \item the \emph{forward} bound $a_n(S) \le (1+\sqrt{n})\min(c_n(S), d_n(S))$
         — the largest $s$-number exceeds the Gelfand and Kolmogorov numbers by
-        at most a factor $1+\sqrt{n}$ (Ullrich, \emph{Inequalities between
-        $s$-numbers}, Adv. Oper. Theory \textbf{9} (2024), art.~82;
-        arXiv:2405.05509);
+        at most a factor $1+\sqrt{n}$ (classical; see Pietsch, \emph{s-Numbers
+        of operators in Banach spaces}, Studia Math.\ \textbf{51} (1974), and
+        \emph{Eigenvalues and $s$-Numbers}, Cambridge, 1987, §2.10);
   \item the \emph{reverse} bound, the \emph{maximal difference theorem}
         $\max(c_n(S), d_n(S)) \le e\,(n+1)\, h_n(S)$ — the maximal possible
         difference between the Gelfand/Kolmogorov numbers and the smallest
@@ -833,6 +867,9 @@ $\varepsilon \to 0$.
 \uses{def:approximation-number, def:gelfand-number, thm:garling-gordon}
 For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
 $a_n(S) \le (1 + \sqrt{n})\,c_n(S)$.
+This bound is classical (Pietsch, \emph{s-Numbers of operators in Banach
+spaces}, Studia Math.\ \textbf{51} (1974); \emph{Eigenvalues and $s$-Numbers},
+§2.10).
 \end{theorem}
 \begin{proof}
 \leanok
@@ -857,6 +894,9 @@ to the infimum defining $c_n$.
 \uses{def:approximation-number, def:kolmogorov-number, thm:kadets-snobar}
 For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
 $a_n(S) \le (1 + \sqrt{n})\,d_n(S)$.
+This bound is classical (Pietsch, \emph{s-Numbers of operators in Banach
+spaces}, Studia Math.\ \textbf{51} (1974); \emph{Eigenvalues and $s$-Numbers},
+§2.10).
 \end{theorem}
 \begin{proof}
 \leanok
@@ -879,6 +919,9 @@ after taking the infimum. The per-subspace step is
 \uses{thm:approx-le-gelfand, thm:approx-le-kolmogorov}
 For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
 $a_n(S) \le (1 + \sqrt{n})\,\min\bigl(c_n(S), d_n(S)\bigr)$.
+This bound is classical (Pietsch, \emph{s-Numbers of operators in Banach
+spaces}, Studia Math.\ \textbf{51} (1974); \emph{Eigenvalues and $s$-Numbers},
+§2.10).
 \end{theorem}
 \begin{proof}
 \leanok
