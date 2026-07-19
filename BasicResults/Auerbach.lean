@@ -209,35 +209,41 @@ private theorem one_le_norm_coordFunOfDet {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
 -- § 6. Linear independence and basis construction
 -- ============================================================================
 
+omit [FiniteDimensional ℝ V] in
+/-- If `b₀.det e ≠ 0`, the vectors `e` form a basis of `V`: they are linearly
+    independent and span the whole space.  This packages Mathlib's
+    `Basis.is_basis_iff_det`, using that over the field `ℝ` a determinant is a
+    unit iff it is nonzero (`isUnit_iff_ne_zero`). -/
+private theorem isBasis_of_det_ne_zero {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
+    (e : Fin n → V) (h_det : b₀.det e ≠ 0) :
+    LinearIndependent ℝ e ∧ Submodule.span ℝ (Set.range e) = ⊤ :=
+  (b₀.is_basis_iff_det).mpr (isUnit_iff_ne_zero.mpr h_det)
+
+omit [FiniteDimensional ℝ V] in
+/-- If `b₀.det e ≠ 0`, the vectors `e` are linearly independent. -/
 private theorem linearIndependent_of_det_ne_zero {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
-    (e : Fin n → V) (h_det : b₀.det e ≠ 0) : LinearIndependent ℝ e := by
-  rw [linearIndependent_iff']
-  intro s g hg j hj
-  have key := congr_arg (coordFunOfDet b₀ e h_det j) hg
-  simp only [map_sum, map_smul, smul_eq_mul, map_zero, coordFunOfDet_apply,
-             mul_ite, mul_one, mul_zero, Finset.sum_ite_eq] at key
-  rwa [if_pos hj] at key
+    (e : Fin n → V) (h_det : b₀.det e ≠ 0) : LinearIndependent ℝ e :=
+  (isBasis_of_det_ne_zero b₀ e h_det).1
 
-private def basisOfMaximizer {n : ℕ} (hn : 0 < n) (b₀ : Basis (Fin n) ℝ V)
-    (e : Fin n → V) (h_det : b₀.det e ≠ 0) (hdim : finrank ℝ V = n) :
-    Basis (Fin n) ℝ V :=
-  haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
-  basisOfLinearIndependentOfCardEqFinrank
-    (linearIndependent_of_det_ne_zero b₀ e h_det)
-    (by rw [Fintype.card_fin, hdim])
+/-- The basis of `V` obtained from a family `e` with nonzero determinant.
+    Built directly from independence and spanning via `Basis.mk`, so it needs
+    neither a dimension hypothesis nor nonemptiness of the index type. -/
+private def basisOfMaximizer {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
+    (e : Fin n → V) (h_det : b₀.det e ≠ 0) : Basis (Fin n) ℝ V :=
+  Basis.mk (isBasis_of_det_ne_zero b₀ e h_det).1
+    (isBasis_of_det_ne_zero b₀ e h_det).2.ge
 
-@[simp] private theorem basisOfMaximizer_apply {n : ℕ} (hn : 0 < n) (b₀ : Basis (Fin n) ℝ V)
-    (e : Fin n → V) (h_det : b₀.det e ≠ 0) (hdim : finrank ℝ V = n) (i : Fin n) :
-    basisOfMaximizer hn b₀ e h_det hdim i = e i := by
-  simp only [basisOfMaximizer]
-  haveI : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
-  exact congr_fun (coe_basisOfLinearIndependentOfCardEqFinrank _ _) i
+omit [FiniteDimensional ℝ V] in
+@[simp] private theorem basisOfMaximizer_apply {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
+    (e : Fin n → V) (h_det : b₀.det e ≠ 0) (i : Fin n) :
+    basisOfMaximizer b₀ e h_det i = e i := by
+  simp only [basisOfMaximizer, Basis.mk_apply]
 
-private theorem basisOfMaximizer_coord_eq {n : ℕ} (hn : 0 < n) (b₀ : Basis (Fin n) ℝ V)
-    (e : Fin n → V) (h_det : b₀.det e ≠ 0) (hdim : finrank ℝ V = n) (i : Fin n) :
-    ((basisOfMaximizer hn b₀ e h_det hdim).coord i).toContinuousLinearMap =
+private theorem basisOfMaximizer_coord_eq {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
+    (e : Fin n → V) (h_det : b₀.det e ≠ 0) (i : Fin n) :
+    ((basisOfMaximizer b₀ e h_det).coord i).toContinuousLinearMap =
       coordFunOfDet b₀ e h_det i := by
-  set b := basisOfMaximizer hn b₀ e h_det hdim
+  set b := basisOfMaximizer b₀ e h_det
   apply ContinuousLinearMap.ext; intro v
   conv_lhs => rw [← b.sum_repr v]
   conv_rhs => rw [← b.sum_repr v]
@@ -247,27 +253,28 @@ private theorem basisOfMaximizer_coord_eq {n : ℕ} (hn : 0 < n) (b₀ : Basis (
     change b.coord i (b j) = _
     rw [Basis.coord_apply, Basis.repr_self, Finsupp.single_apply]
     exact if_congr eq_comm rfl rfl
-  rw [lhs, basisOfMaximizer_apply hn, coordFunOfDet_apply]
+  rw [lhs, basisOfMaximizer_apply, coordFunOfDet_apply]
 
 -- ============================================================================
 -- § 7. Main theorem
 -- ============================================================================
 
 /-- **Auerbach's Lemma.** Every finite-dimensional normed space over `ℝ`
-    of positive dimension admits an Auerbach basis. -/
+    admits an Auerbach basis.  (For the zero space this is the empty basis, for
+    which the norm conditions hold vacuously.) -/
 theorem exists_isAuerbachBasis
     (V : Type*) [NormedAddCommGroup V] [NormedSpace ℝ V]
-    [FiniteDimensional ℝ V] (h : 0 < finrank ℝ V) :
+    [FiniteDimensional ℝ V] :
     ∃ b : Basis (Fin (finrank ℝ V)) ℝ V, IsAuerbachBasis V b := by
   set b₀ := Module.finBasis ℝ V
   obtain ⟨e, he_mem, he_pos, he_max⟩ := exists_max_pos b₀
   have he_norm := fun i => norm_maximizer_eq_one b₀ e he_mem he_pos he_max i
   have h_det : b₀.det e ≠ 0 := abs_pos.mp he_pos
-  set b := basisOfMaximizer h b₀ e h_det rfl
+  set b := basisOfMaximizer b₀ e h_det
   exact ⟨b, {
-    norm_basis := fun i => by rw [basisOfMaximizer_apply h]; exact he_norm i
+    norm_basis := fun i => by rw [basisOfMaximizer_apply]; exact he_norm i
     norm_coord := fun i => by
-      rw [basisOfMaximizer_coord_eq h]
+      rw [basisOfMaximizer_coord_eq]
       exact le_antisymm
         (norm_coordFunOfDet_le_one b₀ e h_det he_max he_norm i)
         (one_le_norm_coordFunOfDet b₀ e h_det he_norm i) }⟩
