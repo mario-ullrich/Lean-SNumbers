@@ -92,8 +92,15 @@ examples, which are the central targets of this formalisation:
 │   └── Examples/
 │       ├── DiagonalMatrices.lean ← worked example: s-numbers of a diagonal
 │       │                          operator D_σ : ℓ^p_m → ℓ^p_m (sₙ = ‖σ_n‖)
-│       └── IdentityEmbedding.lean ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q):
-│                                  ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
+│       ├── IdentityEmbedding.lean ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q):
+│       │                          ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
+│       ├── DiagonalMixedExponent.lean ← mixed-exponent diagonal D_σ : ℓ^q_m → ℓ^p_m:
+│       │                          p < q gives aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
+│       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞) gives
+│       │                          ‖D_σ‖ = maxᵢ‖σᵢ‖ and sₙ ≤ ‖σ_n‖
+│       └── IdentityL1Linfty.lean ← inclusion I : ℓ₁ → ℓ_∞: ½ ≤ cₙ(I) ≤ 1 and
+│                                  hₙ(I) ≥ 1/(n+1) (n+1 in the max-difference thm
+│                                  is order-optimal; hₙ ≤ 1/(n+1) still to do)
 ├── BasicResults.lean           ← library entry point
 ├── BasicResults/
 │   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
@@ -178,6 +185,7 @@ A green check means fully proved (no `sorry`).
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved |
 | `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference thm) | ✅ proved |
 | `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) | ✅ proved |
+| factor `n+1` is order-optimal (via example `I : ℓ₁ → ℓ_∞`, see Worked examples) | ⏳ needs `hₙ(I) ≤ 1/(n+1)` |
 | Determinant quantities `Δₖ(S)`: growth lemma + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
 | `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
 
@@ -212,6 +220,9 @@ A green check means fully proved (no `sorry`).
 | `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ (∑_{k≥n}‖σ_k‖^r)^{1/r}` (all s-numbers) | ✅ proved |
 | Reverse regime `q ≤ p` (incl. `p = ∞`): `‖D_σ : ℓ^q_m → ℓ^p_m‖ = maxᵢ‖σᵢ‖` | ✅ proved |
 | `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ ‖σ_n‖` (all s-numbers, `q ≤ p`, `σ` antitone) | ✅ proved |
+| Inclusion `I : ℓ₁ → ℓ_∞`: `½ ≤ cₙ(I) ≤ 1` | ✅ proved |
+| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≥ 1/(n+1)` | ✅ proved |
+| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≤ 1/(n+1)` (little Grothendieck / Hilbert–Schmidt) | ⏳ missing |
 
 ### Add ons
 

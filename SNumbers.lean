@@ -20,6 +20,7 @@ import SNumbers.Injectivity
 import SNumbers.Examples.DiagonalMatrices
 import SNumbers.Examples.IdentityEmbedding
 import SNumbers.Examples.DiagonalMixedExponent
+import SNumbers.Examples.IdentityL1Linfty
 
 /-!
 # s-Numbers of bounded linear operators between Banach spaces
@@ -92,6 +93,11 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `D_σ : ℓ^q_m → ℓ^p_m` (`p < q`): its approximation numbers are the `ℓ^r`-norm of
   the tail of the diagonal, `aₙ(D_σ) = (∑_{k≥n} ‖σ_k‖^r)^{1/r}` with
   `1/r = 1/p - 1/q`, and its operator norm is `‖D_σ‖ = ‖σ‖_{ℓ^r}`.
+* `SNumbers.Examples.IdentityL1Linfty`: the inclusion `I : ℓ₁ → ℓ_∞`, the intended witness
+  for order-optimality of the factor `n+1` in the maximal difference theorem. Formalised so
+  far: `½ ≤ cₙ(I) ≤ 1` and `hₙ(I) ≥ 1/(n+1)`. The order-optimality conclusion itself follows
+  only once the matching upper bound `hₙ(I) ≤ 1/(n+1)` (little Grothendieck / Hilbert–Schmidt)
+  is proved, which is not yet done.
 
 A companion library `BasicResults` collects supporting material: Auerbach's
 lemma (fully proved) and the singular value decomposition `BasicResults.SVD`

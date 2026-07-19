@@ -1117,6 +1117,23 @@ bound $\max(c_n, d_n) \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$
 (Pietsch, \emph{Operator Ideals}; see also Ullrich, arXiv:2405.05509).
 \end{remark}
 
+\begin{remark}[Order-optimality of the factor $n+1$]
+\label{rem:l1-linf-sharp}
+\uses{thm:maximal-difference}
+The linear factor $n+1$ is order-optimal, witnessed by the inclusion
+$I \colon \ell_1 \to \ell_\infty$: there $c_n(I) \asymp 1$ while
+$h_n(I) = (n+1)^{-1}$, so $\max(c_n(I), d_n(I))/h_n(I) \asymp n$ (Heinrich--Linde;
+Pietsch). The ingredients on the ``large'' side are formalised in
+\texttt{SNumbers/Examples/IdentityL1Linfty.lean}: $\tfrac12 \le c_n(I) \le 1$
+(\texttt{half\_le\_gelfandNumber}, \texttt{gelfand\_le\_one}) and the lower bound
+$h_n(I) \ge (n+1)^{-1}$ (\texttt{one\_div\_le\_hilbertNumber}, from the
+factorisation $\mathrm{id}_{\ell_2^{\,n+1}} = \mathrm{proj}_\infty \circ I \circ
+\mathrm{emb}_1$ and the Hilbert-number ideal property). The matching upper bound
+$h_n(I) \le (n+1)^{-1}$ (an elementary instance of the little Grothendieck
+inequality), and hence the order-optimality conclusion itself, are not yet
+formalised.
+\end{remark}
+
 \chapter{Injective and surjective \texorpdfstring{$s$}{s}-numbers}
 \label{ch:injectivity}
 
