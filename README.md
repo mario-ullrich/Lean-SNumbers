@@ -207,6 +207,11 @@ A green check means fully proved (no `sorry`).
 | Identity embedding `id : ℓ^q_m → ℓ^p_m` (`p ≤ q`), `‖id‖ = m^{1/p-1/q}` | ✅ proved |
 | `aₙ(id : ℓ^q_m → ℓ^p_m) ≤ (m-n)^{1/p-1/q}` (all s-numbers) | ✅ proved |
 | `aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}` (`p ≤ q`, `n < m`) | ✅ proved |
+| Mixed-exponent diagonal `D_σ : ℓ^q_m → ℓ^p_m` (`p < q`), `‖D_σ‖ = ‖σ‖_{ℓ^r}` (`1/r = 1/p-1/q`) | ✅ proved |
+| `aₙ(D_σ : ℓ^q_m → ℓ^p_m) = (∑_{k≥n}‖σ_k‖^r)^{1/r}` (`p < q`, `σ` antitone, `n < m`) | ✅ proved |
+| `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ (∑_{k≥n}‖σ_k‖^r)^{1/r}` (all s-numbers) | ✅ proved |
+| Reverse regime `q ≤ p` (incl. `p = ∞`): `‖D_σ : ℓ^q_m → ℓ^p_m‖ = maxᵢ‖σᵢ‖` | ✅ proved |
+| `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ ‖σ_n‖` (all s-numbers, `q ≤ p`, `σ` antitone) | ✅ proved |
 
 ### Add ons
 

@@ -19,6 +19,7 @@ import SNumbers.SingularValuesFinDim
 import SNumbers.Injectivity
 import SNumbers.Examples.DiagonalMatrices
 import SNumbers.Examples.IdentityEmbedding
+import SNumbers.Examples.DiagonalMixedExponent
 
 /-!
 # s-Numbers of bounded linear operators between Banach spaces
@@ -86,6 +87,11 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `‖id‖ = m^{1/p-1/q}`, the universal upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}`, and
   the exact approximation numbers `aₙ(id) = (m-n)^{1/p-1/q}` (via the classical
   Gelfand-width lower bound, proved there).
+* `SNumbers.Examples.DiagonalMixedExponent`: the common generalisation of the two
+  preceding examples, the **mixed-exponent diagonal operator**
+  `D_σ : ℓ^q_m → ℓ^p_m` (`p < q`): its approximation numbers are the `ℓ^r`-norm of
+  the tail of the diagonal, `aₙ(D_σ) = (∑_{k≥n} ‖σ_k‖^r)^{1/r}` with
+  `1/r = 1/p - 1/q`, and its operator norm is `‖D_σ‖ = ‖σ‖_{ℓ^r}`.
 
 A companion library `BasicResults` collects supporting material: Auerbach's
 lemma (fully proved) and the singular value decomposition `BasicResults.SVD`
