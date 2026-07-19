@@ -3,6 +3,7 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
+import BasicResults.Determinant
 import BasicResults.JohnAux
 import Mathlib.Analysis.InnerProductSpace.Adjoint
 import Mathlib.Analysis.InnerProductSpace.Dual
@@ -119,7 +120,7 @@ theorem exists_maxVolume (p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)))
     intro u
     have hpu : p (T₀ u) = δ * p u := by
       rw [hT₀]
-      simp only [ContinuousLinearMap.smul_apply, ContinuousLinearMap.id_apply,
+      simp only [smul_apply, ContinuousLinearMap.id_apply,
         map_smul_eq_mul, RCLike.norm_ofReal, abs_of_pos hδpos]
     rw [hpu]
     calc δ * p u ≤ δ * (C' * ‖u‖) :=
@@ -220,7 +221,7 @@ theorem exists_johnPosition {W : Type u} [NormedAddCommGroup W] [NormedSpace �
       rw [hqdef, Seminorm.comp_apply, ContinuousLinearMap.coe_coe] at h
       simpa [ContinuousLinearMap.comp_apply] using h
     have hdc : (T₀.comp S).det = T₀.det * S.det := by
-      simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_comp, LinearMap.det_comp]
+      simp only [ContinuousLinearMap.det, ContinuousLinearMap.toLinearMap_comp, LinearMap.det_comp]
     have hle := hT₀max (T₀.comp S) hTS
     rw [hdc, norm_mul] at hle
     exact (mul_le_iff_le_one_right (norm_pos_iff.mpr hT₀det)).mp hle
@@ -423,8 +424,8 @@ lemma exists_selfAdjoint_of_not_mem_convexHull (hk : 0 < k)
   -- pointwise form of `H`
   have hHapp : ∀ w, H w = ((((1 : ℝ) / 2 : ℝ)) : 𝕜) • (G w + ContinuousLinearMap.adjoint G w)
       - ((τ : ℝ) : 𝕜) • w := fun w => by
-    simp only [hH, hH₀, ContinuousLinearMap.sub_apply, ContinuousLinearMap.smul_apply,
-      ContinuousLinearMap.add_apply, ContinuousLinearMap.id_apply]
+    simp only [hH, hH₀, sub_apply, smul_apply,
+      add_apply, ContinuousLinearMap.id_apply]
   -- `H` is self-adjoint: its quadratic form is symmetric
   have hHsa : IsSelfAdjoint H := by
     rw [ContinuousLinearMap.isSelfAdjoint_iff_isSymmetric]
@@ -440,14 +441,14 @@ lemma exists_selfAdjoint_of_not_mem_convexHull (hk : 0 < k)
       (H₀ : EuclideanSpace 𝕜 (Fin k) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin k))
       = ((re (LinearMap.trace 𝕜 (EuclideanSpace 𝕜 (Fin k))
           (G : EuclideanSpace 𝕜 (Fin k) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin k))) : ℝ) : 𝕜) := by
-    rw [hH₀, ContinuousLinearMap.coe_smul, ContinuousLinearMap.coe_add,
+    rw [hH₀, ContinuousLinearMap.toLinearMap_smul, ContinuousLinearMap.toLinearMap_add,
       map_smul, map_add, ContinuousLinearMap.trace_adjoint, RCLike.add_conj, smul_eq_mul]
     push_cast
     ring
   have htrH : LinearMap.trace 𝕜 (EuclideanSpace 𝕜 (Fin k))
       (H : EuclideanSpace 𝕜 (Fin k) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin k)) = 0 := by
     have hkK : ((k : ℕ) : 𝕜) ≠ 0 := Nat.cast_ne_zero.mpr hk.ne'
-    rw [hH, ContinuousLinearMap.coe_sub, map_sub, htrH₀, ContinuousLinearMap.coe_smul,
+    rw [hH, ContinuousLinearMap.toLinearMap_sub, map_sub, htrH₀, ContinuousLinearMap.toLinearMap_smul,
       map_smul, ContinuousLinearMap.coe_id, LinearMap.trace_id, finrank_euclideanSpace_fin,
       hτ, smul_eq_mul]
     push_cast
@@ -502,7 +503,7 @@ lemma smul_mem_feasible_of_le_on_sphere {q : Seminorm 𝕜 (EuclideanSpace 𝕜 
     {T : EuclideanSpace 𝕜 (Fin k) →L[𝕜] EuclideanSpace 𝕜 (Fin k)} {s : ℝ} (hs : 0 < s)
     (hT : ∀ u, ‖u‖ = 1 → q (T u) ≤ s) : ((s⁻¹ : ℝ) : 𝕜) • T ∈ Feasible q := by
   intro x
-  rw [ContinuousLinearMap.smul_apply, map_smul_eq_mul, RCLike.norm_ofReal,
+  rw [smul_apply, map_smul_eq_mul, RCLike.norm_ofReal,
     abs_of_pos (inv_pos.mpr hs)]
   rcases eq_or_ne x 0 with rfl | hx0
   · simp
@@ -610,7 +611,7 @@ lemma one_sub_le_norm_det_one_add_smul
     linarith [h.1]
   -- `det (id + tH) = ∏ (1 + tλᵢ)` in the eigenbasis
   have hTeig : ∀ i, T (b i) = ((1 + t * lam i : ℝ) : 𝕜) • b i := fun i => by
-    rw [hT, ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply,
+    rw [hT, add_apply, smul_apply,
       ContinuousLinearMap.id_apply, hbeig i, smul_smul, RCLike.ofReal_add,
       RCLike.ofReal_one, RCLike.ofReal_mul, add_smul, one_smul]
   have hdetT : T.det = ∏ i, ((1 + t * lam i : ℝ) : 𝕜) := by
@@ -711,7 +712,7 @@ lemma no_neg_direction_of_maxVolume (hk : 0 < k)
   set T : EuclideanSpace 𝕜 (Fin k) →L[𝕜] EuclideanSpace 𝕜 (Fin k) :=
     ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin k)) + ((t : ℝ) : 𝕜) • H with hT
   have hTapp : ∀ x, T x = x + ((t : ℝ) : 𝕜) • H x := fun x => by
-    rw [hT, ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply,
+    rw [hT, add_apply, smul_apply,
       ContinuousLinearMap.id_apply]
   set ρ : ℝ := t * δ / 4 with hρ
   have hρη : ρ ≤ η / 2 := by rw [hρ]; linarith
@@ -749,7 +750,7 @@ lemma no_neg_direction_of_maxVolume (hk : 0 < k)
   have hn : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := finrank_euclideanSpace_fin
   have hdetS : ‖((((1 - ρ)⁻¹ : ℝ) : 𝕜) • T).det‖ = (1 - ρ)⁻¹ ^ k * ‖T.det‖ := by
     have hsm : ((((1 - ρ)⁻¹ : ℝ) : 𝕜) • T).det = (((1 - ρ)⁻¹ : ℝ) : 𝕜) ^ k * T.det := by
-      simp only [ContinuousLinearMap.det, ContinuousLinearMap.coe_smul,
+      simp only [ContinuousLinearMap.det, ContinuousLinearMap.toLinearMap_smul,
         LinearMap.det_smul, hn]
     rw [hsm, norm_mul, norm_pow, RCLike.norm_ofReal, abs_of_pos hcpos]
   have hdetT : 1 - 2 * (t ^ 2 * ((k : ℝ) * CH ^ 2)) ≤ ‖T.det‖ := by
@@ -843,7 +844,7 @@ theorem john_decomposition (q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)))
   · -- the decomposition of identity, evaluated at `x`
     intro x
     have hx := DFunLike.congr_fun hsum x
-    simp only [ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+    simp only [sum_apply, smul_apply,
       ContinuousLinearMap.id_apply] at hx
     have hzi : ∀ i, z i x = ⟪v i, x⟫_𝕜 • v i := fun i => by
       rw [← hvz i, rankOneSA_apply]
@@ -966,7 +967,7 @@ theorem exists_projection {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 
   set P : Y →L[𝕜] Y := ∑ i, (c i : 𝕜) • ((g i).smulRight ((M (u i) : V) : Y)) with hP
   have hPapply : ∀ y, P y = ∑ i, ((c i : 𝕜) * g i y) • ((M (u i) : Y)) := fun y => by
     rw [hP]
-    simp only [ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+    simp only [sum_apply, smul_apply,
       ContinuousLinearMap.smulRight_apply, smul_smul]
   have hPmem : ∀ y, P y ∈ V := fun y => by
     rw [hPapply]
@@ -1164,7 +1165,7 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
   set P : X →L[𝕜] X := ∑ i, (c i : 𝕜) • (((Φ (u i)).comp π).smulRight (x i)) with hP
   have hPapply : ∀ y, P y = ∑ i, ((c i : 𝕜) * (Φ (u i)) (π y)) • x i := fun y => by
     rw [hP]
-    simp only [ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+    simp only [sum_apply, smul_apply,
       ContinuousLinearMap.smulRight_apply, ContinuousLinearMap.comp_apply, smul_smul]
   -- Key identity: the weighted combination of the `w i` reproduces every `v`.
   have hkey : ∀ v : X ⧸ M, (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = v := by

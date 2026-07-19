@@ -99,8 +99,9 @@ examples, which are the central targets of this formalisation:
 │   │                              Eckart–Young, diagonal factorisation, and
 │   │                              the scalar factorisation `B∘S∘A = c·id`
 │   │                              (input to uniqueness) — all proved
-│   ├── Determinant.lean        ← det facts: det T* = conj det T, and
-│   │                              ‖det T‖ = ∏ₖ σₖ (singular values); ingredient
+│   ├── Determinant.lean        ← det facts: det T* = conj det T, ‖det T‖ = ∏ₖ σₖ
+│   │                              (singular values), and det of a diagonal
+│   │                              endomorphism = ∏ diagonal entries; ingredient
 │   │                              of the maximal difference theorem
 │   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n + ε, ker = M),
 │   │                              reduced to `John.exists_projection_ker`
@@ -230,8 +231,6 @@ Carathéodory). Its general-purpose ingredients live in
   (`Seminorm.exists_inner_le_of_apply`);
 * trace duality: every functional on the endomorphisms is `A ↦ tr (A ∘ G)`
   (`ContinuousLinearMap.exists_trace_repr`);
-* the determinant of an endomorphism diagonal in a basis
-  (`LinearMap.det_eq_prod_of_apply_eq_smul`);
 * the product bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` for `∑aᵢ = 0`, `|aᵢ| ≤ 1/2`
   (`one_sub_two_mul_sum_sq_le_prod_one_add`).
 

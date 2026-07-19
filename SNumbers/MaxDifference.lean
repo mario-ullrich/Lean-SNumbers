@@ -5,6 +5,7 @@ Authors: Mario Ullrich
 -/
 import SNumbers.Inequalities
 import SNumbers.PiLpCoordinates
+import BasicResults.Determinant
 import BasicResults.SVD
 
 /-!
@@ -276,16 +277,16 @@ lemma exists_det_extension (S : X →L[𝕜] Y)
   have hA'app : ∀ w, A' w = (lam : 𝕜) • A (projFin (p := 2) hle w) +
       ((mu : 𝕜) * w (Fin.last k)) • u := by
     intro w
-    rw [hA'def, ContinuousLinearMap.add_apply, ContinuousLinearMap.smul_apply,
-      ContinuousLinearMap.smul_apply, ContinuousLinearMap.comp_apply,
+    rw [hA'def, add_apply, smul_apply,
+      smul_apply, ContinuousLinearMap.comp_apply,
       ContinuousLinearMap.smulRight_apply, innerSL_apply_apply, heL,
       EuclideanSpace.inner_single_left, map_one, one_mul, smul_smul]
   -- Coordinate formulas for `B'`.
   have hB'cs : ∀ (y : Y) (i : Fin k),
       (B' y) (Fin.castSucc i) = (lam : 𝕜) * (B y) i := by
     intro y i
-    rw [hB'def, ContinuousLinearMap.add_apply, PiLp.add_apply,
-      ContinuousLinearMap.smul_apply, ContinuousLinearMap.smul_apply,
+    rw [hB'def, add_apply, PiLp.add_apply,
+      smul_apply, smul_apply,
       ContinuousLinearMap.comp_apply, ContinuousLinearMap.smulRight_apply,
       PiLp.smul_apply, PiLp.smul_apply, PiLp.smul_apply, ← hcast i, padFin_castLE, heL,
       PiLp.single_apply,
@@ -293,8 +294,8 @@ lemma exists_det_extension (S : X →L[𝕜] Y)
       smul_eq_mul]
   have hB'last : ∀ y : Y, (B' y) (Fin.last k) = (mu : 𝕜) * ρ y := by
     intro y
-    rw [hB'def, ContinuousLinearMap.add_apply, PiLp.add_apply,
-      ContinuousLinearMap.smul_apply, ContinuousLinearMap.smul_apply,
+    rw [hB'def, add_apply, PiLp.add_apply,
+      smul_apply, smul_apply,
       ContinuousLinearMap.comp_apply, ContinuousLinearMap.smulRight_apply,
       PiLp.smul_apply, PiLp.smul_apply, PiLp.smul_apply, padFin_apply,
       dif_neg (by simp), smul_zero, zero_add, heL, PiLp.single_apply,
@@ -692,25 +693,17 @@ lemma prod_approximationNumber_le_detNumber (S : X →L[𝕜] Y) {n : ℕ}
       rw [hA₂def, hB₂def, hTdef]
       simp only [ContinuousLinearMap.comp_apply, hpad_single j]
     rw [h1, hdiag (Fin.castSucc j), map_smul, hproj_single j, Fin.val_castSucc]
-  -- Its determinant is the product of the diagonal entries.
+  -- Its determinant is the product of the diagonal entries (it is diagonal in the
+  -- standard basis, by `hD`), via the general `det_eq_prod_of_apply_eq_smul`.
   have hdet : LinearMap.det (B₂.comp (S.comp A₂) :
         EuclideanSpace 𝕜 (Fin n) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin n))
-      = ∏ j : Fin n, (approximationNumber T (j : ℕ) : 𝕜) := by
-    set b := EuclideanSpace.basisFun (Fin n) 𝕜 with hb
-    rw [← LinearMap.det_toMatrix b.toBasis]
-    have hmat : LinearMap.toMatrix b.toBasis b.toBasis (B₂.comp (S.comp A₂) :
-          EuclideanSpace 𝕜 (Fin n) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin n))
-        = Matrix.diagonal (fun j : Fin n => (approximationNumber T (j : ℕ) : 𝕜)) := by
-      ext i j
-      rw [LinearMap.toMatrix_apply, OrthonormalBasis.coe_toBasis_repr_apply,
-        OrthonormalBasis.coe_toBasis, hb, EuclideanSpace.basisFun_repr,
-        EuclideanSpace.basisFun_apply, ContinuousLinearMap.coe_coe, hD j,
-        PiLp.smul_apply, PiLp.single_apply, smul_eq_mul,
-        Matrix.diagonal_apply]
-      by_cases hij : i = j
-      · subst hij; rw [if_pos rfl, if_pos rfl, mul_one]
-      · rw [if_neg hij, if_neg hij, mul_zero]
-    rw [hmat, Matrix.det_diagonal]
+      = ∏ j : Fin n, (approximationNumber T (j : ℕ) : 𝕜) :=
+    LinearMap.det_eq_prod_of_apply_eq_smul
+      (EuclideanSpace.basisFun (Fin n) 𝕜).toBasis
+      (B₂.comp (S.comp A₂) : EuclideanSpace 𝕜 (Fin n) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin n))
+      (fun j => (approximationNumber T (j : ℕ) : 𝕜))
+      (fun j => by
+        simpa [OrthonormalBasis.coe_toBasis, EuclideanSpace.basisFun_apply] using hD j)
   -- Conclude.
   have hnorm : ‖LinearMap.det (B₂.comp (S.comp A₂) :
         EuclideanSpace 𝕜 (Fin n) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin n))‖

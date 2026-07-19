@@ -31,8 +31,6 @@ candidate for upstreaming to Mathlib:
   quantitative Weierstrass-type product bound: if `∑ aᵢ = 0` and `|aᵢ| ≤ 1/2`, then
   `∏ (1 + aᵢ) ≥ 1 - 2 ∑ aᵢ²`. This is why a trace-zero perturbation `1 + tH` of the
   identity loses determinant only to *second* order in `t`.
-* `LinearMap.det_eq_prod_of_apply_eq_smul` — the determinant of an endomorphism that
-  is diagonal in some basis is the product of its diagonal entries (eigenvalues).
 * `IsCompact.convexHull` — in a finite-dimensional real normed space, the convex hull
   of a compact set is compact (Mathlib only has the finite-set case).
 * `Seminorm.exists_inner_le_of_apply` — Hahn–Banach dominated by a *seminorm* on an
@@ -83,23 +81,6 @@ lemma one_sub_two_mul_sum_sq_le_prod_one_add {ι : Type*} (s : Finset ι) (a : �
     _ ≤ Real.exp (-(2 * ∑ i ∈ s, a i ^ 2)) := Real.add_one_le_exp _
     _ = Real.exp (∑ i ∈ s, (a i - 2 * a i ^ 2)) := by rw [hs]
     _ ≤ ∏ i ∈ s, (1 + a i) := key
-
-/-! ## Determinant of an endomorphism diagonal in a basis -/
-
-/-- If a basis `b` consists of eigenvectors of `T`, with `T (b i) = μ i • b i`, then
-`det T = ∏ᵢ μᵢ`. (The matrix of `T` in the basis `b` is `diagonal μ`.) -/
-theorem LinearMap.det_eq_prod_of_apply_eq_smul {R M ι : Type*} [CommRing R] [AddCommGroup M]
-    [Module R M] [Fintype ι] [DecidableEq ι] (b : Module.Basis ι R M) (T : M →ₗ[R] M)
-    (μ : ι → R) (h : ∀ i, T (b i) = μ i • b i) :
-    LinearMap.det T = ∏ i, μ i := by
-  rw [← LinearMap.det_toMatrix b]
-  have hmat : LinearMap.toMatrix b b T = Matrix.diagonal μ := by
-    ext i j
-    rw [LinearMap.toMatrix_apply, h j, map_smul, Module.Basis.repr_self, Matrix.diagonal_apply]
-    rcases eq_or_ne i j with rfl | hij
-    · simp
-    · simp [hij]
-  rw [hmat, Matrix.det_diagonal]
 
 /-! ## The convex hull of a compact set is compact (finite dimensions) -/
 
@@ -292,17 +273,17 @@ theorem ContinuousLinearMap.exists_trace_repr (f : (E →L[𝕜] E) →ₗ[𝕜]
     { toFun := fun G =>
         { toFun := fun A => LinearMap.trace 𝕜 E ((A : E →ₗ[𝕜] E) ∘ₗ (G : E →ₗ[𝕜] E))
           map_add' := fun A B => by
-            simp only [ContinuousLinearMap.coe_add, LinearMap.add_comp, map_add]
+            simp only [ContinuousLinearMap.toLinearMap_add, LinearMap.add_comp, map_add]
           map_smul' := fun c A => by
-            simp only [ContinuousLinearMap.coe_smul, LinearMap.smul_comp, map_smul,
+            simp only [ContinuousLinearMap.toLinearMap_smul, LinearMap.smul_comp, map_smul,
               RingHom.id_apply] }
       map_add' := fun G₁ G₂ => by
         ext A
-        simp only [ContinuousLinearMap.coe_add, LinearMap.comp_add, map_add,
+        simp only [ContinuousLinearMap.toLinearMap_add, LinearMap.comp_add, map_add,
           LinearMap.coe_mk, AddHom.coe_mk, LinearMap.add_apply]
       map_smul' := fun c G => by
         ext A
-        simp only [ContinuousLinearMap.coe_smul, LinearMap.comp_smul, map_smul,
+        simp only [ContinuousLinearMap.toLinearMap_smul, LinearMap.comp_smul, map_smul,
           LinearMap.coe_mk, AddHom.coe_mk, RingHom.id_apply, LinearMap.smul_apply] } with hJ
   -- injectivity: test against the adjoint
   have hJinj : Function.Injective J := by

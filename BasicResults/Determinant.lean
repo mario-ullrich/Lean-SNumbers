@@ -19,6 +19,8 @@ import Mathlib.LinearAlgebra.Determinant
   = ∏ eigenvalues(T*∘T) = ∏ σₖ²`. This is pure linear algebra over Mathlib's
   singular values (no `s`-number theory); the `s`-number reading
   `∏ aₖ(T) = ‖det T‖` is then immediate on Hilbert spaces.
+* `LinearMap.det_eq_prod_of_apply_eq_smul` — the determinant of an endomorphism
+  that is diagonal in some basis (`T (b i) = μ i • b i`) is the product `∏ μᵢ`.
 -/
 
 open LinearMap
@@ -61,3 +63,20 @@ theorem LinearMap.norm_det_eq_prod_singularValues (T : E →ₗ[𝕜] E) :
     rw [← Finset.prod_pow,
       ← Fin.prod_univ_eq_prod_range (fun k => T.singularValues k ^ 2) (Module.finrank 𝕜 E), hkey]
   rw [← Real.sqrt_sq (norm_nonneg _), hsq, Real.sqrt_sq hnn]
+
+/-! ## Determinant of an endomorphism diagonal in a basis -/
+
+/-- If a basis `b` consists of eigenvectors of `T`, with `T (b i) = μ i • b i`, then
+`det T = ∏ᵢ μᵢ`. (The matrix of `T` in the basis `b` is `diagonal μ`.) -/
+theorem LinearMap.det_eq_prod_of_apply_eq_smul {R M ι : Type*} [CommRing R] [AddCommGroup M]
+    [Module R M] [Fintype ι] [DecidableEq ι] (b : Module.Basis ι R M) (T : M →ₗ[R] M)
+    (μ : ι → R) (h : ∀ i, T (b i) = μ i • b i) :
+    LinearMap.det T = ∏ i, μ i := by
+  rw [← LinearMap.det_toMatrix b]
+  have hmat : LinearMap.toMatrix b b T = Matrix.diagonal μ := by
+    ext i j
+    rw [LinearMap.toMatrix_apply, h j, map_smul, Module.Basis.repr_self, Matrix.diagonal_apply]
+    rcases eq_or_ne i j with rfl | hij
+    · simp
+    · simp [hij]
+  rw [hmat, Matrix.det_diagonal]
