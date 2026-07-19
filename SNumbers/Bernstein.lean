@@ -124,11 +124,6 @@ private lemma rank_span_range_fin {V : Type u} [AddCommGroup V] [Module 𝕜 V]
   rw [rank_span hg, Cardinal.mk_fintype, Set.card_range_of_injective hg.injective,
       Fintype.card_fin]
 
-lemma bernsteinNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
-    bernsteinNumber S n ≤ ‖S‖ :=
-  Real.sSup_le (fun _ ⟨M, _, hr⟩ => hr.symm ▸ gainOnSubspace_le_norm S M)
-    (norm_nonneg _)
-
 /-! ## (S1c) Non-negativity -/
 
 lemma bernsteinNumber_nonneg (S : X →L[𝕜] Y) (n : ℕ) :
@@ -161,7 +156,9 @@ private lemma gainOnSubspace_span_singleton {S : X →L[𝕜] Y} {v : X} (hv_ne 
 
 @[simp] lemma bernsteinNumber_zero_eq_norm (S : X →L[𝕜] Y) :
     bernsteinNumber S 0 = ‖S‖ := by
-  refine le_antisymm (bernsteinNumber_le_norm S 0) ?_
+  refine le_antisymm
+    (Real.sSup_le (fun _ ⟨M, _, hr⟩ => hr.symm ▸ gainOnSubspace_le_norm S M)
+      (norm_nonneg _)) ?_
   -- For each `v` with `‖v‖ ≠ 0`, the 1-dim subspace `span {v}` realises
   -- the gain `‖S v‖/‖v‖`, which is therefore `≤ b_0 S`.
   refine opNorm_le_bound' _ (bernsteinNumber_nonneg S 0) fun v hv_norm => ?_
@@ -207,6 +204,12 @@ lemma bernsteinNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
       ≤ gainOnSubspace S M' :=
         gainOnSubspace_anti hM'_le (rank_eq_succ_implies_ne_bot hM'_rank)
     _ ≤ bernsteinNumber S n := le_csSup (bSet_bddAbove S n) ⟨M', hM'_rank, rfl⟩
+
+/-- Upper bound by the operator norm: `b_n S ≤ ‖S‖`, since `b_n S ≤ b_0 S = ‖S‖`. -/
+lemma bernsteinNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
+    bernsteinNumber S n ≤ ‖S‖ :=
+  (antitone_nat_of_succ_le (bernsteinNumber_antitone S) (Nat.zero_le n)).trans_eq
+    (bernsteinNumber_zero_eq_norm S)
 
 /-! ## (S2) Subadditivity -/
 

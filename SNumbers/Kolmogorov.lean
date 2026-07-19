@@ -175,6 +175,12 @@ lemma kolmogorovNumber_zero_eq_norm (S : X →L[𝕜] Y) :
       exact le_antisymm (by exact_mod_cast hV) zero_le
     rw [hV_bot, deviationFromSubspace_bot]
 
+/-- Upper bound by the operator norm: `d_n S ≤ ‖S‖`, since `d_n S ≤ d_0 S = ‖S‖`. -/
+lemma kolmogorovNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
+    kolmogorovNumber S n ≤ ‖S‖ :=
+  (antitone_nat_of_succ_le (kolmogorovNumber_antitone S) (Nat.zero_le n)).trans_eq
+    (kolmogorovNumber_zero_eq_norm S)
+
 
 /-! ## (S2) Subadditivity -/
 

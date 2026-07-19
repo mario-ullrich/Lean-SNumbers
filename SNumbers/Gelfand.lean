@@ -106,6 +106,15 @@ lemma gelfandNumber_le_deviation {S : X →L[𝕜] Y} {n : ℕ} {M : Submodule �
     gelfandNumber S n ≤ deviationFromRestriction S M :=
   csInf_le (gSet_bddBelow S n) ⟨M, hM_closed, hM_rank, rfl⟩
 
+/-- Lower bound for the Gelfand number: if `f` is a lower bound for the restriction
+deviation over every admissible (closed, codimension `≤ n`) subspace, then `f ≤ c_n(S)`. -/
+lemma le_gelfandNumber {S : X →L[𝕜] Y} {n : ℕ} {f : ℝ}
+    (h : ∀ M : Submodule 𝕜 X, IsClosed (M : Set X) →
+        Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) → f ≤ deviationFromRestriction S M) :
+    f ≤ gelfandNumber S n :=
+  le_csInf (gSet_nonempty S n) <| by
+    rintro _ ⟨M, hM_closed, hM_rank, rfl⟩; exact h M hM_closed hM_rank
+
 /-! ## (S1c) Non-negativity -/
 
 lemma gelfandNumber_nonneg (S : X →L[𝕜] Y) (n : ℕ) :
@@ -169,6 +178,12 @@ lemma gelfandNumber_zero_eq_norm (S : X →L[𝕜] Y) :
     have hM_top : M = ⊤ :=
       Submodule.Quotient.subsingleton_iff.mp h_subsingleton
     rw [hM_top, deviationFromRestriction_top]
+
+/-- Upper bound by the operator norm: `c_n S ≤ ‖S‖`, since `c_n S ≤ c_0 S = ‖S‖`. -/
+lemma gelfandNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
+    gelfandNumber S n ≤ ‖S‖ :=
+  (antitone_nat_of_succ_le (gelfandNumber_antitone S) (Nat.zero_le n)).trans_eq
+    (gelfandNumber_zero_eq_norm S)
 
 /-! ## (S2) Subadditivity -/
 

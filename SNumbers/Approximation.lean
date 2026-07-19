@@ -133,7 +133,7 @@ lemma approximationSet_zero (S : X →L[𝕜] Y) :
 /-- Upper bound by the operator norm: `a_n S ≤ ‖S‖`. -/
 lemma approximationNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
     approximationNumber S n ≤ ‖S‖ :=
-  (approximationNumber_antitone' (Nat.zero_le n)).trans_eq
+  (antitone_nat_of_succ_le (approximationNumber_antitone S) (Nat.zero_le n)).trans_eq
     (approximationNumber_zero_eq_norm S)
 
 /-! ### (S4) Vanishing on operators of rank at most `n` -/

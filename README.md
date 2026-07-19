@@ -149,6 +149,7 @@ A green check means fully proved (no `sorry`).
 | `rank` of `X →L[𝕜] Y`                     | ✅ defined          |
 | Metric injection / surjection classes     | ✅ defined          |
 | Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
+| Norm bound `sₙ(T) ≤ ‖T‖` (`IsSNumberSequence.le_norm`) | ✅ proved  |
 | Auerbach's lemma                          | ✅ proved (ℝ)       |
 | Garling–Gordon projection (`‖P‖ ≤ √n + ε`, ker `P` = `M`) | ✅ proved |
 | Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | ✅ proved |

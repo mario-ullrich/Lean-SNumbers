@@ -22,6 +22,10 @@ This file collects:
   `sₙ(c • T) = ‖c‖ · sₙ(T)`, with the two one-sided inequalities
   `sn_smul_le` and `norm_smul_le_sn`. This is a consequence of the axioms
   (essentially (S3)), so it belongs here with the abstract theory.
+* **Norm bound** (`IsSNumberSequence.le_norm`): every s-number sequence
+  satisfies `sₙ S ≤ ‖S‖`, since `sₙ S ≤ s₀ S = ‖S‖` (antitonicity + (S1a)).
+  Like homogeneity, a consequence of the axioms belonging with the abstract
+  theory; the concrete `…_le_norm` lemmas in each file are its instances.
 
 An s-number sequence assigns to every bounded linear operator
 `S : X →L[𝕜] Y` between (real or complex) Banach spaces a sequence
@@ -150,6 +154,17 @@ structure IsSNumberSequence (s : Family 𝕜) : Prop where
   vanishes_on_low_rank : VanishesOnLowRank s
   /-- (S5) Normalised on `id_{ℓ₂^{n+1}}`. -/
   normalised_at_id : NormalisedAtId s
+
+/-- Every s-number sequence is bounded by the operator norm: `sₙ S ≤ ‖S‖`.
+
+This is the common reason behind the individual `…_le_norm` lemmas for each
+concrete s-number: since `s` is non-increasing in `n` (`antitone`) and `s₀ = ‖S‖`
+(`norm_at_zero`), we get `sₙ S ≤ s₀ S = ‖S‖`. -/
+lemma IsSNumberSequence.le_norm {s : Family 𝕜} (h : IsSNumberSequence s)
+    {X Y : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+    [NormedAddCommGroup Y] [NormedSpace 𝕜 Y] (S : X →L[𝕜] Y) (n : ℕ) :
+    s S n ≤ ‖S‖ :=
+  (antitone_nat_of_succ_le (h.antitone S) (Nat.zero_le n)).trans_eq (h.norm_at_zero S)
 
 /-! ### Strict s-number sequences
 

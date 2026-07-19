@@ -270,6 +270,9 @@ end S1a
 
 /-! ## A useful upper bound: `kolmogorovNumber S n ≤ ‖S‖` -/
 
+-- This Kolmogorov number equivalent is defined as
+-- `approximationNumber (S.comp Q) n`, so its bound comes straight
+-- from `approximationNumber_le_norm` together with `‖S ∘ Q‖ ≤ ‖S‖`.
 lemma kolmogorovNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
     kolmogorovNumber S n ≤ ‖S‖ :=
   (approximationNumber_le_norm _ _).trans <|

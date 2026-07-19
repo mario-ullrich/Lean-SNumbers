@@ -23,8 +23,8 @@ where `ℓ₂ = L2 𝕜` is `lp (fun _ : ℕ => 𝕜) 2`.
 ## Main results
 
 * `SNumbers.hilbertNumber` — the `n`-th Hilbert number.
-* `SNumbers.hilbertNumber_nonneg`, `hilbertNumber_le_norm`,
-  `hilbertNumber_antitone`, `hilbertNumber_add_le`,
+* `SNumbers.hilbertNumber_nonneg`, `hilbertNumber_zero_eq_norm`,
+  `hilbertNumber_le_norm`, `hilbertNumber_antitone`, `hilbertNumber_add_le`,
   `hilbertNumber_comp_comp_le`, `hilbertNumber_eq_zero_of_rank_le` — the
   axioms (S1)–(S4), fully proved.
 * `SNumbers.isSNumberSequence_hilbertNumber` — the Hilbert numbers form an
@@ -115,16 +115,12 @@ lemma ratio_le_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) {A : L2 𝕜 →L[�
     approximationNumber (B.comp (S.comp A)) n / (‖B‖ * ‖A‖) ≤ hilbertNumber S n :=
   le_csSup (hilbertSet_bddAbove S n) ⟨A, B, hA, hB, rfl⟩
 
-/-! ### (S1) Non-negativity, monotonicity, norm bound -/
+/-! ### (S1) Non-negativity and monotonicity -/
 
 lemma hilbertNumber_nonneg (S : X →L[𝕜] Y) (n : ℕ) : 0 ≤ hilbertNumber S n :=
   Real.sSup_nonneg <| by
     rintro r ⟨A, B, hA, hB, rfl⟩
     exact div_nonneg (approximationNumber_nonneg _ _) (by positivity)
-
-/-- (S1a, easy half) `h_n S ≤ ‖S‖`. -/
-lemma hilbertNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) : hilbertNumber S n ≤ ‖S‖ :=
-  Real.sSup_le (by rintro r ⟨A, B, hA, hB, rfl⟩; exact ratio_le_norm S n hA hB) (norm_nonneg S)
 
 /-- (S1b) `h_{n+1} S ≤ h_n S`. -/
 lemma hilbertNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
@@ -277,6 +273,19 @@ lemma norm_le_hilbertNumber_zero (S : X →L[𝕜] Y) : ‖S‖ ≤ hilbertNumbe
   rw [approximationNumber_zero_eq_norm, hBnorm, hAnorm, one_mul, div_le_iff₀ hxpos] at hratio
   exact le_trans hge hratio
 
+/-- (S1a) `h_0 S = ‖S‖`: the upper half is the easy bound `h_0 S ≤ ‖S‖`, the lower
+half is `norm_le_hilbertNumber_zero`. -/
+lemma hilbertNumber_zero_eq_norm (S : X →L[𝕜] Y) : hilbertNumber S 0 = ‖S‖ :=
+  le_antisymm
+    (Real.sSup_le (by rintro r ⟨A, B, hA, hB, rfl⟩; exact ratio_le_norm S 0 hA hB)
+      (norm_nonneg S))
+    (norm_le_hilbertNumber_zero S)
+
+/-- (S1a, easy half) `h_n S ≤ ‖S‖`, since `h_n S ≤ h_0 S = ‖S‖`. -/
+lemma hilbertNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) : hilbertNumber S n ≤ ‖S‖ :=
+  (antitone_nat_of_succ_le (hilbertNumber_antitone S) (Nat.zero_le n)).trans_eq
+    (hilbertNumber_zero_eq_norm S)
+
 /-- A contractive **section** of `ℓ₂ⁿ⁺¹` through `ℓ₂`: an isometric embedding
 `B : ℓ₂ⁿ⁺¹ → ℓ₂` together with a contraction `A : ℓ₂ → ℓ₂ⁿ⁺¹` retracting it,
 `A ∘ B = id`, with `‖A‖, ‖B‖ ≤ 1`.
@@ -385,8 +394,7 @@ and `one_le_hilbertNumber_id`. All five axioms are proved (no `sorry`). -/
 theorem isSNumberSequence_hilbertNumber :
     IsSNumberSequence (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => hilbertNumber S n) where
   nonneg := fun S n => hilbertNumber_nonneg S n
-  norm_at_zero := fun S =>
-    le_antisymm (hilbertNumber_le_norm S 0) (norm_le_hilbertNumber_zero S)
+  norm_at_zero := fun S => hilbertNumber_zero_eq_norm S
   antitone := fun S n => hilbertNumber_antitone S n
   subadditive := fun S T n => hilbertNumber_add_le S T n
   ideal := fun A S B n => hilbertNumber_comp_comp_le A S B n
