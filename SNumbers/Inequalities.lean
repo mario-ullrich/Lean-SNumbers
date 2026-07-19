@@ -457,7 +457,7 @@ lemma approximationNumber_le_sqrt_mul_deviationFromRestriction
       have h : (P.comp P) x = P x := by rw [hP_idem]
       exact h
     have hkey : P ((ContinuousLinearMap.id 𝕜 X - P) x) = 0 := by
-      rw [ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply, map_sub,
+      rw [sub_apply, ContinuousLinearMap.id_apply, map_sub,
         hPP, sub_self]
     rw [← hP_ker, LinearMap.mem_ker]
     exact hkey
@@ -514,7 +514,7 @@ lemma approximationNumber_le_sqrt_mul_deviationFromSubspace
       rw [← hw]; exact hPP
     rw [LinearMap.mem_ker]
     show (ContinuousLinearMap.id 𝕜 Y - P) v = 0
-    rw [ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply, hPv, sub_self]
+    rw [sub_apply, ContinuousLinearMap.id_apply, hPv, sub_self]
   -- `‖id − P‖ ≤ 1 + √n`.
   have h4 : ‖(ContinuousLinearMap.id 𝕜 Y - P : Y →L[𝕜] Y)‖ ≤ 1 + Real.sqrt n :=
     (norm_sub_le _ _).trans (add_le_add ContinuousLinearMap.norm_id_le hP_norm)

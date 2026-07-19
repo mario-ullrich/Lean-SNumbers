@@ -223,7 +223,7 @@ private lemma gainOnSubspace_add_le (S T : X →L[𝕜] Y) {M : Submodule 𝕜 X
           rw [add_div, mul_div_cancel_right₀ _ hx_pos.ne'],
         div_le_div_iff_of_pos_right hx_pos]
     calc ‖(S + T) x‖
-        = ‖S x + T x‖ := by rw [ContinuousLinearMap.add_apply]
+        = ‖S x + T x‖ := by rw [add_apply]
       _ ≤ ‖S x‖ + ‖T x‖ := norm_add_le _ _
       _ ≤ ‖S x‖ + ‖T‖ * ‖x‖ := by linarith [T.le_opNorm x]
   linarith [gainOnSubspace_le_div (S := S + T) hx_mem hx_ne]
@@ -327,11 +327,8 @@ lemma bernsteinNumber_strict {X : Type u} [NormedAddCommGroup X]
 lemma bernsteinNumber_id_euclidean (n : ℕ) :
     bernsteinNumber
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
-  have h_finrank : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) = n + 1 := by
-    rw [(WithLp.linearEquiv 2 𝕜 (Fin (n + 1) → 𝕜)).finrank_eq, Module.finrank_pi 𝕜]
-    exact Fintype.card_fin _
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
-    rw [h_finrank]; exact Nat.lt_succ_self n
+    rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
   exact bernsteinNumber_strict n h
 
 /-! ## (S3) Ideal property
@@ -363,10 +360,10 @@ private lemma gainOnSubspace_comp_comp_le_of_injective
       have h_zero : B.comp (S.comp A) = 0 := by rw [hB_zero, zero_comp]
       rw [h_zero]
       refine (gainOnSubspace_le_div (S := (0 : W →L[𝕜] Z)) hx_mem hx_ne).trans ?_
-      rw [ContinuousLinearMap.zero_apply, norm_zero, zero_div]
+      rw [zero_apply, norm_zero, zero_div]
     · exfalso
       apply h_inj x hx_mem hx_ne
-      rw [norm_eq_zero.mp hA, ContinuousLinearMap.zero_apply]
+      rw [norm_eq_zero.mp hA, zero_apply]
   · -- `‖B‖ * ‖A‖ > 0`. The main case.
     have hBA_pos : 0 < ‖B‖ * ‖A‖ :=
       lt_of_le_of_ne (mul_nonneg (norm_nonneg _) (norm_nonneg _)) (Ne.symm hBA)

@@ -67,9 +67,9 @@ theorem exists_spectral_projection_real [Nontrivial H₁]
   · -- bound (b)
     refine ContinuousLinearMap.opNorm_le_bound _ hc0 fun y => ?_
     have key : ((complexify S).comp (1 - Eℂ)) (ofReal y) = ofReal (S ((1 - E) y)) := by
-      rw [ContinuousLinearMap.comp_apply, ContinuousLinearMap.sub_apply,
-        ContinuousLinearMap.one_apply, hEofReal y, ← ofReal_sub, complexify_ofReal,
-        ContinuousLinearMap.sub_apply, ContinuousLinearMap.one_apply]
+      rw [ContinuousLinearMap.comp_apply, sub_apply,
+        one_apply_eq_self, hEofReal y, ← ofReal_sub, complexify_ofReal,
+        sub_apply, one_apply_eq_self]
     calc ‖S ((1 - E) y)‖ = ‖((complexify S).comp (1 - Eℂ)) (ofReal y)‖ := by rw [key, norm_ofReal]
       _ ≤ ‖(complexify S).comp (1 - Eℂ)‖ * ‖ofReal y‖ := ContinuousLinearMap.le_opNorm _ _
       _ ≤ c * ‖y‖ := by rw [norm_ofReal]; exact mul_le_mul_of_nonneg_right hEb (norm_nonneg y)

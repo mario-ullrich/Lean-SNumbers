@@ -341,7 +341,7 @@ lemma one_le_hilbertNumber_id (n : ℕ) :
     intro h
     have h2 : (EuclideanSpace.single (0 : Fin (n + 1)) (1 : 𝕜)) = 0 := by
       have h3 := DFunLike.congr_fun h (EuclideanSpace.single (0 : Fin (n + 1)) (1 : 𝕜))
-      simp only [ContinuousLinearMap.id_apply, ContinuousLinearMap.zero_apply] at h3
+      simp only [ContinuousLinearMap.id_apply, zero_apply] at h3
       exact h3
     rw [PiLp.single_eq_zero_iff] at h2
     exact one_ne_zero h2

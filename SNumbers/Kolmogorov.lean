@@ -153,7 +153,7 @@ private lemma deviationFromSubspace_bot (S : X →L[𝕜] Y) :
   refine le_antisymm ?_ ?_
   · -- `‖(⊥).mkQL ∘ S‖ ≤ ‖S‖`: pointwise `‖[S x]‖ = ‖S x‖ ≤ ‖S‖ * ‖x‖`.
     refine opNorm_le_bound _ (norm_nonneg _) fun x => ?_
-    rw [coe_comp', Function.comp_apply, Submodule.mkQL_apply, norm_mk_bot]
+    rw [coe_comp, Function.comp_apply, Submodule.mkQL_apply, norm_mk_bot]
     exact S.le_opNorm x
   · -- `‖S‖ ≤ ‖(⊥).mkQL ∘ S‖`: pointwise `‖S x‖ = ‖[S x]‖ ≤ ‖(⊥).mkQL ∘ S‖ * ‖x‖`.
     refine opNorm_le_bound _
@@ -295,7 +295,7 @@ lemma kolmogorovNumber_eq_zero_of_rank_le {S : X →L[𝕜] Y} {n : ℕ}
   -- `V.mkQL.comp S = 0` because every `S x ∈ V`, so `[S x] = 0` in `Y/V`.
   have h_comp_zero : V.mkQL.comp S = 0 := by
     ext x
-    simp only [coe_comp', Function.comp_apply, ContinuousLinearMap.zero_apply,
+    simp only [coe_comp, Function.comp_apply, zero_apply,
       Submodule.mkQL_apply, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
     exact LinearMap.mem_range_self (S : X →ₗ[𝕜] Y) x
   show ‖V.mkQL.comp S‖ ≤ 0
@@ -383,11 +383,8 @@ lemma kolmogorovNumber_strict {X : Type u} [NormedAddCommGroup X]
 lemma kolmogorovNumber_id_euclidean (n : ℕ) :
     kolmogorovNumber
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
-  have h_finrank : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) = n + 1 := by
-    rw [(WithLp.linearEquiv 2 𝕜 (Fin (n + 1) → 𝕜)).finrank_eq, Module.finrank_pi 𝕜]
-    exact Fintype.card_fin _
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
-    rw [h_finrank]; exact Nat.lt_succ_self n
+    rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
   exact kolmogorovNumber_strict n h
 
 /-! ## Summary: Kolmogorov numbers (quotient form) form a strict s-number sequence -/

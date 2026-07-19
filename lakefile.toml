@@ -1,14 +1,14 @@
 name = "snumbers"
 defaultTargets = ["SNumbers", "BasicResults", "AddOns"]
 
-# Pin Mathlib to the v4.31.0-rc1 release tag (matches lean-toolchain).
+# Pin Mathlib to the v4.32.0 release tag (matches lean-toolchain).
 # A tagged release is a stable point with a fully-published build cache, so
 # `lake exe cache get` finds every olean — unlike a bleeding-edge `master`
 # commit, whose cache is still being uploaded and downloads incomplete.
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-version = "git#v4.31.0-rc1"
+version = "git#v4.32.0"
 
 [[require]]
 name = "checkdecls"

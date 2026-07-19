@@ -322,7 +322,7 @@ lemma approximationNumber_strict {X : Type u} [NormedAddCommGroup X]
       -- ----- Step C: `r * ‖x₀‖ ≤ ‖(I − L) x₀‖`. -----
       -- Specialise the Riesz distance bound to `y = L x₀ ∈ range L`.
       have h_apply : (I - L) x₀ = x₀ - L x₀ := by
-        simp [hI_def, ContinuousLinearMap.sub_apply, ContinuousLinearMap.id_apply]
+        simp [hI_def, sub_apply, ContinuousLinearMap.id_apply]
       have h_riesz : r * ‖x₀‖ ≤ ‖x₀ - L x₀‖ :=
         hx₀_dist (L x₀) (LinearMap.mem_range_self _ _)
       have h_witness : r * ‖x₀‖ ≤ ‖(I - L) x₀‖ := by
@@ -346,11 +346,8 @@ lemma approximationNumber_strict {X : Type u} [NormedAddCommGroup X]
 lemma approximationNumber_id_euclidean (n : ℕ) :
     approximationNumber
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
-  have h_finrank : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) = n + 1 := by
-    rw [(WithLp.linearEquiv 2 𝕜 (Fin (n + 1) → 𝕜)).finrank_eq, Module.finrank_pi 𝕜]
-    exact Fintype.card_fin _
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
-    rw [h_finrank]; exact Nat.lt_succ_self n
+    rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
   exact approximationNumber_strict n h
 
 /-! ### Summary: approximation numbers form a strict s-number sequence -/

@@ -58,6 +58,7 @@ examples, which are the central targets of this formalisation:
 │   │                              + homogeneity sₙ(c•T)=‖c‖·sₙ(T) (norm_smul_sn)
 │   ├── Helpers.lean            ← shared rank facts + norm bounds for the
 │   │                              Mathlib quotient CLMs Submodule.mkQL/liftQL
+│   │                              + finrank (EuclideanSpace 𝕜 (Fin n)) = n
 │   ├── PiLpCoordinates.lean    ← coordinate projection/embedding contractions
 │   │                              projFin / padFin between ℓ^p_n and ℓ^p_m
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
@@ -68,6 +69,8 @@ examples, which are the central targets of this formalisation:
 │   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
 │   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
 │   │                              (Banach-only variant; SNumbers.Lifting)
+│   │                              + kolmogorovNumber_eq_approx: the identity
+│   │                              itself, dₙ = aₙ(S∘Q) for the canonical dₙ
 │   ├── Hilbert.lean            ← hilbertNumber + (S1)–(S5)
 │   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9),
 │   │                              for all bounded operators (ℝ and ℂ), proved
@@ -114,7 +117,7 @@ examples, which are the central targets of this formalisation:
 │   │                              `exists_projection_ker` (‖P‖ ≤ √dim + ε); all proved
 │   ├── JohnAux.lean            ← general ingredients (Mathlib candidates): compact
 │   │                              convex hulls, seminorm Hahn–Banach, trace duality,
-│   │                              det from an eigenbasis, ∏(1+aᵢ) ≥ 1−2∑aᵢ²
+│   │                              ∏(1+aᵢ) ≥ 1−2∑aᵢ²
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
@@ -161,7 +164,7 @@ A green check means fully proved (no `sorry`).
 | Bernstein number `bₙ`                     | ✅ proved (S1–S5'); strict |
 | Gelfand number `cₙ`                       | ✅ proved (S1–S5'); strict + injective |
 | Kolmogorov number `dₙ`                    | ✅ proved (S1–S5'); strict + surjective |
-|       ↳ alternative definition `dₙ S = aₙ(S∘Q_X)` | ✅ proved (for Banach spaces) |
+|       ↳ Pietsch identity `dₙ S = aₙ(S∘Q_X)` (canonical dₙ = lifting form) | ✅ proved (for Banach spaces) |
 | Hilbert number `hₙ`                       | ✅ proved (S1)–(S5) |
 
 ### Inequalities between s-numbers

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
 import SNumbers.Approximation
+import SNumbers.Kolmogorov
 import Mathlib.Analysis.Normed.Lp.lpSpace
 import Mathlib.Analysis.Normed.Module.RieszLemma
 import Mathlib.Analysis.Normed.Module.FiniteDimension
@@ -177,20 +178,17 @@ lemma Q_single (x : X) (hx : ‖x‖ ≤ 1) (c : 𝕜) :
 noncomputable def kolmogorovNumber (S : X →L[𝕜] Y) (n : ℕ) : ℝ :=
   approximationNumber (S.comp (Q : BallLp 𝕜 X →L[𝕜] X)) n
 
-
 /-! ## (S1c) Non-negativity -/
 
 lemma kolmogorovNumber_nonneg (S : X →L[𝕜] Y) (n : ℕ) :
     0 ≤ kolmogorovNumber S n :=
   approximationNumber_nonneg _ _
 
-
 /-! ## (S1b) Antitone in `n` -/
 
 lemma kolmogorovNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
     kolmogorovNumber S (n + 1) ≤ kolmogorovNumber S n :=
   approximationNumber_antitone _ _
-
 
 /-! ## (S1a) `kolmogorovNumber S 0 = ‖S‖`
 
@@ -227,43 +225,48 @@ private lemma exists_lift_of_pos_norm
   · letI := Classical.decEq (Ball X)
     rw [lp.norm_single (by norm_num : (0 : ℝ≥0∞) < 1)]
 
-/-- (S1a) `kolmogorovNumber S 0 = ‖S‖`. -/
+/-- `‖B‖ ≤ ‖B ∘ Q‖`: the summation surjection `Q` sends the unit vector
+`δ_x = lp.single 1 ⟨x,_⟩ 1` to `x`, so it hits every point of the closed unit
+ball of `X`; composing with `Q` therefore cannot decrease the operator norm.
+(The reverse `‖B ∘ Q‖ ≤ ‖B‖` is submultiplicativity with `‖Q‖ ≤ 1`.) The proof
+reuses the density-of-norm scaling packaged in `exists_lift_of_pos_norm`. -/
+lemma norm_le_norm_comp_Q {Z : Type u} [SeminormedAddCommGroup Z] [NormedSpace 𝕜 Z]
+    (B : X →L[𝕜] Z) : ‖B‖ ≤ ‖B.comp (Q : BallLp 𝕜 X →L[𝕜] X)‖ := by
+  set M := ‖B.comp (Q : BallLp 𝕜 X →L[𝕜] X)‖ with hM
+  have hM_nn : 0 ≤ M := norm_nonneg _
+  refine opNorm_le_bound _ hM_nn fun x => ?_
+  by_cases hx : x = 0
+  · simp [hx]
+  refine le_of_forall_pos_le_add fun ε hε => ?_
+  have hM1_pos : (0 : ℝ) < M + 1 := by linarith
+  obtain ⟨c, h_in, _hc_lb, hc_ub, hQα, hαnorm⟩ :=
+    exists_lift_of_pos_norm (𝕜 := 𝕜) (X := X) (norm_pos_iff.mpr hx)
+      (div_pos hε hM1_pos)
+  letI : DecidableEq (Ball X) := Classical.decEq _
+  have h_op := (B.comp (Q : BallLp 𝕜 X →L[𝕜] X)).le_opNorm
+                (lp.single 1 (⟨c⁻¹ • x, h_in⟩ : Ball X) c)
+  rw [coe_comp, Function.comp_apply, hQα, hαnorm] at h_op
+  -- `h_op : ‖B x‖ ≤ M * ‖c‖`; then `M * ‖c‖ ≤ M * ‖x‖ + ε` via `‖c‖ < ‖x‖ + δ`.
+  have hMc : M * ‖c‖ ≤ M * ‖x‖ + ε := by
+    calc M * ‖c‖
+        ≤ M * (‖x‖ + ε / (M + 1)) := mul_le_mul_of_nonneg_left hc_ub.le hM_nn
+      _ = M * ‖x‖ + (M / (M + 1)) * ε := by ring
+      _ ≤ M * ‖x‖ + 1 * ε := by
+          gcongr; exact (div_le_one hM1_pos).mpr (by linarith)
+      _ = M * ‖x‖ + ε := by ring
+  linarith
+
+/-- (S1a) `kolmogorovNumber S 0 = ‖S‖`. The lower bound `‖S‖ ≤ ‖S∘Q‖` is
+`norm_le_norm_comp_Q`; the upper bound is submultiplicativity with `‖Q‖ ≤ 1`. -/
 lemma kolmogorovNumber_zero_eq_norm (S : X →L[𝕜] Y) :
     kolmogorovNumber S 0 = ‖S‖ := by
   unfold kolmogorovNumber
   rw [approximationNumber_zero_eq_norm]
-  refine le_antisymm ?_ ?_
-  · -- `‖S∘Q‖ ≤ ‖S‖` from submultiplicativity and `‖Q‖ ≤ 1`.
-    refine (opNorm_comp_le _ _).trans ?_
-    exact (mul_le_mul_of_nonneg_left norm_Q_le (norm_nonneg _)).trans (mul_one _).le
-  · -- `‖S‖ ≤ ‖S∘Q‖` via density-of-norm scaling on each `x ≠ 0`.
-    refine opNorm_le_bound _ (norm_nonneg _) fun x => ?_
-    set M := ‖S.comp (Q : BallLp 𝕜 X →L[𝕜] X)‖
-    have hM_nn : 0 ≤ M := norm_nonneg _
-    by_cases hx : x = 0
-    · simp [hx]
-    refine le_of_forall_pos_le_add fun ε hε => ?_
-    have hM1_pos : (0 : ℝ) < M + 1 := by linarith
-    obtain ⟨c, h_in, hc_lb, hc_ub, hQα, hαnorm⟩ :=
-      exists_lift_of_pos_norm (𝕜 := 𝕜) (X := X) (norm_pos_iff.mpr hx)
-        (div_pos hε hM1_pos)
-    -- `‖S x‖ = ‖(S∘Q) α‖ ≤ M · ‖α‖ = M · ‖c‖ ≤ M · ‖x‖ + ε`.
-    letI : DecidableEq (Ball X) := Classical.decEq _
-    have h_op := (S.comp (Q : BallLp 𝕜 X →L[𝕜] X)).le_opNorm
-                  (lp.single 1 (⟨c⁻¹ • x, h_in⟩ : Ball X) c)
-    rw [coe_comp', Function.comp_apply, hQα, hαnorm] at h_op
-    have : M * ‖c‖ ≤ M * ‖x‖ + ε := by
-      calc M * ‖c‖
-          ≤ M * (‖x‖ + ε / (M + 1)) :=
-            mul_le_mul_of_nonneg_left hc_ub.le hM_nn
-        _ = M * ‖x‖ + (M / (M + 1)) * ε := by ring
-        _ ≤ M * ‖x‖ + 1 * ε := by
-            gcongr; exact (div_le_one hM1_pos).mpr (by linarith)
-        _ = M * ‖x‖ + ε := by ring
-    linarith
+  refine le_antisymm ?_ (norm_le_norm_comp_Q S)
+  refine (opNorm_comp_le _ _).trans ?_
+  exact (mul_le_mul_of_nonneg_left norm_Q_le (norm_nonneg _)).trans (mul_one _).le
 
 end S1a
-
 
 /-! ## A useful upper bound: `kolmogorovNumber S n ≤ ‖S‖` -/
 
@@ -272,7 +275,6 @@ lemma kolmogorovNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
   (approximationNumber_le_norm _ _).trans <|
     (opNorm_comp_le _ _).trans <|
       (mul_le_mul_of_nonneg_left norm_Q_le (norm_nonneg _)).trans (mul_one _).le
-
 
 /-! ## (S2) Subadditivity -/
 
@@ -429,7 +431,6 @@ lemma kolmogorovNumber_comp_comp_le
 
 end S3
 
-
 /-! ## (S4) Vanishing on operators of rank ≤ n -/
 
 /-- (S4) Vanishing on operators of rank ≤ n. -/
@@ -438,7 +439,6 @@ lemma kolmogorovNumber_eq_zero_of_rank_le {S : X →L[𝕜] Y} {n : ℕ}
     kolmogorovNumber S n = 0 :=
   approximationNumber_eq_zero_of_rank_le <|
     (Submodule.rank_mono (by rintro y ⟨α, hα⟩; exact ⟨Q α, hα⟩)).trans hS
-
 
 /-! ## (S5'/S5) Strict normalisation -/
 
@@ -485,7 +485,7 @@ private lemma one_le_norm_Q_sub_L (n : ℕ) (h_dim : n < Module.finrank 𝕜 X)
   have h_riesz : (1 - ε / 2) * ‖x₀‖ ≤ ‖x₀ - L α‖ :=
     hx₀_dist (L α) ⟨α, rfl⟩
   have h_op := ((Q : BallLp 𝕜 X →L[𝕜] X) - L).le_opNorm α
-  rw [ContinuousLinearMap.sub_apply, hα_Q, hα_norm] at h_op
+  rw [sub_apply, hα_Q, hα_norm] at h_op
   have h_chain := h_riesz.trans h_op
   -- The choice of `δ` ensures `(1 − ε) · ‖c‖ < (1 − ε/2) · ‖x₀‖`.
   have h_lhs : (1 - ε) * ‖c‖ < (1 - ε / 2) * ‖x₀‖ := by
@@ -522,14 +522,208 @@ variable {𝕜 : Type u} [DenselyNormedField 𝕜] [CompleteSpace 𝕜]
 lemma kolmogorovNumber_id_euclidean (n : ℕ) :
     kolmogorovNumber
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
-  have h_finrank : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) = n + 1 := by
-    rw [(WithLp.linearEquiv 2 𝕜 (Fin (n + 1) → 𝕜)).finrank_eq, Module.finrank_pi 𝕜]
-    exact Fintype.card_fin _
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
-    rw [h_finrank]; exact Nat.lt_succ_self n
+    rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
   exact kolmogorovNumber_strict n h
 
 end S5b
+
+/-! ## Pietsch's identity `dₙ(S) = aₙ(S ∘ Q)`
+
+The canonical Kolmogorov number `SNumbers.kolmogorovNumber` (quotient/inf-sup
+form, developed in `SNumbers.Kolmogorov` for *any* normed space) coincides on
+Banach domains with the lifting form `aₙ(S ∘ Q)` defined in this file. This is
+**Pietsch's identity**. Combined with `[CompleteSpace X]` — needed only so that
+`Q` exists as a continuous map into `X` — it shows the two developments compute
+the same numbers.
+
+The proof splits into two inequalities:
+
+* `(≤)` — for any rank-`≤ n` approximant `L` of `S ∘ Q`, the subspace
+  `V := range L` is admissible, and `‖π_V ∘ S‖ ≤ ‖S∘Q − L‖` because every unit
+  vector `x` equals `Q δ_x` (`norm_le_norm_comp_Q`) and `π_V ∘ L = 0`.
+* `(≥)` — for any admissible `V` and `ε > 0`, choose for each `x ∈ B_X` a point
+  `w_x ∈ V` with `‖S x − w_x‖ < ‖π_V ∘ S‖ + ε` (quotient-norm approximation),
+  and lift these to `L α := ∑' x, α x • w_x`. Then `range L ⊆ V` (so
+  `rank L ≤ n`) and `‖S∘Q − L‖ ≤ ‖π_V ∘ S‖ + ε`. -/
+
+section Pietsch
+variable {𝕜 : Type u} [DenselyNormedField 𝕜] [CompleteSpace 𝕜]
+variable {X Y : Type u}
+variable [NormedAddCommGroup X] [NormedSpace 𝕜 X] [CompleteSpace X]
+variable [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
+
+omit [CompleteSpace 𝕜] in
+/-- **Pietsch's identity, `(≤)` half:** `dₙ(S) ≤ aₙ(S ∘ Q)`. -/
+lemma kolmogorovNumber_le_approx (S : X →L[𝕜] Y) (n : ℕ) :
+    SNumbers.kolmogorovNumber S n
+      ≤ approximationNumber (S.comp (Q : BallLp 𝕜 X →L[𝕜] X)) n := by
+  refine le_csInf (approximationSet_nonempty _ _) ?_
+  rintro _ ⟨L, hL, rfl⟩
+  -- `V := range L` has rank ≤ n and is admissible for `dₙ`.
+  set V : Submodule 𝕜 Y := LinearMap.range (L : BallLp 𝕜 X →ₗ[𝕜] Y) with hV
+  have hV_rank : Module.rank 𝕜 V ≤ (n : Cardinal) := hL
+  refine (SNumbers.kolmogorovNumber_le_deviation hV_rank).trans ?_
+  show ‖V.mkQL.comp S‖ ≤ ‖S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L‖
+  -- `π_V ∘ L = 0` since `range L = V`.
+  have hL0 : V.mkQL.comp L = 0 := by
+    ext α
+    simp only [coe_comp, Function.comp_apply, zero_apply,
+      Submodule.mkQL_apply, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
+    exact LinearMap.mem_range_self (L : BallLp 𝕜 X →ₗ[𝕜] Y) α
+  calc ‖V.mkQL.comp S‖
+      ≤ ‖(V.mkQL.comp S).comp (Q : BallLp 𝕜 X →L[𝕜] X)‖ := norm_le_norm_comp_Q _
+    _ = ‖V.mkQL.comp (S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L)‖ := by
+        rw [ContinuousLinearMap.comp_sub, hL0, sub_zero, ContinuousLinearMap.comp_assoc]
+    _ ≤ ‖V.mkQL‖ * ‖S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L‖ := opNorm_comp_le _ _
+    _ ≤ 1 * ‖S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L‖ := by
+        gcongr; exact V.norm_mkQL_le
+    _ = ‖S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L‖ := one_mul _
+
+/-- **Pietsch's identity, `(≥)` half:** `aₙ(S ∘ Q) ≤ dₙ(S)`.
+
+For an admissible subspace `V` and `ε > 0`, choose for each `x ∈ B_X` a point
+`w x ∈ V` with `‖S x − w x‖ < ‖π_V ∘ S‖ + ε` (possible since
+`‖[S x]‖ ≤ ‖π_V ∘ S‖`), and lift these to the rank-`≤ n` operator
+`L α := ∑' x, α x • w x` (landing in the finite-dimensional, hence complete,
+subspace `V`). Then `‖S∘Q − L‖ ≤ ‖π_V ∘ S‖ + ε`, so `aₙ(S∘Q) ≤ dₙ(S) + ε`. -/
+lemma approx_le_kolmogorovNumber (S : X →L[𝕜] Y) (n : ℕ) :
+    approximationNumber (S.comp (Q : BallLp 𝕜 X →L[𝕜] X)) n
+      ≤ SNumbers.kolmogorovNumber S n := by
+  unfold SNumbers.kolmogorovNumber
+  refine le_csInf ⟨_, ⊥, by rw [rank_bot]; exact bot_le, rfl⟩ ?_
+  rintro _ ⟨V, hV, rfl⟩
+  set d : ℝ := deviationFromSubspace S V with hd_def
+  have hd_nn : 0 ≤ d := deviationFromSubspace_nonneg S V
+  -- `V` is finite-dimensional (rank `≤ n < ℵ₀`), hence complete.
+  haveI hVfin : FiniteDimensional 𝕜 V :=
+    Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hV (Cardinal.natCast_lt_aleph0))
+  haveI : CompleteSpace V := FiniteDimensional.complete 𝕜 V
+  refine le_of_forall_pos_le_add fun ε hε => ?_
+  -- Choose, for each `x ∈ B_X`, a point `w x ∈ V` with `‖S x − w x‖ < d + ε`.
+  have hchoice : ∀ x : Ball X, ∃ w : V, ‖S (x : X) - (w : Y)‖ < d + ε := by
+    intro x
+    have hmk_le : ‖(V.mkQL (S (x : X)))‖ ≤ d := by
+      calc ‖V.mkQL (S (x : X))‖
+          = ‖(V.mkQL.comp S) (x : X)‖ := rfl
+        _ ≤ ‖V.mkQL.comp S‖ * ‖(x : X)‖ := le_opNorm _ _
+        _ ≤ ‖V.mkQL.comp S‖ * 1 := by gcongr; exact x.2
+        _ = d := by rw [hd_def]; exact mul_one _
+    obtain ⟨y', hy'_mk, hy'_lt⟩ :=
+      Submodule.Quotient.norm_mk_lt (V.mkQL (S (x : X))) hε
+    refine ⟨⟨S (x : X) - y', ?_⟩, ?_⟩
+    · rw [← Submodule.Quotient.mk_eq_zero, Submodule.Quotient.mk_sub, hy'_mk,
+        Submodule.mkQL_apply, Submodule.mkQ_apply, sub_self]
+    · rw [sub_sub_cancel]
+      exact hy'_lt.trans_le (by linarith [hmk_le])
+  choose w hw using hchoice
+  -- Uniform bound `‖w x‖ ≤ C` on the chosen points.
+  set C : ℝ := ‖S‖ + (d + ε) with hC_def
+  have hwC : ∀ x : Ball X, ‖(w x : Y)‖ ≤ C := fun x => by
+    have hSx : ‖S (x : X)‖ ≤ ‖S‖ :=
+      (S.le_opNorm _).trans (mul_le_of_le_one_right (norm_nonneg S) x.2)
+    calc ‖(w x : Y)‖
+        = ‖S (x : X) - (S (x : X) - (w x : Y))‖ := by rw [sub_sub_cancel]
+      _ ≤ ‖S (x : X)‖ + ‖S (x : X) - (w x : Y)‖ := norm_sub_le _ _
+      _ ≤ ‖S‖ + (d + ε) := by gcongr; exact (hw x).le
+      _ = C := hC_def.symm
+  -- Summability of `x ↦ ‖α x • w x‖` (hence of `x ↦ α x • w x`, using `V` complete).
+  have hsumnorm : ∀ α : BallLp 𝕜 X, Summable (fun x : Ball X => ‖α x • w x‖) := fun α =>
+    Summable.of_nonneg_of_le (fun _ => norm_nonneg _) (fun x => by
+        rw [norm_smul]
+        exact mul_le_mul_of_nonneg_left (hwC x) (norm_nonneg _))
+      ((summable_norm_α α).mul_right C)
+  have hsum : ∀ α : BallLp 𝕜 X, Summable (fun x : Ball X => α x • w x) := fun α =>
+    (hsumnorm α).of_norm
+  -- The approximant `L' : ℓ¹(B_X) →L[𝕜] V`, then `L := ι_V ∘ L'`.
+  let L' : BallLp 𝕜 X →L[𝕜] V := LinearMap.mkContinuous
+    { toFun := fun α => ∑' x : Ball X, α x • w x
+      map_add' := fun α β => by
+        simp only [lp.coeFn_add, Pi.add_apply, add_smul]
+        exact (hsum α).tsum_add (hsum β)
+      map_smul' := fun k α => by
+        simp only [lp.coeFn_smul, Pi.smul_apply, smul_eq_mul, RingHom.id_apply, mul_smul]
+        exact (hsum α).tsum_const_smul k }
+    C (fun α => by
+      refine (norm_tsum_le_tsum_norm (hsumnorm α)).trans ?_
+      refine (Summable.tsum_le_tsum (fun x => by
+          rw [norm_smul]
+          exact mul_le_mul_of_nonneg_left (hwC x) (norm_nonneg _))
+        (hsumnorm α) ((summable_norm_α α).mul_right C)).trans_eq ?_
+      rw [tsum_mul_right]
+      have hp1 : (0 : ℝ) < (1 : ℝ≥0∞).toReal := by norm_num
+      rw [lp.norm_eq_tsum_rpow hp1 α, show (1 : ℝ≥0∞).toReal = 1 from by norm_num]
+      simp [Real.rpow_one, mul_comm])
+  set L : BallLp 𝕜 X →L[𝕜] Y := V.subtypeL.comp L' with hL_def
+  have hL'_apply : ∀ α, L' α = ∑' x : Ball X, α x • w x := fun α => rfl
+  -- `range L ⊆ V`, so `rank L ≤ rank V ≤ n`.
+  have hrank : L.rank ≤ (n : Cardinal) := by
+    refine le_trans (Submodule.rank_mono ?_) hV
+    rintro y ⟨α, rfl⟩
+    exact (L' α).2
+  -- The residual `S∘Q − L` is bounded by `d + ε`.
+  have hres : ‖S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L‖ ≤ d + ε := by
+    refine opNorm_le_bound _ (by positivity) fun α => ?_
+    have hSsum : Summable (fun x : Ball X => α x • S (x : X)) :=
+      ((summable_smul_val α).mapL S).congr (fun x => map_smul S (α x) _)
+    have hLsum : Summable (fun x : Ball X => α x • (w x : Y)) :=
+      ((hsum α).mapL V.subtypeL).congr (fun x => by rw [map_smul]; rfl)
+    have hnormsum : Summable (fun x : Ball X => ‖α x • (S (x : X) - (w x : Y))‖) :=
+      Summable.of_nonneg_of_le (fun _ => norm_nonneg _) (fun x => by
+        rw [norm_smul]
+        exact mul_le_mul_of_nonneg_left (hw x).le (norm_nonneg _))
+        ((summable_norm_α α).mul_right (d + ε))
+    have hval : (S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L) α
+        = ∑' x : Ball X, α x • (S (x : X) - (w x : Y)) := by
+      rw [sub_apply]
+      have e1 : (S.comp (Q : BallLp 𝕜 X →L[𝕜] X)) α = ∑' x, α x • S (x : X) := by
+        rw [coe_comp, Function.comp_apply, Q_apply, S.map_tsum (summable_smul_val α)]
+        simp_rw [map_smul]
+      have e2 : L α = ∑' x, α x • (w x : Y) := by
+        rw [hL_def, coe_comp, Function.comp_apply, hL'_apply,
+            V.subtypeL.map_tsum (hsum α)]
+        simp_rw [map_smul]
+        rfl
+      rw [e1, e2, ← Summable.tsum_sub hSsum hLsum]
+      simp_rw [← smul_sub]
+    rw [hval]
+    calc ‖∑' x : Ball X, α x • (S (x : X) - (w x : Y))‖
+        ≤ ∑' x : Ball X, ‖α x • (S (x : X) - (w x : Y))‖ :=
+          norm_tsum_le_tsum_norm hnormsum
+      _ ≤ ∑' x : Ball X, ‖α x‖ * (d + ε) := by
+          refine Summable.tsum_le_tsum (fun x => ?_) hnormsum
+            ((summable_norm_α α).mul_right (d + ε))
+          rw [norm_smul]
+          exact mul_le_mul_of_nonneg_left (hw x).le (norm_nonneg _)
+      _ = (d + ε) * ‖α‖ := by
+          rw [tsum_mul_right]
+          have hp1 : (0 : ℝ) < (1 : ℝ≥0∞).toReal := by norm_num
+          rw [lp.norm_eq_tsum_rpow hp1 α, show (1 : ℝ≥0∞).toReal = 1 from by norm_num]
+          simp [Real.rpow_one, mul_comm]
+  calc approximationNumber (S.comp (Q : BallLp 𝕜 X →L[𝕜] X)) n
+      ≤ ‖S.comp (Q : BallLp 𝕜 X →L[𝕜] X) - L‖ := approximationNumber_le_norm_sub hrank
+    _ ≤ d + ε := hres
+
+/-- **Pietsch's identity.** On a Banach domain `X`, the canonical Kolmogorov
+number `SNumbers.kolmogorovNumber S n` (the quotient/inf-sup form from
+`SNumbers.Kolmogorov`, valid on any normed space) equals the approximation
+number of the lift `S ∘ Q`, where `Q : ℓ¹(B_X) →L[𝕜] X` is the summation
+surjection. This identifies the two developments of the Kolmogorov numbers.
+`[CompleteSpace X]` is required only so that `Q` exists as a continuous map
+into `X` (it is an infinite series). -/
+theorem _root_.SNumbers.kolmogorovNumber_eq_approx (S : X →L[𝕜] Y) (n : ℕ) :
+    SNumbers.kolmogorovNumber S n
+      = approximationNumber (S.comp (Q : BallLp 𝕜 X →L[𝕜] X)) n :=
+  le_antisymm (kolmogorovNumber_le_approx S n) (approx_le_kolmogorovNumber S n)
+
+/-- Restatement of Pietsch's identity as the agreement of the two definitions:
+the lifting Kolmogorov number of this file coincides with the canonical one on
+Banach spaces. -/
+theorem kolmogorovNumber_eq (S : X →L[𝕜] Y) (n : ℕ) :
+    kolmogorovNumber S n = SNumbers.kolmogorovNumber S n :=
+  (SNumbers.kolmogorovNumber_eq_approx S n).symm
+
+end Pietsch
 
 /-! ## Notes on packaging
 

@@ -111,15 +111,15 @@ lemma cfcHom_comm_of_comm {P : H₁ →L[ℂ] H₁} (hP : IsSelfAdjoint P)
       intro x
       rw [show (ContinuousMap.const (spectrum ℝ P) r) = algebraMap ℝ C(spectrum ℝ P, ℝ) r from rfl,
         AlgHomClass.commutes, Algebra.algebraMap_eq_smul_one]
-      simp only [ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, map_smul]
+      simp only [smul_apply, one_apply_eq_self, map_smul]
   | id => intro x; rw [cfcHom_id hP]; exact hJP x
   | star_id => intro x; rw [map_star, cfcHom_id hP, hP.star_eq]; exact hJP x
   | add f g hf hg =>
       intro x
-      rw [map_add, ContinuousLinearMap.add_apply, ContinuousLinearMap.add_apply, map_add, hf x, hg x]
+      rw [map_add, add_apply, add_apply, map_add, hf x, hg x]
   | mul f g hf hg =>
       intro x
-      rw [map_mul, ContinuousLinearMap.mul_apply, ContinuousLinearMap.mul_apply,
+      rw [map_mul, mul_apply_eq_comp, mul_apply_eq_comp,
         hf (cfcHom hP g x), hg x]
   | frequently f hf =>
       have hSclosed : IsClosed {g : C(spectrum ℝ P, ℝ) |
@@ -260,7 +260,7 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
       have h2 : Tendsto (fun n => ((P - c ^ 2 • (1 : H₁ →L[ℂ] H₁)).comp (T n)) x) atTop (𝓝 (A x)) := by
         rw [tendsto_iff_norm_sub_tendsto_zero]
         refine squeeze_zero (fun n => norm_nonneg _) (fun n => ?_) (by simpa using hb.mul_const ‖x‖)
-        rw [← ContinuousLinearMap.sub_apply]
+        rw [← sub_apply]
         exact ((P - c ^ 2 • (1 : H₁ →L[ℂ] H₁)).comp (T n) - A).le_opNorm x
       exact tendsto_nhds_unique h1 h2
     have hEA : E.comp A = A.comp E := by
@@ -281,9 +281,9 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
       exact hEcompPos.2 x
     have hexpand : RCLike.re (⟪(P - c ^ 2 • (1 : H₁ →L[ℂ] H₁)) (E x), E x⟫_ℂ)
         = ‖S (E x)‖ ^ 2 - c ^ 2 * ‖E x‖ ^ 2 := by
-      rw [ContinuousLinearMap.sub_apply, inner_sub_left, map_sub, ← hSnorm (E x)]
+      rw [sub_apply, inner_sub_left, map_sub, ← hSnorm (E x)]
       congr 1
-      rw [ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply,
+      rw [smul_apply, one_apply_eq_self,
         RCLike.real_smul_eq_coe_smul (K := ℂ), inner_smul_left, RCLike.conj_ofReal,
         RCLike.re_ofReal_mul, inner_self_eq_norm_sq]
     have hsqle : c ^ 2 * ‖E x‖ ^ 2 ≤ ‖S (E x)‖ ^ 2 := by
@@ -296,7 +296,7 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
     refine ContinuousLinearMap.opNorm_le_bound _ hc0 fun y => ?_
     rw [ContinuousLinearMap.comp_apply]
     have hrhs : RCLike.re (⟪(c ^ 2 • (1 : H₁ →L[ℂ] H₁)) y, y⟫_ℂ) = c ^ 2 * ‖y‖ ^ 2 := by
-      rw [ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply,
+      rw [smul_apply, one_apply_eq_self,
         RCLike.real_smul_eq_coe_smul (K := ℂ), inner_smul_left, RCLike.conj_ofReal,
         RCLike.re_ofReal_mul, inner_self_eq_norm_sq]
     have hpern : ∀ n, RCLike.re (⟪P ((1 - T n) y), (1 - T n) y⟫_ℂ) ≤ c ^ 2 * ‖y‖ ^ 2 := by
@@ -308,7 +308,7 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
         ContinuousLinearMap.isSelfAdjoint_iff'.mp (hQsa n)] at hmono
       exact hmono
     have hu : Tendsto (fun n => (1 - T n) y) atTop (𝓝 ((1 - E) y)) := by
-      simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.one_apply]
+      simp only [sub_apply, one_apply_eq_self]
       exact tendsto_const_nhds.sub (hEtend y)
     have hlim : RCLike.re (⟪P ((1 - E) y), (1 - E) y⟫_ℂ) ≤ c ^ 2 * ‖y‖ ^ 2 :=
       le_of_tendsto'

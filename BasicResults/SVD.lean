@@ -393,7 +393,7 @@ private lemma svd_step_zero [Nontrivial H₁] [Nontrivial H₂]
     svdT S hS (n + 1) (svdU S hS n) = 0 := by
   obtain ⟨hu, -, hSu, -⟩ := svd_spec S hS n
   rw [svd_deflation]
-  simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smulRight_apply,
+  simp only [sub_apply, ContinuousLinearMap.smulRight_apply,
     innerSL_apply_apply]
   rw [hSu, inner_self_eq_norm_sq_to_K, hu]
   simp
@@ -405,7 +405,7 @@ private lemma svd_apply_succ [Nontrivial H₁] [Nontrivial H₂]
       = svdT S hS n (x - (inner 𝕜 (svdU S hS n) x : 𝕜) • svdU S hS n) := by
   obtain ⟨-, -, hSu, -⟩ := svd_spec S hS n
   rw [svd_deflation]
-  simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smulRight_apply,
+  simp only [sub_apply, ContinuousLinearMap.smulRight_apply,
     innerSL_apply_apply]
   rw [← hSu, ← map_smul, ← map_sub]
 
@@ -510,7 +510,7 @@ private lemma svd_joint [Nontrivial H₁] [Nontrivial H₂]
     refine ⟨fun j hj => ?_, fun i j hij hjm hσj => ?_⟩
     · rcases Nat.lt_succ_iff_lt_or_eq.mp hj with hjm | hjm
       · rw [svd_deflation]
-        simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smulRight_apply,
+        simp only [sub_apply, ContinuousLinearMap.smulRight_apply,
           innerSL_apply_apply]
         rw [ihker j hjm]
         by_cases hσ : 0 < ‖svdT S hS m‖
@@ -539,7 +539,7 @@ private lemma svd_sub_partialSum [Nontrivial H₁] [Nontrivial H₂]
     rw [Finset.sum_range_succ, ← sub_sub, ih, svd_deflation]
     congr 1
     ext x
-    simp only [ContinuousLinearMap.smul_apply, ContinuousLinearMap.smulRight_apply,
+    simp only [smul_apply, ContinuousLinearMap.smulRight_apply,
       innerSL_apply_apply]
     rw [smul_comm]
 
@@ -551,15 +551,15 @@ private lemma svd_full_apply_left [Nontrivial H₁] [Nontrivial H₂]
   obtain ⟨-, -, hSj, -⟩ := svd_spec S hS j
   have hLj : (∑ k ∈ Finset.range j,
       (‖svdT S hS k‖ : 𝕜) • (innerSL 𝕜 (svdU S hS k)).smulRight (svdV S hS k)) (svdU S hS j) = 0 := by
-    rw [ContinuousLinearMap.sum_apply]
+    rw [sum_apply]
     refine Finset.sum_eq_zero fun k hk => ?_
-    rw [ContinuousLinearMap.smul_apply, ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
+    rw [smul_apply, ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
       (svd_joint S hS (j + 1)).2 k j (Finset.mem_range.mp hk) (Nat.lt_succ_self j) hσj,
       zero_smul, smul_zero]
   have hsplit := svd_sub_partialSum S hS j
   rw [sub_eq_iff_eq_add] at hsplit
   have happ := DFunLike.congr_fun hsplit (svdU S hS j)
-  rw [ContinuousLinearMap.add_apply, hLj, add_zero, hSj] at happ
+  rw [add_apply, hLj, add_zero, hSj] at happ
   exact happ
 
 /-! ### Orthogonality of the right singular vectors (the adjoint side) -/
@@ -584,7 +584,7 @@ private lemma svd_adjoint_step_zero [Nontrivial H₁] [Nontrivial H₂]
     ContinuousLinearMap.adjoint (svdT S hS (n + 1)) (svdV S hS n) = 0 := by
   obtain ⟨-, hvm, -, hSv⟩ := svd_spec S hS n
   rw [svd_adjoint_deflation]
-  simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smulRight_apply,
+  simp only [sub_apply, ContinuousLinearMap.smulRight_apply,
     innerSL_apply_apply]
   rw [hSv, inner_smul_left, inner_self_eq_norm_sq_to_K, hvm, RCLike.conj_ofReal]
   simp
@@ -629,7 +629,7 @@ private lemma svd_joint_v [Nontrivial H₁] [Nontrivial H₂]
     refine ⟨fun j hj => ?_, fun i j hij hjm hσj => ?_⟩
     · rcases Nat.lt_succ_iff_lt_or_eq.mp hj with hjm | hjm
       · rw [svd_adjoint_deflation]
-        simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.smulRight_apply,
+        simp only [sub_apply, ContinuousLinearMap.smulRight_apply,
           innerSL_apply_apply]
         rw [ihker j hjm]
         by_cases hσ : 0 < ‖svdT S hS m‖
@@ -859,9 +859,9 @@ theorem IsCompactOperator.SVD
           = (∑ k ∈ Finset.range n,
               (‖svdT S hS k‖ : 𝕜) • (innerSL 𝕜 (svdU S hS k)).smulRight (svdV S hS k)) x := by
         intro n
-        rw [ContinuousLinearMap.sum_apply]
+        rw [sum_apply]
         refine Finset.sum_congr rfl fun k _ => ?_
-        rw [ContinuousLinearMap.smul_apply, ContinuousLinearMap.smulRight_apply,
+        rw [smul_apply, ContinuousLinearMap.smulRight_apply,
           innerSL_apply_apply, smul_smul]
         by_cases h : ‖svdT S hS k‖ = 0
         · have hz : (‖svdT S hS k‖ : 𝕜) = 0 := by simp [h]
@@ -878,7 +878,7 @@ theorem IsCompactOperator.SVD
           have h4 : (S - ∑ k ∈ Finset.range n,
               (‖svdT S hS k‖ : 𝕜) • (innerSL 𝕜 (svdU S hS k)).smulRight (svdV S hS k)) x
               = svdT S hS n x := by rw [h2]
-          rw [ContinuousLinearMap.sub_apply] at h4
+          rw [sub_apply] at h4
           rw [← h4]; abel
         rw [h3, norm_neg]
         exact (svdT S hS n).le_opNorm x
@@ -935,7 +935,7 @@ lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ
   have hLx : ∀ x : H₁, L x =
       ∑ k ∈ Finset.range m, (σ k : 𝕜) • ((inner 𝕜 (u k) x : 𝕜) • v k) := by
     intro x
-    simp only [hLdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+    simp only [hLdef, sum_apply, smul_apply,
       ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
   have hrankL : L.rank ≤ (m : Cardinal) := by
     have hrange : LinearMap.range (L : H₁ →ₗ[𝕜] H₂) ≤
@@ -1002,7 +1002,7 @@ lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ
       exact hpartial _ fun k hk =>
         not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
     have hbound : ‖S x - L x‖ ≤ σ m * ‖x‖ := le_of_tendsto htend hev
-    rwa [ContinuousLinearMap.sub_apply]
+    rwa [sub_apply]
   have hσa : σ m ≤ SNumbers.approximationNumber S m := by
     by_cases hσm : σ m = 0
     · rw [hσm]; exact SNumbers.approximationNumber_nonneg S m
@@ -1087,7 +1087,7 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
   have hLx : ∀ x : H₁, L x =
       ∑ k ∈ Finset.range n, (σ k : 𝕜) • ((inner 𝕜 (u k) x : 𝕜) • v k) := by
     intro x
-    simp only [hLdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smul_apply,
+    simp only [hLdef, sum_apply, smul_apply,
       ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
   -- `rank L ≤ n`: the range lies in `span {v₀, …, v_{n-1}}`.
   have hrankL : L.rank ≤ (n : Cardinal) := by
@@ -1159,7 +1159,7 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
       exact hpartial _ fun k hk =>
         not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
     have hbound : ‖S x - L x‖ ≤ σ n * ‖x‖ := le_of_tendsto htend hev
-    rwa [ContinuousLinearMap.sub_apply]
+    rwa [sub_apply]
   -- (iii) `σ n ≤ aₙ(S)`: the `m`-th singular value equals the `m`-th approximation
   -- number (`svd_sigma_eq_approx`).
   have hσa : σ n ≤ SNumbers.approximationNumber S n :=
@@ -1212,7 +1212,7 @@ theorem IsCompactOperator.diagonalFactorisation
     refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => ?_
     rw [one_mul]
     have hAx : A x = ∑ k : Fin (n + 1), (x k) • u k := by
-      simp only [hAdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smulRight_apply,
+      simp only [hAdef, sum_apply, ContinuousLinearMap.smulRight_apply,
         innerSL_apply_apply, EuclideanSpace.inner_single_left, map_one, one_mul]
     have hsq : ‖A x‖ ^ 2 ≤ ‖x‖ ^ 2 := by
       have h1 : ‖A x‖ ^ 2 = ∑ k : Fin (n + 1), ‖x k‖ ^ 2 * ‖u (k : ℕ)‖ ^ 2 := by
@@ -1235,7 +1235,7 @@ theorem IsCompactOperator.diagonalFactorisation
     rw [one_mul]
     have hBy : B y =
         ∑ k : Fin (n + 1), (inner 𝕜 (v k) y : 𝕜) • EuclideanSpace.single k (1 : 𝕜) := by
-      simp only [hBdef, ContinuousLinearMap.sum_apply, ContinuousLinearMap.smulRight_apply,
+      simp only [hBdef, sum_apply, ContinuousLinearMap.smulRight_apply,
         innerSL_apply_apply]
     have hsq : ‖B y‖ ^ 2 ≤ ‖y‖ ^ 2 := by
       have h1 : ‖B y‖ ^ 2 = ∑ k : Fin (n + 1), ‖inner 𝕜 (v k) y‖ ^ 2 := by
@@ -1252,7 +1252,7 @@ theorem IsCompactOperator.diagonalFactorisation
   · -- Diagonalisation: `B (S (A eₖ)) = B (σₖ vₖ) = σₖ eₖ = aₖ eₖ`.
     intro k
     have hAk : A (EuclideanSpace.single k (1 : 𝕜)) = u k := by
-      rw [hAdef, ContinuousLinearMap.sum_apply]
+      rw [hAdef, sum_apply]
       refine (Finset.sum_eq_single k ?_ ?_).trans ?_
       · intro j _ hjk
         simp [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply,
@@ -1264,7 +1264,7 @@ theorem IsCompactOperator.diagonalFactorisation
     · rw [hσk]; simp
     · have hvk : v (k : ℕ) ≠ 0 := hvt (k : ℕ) hσk
       have hBvk : B (v (k : ℕ)) = EuclideanSpace.single k (1 : 𝕜) := by
-        rw [hBdef, ContinuousLinearMap.sum_apply]
+        rw [hBdef, sum_apply]
         refine (Finset.sum_eq_single k ?_ ?_).trans ?_
         · intro j _ hjk
           rw [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply, hv.inner_eq ↑j ↑k,
@@ -1351,11 +1351,11 @@ theorem exists_scalar_factorisation
     refine ⟨A, B, hA1, ?_, ?_⟩
     · -- `‖B‖ ≤ 1`.
       refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun y => ?_
-      rw [one_mul, hBdef, ContinuousLinearMap.smul_apply, ContinuousLinearMap.comp_apply,
+      rw [one_mul, hBdef, smul_apply, ContinuousLinearMap.comp_apply,
         norm_smul, RCLike.norm_ofReal, abs_of_nonneg hc0]
       set z := Ginv ((ContinuousLinearMap.adjoint T) y) with hz
       have hGz : G z = (ContinuousLinearMap.adjoint T) y := by
-        rw [hz, ← ContinuousLinearMap.comp_apply, hGGinv, ContinuousLinearMap.one_apply]
+        rw [hz, ← ContinuousLinearMap.comp_apply, hGGinv, one_apply_eq_self]
       have hTz : ‖T z‖ ^ 2 = RCLike.re (inner 𝕜 (T z) y) := by
         have h1 : (inner 𝕜 (T z) (T z) : 𝕜) = inner 𝕜 (T z) y := by
           rw [← ContinuousLinearMap.adjoint_inner_right T z (T z),

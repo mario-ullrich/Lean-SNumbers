@@ -937,8 +937,7 @@ theorem exists_projection {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 
   -- From now on `0 < k`.
   -- A continuous linear equivalence `𝕜^k ≃L V` (both have dimension `k`), and the
   -- John position along it: `M = L ∘ T₀` with `‖M z‖ = q z`.
-  have hEfin : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := by
-    rw [(WithLp.linearEquiv 2 𝕜 (Fin k → 𝕜)).finrank_eq, Module.finrank_pi 𝕜, Fintype.card_fin]
+  have hEfin : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := finrank_euclideanSpace_fin
   obtain ⟨M, q, hqc, hq1, hqmax, hqM₀⟩ :=
     exists_johnPosition hkpos (ContinuousLinearEquiv.ofFinrankEq (hEfin.trans hk) :
       EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] V)
@@ -1060,8 +1059,7 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
     · rw [hM]; simp [LinearMap.ker_zero]
     · simp only [norm_zero]; positivity
   -- From now on `0 < k`. The finite-dimensional dual `D := (X ⧸ M)*`.
-  have hEfin : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := by
-    rw [(WithLp.linearEquiv 2 𝕜 (Fin k → 𝕜)).finrank_eq, Module.finrank_pi 𝕜, Fintype.card_fin]
+  have hEfin : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := finrank_euclideanSpace_fin
   haveI hDfin : FiniteDimensional 𝕜 (StrongDual 𝕜 (X ⧸ M)) :=
     Module.Finite.equiv
       (LinearMap.toContinuousLinearMap : ((X ⧸ M) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((X ⧸ M) →L[𝕜] 𝕜))

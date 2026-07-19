@@ -40,6 +40,9 @@ A *strict* s-number sequence additionally satisfies the strengthening
 
 We use **0-based indexing**, shifted by one from Pietsch's original convention:
 Pietsch's `s_1 S = ‖S‖` is our `s_0 S`, and Pietsch's `s_{n+1}` is our `s_n`.
+This fits the convention used in the context of n-width and information-based
+complexity.
+
 
 ## Implementation notes
 

@@ -184,7 +184,7 @@ theorem approximationNumber_idEmbed_le {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact
   have hres : ∀ x : PiLp q (fun _ : Fin m => 𝕜), (idEmbed (𝕜 := 𝕜) (m := m) p q - L) x
       = WithLp.toLp p (fun i : Fin m => if (i : ℕ) < n then 0 else (WithLp.ofLp x) i) := by
     intro x; ext i
-    simp only [hL, hA, hB, ContinuousLinearMap.sub_apply, ContinuousLinearMap.comp_apply,
+    simp only [hL, hA, hB, sub_apply, ContinuousLinearMap.comp_apply,
       ContinuousLinearMap.id_apply, PiLp.sub_apply, idEmbed_apply]
     rw [padFin_projFin_apply]
     by_cases hi : (i : ℕ) < n <;> simp [hi]
@@ -431,7 +431,7 @@ theorem le_approximationNumber_idEmbed {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact
     (LinearMap.ker (L : PiLp q (fun _ : Fin m => 𝕜) →ₗ[𝕜] PiLp p (fun _ : Fin m => 𝕜))) hker
   have hLx : L x = 0 := LinearMap.mem_ker.mp hxV
   have happ : (idEmbed (𝕜 := 𝕜) (m := m) p q - L) x = idEmbed p q x := by
-    simp [ContinuousLinearMap.sub_apply, hLx]
+    simp [sub_apply, hLx]
   have hxpos : 0 < ‖x‖ := norm_pos_iff.mpr hxne
   refine le_of_mul_le_mul_right ?_ hxpos
   calc ((m - n : ℕ) : ℝ) ^ (1 / p.toReal - 1 / q.toReal) * ‖x‖

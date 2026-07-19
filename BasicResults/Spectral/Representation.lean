@@ -74,7 +74,7 @@ theorem exists_spectral_projection (S : H₁ →L[𝕜] H₂) {c : ℝ} (hc0 : 0
       refine (hcomm ((a • (1 : H₁ →L[𝕜] H₁)).restrictScalars ℝ) (fun z => ?_) x).symm
       rw [hadj]
       simp only [ContinuousLinearMap.coe_restrictScalars', ContinuousLinearMap.comp_apply,
-        ContinuousLinearMap.smul_apply, ContinuousLinearMap.one_apply, map_smul]
+        smul_apply, one_apply_eq_self, map_smul]
     let Eₖ : H₁ →ₗ[𝕜] H₁ :=
       { toFun := E₀, map_add' := E₀.map_add, map_smul' := fun a x => hsmul a x }
     refine ⟨Eₖ.mkContinuous ‖E₀‖ fun x => E₀.le_opNorm x, fun x => ha x, ?_⟩
@@ -105,8 +105,8 @@ theorem exists_lowerBound_subspace
   -- `S ∘ (1 - E)` is small, so `S ∘ E` cannot be low rank.
   have hSE : S - S.comp E = S.comp (1 - E) := by
     ext x
-    simp only [ContinuousLinearMap.sub_apply, ContinuousLinearMap.comp_apply,
-      ContinuousLinearMap.one_apply, map_sub]
+    simp only [sub_apply, ContinuousLinearMap.comp_apply,
+      one_apply_eq_self, map_sub]
   have hrank_se : (S.comp E).rank ≤ E.rank := by
     have h := ContinuousLinearMap.rank_comp_comp_le (ContinuousLinearMap.id 𝕜 H₁) E S
     rwa [ContinuousLinearMap.comp_id] at h

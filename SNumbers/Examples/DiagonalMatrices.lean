@@ -179,7 +179,7 @@ theorem approximationNumber_DiagCLM_le {σ : Fin m → 𝕜}
   -- `D_σ - L = DiagCLM ρ`.
   have hres : DiagCLM p σ - L = DiagCLM p ρ := by
     ext x i
-    simp only [hL, hA, hB, ContinuousLinearMap.sub_apply, ContinuousLinearMap.comp_apply,
+    simp only [hL, hA, hB, sub_apply, ContinuousLinearMap.comp_apply,
       ContinuousLinearMap.id_apply, DiagCLM_apply, PiLp.sub_apply]
     rw [padFin_projFin_apply]
     by_cases hi : (i : ℕ) < n <;> simp [hρ, hi]

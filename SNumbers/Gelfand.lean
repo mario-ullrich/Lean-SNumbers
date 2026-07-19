@@ -304,7 +304,7 @@ lemma gelfandNumber_eq_zero_of_rank_le {S : X →L[𝕜] Y} {n : ℕ}
   -- (c) `S.comp M.subtypeL = 0`: every `x ∈ M = ker S` has `S x = 0`.
   have h_comp_zero : S.comp M.subtypeL = 0 := by
     ext x
-    simp only [coe_comp', Function.comp_apply, ContinuousLinearMap.zero_apply,
+    simp only [coe_comp, Function.comp_apply, zero_apply,
       Submodule.subtypeL_apply]
     exact x.2
   show ‖S.comp M.subtypeL‖ ≤ 0
@@ -364,11 +364,8 @@ lemma gelfandNumber_strict {X : Type u} [NormedAddCommGroup X]
 lemma gelfandNumber_id_euclidean (n : ℕ) :
     gelfandNumber
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
-  have h_finrank : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) = n + 1 := by
-    rw [(WithLp.linearEquiv 2 𝕜 (Fin (n + 1) → 𝕜)).finrank_eq, Module.finrank_pi 𝕜]
-    exact Fintype.card_fin _
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
-    rw [h_finrank]; exact Nat.lt_succ_self n
+    rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
   exact gelfandNumber_strict n h
 
 /-! ## Summary: Gelfand numbers form a strict s-number sequence -/

@@ -339,19 +339,44 @@ axiom reduces to the corresponding fact for the approximation numbers
 gives (S1a), \texttt{kolmogorovNumber\_comp\_comp\_le} gives the ideal
 property (S3) via the factorisation displayed above, and
 \texttt{kolmogorovNumber\_strict} gives (S5$'$). The identification of this
-$d_n$ with \texttt{SNumbers.kolmogorovNumber} of the previous section is a
-separate statement and is not yet formalized.
+$d_n$ with \texttt{SNumbers.kolmogorovNumber} of the previous section is
+Pietsch's identity, formalized as
+\texttt{SNumbers.kolmogorovNumber\_eq\_approx} (see below).
 \end{proof}
 
 The lifting development requires \texttt{DenselyNormedField} on
 $\mathbb{K}$ (for the density-of-norm scaling) and
 \texttt{CompleteSpace} on the source spaces $X$, $W$ (so $Q_X(\alpha)$
 converges as a series in $X$), in addition to \texttt{CompleteSpace}
-$\mathbb{K}$ for (S5$'$). The two formalizations agree on Banach spaces;
-the equivalence theorem
-\texttt{SNumbers.Lifting.kolmogorovNumber} $=$
-\texttt{SNumbers.kolmogorovNumber} on Banach spaces is left as a
-corollary of Pietsch's identity (not yet formalized).
+$\mathbb{K}$ for (S5$'$). The two formalizations agree on Banach spaces:
+Pietsch's identity \texttt{SNumbers.kolmogorovNumber\_eq\_approx} proves
+$d_n(S) = a_n(S \circ Q_X)$ for the canonical quotient number, and the
+equivalence \texttt{SNumbers.Lifting.kolmogorovNumber} $=$
+\texttt{SNumbers.kolmogorovNumber} (\texttt{kolmogorovNumber\_eq})
+follows immediately.
+
+\begin{theorem}[Pietsch's identity]
+\label{thm:pietsch-identity}
+\lean{SNumbers.kolmogorovNumber_eq_approx}
+\leanok
+\uses{def:kolmogorov-number, def:approximation-number}
+For every Banach space $X$ and every $S \in \mathcal{L}(X, Y)$, the
+canonical Kolmogorov number equals the approximation number of the lift:
+$d_n(S) = a_n(S \circ Q_X)$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:kolmogorov-lifting}
+The inequality $d_n(S) \le a_n(S \circ Q_X)$: for a rank-$\le n$ approximant
+$L$ of $S \circ Q_X$, take $V := \operatorname{range} L$; since every unit
+vector $x$ is $Q_X(\delta_x)$ and $\pi_V \circ L = 0$, one gets
+$\|\pi_V \circ S\| \le \|S \circ Q_X - L\|$. The reverse inequality: for an
+admissible $V$ and $\varepsilon > 0$, pick $w_x \in V$ with
+$\|S x - w_x\| < \|\pi_V \circ S\| + \varepsilon$ and lift to
+$L(\alpha) := \sum_x \alpha(x)\, w_x$ (a rank-$\le n$ operator into the
+finite-dimensional $V$), so that $\|S \circ Q_X - L\| \le \|\pi_V \circ S\| +
+\varepsilon$.
+\end{proof}
 
 \section{Hilbert numbers $h_n$}
 \label{sec:hil}

@@ -21,6 +21,9 @@ None of the content here is specific to a particular `s`-number sequence.
 * `Submodule.norm_liftQL_le` — operator-norm bound `‖V.liftQL f h‖ ≤ ‖f‖`
   for the universal lift `Submodule.liftQL`, plus the computation rule
   `Submodule.liftQL_mkQL`.
+* `SNumbers.finrank_euclideanSpace_fin'` — `finrank 𝕜 (EuclideanSpace 𝕜 (Fin n)) = n`
+  over any `NontriviallyNormedField` (Mathlib's `finrank_euclideanSpace_fin`
+  needs `RCLike`), used by the `(S5)` normalisations of every s-number.
 
 Mathlib ships the `ContinuousLinearMap` wrappers `Submodule.mkQL` and
 `Submodule.liftQL` (in
@@ -142,3 +145,18 @@ lemma norm_liftQL_le (V : Submodule 𝕜 Y) (f : Y →L[𝕜] Z)
       _ = ‖f‖ * ‖x‖ + ε := by ring
 
 end Submodule
+
+namespace SNumbers
+
+variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]
+
+/-- The dimension of `ℓ₂ⁿ = EuclideanSpace 𝕜 (Fin n)` is `n`, over any
+`NontriviallyNormedField`. Mathlib's `finrank_euclideanSpace_fin` proves the
+same, but only for `RCLike` fields; the s-number axioms are stated over a general
+field, so this variant is what the `(S5)` normalisations `_id_euclidean` need. -/
+lemma finrank_euclideanSpace_fin' (n : ℕ) :
+    Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin n)) = n := by
+  rw [(WithLp.linearEquiv 2 𝕜 (Fin n → 𝕜)).finrank_eq, Module.finrank_pi 𝕜]
+  exact Fintype.card_fin _
+
+end SNumbers

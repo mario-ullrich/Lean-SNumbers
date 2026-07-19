@@ -55,18 +55,18 @@ theorem norm_apply_sq_le_of_isPositive {A : H →L[ℂ] H} (hA : A.IsPositive) (
   have hsa : adjoint A = A := hA.isSelfAdjoint
   -- `‖A x‖² = re ⟪A² x, x⟫`.
   have hAsq : RCLike.re (⟪(A ^ 2) x, x⟫_ℂ) = ‖A x‖ ^ 2 := by
-    rw [pow_two, ContinuousLinearMap.mul_apply,
+    rw [pow_two, mul_apply_eq_comp,
       ← ContinuousLinearMap.adjoint_inner_right A (A x) x, hsa, inner_self_eq_norm_sq]
   -- Monotonicity of `re⟪· x, x⟫` from `A² ≤ ‖A‖ • A`.
   have hpos : ((‖A‖ : ℝ) • A - A ^ 2).IsPositive := sq_le_norm_smul_of_isPositive hA
   have hmono : RCLike.re (⟪(A ^ 2) x, x⟫_ℂ) ≤ RCLike.re (⟪((‖A‖ : ℝ) • A) x, x⟫_ℂ) := by
     have h0 := hpos.2 x
-    rw [ContinuousLinearMap.reApplyInnerSelf_apply, ContinuousLinearMap.sub_apply,
+    rw [ContinuousLinearMap.reApplyInnerSelf_apply, sub_apply,
       inner_sub_left, map_sub, sub_nonneg] at h0
     exact h0
   -- `re⟪(‖A‖ • A) x, x⟫ = ‖A‖ · re⟪A x, x⟫`.
   have hsmul : RCLike.re (⟪((‖A‖ : ℝ) • A) x, x⟫_ℂ) = ‖A‖ * RCLike.re (⟪A x, x⟫_ℂ) := by
-    rw [ContinuousLinearMap.smul_apply, RCLike.real_smul_eq_coe_smul (K := ℂ),
+    rw [smul_apply, RCLike.real_smul_eq_coe_smul (K := ℂ),
       inner_smul_left, RCLike.conj_ofReal, RCLike.re_ofReal_mul]
   rw [← hAsq]
   exact hmono.trans_eq hsmul
@@ -75,7 +75,7 @@ open Filter Topology in
 /-- `re⟪(B - C) x, x⟫` splits additively over the difference. -/
 private theorem reApplyInnerSelf_sub (B C : H →L[ℂ] H) (x : H) :
     (B - C).reApplyInnerSelf x = B.reApplyInnerSelf x - C.reApplyInnerSelf x := by
-  simp only [ContinuousLinearMap.reApplyInnerSelf_apply, ContinuousLinearMap.sub_apply,
+  simp only [ContinuousLinearMap.reApplyInnerSelf_apply, sub_apply,
     inner_sub_left, map_sub]
 
 /-- The map `B ↦ re⟪B x, x⟫` is monotone for the Loewner order. -/
@@ -114,7 +114,7 @@ theorem exists_tendsto_of_antitone_isPositive {T : ℕ → (H →L[ℂ] H)}
     intro m n hnm
     have hpmn : (T n - T m).IsPositive := hanti hnm
     have h1 : ‖T m x - T n x‖ = ‖(T n - T m) x‖ := by
-      rw [ContinuousLinearMap.sub_apply]; exact norm_sub_rev _ _
+      rw [sub_apply]; exact norm_sub_rev _ _
     rw [h1]
     calc ‖(T n - T m) x‖ ^ 2
         ≤ ‖T n - T m‖ * RCLike.re (⟪(T n - T m) x, x⟫_ℂ) :=
