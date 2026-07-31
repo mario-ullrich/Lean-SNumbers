@@ -299,6 +299,32 @@ lemma sum_weight_inner_sq {N : ℕ} (c : Fin N → ℝ) (u : Fin N → Euclidean
   rw [inner_smul_left, map_mul (starRingEnd 𝕜), RCLike.conj_ofReal, mul_assoc, RCLike.conj_mul,
     ← RCLike.ofReal_pow, RCLike.re_ofReal_mul, RCLike.ofReal_re]
 
+/-- **Weighted Cauchy–Schwarz.** For nonnegative weights `cᵢ`,
+`∑ᵢ cᵢ tᵢ ≤ √(∑ᵢ cᵢ) · √(∑ᵢ cᵢ tᵢ²)`.
+
+Cauchy–Schwarz applied to the vectors `(√cᵢ)` and `(√cᵢ · tᵢ)`. Paired with a
+decomposition of identity (where `∑ᵢ cᵢ` is the dimension) this is what turns a
+quadratic bound into the linear bound needed for a projection norm. -/
+lemma sum_weight_mul_le_sqrt {N : ℕ} (c : Fin N → ℝ) (hc : ∀ i, 0 ≤ c i) (t : Fin N → ℝ) :
+    ∑ i, c i * t i ≤ Real.sqrt (∑ i, c i) * Real.sqrt (∑ i, c i * t i ^ 2) := by
+  have hcsum : 0 ≤ ∑ i, c i := Finset.sum_nonneg fun i _ => hc i
+  have hquad : 0 ≤ ∑ i, c i * t i ^ 2 :=
+    Finset.sum_nonneg fun i _ => mul_nonneg (hc i) (sq_nonneg _)
+  -- Cauchy–Schwarz for the two vectors `√cᵢ` and `√cᵢ · tᵢ`.
+  have h := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
+    (fun i => Real.sqrt (c i)) (fun i => Real.sqrt (c i) * t i)
+  have e1 : ∀ i, Real.sqrt (c i) * (Real.sqrt (c i) * t i) = c i * t i := fun i => by
+    rw [← mul_assoc, Real.mul_self_sqrt (hc i)]
+  have e2 : ∀ i, (Real.sqrt (c i)) ^ 2 = c i := fun i => Real.sq_sqrt (hc i)
+  have e3 : ∀ i, (Real.sqrt (c i) * t i) ^ 2 = c i * t i ^ 2 := fun i => by
+    rw [mul_pow, Real.sq_sqrt (hc i)]
+  simp only [e1, e2, e3] at h
+  -- `(∑ cᵢtᵢ)² ≤ (∑ cᵢ)(∑ cᵢtᵢ²)`, so the claim follows by taking square roots.
+  calc ∑ i, c i * t i ≤ |∑ i, c i * t i| := le_abs_self _
+    _ = Real.sqrt ((∑ i, c i * t i) ^ 2) := (Real.sqrt_sq_eq_abs _).symm
+    _ ≤ Real.sqrt ((∑ i, c i) * ∑ i, c i * t i ^ 2) := Real.sqrt_le_sqrt h
+    _ = Real.sqrt (∑ i, c i) * Real.sqrt (∑ i, c i * t i ^ 2) := Real.sqrt_mul hcsum _
+
 /-! ### Ingredients for the John decomposition of identity
 
 The proof of `john_decomposition` below is the classical variational argument
@@ -641,6 +667,7 @@ lemma one_sub_le_norm_det_one_add_smul
         refine Finset.prod_congr rfl fun i _ => ?_
         rw [RCLike.norm_ofReal, abs_of_pos (hfac_pos i)]
 
+-- The eigenvalue/determinant bookkeeping below needs more than the default budget.
 set_option maxHeartbeats 400000 in
 /-- **First-order optimality in John position.** If the identity has maximal `‖det‖`
 among feasible operators for `q` (with `q ≤ ‖·‖`), then no self-adjoint trace-zero `H`
@@ -1021,7 +1048,146 @@ theorem exists_projection {Y : Type u} [NormedAddCommGroup Y] [NormedSpace 𝕜 
       _ = Real.sqrt (k : ℝ) * ‖y‖ := by
           rw [Real.sqrt_mul (Nat.cast_nonneg k), Real.sqrt_sq (norm_nonneg _)]
 
-set_option maxHeartbeats 1000000 in
+/-! ### Ingredients for the dual (Garling–Gordon) projection
+
+`exists_projection_ker` below runs the Kadets–Snobar argument in the
+finite-dimensional dual `D = (X ⧸ M)*`, where the John-position map is a
+contraction `Φ : 𝕜^k ≃L D`. Three steps of that argument are independent of the
+quotient and are recorded here for a `W` in place of `X ⧸ M`. -/
+
+section DualProjection
+
+variable {W : Type u} [NormedAddCommGroup W] [NormedSpace 𝕜 W]
+
+/-- **Riesz representation of evaluation.** If `Φ : 𝕜^k ≃L W*` is a contraction,
+then for every `v : W` the functional `z ↦ (Φ z) v` on `𝕜^k` is an inner product
+`⟪r, ·⟫` against a vector `r` with `‖r‖ ≤ ‖v‖`.
+
+This is how a vector of `W` is turned into a Euclidean vector, so that the
+decomposition of identity (which lives on `𝕜^k`) can be applied to it. -/
+private lemma exists_riesz_repr (Φ : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 W)
+    (hΦ : ∀ z, ‖Φ z‖ ≤ ‖z‖) (v : W) :
+    ∃ r : EuclideanSpace 𝕜 (Fin k), (∀ z, ⟪r, z⟫_𝕜 = (Φ z) v) ∧ ‖r‖ ≤ ‖v‖ := by
+  set ℓ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] 𝕜 :=
+    ((NormedSpace.inclusionInDoubleDual 𝕜 W) v).comp
+      (Φ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 W) with hℓ
+  have hℓapply : ∀ z, ℓ z = (Φ z) v := fun z => rfl
+  have hℓnorm : ‖ℓ‖ ≤ ‖v‖ := by
+    refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg v) fun z => ?_
+    rw [hℓapply z]
+    calc ‖(Φ z) v‖ ≤ ‖Φ z‖ * ‖v‖ := (Φ z).le_opNorm v
+      _ ≤ ‖z‖ * ‖v‖ := mul_le_mul_of_nonneg_right (hΦ z) (norm_nonneg v)
+      _ = ‖v‖ * ‖z‖ := mul_comm _ _
+  refine ⟨(InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k))).symm ℓ, fun z => ?_, ?_⟩
+  · rw [InnerProductSpace.toDual_symm_apply]
+    exact hℓapply z
+  · rw [LinearIsometryEquiv.norm_map]
+    exact hℓnorm
+
+/-- **A contact point of the dual body is represented by a vector of `W`.**
+For a contact point `u₀` of the body seminorm `q` (so `‖⟪z, u₀⟫‖ ≤ q z`), there is
+`w : W` with `‖w‖ ≤ 1` representing `u₀` in the sense that
+`g w = ⟪u₀, Φ.symm g⟫` for every `g : W*`.
+
+The point of the statement is that it avoids the *topological double dual*: the
+flip `Φ.flip : W → (𝕜^k)*` is injective (a nonzero `v` is separated by some
+functional) between spaces of equal finite dimension `k`, hence surjective, so
+the Riesz vector of `u₀` is hit by some `w`. The norm bound is then the contact
+inequality read through `‖Φ z‖ = q z`. -/
+private lemma exists_witness_of_contact [FiniteDimensional 𝕜 W]
+    (hkW : Module.finrank 𝕜 W = k)
+    (Φ : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 W)
+    {q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k))} (hqΦ : ∀ z, ‖Φ z‖ = q z)
+    (u₀ : EuclideanSpace 𝕜 (Fin k)) (hu₀ : ∀ z, ‖⟪z, u₀⟫_𝕜‖ ≤ q z) :
+    ∃ w : W, (∀ g : StrongDual 𝕜 W, g w = ⟪u₀, Φ.symm g⟫_𝕜) ∧ ‖w‖ ≤ 1 := by
+  classical
+  set T : W →L[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) :=
+    (Φ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 W).flip with hT
+  have hTapply : ∀ (v : W) (z : EuclideanSpace 𝕜 (Fin k)), T v z = Φ z v :=
+    fun v z => ContinuousLinearMap.flip_apply _ z v
+  haveI : FiniteDimensional 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) :=
+    Module.Finite.equiv
+      (LinearMap.toContinuousLinearMap :
+        ((EuclideanSpace 𝕜 (Fin k)) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((EuclideanSpace 𝕜 (Fin k)) →L[𝕜] 𝕜))
+  have hkSD : Module.finrank 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) = k := by
+    rw [← (LinearMap.toContinuousLinearMap :
+          ((EuclideanSpace 𝕜 (Fin k)) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜]
+            ((EuclideanSpace 𝕜 (Fin k)) →L[𝕜] 𝕜)).finrank_eq,
+        Subspace.dual_finrank_eq, finrank_euclideanSpace_fin]
+  have hTinj : Function.Injective
+      (T : W →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
+    rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+    intro v hv
+    refine norm_le_zero_iff.mp (NormedSpace.norm_le_dual_bound 𝕜 v le_rfl fun g => ?_)
+    have hgv : g v = 0 := by
+      have h2 := hTapply v (Φ.symm g)
+      rw [Φ.apply_symm_apply] at h2
+      rw [← h2, show T v = 0 from hv]; rfl
+    simp [hgv]
+  have hTsurj : Function.Surjective
+      (T : W →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
+    have hrank : Module.finrank 𝕜 (LinearMap.range
+        (T : W →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))))
+        = Module.finrank 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
+      rw [LinearMap.finrank_range_of_inj hTinj, hkSD, hkW]
+    rw [← LinearMap.range_eq_top]
+    exact Submodule.eq_top_of_finrank_eq hrank
+  obtain ⟨w, hw⟩ := hTsurj (InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) u₀)
+  have hweval : ∀ g : StrongDual 𝕜 W, g w = ⟪u₀, Φ.symm g⟫_𝕜 := fun g => by
+    have h1 : T w (Φ.symm g) = ⟪u₀, Φ.symm g⟫_𝕜 := by
+      rw [show T w = InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) u₀ from hw,
+        InnerProductSpace.toDual_apply_apply]
+    rwa [hTapply w (Φ.symm g), Φ.apply_symm_apply] at h1
+  refine ⟨w, hweval, ?_⟩
+  refine NormedSpace.norm_le_dual_bound 𝕜 w zero_le_one fun g => ?_
+  rw [one_mul, hweval g]
+  calc ‖⟪u₀, Φ.symm g⟫_𝕜‖ = ‖⟪Φ.symm g, u₀⟫_𝕜‖ := by
+        rw [← inner_conj_symm (Φ.symm g) u₀, RCLike.norm_conj]
+    _ ≤ q (Φ.symm g) := hu₀ (Φ.symm g)
+    _ = ‖Φ (Φ.symm g)‖ := (hqΦ (Φ.symm g)).symm
+    _ = ‖g‖ := by rw [Φ.apply_symm_apply]
+
+/-- **The witnesses reproduce every vector.** With `w i` representing the contact
+point `u i` (as in `exists_witness_of_contact`) and `cᵢ, uᵢ` a decomposition of
+identity, every `v : W` is recovered as `∑ᵢ (cᵢ · (Φ uᵢ) v) • wᵢ`.
+
+This is the identity that makes the operator built from the `wᵢ` a *projection*:
+pairing with an arbitrary `g : W*` turns the claim into the decomposition of
+identity applied to the Riesz vector of `v`. -/
+private lemma sum_weight_smul_witness_eq
+    (Φ : EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 W) (hΦ : ∀ z, ‖Φ z‖ ≤ ‖z‖)
+    {N : ℕ} (c : Fin N → ℝ) (u : Fin N → EuclideanSpace 𝕜 (Fin k)) (w : Fin N → W)
+    (hdec : ∀ z, ∑ i, ((c i : 𝕜) * ⟪u i, z⟫_𝕜) • u i = z)
+    (hweval : ∀ i (g : StrongDual 𝕜 W), g (w i) = ⟪u i, Φ.symm g⟫_𝕜) (v : W) :
+    (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = v := by
+  obtain ⟨r, hr, -⟩ := exists_riesz_repr Φ hΦ v
+  apply (NormedSpace.inclusionInDoubleDualLi (E := W) 𝕜).injective
+  apply ContinuousLinearMap.ext
+  intro g
+  have hLHS : (NormedSpace.inclusionInDoubleDualLi (E := W) 𝕜)
+      (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) g
+      = ∑ i, ((c i : 𝕜) * (Φ (u i)) v) * g (w i) := by
+    show g (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = _
+    rw [map_sum]
+    exact Finset.sum_congr rfl fun i _ => by rw [map_smul, smul_eq_mul]
+  have hRHS : (NormedSpace.inclusionInDoubleDualLi (E := W) 𝕜) v g = g v := rfl
+  rw [hLHS, hRHS]
+  -- Rewrite through the Riesz vector and the decomposition of identity.
+  set z := Φ.symm g with hz
+  have hgz : g = Φ z := by rw [hz, Φ.apply_symm_apply]
+  calc ∑ i, ((c i : 𝕜) * (Φ (u i)) v) * g (w i)
+      = ∑ i, (c i : 𝕜) * ⟪u i, z⟫_𝕜 * ⟪r, u i⟫_𝕜 := by
+        refine Finset.sum_congr rfl fun i _ => ?_
+        rw [hweval i g, ← hz, hr (u i)]; ring
+    _ = ⟪r, ∑ i, ((c i : 𝕜) * ⟪u i, z⟫_𝕜) • u i⟫_𝕜 := by
+        rw [inner_sum]
+        exact Finset.sum_congr rfl fun i _ => by rw [inner_smul_right]
+    _ = ⟪r, z⟫_𝕜 := by rw [hdec z]
+    _ = (Φ z) v := hr z
+    _ = g v := by rw [← hgz]
+
+end DualProjection
+
 /-- **Garling–Gordon, ε-form.** Every closed subspace `M` of a normed `𝕜`-space
 `X` with finite-dimensional quotient is the kernel of a bounded projection
 `P : X →L[𝕜] X` with `‖P‖ ≤ √(codim M) + ε`, for every `ε > 0`.
@@ -1074,77 +1240,15 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
       EuclideanSpace 𝕜 (Fin k) ≃L[𝕜] StrongDual 𝕜 (X ⧸ M))
   -- The John decomposition of identity in John position.
   obtain ⟨N, u, c, hcontact, hcnn, hcsum, hdec⟩ := john_decomposition q hqc hq1 hqmax
-  -- Riesz representation: for `v ∈ X ⧸ M`, evaluation at `v` pulls back through
-  -- `Φ` to an inner product against a vector `r` with `‖r‖ ≤ ‖v‖`.
+  -- The John-position map is a contraction, so evaluation at `v ∈ X ⧸ M` pulls
+  -- back through `Φ` to an inner product against a vector of norm `≤ ‖v‖`.
+  have hΦle : ∀ z, ‖Φ z‖ ≤ ‖z‖ := fun z => (hqΦ z).trans_le (hq1 z)
   have hRiesz : ∀ v : X ⧸ M, ∃ r : EuclideanSpace 𝕜 (Fin k),
-      (∀ z, ⟪r, z⟫_𝕜 = (Φ z) v) ∧ ‖r‖ ≤ ‖v‖ := by
-    intro v
-    set ℓ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] 𝕜 :=
-      ((NormedSpace.inclusionInDoubleDual 𝕜 (X ⧸ M)) v).comp
-        (Φ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)) with hℓ
-    have hℓapply : ∀ z, ℓ z = (Φ z) v := fun z => rfl
-    have hℓnorm : ‖ℓ‖ ≤ ‖v‖ := by
-      refine ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg v) fun z => ?_
-      rw [hℓapply z]
-      calc ‖(Φ z) v‖ ≤ ‖Φ z‖ * ‖v‖ := (Φ z).le_opNorm v
-        _ = q z * ‖v‖ := by rw [hqΦ]
-        _ ≤ ‖z‖ * ‖v‖ := mul_le_mul_of_nonneg_right (hq1 z) (norm_nonneg v)
-        _ = ‖v‖ * ‖z‖ := mul_comm _ _
-    refine ⟨(InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k))).symm ℓ, fun z => ?_, ?_⟩
-    · rw [InnerProductSpace.toDual_symm_apply]
-      exact hℓapply z
-    · rw [LinearIsometryEquiv.norm_map]
-      exact hℓnorm
-  -- Represent each contact point `u i` by a vector `w i ∈ X ⧸ M`, solving the
-  -- *single*-dual equation `Φ.flip (w i) = toDual (u i)`. `Φ.flip` is a linear
-  -- isomorphism `X ⧸ M ≃ (𝕜^k)*` (all dimensions stay `k`), so this avoids the
-  -- topological double dual entirely.
-  set T : (X ⧸ M) →L[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) :=
-    (Φ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 (X ⧸ M)).flip with hT
-  have hTapply : ∀ (v : X ⧸ M) (z : EuclideanSpace 𝕜 (Fin k)), T v z = Φ z v :=
-    fun v z => ContinuousLinearMap.flip_apply _ z v
-  haveI : FiniteDimensional 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) :=
-    Module.Finite.equiv
-      (LinearMap.toContinuousLinearMap :
-        ((EuclideanSpace 𝕜 (Fin k)) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((EuclideanSpace 𝕜 (Fin k)) →L[𝕜] 𝕜))
-  have hkSD : Module.finrank 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) = k := by
-    rw [← (LinearMap.toContinuousLinearMap :
-          ((EuclideanSpace 𝕜 (Fin k)) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜]
-            ((EuclideanSpace 𝕜 (Fin k)) →L[𝕜] 𝕜)).finrank_eq,
-        Subspace.dual_finrank_eq, hEfin]
-  have hTinj : Function.Injective
-      (T : (X ⧸ M) →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
-    rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
-    intro v hv
-    refine norm_le_zero_iff.mp (NormedSpace.norm_le_dual_bound 𝕜 v le_rfl fun g => ?_)
-    have hgv : g v = 0 := by
-      have h2 := hTapply v (Φ.symm g)
-      rw [Φ.apply_symm_apply] at h2
-      rw [← h2, show T v = 0 from hv]; rfl
-    simp [hgv]
-  have hTsurj : Function.Surjective
-      (T : (X ⧸ M) →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
-    have hrank : Module.finrank 𝕜 (LinearMap.range
-        (T : (X ⧸ M) →ₗ[𝕜] StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))))
-        = Module.finrank 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) := by
-      rw [LinearMap.finrank_range_of_inj hTinj, hkSD, ← hk]
-    rw [← LinearMap.range_eq_top]
-    exact Submodule.eq_top_of_finrank_eq hrank
-  choose w hw using fun i =>
-    hTsurj (InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) (u i))
-  have hweval : ∀ i (g : StrongDual 𝕜 (X ⧸ M)), g (w i) = ⟪u i, Φ.symm g⟫_𝕜 := fun i g => by
-    have h1 : T (w i) (Φ.symm g) = ⟪u i, Φ.symm g⟫_𝕜 := by
-      rw [show T (w i) = InnerProductSpace.toDual 𝕜 (EuclideanSpace 𝕜 (Fin k)) (u i) from hw i,
-        InnerProductSpace.toDual_apply_apply]
-    rwa [hTapply (w i) (Φ.symm g), Φ.apply_symm_apply] at h1
-  have hwnorm : ∀ i, ‖w i‖ ≤ 1 := fun i => by
-    refine NormedSpace.norm_le_dual_bound 𝕜 (w i) zero_le_one fun g => ?_
-    rw [one_mul, hweval i g]
-    calc ‖⟪u i, Φ.symm g⟫_𝕜‖ = ‖⟪Φ.symm g, u i⟫_𝕜‖ := by
-          rw [← inner_conj_symm (Φ.symm g) (u i), RCLike.norm_conj]
-      _ ≤ q (Φ.symm g) := norm_inner_le_of_contact (hcontact i) (Φ.symm g)
-      _ = ‖Φ (Φ.symm g)‖ := (hqΦ (Φ.symm g)).symm
-      _ = ‖g‖ := by rw [Φ.apply_symm_apply]
+      (∀ z, ⟪r, z⟫_𝕜 = (Φ z) v) ∧ ‖r‖ ≤ ‖v‖ := fun v => exists_riesz_repr Φ hΦle v
+  -- Represent each contact point `u i` by a vector `w i ∈ X ⧸ M` of norm `≤ 1`
+  -- (`exists_witness_of_contact`, via the single dual `Φ.flip`).
+  choose w hweval hwnorm using fun i =>
+    exists_witness_of_contact hk.symm Φ hqΦ (u i) (norm_inner_le_of_contact (hcontact i))
   -- Lift each `w i` to a representative `x i ∈ X` with `‖x i‖ < 1 + ε'` — the
   -- sole source of the `ε`.
   set ε' : ℝ := ε / Real.sqrt k with hε'def
@@ -1166,35 +1270,8 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
     simp only [sum_apply, smul_apply,
       ContinuousLinearMap.smulRight_apply, ContinuousLinearMap.comp_apply, smul_smul]
   -- Key identity: the weighted combination of the `w i` reproduces every `v`.
-  have hkey : ∀ v : X ⧸ M, (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = v := by
-    intro v
-    obtain ⟨r, hr, _⟩ := hRiesz v
-    apply (NormedSpace.inclusionInDoubleDualLi (E := X ⧸ M) 𝕜).injective
-    apply ContinuousLinearMap.ext
-    intro g
-    have hLHS : (NormedSpace.inclusionInDoubleDualLi (E := X ⧸ M) 𝕜)
-        (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) g
-        = ∑ i, ((c i : 𝕜) * (Φ (u i)) v) * g (w i) := by
-      show g (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = _
-      rw [map_sum]
-      exact Finset.sum_congr rfl fun i _ => by
-        rw [map_smul, smul_eq_mul]
-    have hRHS : (NormedSpace.inclusionInDoubleDualLi (E := X ⧸ M) 𝕜) v g = g v := rfl
-    rw [hLHS, hRHS]
-    -- Rewrite through the Riesz vector and the decomposition of identity.
-    set z := Φ.symm g with hz
-    have hgz : g = Φ z := by rw [hz, Φ.apply_symm_apply]
-    calc ∑ i, ((c i : 𝕜) * (Φ (u i)) v) * g (w i)
-        = ∑ i, (c i : 𝕜) * ⟪u i, z⟫_𝕜 * ⟪r, u i⟫_𝕜 := by
-          refine Finset.sum_congr rfl fun i _ => ?_
-          rw [hweval i g, ← hz, hr (u i)]; ring
-      _ = ⟪r, ∑ i, ((c i : 𝕜) * ⟪u i, z⟫_𝕜) • u i⟫_𝕜 := by
-          rw [inner_sum]
-          exact Finset.sum_congr rfl fun i _ => by
-            rw [inner_smul_right]
-      _ = ⟪r, z⟫_𝕜 := by rw [hdec z]
-      _ = (Φ z) v := hr z
-      _ = g v := by rw [← hgz]
+  have hkey : ∀ v : X ⧸ M, (∑ i, ((c i : 𝕜) * (Φ (u i)) v) • w i) = v :=
+    fun v => sum_weight_smul_witness_eq Φ hΦle c u w hdec hweval v
   have hπP : ∀ y, π (P y) = π y := fun y => by
     have hsum : π (P y) = ∑ i, ((c i : 𝕜) * (Φ (u i)) (π y)) • w i := by
       rw [hPapply, map_sum]
@@ -1233,30 +1310,13 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
         _ ≤ ‖y‖ ^ 2 := pow_le_pow_left₀ (norm_nonneg _) (hπle y) 2
     -- Cauchy–Schwarz: `∑ᵢ cᵢ ‖fᵢ(πy)‖ ≤ √k · ‖y‖`.
     have hCS : ∑ i, c i * ‖(Φ (u i)) (π y)‖ ≤ Real.sqrt k * ‖y‖ := by
-      have h := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
-        (fun i => Real.sqrt (c i)) (fun i => Real.sqrt (c i) * ‖(Φ (u i)) (π y)‖)
-      have e1 : ∀ i, Real.sqrt (c i) * (Real.sqrt (c i) * ‖(Φ (u i)) (π y)‖)
-          = c i * ‖(Φ (u i)) (π y)‖ := fun i => by
-        rw [← mul_assoc, Real.mul_self_sqrt (hcnn i)]
-      have e2 : ∀ i, (Real.sqrt (c i)) ^ 2 = c i := fun i => Real.sq_sqrt (hcnn i)
-      have e3 : ∀ i, (Real.sqrt (c i) * ‖(Φ (u i)) (π y)‖) ^ 2
-          = c i * ‖(Φ (u i)) (π y)‖ ^ 2 := fun i => by
-        rw [mul_pow, Real.sq_sqrt (hcnn i)]
-      simp only [e1, e2, e3] at h
-      -- `h : (∑ᵢ cᵢ‖fᵢ(πy)‖)² ≤ (∑ᵢ cᵢ) · ∑ᵢ cᵢ‖fᵢ(πy)‖²`
-      have hA0 : 0 ≤ ∑ i, c i * ‖(Φ (u i)) (π y)‖ :=
-        Finset.sum_nonneg fun i _ => mul_nonneg (hcnn i) (norm_nonneg _)
-      have hupper : (∑ i, c i * ‖(Φ (u i)) (π y)‖) ^ 2 ≤ (k : ℝ) * ‖y‖ ^ 2 := by
-        calc (∑ i, c i * ‖(Φ (u i)) (π y)‖) ^ 2
-            ≤ (∑ i, c i) * ∑ i, c i * ‖(Φ (u i)) (π y)‖ ^ 2 := h
-          _ = (k : ℝ) * ∑ i, c i * ‖(Φ (u i)) (π y)‖ ^ 2 := by rw [hcsum]
-          _ ≤ (k : ℝ) * ‖y‖ ^ 2 :=
-              mul_le_mul_of_nonneg_left hquad (Nat.cast_nonneg k)
       calc ∑ i, c i * ‖(Φ (u i)) (π y)‖
-          = Real.sqrt ((∑ i, c i * ‖(Φ (u i)) (π y)‖) ^ 2) := (Real.sqrt_sq hA0).symm
-        _ ≤ Real.sqrt ((k : ℝ) * ‖y‖ ^ 2) := Real.sqrt_le_sqrt hupper
-        _ = Real.sqrt k * ‖y‖ := by
-            rw [Real.sqrt_mul (Nat.cast_nonneg k), Real.sqrt_sq (norm_nonneg _)]
+          ≤ Real.sqrt (∑ i, c i) * Real.sqrt (∑ i, c i * ‖(Φ (u i)) (π y)‖ ^ 2) :=
+            sum_weight_mul_le_sqrt c hcnn _
+        _ ≤ Real.sqrt k * Real.sqrt (‖y‖ ^ 2) := by
+            rw [hcsum]
+            exact mul_le_mul_of_nonneg_left (Real.sqrt_le_sqrt hquad) (Real.sqrt_nonneg _)
+        _ = Real.sqrt k * ‖y‖ := by rw [Real.sqrt_sq (norm_nonneg _)]
     -- Assemble.
     calc ‖P y‖ ≤ ∑ i, ‖((c i : 𝕜) * (Φ (u i)) (π y)) • x i‖ := by
           rw [hPapply]; exact norm_sum_le _ _
