@@ -3,10 +3,12 @@
 A Lean 4 / Mathlib formalisation of the **Pietsch axiomatic theory of
 s-numbers** for bounded linear operators between Banach spaces.
 
-**Repository** (private): <https://github.com/mario-ullrich/Lean-SNumbers>
+**Repository**: <https://github.com/mario-ullrich/Lean-SNumbers>
 
-**Blueprint**: built by GitHub Actions, available as a downloadable
-artifact under *Actions → latest run → blueprint-web*.
+**Blueprint**: <https://mario-ullrich.github.io/Lean-SNumbers/> — a
+human-readable account of the mathematics with links into the Lean code, built
+from `blueprint/` by GitHub Actions on every push (the PDF version and the
+dependency graph are linked from there).
 
 ## What are s-numbers?
 
@@ -59,8 +61,9 @@ examples, which are the central targets of this formalisation:
 │   ├── Helpers.lean            ← shared rank facts + norm bounds for the
 │   │                              Mathlib quotient CLMs Submodule.mkQL/liftQL
 │   │                              + finrank (EuclideanSpace 𝕜 (Fin n)) = n
-│   ├── PiLpCoordinates.lean    ← coordinate projection/embedding contractions
-│   │                              projFin / padFin between ℓ^p_n and ℓ^p_m
+│   ├── PiLpCoordinates.lean    ← generic ℓ^p facts: norm monotonicity, dim ℓ^p_k = k,
+│   │                              and the coordinate projection/embedding
+│   │                              contractions projFin / padFin (ℓ^p_n ↔ ℓ^p_m)
 │   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
 │   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
 │   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
@@ -90,13 +93,17 @@ examples, which are the central targets of this formalisation:
 │   ├── Injectivity.lean        ← injective / surjective s-numbers:
 │   │                              cₙ injective, dₙ surjective (full proofs)
 │   └── Examples/
-│       ├── DiagonalMatrices.lean ← worked example: s-numbers of a diagonal
-│       │                          operator D_σ : ℓ^p_m → ℓ^p_m (sₙ = ‖σ_n‖)
-│       ├── IdentityEmbedding.lean ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q):
+│       ├── ExHelpers.lean       ← ingredients shared by the examples: coordinate
+│       │                          pigeonhole + (weighted) flatness lemmas behind
+│       │                          the Gelfand-width lower bounds, rank of id_{ℓ^p_k}
+│       ├── Identity.lean        ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q):
 │       │                          ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
-│       ├── DiagonalMixedExponent.lean ← mixed-exponent diagonal D_σ : ℓ^q_m → ℓ^p_m:
-│       │                          p < q gives aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
-│       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞) gives
+│       │                          (the unit-diagonal case, self-contained)
+│       ├── DiagonalMatrices.lean ← worked example: s-numbers of the diagonal
+│       │                          operators, all pairs of exponents.
+│       │                          Same exponent D_σ : ℓ^p_m → ℓ^p_m: sₙ = ‖σ_n‖.
+│       │                          Mixed p < q: aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
+│       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞):
 │       │                          ‖D_σ‖ = maxᵢ‖σᵢ‖ and sₙ ≤ ‖σ_n‖
 │       └── IdentityL1Linfty.lean ← inclusion I : ℓ₁ → ℓ_∞: ½ ≤ cₙ(I) ≤ 1 and
 │                                  hₙ(I) ≥ 1/(n+1) (n+1 in the max-difference thm
@@ -134,6 +141,7 @@ examples, which are the central targets of this formalisation:
 │   └── Compact.lean            ← compact ⇔ approximable on Hilbert
 ├── LICENSE                     ← Apache 2.0
 ├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
+├── .github/workflows/          ← CI: builds the project + blueprint, deploys Pages
 └── blueprint/
     └── src/
         ├── plastex.cfg         ← plastex / leanblueprint configuration
@@ -233,16 +241,19 @@ A green check means fully proved (no `sorry`).
 
 ## Completeness
 
-The whole project builds **`sorry`-free**. The last classical core, 
-the **John decomposition of identity** `John.john_decomposition` in 
-`BasicResults/John.lean`: in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` 
-over contact points `uᵢ`, with `cᵢ ≥ 0` and `∑ᵢ cᵢ = k`. 
-**It was formalized by AI (Fable 5) and not checked by myself!** 
-It is apparently proved by the classical variational argument 
-(Hahn–Banach separation of `k⁻¹·id` from the compact convex hull of 
-the contact projections, trace duality, the first-order perturbation 
-`(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and 
-Carathéodory). Its general-purpose ingredients live in 
+The whole project builds **`sorry`-free**, so every result listed above is
+verified by the Lean kernel.
+
+One note on provenance. The deepest classical ingredient is the **John
+decomposition of identity** `John.john_decomposition` in `BasicResults/John.lean`:
+in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points `uᵢ`, with
+`cᵢ ≥ 0` and `∑ᵢ cᵢ = k`. Its Lean proof was produced with substantial AI
+assistance and the author has not reviewed the proof script line by line; what
+guarantees it is the kernel check, not a human reading. The argument it follows
+is the classical variational one (Hahn–Banach separation of `k⁻¹·id` from the
+compact convex hull of the contact projections, trace duality, the first-order
+perturbation `(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and
+Carathéodory). Its general-purpose ingredients live in
 `BasicResults/JohnAux.lean` and are future candidates for Mathlib:
 
 * the convex hull of a compact set in a finite-dimensional real normed space is
@@ -264,9 +275,13 @@ on it.
 
 ## Building
 
+Requires [`elan`](https://github.com/leanprover/elan); the Lean version is
+pinned in `lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone
+builds against exactly the tested revisions:
+
 ```bash
-lake update     # fetches Mathlib
-lake build      # builds the project
+lake exe cache get   # downloads the prebuilt Mathlib oleans
+lake build           # builds the project
 ```
 
 ## Building the blueprint
@@ -280,9 +295,10 @@ leanblueprint web      # produces blueprint/web/index.html
 leanblueprint checkdecls   # checks that every \lean{Decl} resolves
 ```
 
-The simplest way to obtain the rendered blueprint is to push to GitHub:
-the workflow at `.github/workflows/blueprint.yml` builds it on every push
-and uploads `blueprint-web` and `blueprint-pdf` as artifacts.
+The rendered blueprint is published automatically: the workflow at
+`.github/workflows/blueprint.yml` builds it on every push to `main`, deploys it
+to <https://mario-ullrich.github.io/Lean-SNumbers/>, and also keeps
+`blueprint-web` and `blueprint-pdf` as downloadable run artifacts.
 
 ## License
 

@@ -1,17 +1,10 @@
-# Builds the leanblueprint and stores the result as a workflow artifact.
+# Builds the Lean project and the leanblueprint, publishes the blueprint to
+# GitHub Pages, and keeps both outputs as downloadable workflow artifacts.
 #
-# This variant is for *private* repositories where GitHub Pages is not
-# available on the free plan. Instead of publishing the blueprint to a
-# public URL, we save it as a downloadable ZIP attached to each workflow
-# run. To view the blueprint:
-#
-#   1. Go to the repository's Actions tab.
-#   2. Click on the most recent successful run of this workflow.
-#   3. Scroll to the bottom and download the `blueprint-web` artifact.
-#   4. Unzip it on your computer and open `index.html` in your browser.
-#
-# The PDF is uploaded as a separate artifact `blueprint-pdf` for
-# convenience.
+# The published site is https://mario-ullrich.github.io/Lean-SNumbers/ (enable
+# it once under Settings -> Pages -> Source: GitHub Actions). The PDF is copied
+# into the site as blueprint.pdf, and `blueprint-web` / `blueprint-pdf` remain
+# available from each run's summary page.
 
 name: Build blueprint
 
@@ -19,6 +12,18 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+
+# Needed by the deploy job: `pages` to publish, `id-token` for the deployment's
+# OIDC verification. The build job only reads the repository.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a newer push supersede an in-flight deployment rather than queueing.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 # All pinned action versions below natively target Node.js 24. This env
 # var is kept as a belt-and-suspenders guard against any future action
@@ -104,9 +109,16 @@ jobs:
 
       - name: Verify Lean declaration references
         run: leanblueprint checkdecls
-        continue-on-error: true   # Don't block on first run; flip to false once stable.
+        continue-on-error: true   # Reported, but not treated as a build failure.
 
-      # ----- Upload as workflow artifacts
+      # Serve the PDF from the site too, so it has a stable public URL.
+      - name: Add the PDF to the site
+        run: |
+          if [ -f blueprint/print/print.pdf ]; then
+            cp blueprint/print/print.pdf blueprint/web/blueprint.pdf
+          fi
+
+      # ----- Upload as workflow artifacts (downloadable from the run page)
       - name: Upload blueprint web (HTML site)
         uses: actions/upload-artifact@v5
         with:
@@ -121,3 +133,24 @@ jobs:
           name: blueprint-pdf
           path: blueprint/print/print.pdf
           retention-days: 30
+
+      # ----- Hand the site to the Pages deployment job
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: blueprint/web/
+
+  # Publishing runs in its own job, as required by the Pages deployment action.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
