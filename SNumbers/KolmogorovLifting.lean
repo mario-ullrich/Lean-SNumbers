@@ -305,6 +305,9 @@ variable [NormedAddCommGroup W] [NormedSpace 𝕜 W] [CompleteSpace W]
 variable [NormedAddCommGroup X] [NormedSpace 𝕜 X] [CompleteSpace X]
 variable [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
 variable [NormedAddCommGroup Z] [NormedSpace 𝕜 Z]
+-- The four spaces above are needed for the (S3) statement at the end of the
+-- section, but each auxiliary lemma on the way uses only some of them. Silencing
+-- the linter once here is shorter than an `omit` clause on nearly every lemma.
 set_option linter.unusedSectionVars false
 
 /-- For `w ∈ B_W`, `c⁻¹ • A w ∈ B_X` (provided `‖A‖ ≤ ‖c‖`, `c ≠ 0`). -/
