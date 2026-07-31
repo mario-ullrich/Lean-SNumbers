@@ -3,9 +3,9 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Examples.DiagonalMatrices
+import SNumbers.Approximation
+import SNumbers.Examples.ExHelpers
 import Mathlib.Analysis.MeanInequalities
-import Mathlib.Analysis.Convex.KreinMilman
 
 /-!
 # Example: s-numbers of the identity embedding `ℓ^q_m → ℓ^p_m`
@@ -13,6 +13,12 @@ import Mathlib.Analysis.Convex.KreinMilman
 The identity map `id : ℓ^q_m → ℓ^p_m` between finite-dimensional sequence spaces
 with **different** exponents (`p ≤ q`). Its s-numbers are a classical example
 (Pietsch, *Eigenvalues and s-numbers*, §11.11).
+
+This is the **unit-diagonal** case of the diagonal operators, and it is kept
+self-contained: it depends only on the core s-number theory and the shared
+helpers, not on any diagonal machinery. (The general diagonal operator, for all
+pairs of exponents, is `SNumbers.Examples.DiagonalMatrices`, which builds on
+this file.)
 
 This file develops the case `1 ≤ p ≤ q < ∞`:
 
@@ -26,8 +32,9 @@ This file develops the case `1 ≤ p ≤ q < ∞`:
 * `approximationNumber_idEmbed_eq` — the exact value `aₙ(id) = (m-n)^{1/p-1/q}`,
   via the geometric input `exists_norm_ratio_ge_idEmbed` (the classical
   Gelfand-width lower bound, Pietsch §11.11): every subspace of dimension `≥ m-n`
-  contains a vector with `p`/`q`-norm ratio `≥ (m-n)^{1/p-1/q}`, proved by a
-  flatness / extreme-point argument (`exists_flat_vector`).
+  contains a vector with `p`/`q`-norm ratio `≥ (m-n)^{1/p-1/q}`, proved from the
+  flatness / extreme-point lemma `exists_flat_vector` of
+  `SNumbers.Examples.ExHelpers`.
 -/
 
 universe u
@@ -38,10 +45,6 @@ open ContinuousLinearMap
 namespace SNumbers
 
 variable {𝕜 : Type u} [RCLike 𝕜] {m : ℕ}
-
-/-- A finite exponent `p` with `1 ≤ p` has `0 < p.toReal`. -/
-private lemma fact_toReal_pos {p : ℝ≥0∞} [Fact (1 ≤ p)] (hp : p ≠ ∞) : 0 < p.toReal :=
-  ENNReal.toReal_pos (lt_of_lt_of_le zero_lt_one Fact.out).ne' hp
 
 /-- **Cross-exponent norm comparison, restricted to a finite support.** For
 `1 ≤ p ≤ q` (with `q ≠ ∞`) and `f` supported on a finite set `s`,
@@ -54,8 +57,8 @@ lemma piLp_norm_restrict_le {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact (1 ≤ q)]
       ≤ (s.card : ℝ) ^ (1 / p.toReal - 1 / q.toReal) *
         ‖(WithLp.toLp q f : PiLp q (fun _ : Fin m => 𝕜))‖ := by
   have hpf : p ≠ ∞ := ne_top_of_le_ne_top hq hpq
-  have hP : 0 < p.toReal := fact_toReal_pos hpf
-  have hQ : 0 < q.toReal := fact_toReal_pos hq
+  have hP : 0 < p.toReal := toReal_pos_of_ne_top hpf
+  have hQ : 0 < q.toReal := toReal_pos_of_ne_top hq
   have hPQ : p.toReal ≤ q.toReal := ENNReal.toReal_mono hq hpq
   set P := p.toReal
   set Q := q.toReal
@@ -104,7 +107,7 @@ lemma piLp_norm_le_card_rpow_mul {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact (1 �
 /-- The `L^p` norm of the all-ones vector on `Fin m` is `m^{1/p}`. -/
 lemma piLp_norm_const_one {p : ℝ≥0∞} [Fact (1 ≤ p)] (hp : p ≠ ∞) :
     ‖(WithLp.toLp p (fun _ : Fin m => (1 : 𝕜)))‖ = (m : ℝ) ^ (1 / p.toReal) := by
-  have hP : 0 < p.toReal := fact_toReal_pos hp
+  have hP : 0 < p.toReal := toReal_pos_of_ne_top hp
   rw [PiLp.norm_eq_sum hP]
   have hsum : (∑ i : Fin m, ‖(WithLp.toLp p (fun _ : Fin m => (1 : 𝕜))) i‖ ^ p.toReal)
       = (m : ℝ) := by simp [Real.one_rpow]
@@ -215,123 +218,10 @@ For any rank-`≤ n` operator `L`, its kernel has dimension `≥ m - n`, and
 `(id - L)` agrees with `id` there. The crux is a **classical geometric fact**
 (Pietsch, *Eigenvalues and s-numbers*, §11.11; the Gelfand-width lower bound):
 every subspace of dimension `≥ m - n` contains a vector whose `p`-norm is at
-least `(m-n)^{1/p-1/q}` times its `q`-norm. Its proof is a volumetric/averaging
-argument. -/
-
-/-- **Coordinate pigeonhole.** A subspace `V ⊆ 𝕜^m` whose dimension exceeds the
-size of a coordinate set `A` contains a nonzero vector vanishing on `A`. The
-restriction `V → (A → 𝕜)` has range of dimension `≤ |A| < dim V`, so a nonzero
-kernel by rank–nullity. -/
-private lemma exists_mem_ker_coords {V : Submodule 𝕜 (Fin m → 𝕜)}
-    {A : Finset (Fin m)} (hA : A.card < Module.finrank 𝕜 V) :
-    ∃ y ∈ V, y ≠ 0 ∧ ∀ i ∈ A, y i = 0 := by
-  classical
-  set r : V →ₗ[𝕜] (A → 𝕜) :=
-    LinearMap.pi (fun i : A => (LinearMap.proj (i : Fin m)).comp V.subtype) with hr
-  have hrange : Module.finrank 𝕜 (LinearMap.range r) ≤ A.card := by
-    calc Module.finrank 𝕜 (LinearMap.range r)
-        ≤ Module.finrank 𝕜 (A → 𝕜) := Submodule.finrank_le _
-      _ = A.card := by rw [Module.finrank_pi, Fintype.card_coe]
-  have hker : 0 < Module.finrank 𝕜 (LinearMap.ker r) := by
-    have hrn := r.finrank_range_add_finrank_ker
-    omega
-  have hne : LinearMap.ker r ≠ ⊥ := by
-    intro h; rw [h, finrank_bot] at hker; exact lt_irrefl 0 hker
-  obtain ⟨z, hzmem, hz0⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hne
-  refine ⟨(z : Fin m → 𝕜), z.2, fun h => hz0 (Submodule.coe_eq_zero.mp h), fun i hi => ?_⟩
-  have hz : r z = 0 := LinearMap.mem_ker.mp hzmem
-  have hzi := congrFun hz ⟨i, hi⟩
-  simpa [hr, LinearMap.pi_apply, LinearMap.comp_apply, LinearMap.proj_apply,
-    Submodule.subtype_apply] using hzi
-
-/-- **Flatness lemma.** A subspace `V ⊆ 𝕜^m` of dimension `≥ k ≥ 1` contains a
-nonzero vector `x` with `‖x i‖ ≤ 1` everywhere and `‖x i‖ = 1` on at least `k`
-coordinates. An extreme point `x` of the compact set `B = {x ∈ V : ‖x‖_∞ ≤ 1}`
-(Krein–Milman) must saturate `≥ dim V` coordinates: otherwise the
-coordinate-pigeonhole vector `w` vanishing on the saturated set `S` makes `x` the
-midpoint of a nondegenerate segment `x ± ε·w ⊆ B`, contradicting extremality. -/
-private lemma exists_flat_vector {V : Submodule 𝕜 (Fin m → 𝕜)} {k : ℕ}
-    (hk : 1 ≤ k) (hkV : k ≤ Module.finrank 𝕜 V) :
-    ∃ x ∈ V, x ≠ 0 ∧ (∀ i, ‖x i‖ ≤ 1) ∧
-      k ≤ (Finset.univ.filter (fun i => ‖x i‖ = 1)).card := by
-  classical
-  set B : Set (Fin m → 𝕜) := {x | x ∈ V ∧ ∀ i, ‖x i‖ ≤ 1} with hBdef
-  have hBne : B.Nonempty := ⟨0, V.zero_mem, by simp⟩
-  have hBeq : B = (V : Set (Fin m → 𝕜)) ∩ ⋂ i, {x : Fin m → 𝕜 | ‖x i‖ ≤ 1} := by
-    ext x; simp only [hBdef, Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter, SetLike.mem_coe]
-  have hBclosed : IsClosed B := by
-    rw [hBeq]
-    refine V.closed_of_finiteDimensional.inter (isClosed_iInter fun i => ?_)
-    exact isClosed_le ((continuous_apply i).norm) continuous_const
-  have hBbdd : Bornology.IsBounded B := by
-    refine (Metric.isBounded_closedBall (x := (0 : Fin m → 𝕜)) (r := 1)).subset ?_
-    intro x hx
-    simp only [Metric.mem_closedBall, dist_zero_right]
-    exact (pi_norm_le_iff_of_nonneg zero_le_one).mpr fun i => by simpa using hx.2 i
-  have hBcompact : IsCompact B := Metric.isCompact_of_isClosed_isBounded hBclosed hBbdd
-  obtain ⟨x, hxep⟩ := hBcompact.extremePoints_nonempty hBne
-  rw [mem_extremePoints_iff_left] at hxep
-  obtain ⟨hxB, hxext⟩ := hxep
-  set S : Finset (Fin m) := Finset.univ.filter (fun i => ‖x i‖ = 1) with hSdef
-  have hxle : ∀ i, ‖x i‖ ≤ 1 := hxB.2
-  have hmemS : ∀ i, i ∈ S ↔ ‖x i‖ = 1 := by
-    intro i; rw [hSdef, Finset.mem_filter]; simp [Finset.mem_univ]
-  have hcard : Module.finrank 𝕜 V ≤ S.card := by
-    by_contra hlt
-    push Not at hlt
-    obtain ⟨w, hwV, hw0, hwS⟩ := exists_mem_ker_coords (V := V) (A := S) hlt
-    have hSc : (Finset.univ.filter (fun i => i ∉ S)).Nonempty := by
-      rw [Finset.filter_nonempty_iff]
-      by_contra h
-      push Not at h
-      have : S = Finset.univ := Finset.eq_univ_of_forall fun i => h i (Finset.mem_univ i)
-      rw [this, Finset.card_univ, Fintype.card_fin] at hlt
-      exact absurd (lt_of_lt_of_le hlt (Submodule.finrank_le V)) (by simp)
-    have hMpos : 0 < ‖w‖ := norm_pos_iff.mpr hw0
-    set d : ℝ := (Finset.univ.filter (fun i => i ∉ S)).inf' hSc (fun i => 1 - ‖x i‖) with hd
-    have hdpos : 0 < d := by
-      rw [hd, Finset.lt_inf'_iff]
-      intro i hi
-      rw [Finset.mem_filter] at hi
-      have : ‖x i‖ < 1 := lt_of_le_of_ne (hxle i) (fun hh => hi.2 ((hmemS i).mpr hh))
-      linarith
-    set ε : ℝ := d / ‖w‖ with hε
-    have hεpos : 0 < ε := div_pos hdpos hMpos
-    set c : 𝕜 := RCLike.ofReal ε with hc
-    have hcnorm : ‖c‖ = ε := by rw [hc, RCLike.norm_ofReal, abs_of_pos hεpos]
-    have hpm : ∀ (σ : 𝕜), ‖σ‖ ≤ ε → ∀ i, ‖x i + σ • w i‖ ≤ 1 := by
-      intro σ hσ i
-      by_cases hi : i ∈ S
-      · rw [hwS i hi, smul_zero, add_zero]; exact le_of_eq ((hmemS i).mp hi)
-      · have hxi1 : ‖x i‖ < 1 := lt_of_le_of_ne (hxle i) (fun hh => hi ((hmemS i).mpr hh))
-        have hslack : d ≤ 1 - ‖x i‖ :=
-          hd ▸ Finset.inf'_le _ (by rw [Finset.mem_filter]; exact ⟨Finset.mem_univ i, hi⟩)
-        calc ‖x i + σ • w i‖ ≤ ‖x i‖ + ‖σ • w i‖ := norm_add_le _ _
-          _ = ‖x i‖ + ‖σ‖ * ‖w i‖ := by rw [norm_smul]
-          _ ≤ ‖x i‖ + ε * ‖w‖ := by gcongr; exact norm_le_pi_norm w i
-          _ = ‖x i‖ + d := by rw [hε, div_mul_cancel₀ _ (ne_of_gt hMpos)]
-          _ ≤ 1 := by linarith
-    have hmem1 : x + c • w ∈ B :=
-      ⟨V.add_mem hxB.1 (V.smul_mem c hwV), fun i => by
-        simpa [Pi.add_apply, Pi.smul_apply] using hpm c (le_of_eq hcnorm) i⟩
-    have hmem2 : x - c • w ∈ B :=
-      ⟨V.sub_mem hxB.1 (V.smul_mem c hwV), fun i => by
-        have h := hpm (-c) (by rw [norm_neg]; exact le_of_eq hcnorm) i
-        simpa [Pi.sub_apply, Pi.smul_apply, sub_eq_add_neg, neg_smul] using h⟩
-    have hseg : x ∈ openSegment ℝ (x + c • w) (x - c • w) :=
-      ⟨1/2, 1/2, by norm_num, by norm_num, by norm_num, by module⟩
-    have heq := hxext (x + c • w) hmem1 (x - c • w) hmem2 hseg
-    have hcw : c • w = 0 := by
-      have h2 : x + c • w = x + 0 := by rw [add_zero]; exact heq
-      exact add_left_cancel h2
-    rcases smul_eq_zero.mp hcw with h | h
-    · exact (RCLike.ofReal_ne_zero.mpr (ne_of_gt hεpos)) h
-    · exact hw0 h
-  refine ⟨x, hxB.1, fun hx0 => ?_, hxB.2, le_trans hkV hcard⟩
-  obtain ⟨i, hi⟩ := Finset.card_pos.mp (le_trans hk (le_trans hkV hcard))
-  have hxi := (hmemS i).mp hi
-  rw [hx0] at hxi
-  simp at hxi
+least `(m-n)^{1/p-1/q}` times its `q`-norm. It comes from the flatness lemma
+`exists_flat_vector` (an extreme-point argument, in
+`SNumbers.Examples.ExHelpers`) combined with the interpolation estimate
+`norm_ratio_of_flat` below. -/
 
 /-- **Interpolation for a flat vector.** If `‖w i‖ ≤ 1` everywhere and `‖w i‖ = 1`
 on at least `k` coordinates (`1 ≤ p ≤ q < ∞`), then `k^{1/p-1/q}·‖w‖_q ≤ ‖w‖_p`.
@@ -345,8 +235,8 @@ private lemma norm_ratio_of_flat {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact (1 �
         ‖(WithLp.toLp q w : PiLp q (fun _ : Fin m => 𝕜))‖
       ≤ ‖(WithLp.toLp p w : PiLp p (fun _ : Fin m => 𝕜))‖ := by
   have hpf : p ≠ ∞ := ne_top_of_le_ne_top hq hpq
-  have hP : 0 < p.toReal := fact_toReal_pos hpf
-  have hQ : 0 < q.toReal := fact_toReal_pos hq
+  have hP : 0 < p.toReal := toReal_pos_of_ne_top hpf
+  have hQ : 0 < q.toReal := toReal_pos_of_ne_top hq
   have hPQ : p.toReal ≤ q.toReal := ENNReal.toReal_mono hq hpq
   set P := p.toReal
   set Q := q.toReal
