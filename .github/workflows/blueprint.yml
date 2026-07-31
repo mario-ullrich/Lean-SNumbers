@@ -1,10 +1,12 @@
-# Builds the Lean project and the leanblueprint, publishes the blueprint to
-# GitHub Pages, and keeps both outputs as downloadable workflow artifacts.
+# Builds the Lean project and the leanblueprint, and stores the results as
+# downloadable workflow artifacts. To read the blueprint:
 #
-# The published site is https://mario-ullrich.github.io/Lean-SNumbers/ (enable
-# it once under Settings -> Pages -> Source: GitHub Actions). The PDF is copied
-# into the site as blueprint.pdf, and `blueprint-web` / `blueprint-pdf` remain
-# available from each run's summary page.
+#   1. Go to the repository's Actions tab.
+#   2. Open the most recent successful run of this workflow.
+#   3. Download the `blueprint-web` artifact from the run summary.
+#   4. Unzip it and open `index.html` (the PDF is bundled as blueprint.pdf).
+#
+# The PDF is uploaded separately as `blueprint-pdf` as well.
 
 name: Build blueprint
 
@@ -13,17 +15,8 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Needed by the deploy job: `pages` to publish, `id-token` for the deployment's
-# OIDC verification. The build job only reads the repository.
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-# Let a newer push supersede an in-flight deployment rather than queueing.
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 # All pinned action versions below natively target Node.js 24. This env
 # var is kept as a belt-and-suspenders guard against any future action
@@ -111,8 +104,8 @@ jobs:
         run: leanblueprint checkdecls
         continue-on-error: true   # Reported, but not treated as a build failure.
 
-      # Serve the PDF from the site too, so it has a stable public URL.
-      - name: Add the PDF to the site
+      # Bundle the PDF with the web artifact, so one download has both.
+      - name: Include the PDF in the web bundle
         run: |
           if [ -f blueprint/print/print.pdf ]; then
             cp blueprint/print/print.pdf blueprint/web/blueprint.pdf
@@ -133,33 +126,3 @@ jobs:
           name: blueprint-pdf
           path: blueprint/print/print.pdf
           retention-days: 30
-
-      # ----- Hand the site to the Pages deployment job
-      #
-      # Skipped while the repository is private: Pages needs a paid plan there,
-      # so `configure-pages` would fail for want of a Pages site (it only reads
-      # the site metadata; its `enablement` input defaults to false). The steps
-      # switch themselves on as soon as the repository becomes public. The
-      # blueprint artifacts above are uploaded either way.
-      - name: Configure GitHub Pages
-        if: ${{ !github.event.repository.private }}
-        uses: actions/configure-pages@v6
-
-      - name: Upload the Pages artifact
-        if: ${{ !github.event.repository.private }}
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: blueprint/web/
-
-  # Publishing runs in its own job, as required by the Pages deployment action.
-  deploy:
-    needs: build
-    if: ${{ !github.event.repository.private }}
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5

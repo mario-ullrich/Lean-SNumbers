@@ -14,13 +14,11 @@ The workflow does the following:
 - builds the blueprint PDF and web site via `leanblueprint`
 - checks with `leanblueprint checkdecls` that every `\lean{...}` declaration
   named in the blueprint actually exists in the compiled project
-- deploys the web blueprint to GitHub Pages, and additionally uploads
-  `blueprint-web` and `blueprint-pdf` as downloadable run artifacts
+- uploads `blueprint-web` and `blueprint-pdf` as downloadable run artifacts,
+  with the PDF also bundled into the web artifact as `blueprint.pdf`
 
-The published blueprint is at <https://mario-ullrich.github.io/Lean-SNumbers/>.
-Pages must be enabled once, under *Settings → Pages → Source: GitHub Actions*;
-until then the Pages steps are skipped and the blueprint is delivered as run
-artifacts only.
+To read the blueprint, download `blueprint-web` from a run summary, unzip it and
+open `index.html`.
 
 Local reproduction (from the project root, with `leanblueprint` installed):
 

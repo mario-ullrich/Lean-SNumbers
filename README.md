@@ -5,10 +5,10 @@ s-numbers** for bounded linear operators between Banach spaces.
 
 **Repository**: <https://github.com/mario-ullrich/Lean-SNumbers>
 
-**Blueprint**: <https://mario-ullrich.github.io/Lean-SNumbers/> — a
-human-readable account of the mathematics with links into the Lean code, built
-from `blueprint/` by GitHub Actions on every push (the PDF version and the
-dependency graph are linked from there).
+**Blueprint**: a human-readable account of the mathematics with links into the
+Lean code and a dependency graph, built from `blueprint/` by GitHub Actions on
+every push and available as a downloadable artifact under *Actions → latest run
+→ blueprint-web* (the PDF is bundled with it).
 
 ## What are s-numbers?
 
@@ -141,7 +141,7 @@ examples, which are the central targets of this formalisation:
 │   └── Compact.lean            ← compact ⇔ approximable on Hilbert
 ├── LICENSE                     ← Apache 2.0
 ├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
-├── .github/workflows/          ← CI: builds the project + blueprint, deploys Pages
+├── .github/workflows/          ← CI: builds the project and the blueprint
 └── blueprint/
     └── src/
         ├── plastex.cfg         ← plastex / leanblueprint configuration
@@ -295,10 +295,9 @@ leanblueprint web      # produces blueprint/web/index.html
 leanblueprint checkdecls   # checks that every \lean{Decl} resolves
 ```
 
-The rendered blueprint is published automatically: the workflow at
-`.github/workflows/blueprint.yml` builds it on every push to `main`, deploys it
-to <https://mario-ullrich.github.io/Lean-SNumbers/>, and also keeps
-`blueprint-web` and `blueprint-pdf` as downloadable run artifacts.
+The workflow at `.github/workflows/blueprint.yml` builds the blueprint on every
+push to `main` and uploads `blueprint-web` and `blueprint-pdf` as downloadable
+run artifacts.
 
 ## License
 
