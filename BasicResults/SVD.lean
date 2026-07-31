@@ -184,6 +184,55 @@ private lemma exists_unit (H : Type u) [NormedAddCommGroup H]
   ⟨(‖x‖ : 𝕜)⁻¹ • x, by
     simp [norm_smul, inv_mul_cancel₀ (norm_pos_iff.mpr hx).ne']⟩
 
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
+/-- **Almost-maximising unit vector.** For every `n` there is a unit vector `x`
+with `‖S‖ − 1/(n+1) ≤ ‖S x‖`: the operator norm is a supremum over the unit
+sphere, so it is approached to any accuracy. The unit vector `u₀` covers the
+degenerate case where the slack `1/(n+1)` already exceeds `‖S‖`. -/
+private lemma exists_unit_norm_apply_ge {S : H₁ →L[𝕜] H₂} {u₀ : H₁} (hu₀ : ‖u₀‖ = 1) (n : ℕ) :
+    ∃ x : H₁, ‖x‖ = 1 ∧ ‖S‖ - 1 / ((n : ℝ) + 1) ≤ ‖S x‖ := by
+  by_cases h : ‖S‖ ≤ 1 / ((n : ℝ) + 1)
+  · exact ⟨u₀, hu₀, by linarith [norm_nonneg (S u₀)]⟩
+  push Not at h
+  have hε : (0 : ℝ) < 1 / ((n : ℝ) + 1) := by positivity
+  obtain ⟨z, hz_lt, hz_app⟩ := S.exists_lt_apply_of_lt_opNorm
+    (show ‖S‖ - 1 / ((n : ℝ) + 1) < ‖S‖ by linarith)
+  have hSz_pos : 0 < ‖S z‖ := lt_of_le_of_lt (by linarith) hz_app
+  have hz_pos : 0 < ‖z‖ := norm_pos_iff.mpr fun hz => by
+    rw [hz, map_zero, norm_zero] at hSz_pos; exact lt_irrefl 0 hSz_pos
+  refine ⟨(‖z‖ : 𝕜)⁻¹ • z, ?_, ?_⟩
+  · simp [norm_smul, inv_mul_cancel₀ hz_pos.ne']
+  rw [map_smul, norm_smul, norm_inv, RCLike.norm_ofReal, abs_of_pos hz_pos,
+    show ‖z‖⁻¹ * ‖S z‖ = ‖S z‖ / ‖z‖ from by ring, le_div_iff₀ hz_pos]
+  calc (‖S‖ - 1 / ((n : ℝ) + 1)) * ‖z‖
+      ≤ (‖S‖ - 1 / ((n : ℝ) + 1)) * 1 := by
+        apply mul_le_mul_of_nonneg_left hz_lt.le; linarith
+    _ = ‖S‖ - 1 / ((n : ℝ) + 1) := mul_one _
+    _ ≤ ‖S z‖ := hz_app.le
+
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
+/-- **Equality in Cauchy–Schwarz forces convergence.** A sequence of unit vectors
+whose inner products against a fixed unit vector `u` tend to `1` converges to `u`.
+
+Indeed `‖yₙ − u‖² = 2 − 2 re⟪yₙ, u⟫ → 0`; this is the rigidity that turns an
+asymptotic maximiser into an actual one. -/
+private lemma tendsto_of_inner_tendsto_one {y : ℕ → H₁} {u : H₁}
+    (hy : ∀ n, ‖y n‖ = 1) (hu : ‖u‖ = 1)
+    (hi : Tendsto (fun n => inner 𝕜 (y n) u) atTop (𝓝 (1 : 𝕜))) :
+    Tendsto y atTop (𝓝 u) := by
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  have hre : Tendsto (fun n => RCLike.re (inner 𝕜 (y n) u)) atTop (𝓝 1) := by
+    simpa [Function.comp_def] using (RCLike.continuous_re.tendsto _).comp hi
+  have hsq : Tendsto (fun n => ‖y n - u‖ ^ 2) atTop (𝓝 0) := by
+    have hsub : Tendsto (fun n => (2 : ℝ) - 2 * RCLike.re (inner 𝕜 (y n) u)) atTop
+        (𝓝 ((2 : ℝ) - 2 * 1)) := tendsto_const_nhds.sub (hre.const_mul 2)
+    rw [show ((2 : ℝ) - 2 * 1 : ℝ) = 0 by ring] at hsub
+    exact hsub.congr fun n => by
+      rw [@norm_sub_sq 𝕜 _ _ _ _ _ _, hy n, hu]; ring
+  have hsqrt := (Real.continuous_sqrt.tendsto _).comp hsq
+  rw [Real.sqrt_zero] at hsqrt
+  exact hsqrt.congr fun n => Real.sqrt_sq (norm_nonneg _)
+
 /-- Every compact operator between Hilbert spaces
 attains its norm as a singular value: there exist unit vectors `u`, `v`
 with `S u = ‖S‖ • v` and `S* v = ‖S‖ • u`.
@@ -212,26 +261,7 @@ theorem IsCompactOperator.norm_isSingularValue
   have hpos : 0 < ‖S‖ := (norm_nonneg _).lt_of_ne (Ne.symm hS0)
   have hKne : (‖S‖ : 𝕜) ≠ 0 := by exact_mod_cast hS0
   -- Step 1. Maximising sequence (xₙ) of unit vectors with ‖S xₙ‖ → ‖S‖.
-  have hmax : ∀ n : ℕ, ∃ x : H₁, ‖x‖ = 1 ∧ ‖S‖ - 1 / ((n : ℝ) + 1) ≤ ‖S x‖ := fun n => by
-    by_cases h : ‖S‖ ≤ 1 / ((n : ℝ) + 1)
-    · exact ⟨u₀, hu₀, by linarith [norm_nonneg (S u₀)]⟩
-    push Not at h
-    have hε : (0 : ℝ) < 1 / ((n : ℝ) + 1) := by positivity
-    obtain ⟨z, hz_lt, hz_app⟩ := S.exists_lt_apply_of_lt_opNorm
-      (show ‖S‖ - 1 / ((n : ℝ) + 1) < ‖S‖ by linarith)
-    have hSz_pos : 0 < ‖S z‖ := lt_of_le_of_lt (by linarith) hz_app
-    have hz_pos : 0 < ‖z‖ := norm_pos_iff.mpr fun hz => by
-      rw [hz, map_zero, norm_zero] at hSz_pos; exact lt_irrefl 0 hSz_pos
-    refine ⟨(‖z‖ : 𝕜)⁻¹ • z, ?_, ?_⟩
-    · simp [norm_smul, inv_mul_cancel₀ hz_pos.ne']
-    rw [map_smul, norm_smul, norm_inv, RCLike.norm_ofReal, abs_of_pos hz_pos,
-      show ‖z‖⁻¹ * ‖S z‖ = ‖S z‖ / ‖z‖ from by ring, le_div_iff₀ hz_pos]
-    calc (‖S‖ - 1 / ((n : ℝ) + 1)) * ‖z‖
-        ≤ (‖S‖ - 1 / ((n : ℝ) + 1)) * 1 := by
-          apply mul_le_mul_of_nonneg_left hz_lt.le; linarith
-      _ = ‖S‖ - 1 / ((n : ℝ) + 1) := mul_one _
-      _ ≤ ‖S z‖ := hz_app.le
-  choose x hxu hxb using hmax
+  choose x hxu hxb using fun n : ℕ => exists_unit_norm_apply_ge (S := S) hu₀ n
   have hxle : ∀ n, ‖S (x n)‖ ≤ ‖S‖ := fun n => by
     have := S.le_opNorm (x n); simp [hxu n] at this; exact this
   have hxlim : Tendsto (fun n => ‖S (x n)‖) atTop (𝓝 ‖S‖) := by
@@ -286,20 +316,9 @@ theorem IsCompactOperator.norm_isSingularValue
         (𝓝 ((‖S‖ : 𝕜)⁻¹ * (‖S‖ : 𝕜))) := tendsto_const_nhds.mul hswap
     rw [inv_mul_cancel₀ hKne] at hmul
     exact hmul.congr fun n => by rw [hudef, inner_smul_right]
-  have hxu_lim : Tendsto (fun n => x (φ n)) atTop (𝓝 u) := by
-    -- ‖xφₙ - u‖² = 2 - 2 Re ⟨xφₙ, u⟩ → 0; hence ‖xφₙ - u‖ → 0.
-    rw [tendsto_iff_norm_sub_tendsto_zero]
-    have hre : Tendsto (fun n => RCLike.re (inner 𝕜 (x (φ n)) u)) atTop (𝓝 1) := by
-      simpa [Function.comp_def] using (RCLike.continuous_re.tendsto _).comp hi1
-    have hsq : Tendsto (fun n => ‖x (φ n) - u‖ ^ 2) atTop (𝓝 0) := by
-      have hsub : Tendsto (fun n => (2 : ℝ) - 2 * RCLike.re (inner 𝕜 (x (φ n)) u)) atTop
-          (𝓝 ((2 : ℝ) - 2 * 1)) := tendsto_const_nhds.sub (hre.const_mul 2)
-      rw [show ((2 : ℝ) - 2 * 1 : ℝ) = 0 by ring] at hsub
-      exact hsub.congr fun n => by
-        rw [@norm_sub_sq 𝕜 _ _ _ _ _ _, hxu (φ n), hu1]; ring
-    have hsqrt := (Real.continuous_sqrt.tendsto _).comp hsq
-    rw [Real.sqrt_zero] at hsqrt
-    exact hsqrt.congr fun n => Real.sqrt_sq (norm_nonneg _)
+  -- ‖xφₙ - u‖² = 2 - 2 Re ⟨xφₙ, u⟩ → 0, so the maximiser is attained at `u`.
+  have hxu_lim : Tendsto (fun n => x (φ n)) atTop (𝓝 u) :=
+    tendsto_of_inner_tendsto_one (fun n => hxu (φ n)) hu1 hi1
   -- Step 5. Continuity of S: `S u = lim S xφₙ = y = ‖S‖ • v`; `S* v = u' = ‖S‖ • u`.
   have h1 : Tendsto (fun n => S (x (φ n))) atTop (𝓝 (S u)) :=
     (S.continuous.tendsto _).comp hxu_lim
@@ -920,6 +939,111 @@ lemma svd_apply_left {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → 
     · simp [hjk]
   rw [hfun]; exact hasSum_ite_eq k _
 
+/-! ### The truncated SVD
+
+Both halves of Eckart–Young below use the **truncation**
+`Lₘ = ∑_{k<m} σₖ ⟪uₖ, ·⟫ vₖ`, and need exactly two facts about it: its rank is at
+most `m`, and the residual `S − Lₘ` has norm at most `σₘ`. Those are recorded
+once here. -/
+
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
+/-- Pointwise formula for the truncated SVD. -/
+private lemma svd_truncation_apply {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₂}
+    {L : H₁ →L[𝕜] H₂} {m : ℕ}
+    (hLdef : L = ∑ k ∈ Finset.range m, (σ k : 𝕜) • (innerSL 𝕜 (u k)).smulRight (v k))
+    (x : H₁) : L x = ∑ k ∈ Finset.range m, (σ k : 𝕜) • ((inner 𝕜 (u k) x : 𝕜) • v k) := by
+  simp only [hLdef, sum_apply, smul_apply,
+    ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
+
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
+/-- **The truncated SVD has rank at most `m`.** Its range lies in the span of the
+`m` vectors `v₀, …, v_{m-1}`. -/
+private lemma svd_truncation_rank_le {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₂}
+    {L : H₁ →L[𝕜] H₂} {m : ℕ}
+    (hLdef : L = ∑ k ∈ Finset.range m, (σ k : 𝕜) • (innerSL 𝕜 (u k)).smulRight (v k)) :
+    L.rank ≤ (m : Cardinal) := by
+  classical
+  have hrange : LinearMap.range (L : H₁ →ₗ[𝕜] H₂) ≤
+      Submodule.span 𝕜 (↑(Finset.image v (Finset.range m)) : Set H₂) := by
+    intro y hy
+    rw [LinearMap.mem_range] at hy
+    obtain ⟨x, rfl⟩ := hy
+    rw [ContinuousLinearMap.coe_coe, svd_truncation_apply hLdef x]
+    refine Submodule.sum_mem _ fun k hk =>
+      Submodule.smul_mem _ _ (Submodule.smul_mem _ _ ?_)
+    exact Submodule.subset_span (Finset.mem_coe.mpr (Finset.mem_image_of_mem v hk))
+  show Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂)) ≤ (m : Cardinal)
+  calc Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂))
+      ≤ Module.rank 𝕜 (Submodule.span 𝕜 (↑(Finset.image v (Finset.range m)) : Set H₂)) :=
+        Submodule.rank_mono hrange
+    _ ≤ #(↑(Finset.image v (Finset.range m)) : Set H₂) := rank_span_le _
+    _ = ((Finset.image v (Finset.range m)).card : Cardinal) := Cardinal.mk_coe_finset
+    _ ≤ ((Finset.range m).card : Cardinal) := by exact_mod_cast Finset.card_image_le
+    _ = (m : Cardinal) := by rw [Finset.card_range]
+
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
+/-- **Residual bound for the truncated SVD:** `‖S − Lₘ‖ ≤ σₘ`.
+
+The residual is the orthonormal tail `∑_{k ≥ m} σₖ ⟪uₖ, x⟫ vₖ`. Every finite
+tail-block has norm `≤ σₘ ‖x‖`: by orthonormality of the `vₖ` its square is
+`∑ σₖ² |⟪uₖ, x⟫|² ≤ σₘ² ∑ |⟪uₖ, x⟫|² ≤ σₘ² ‖x‖²`, using that `σ` is antitone and
+Bessel's inequality. Passing to the limit along the net of finite sets gives the
+bound for the residual itself. -/
+private lemma svd_truncation_residual_le {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁}
+    {v : ℕ → H₂} {L : H₁ →L[𝕜] H₂} {m : ℕ}
+    (hσ0 : ∀ k, 0 ≤ σ k) (hσanti : Antitone σ) (hu : OrthonormalOrZero 𝕜 u)
+    (hv : OrthonormalOrZero 𝕜 v) (hvt : ∀ k, σ k ≠ 0 → v k ≠ 0)
+    (hsum : ∀ x, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x))
+    (hLdef : L = ∑ k ∈ Finset.range m, (σ k : 𝕜) • (innerSL 𝕜 (u k)).smulRight (v k)) :
+    ‖S - L‖ ≤ σ m := by
+  refine ContinuousLinearMap.opNorm_le_bound _ (hσ0 m) fun x => ?_
+  have hLg : L x = ∑ k ∈ Finset.range m, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
+    rw [svd_truncation_apply hLdef x]
+    exact Finset.sum_congr rfl fun k _ => by rw [smul_smul]
+  -- every finite tail-block has norm `≤ σ m · ‖x‖`.
+  have hpartial : ∀ w : Finset ℕ, (∀ k ∈ w, m ≤ k) →
+      ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ≤ σ m * ‖x‖ := by
+    intro w hw
+    have hsq : ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ^ 2
+        ≤ (σ m * ‖x‖) ^ 2 := by
+      rw [hv.norm_sum_smul_sq_of_support (fun k => (σ k : 𝕜) * inner 𝕜 (u k) x) w
+            (fun k _ hvk => by
+              have hσk : σ k = 0 := by by_contra h; exact hvt k h hvk
+              rw [hσk]; simp)]
+      calc ∑ k ∈ w, ‖(σ k : 𝕜) * inner 𝕜 (u k) x‖ ^ 2
+          = ∑ k ∈ w, σ k ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 := by
+            refine Finset.sum_congr rfl fun k _ => ?_
+            rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 k)]
+        _ ≤ ∑ k ∈ w, σ m ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 :=
+            Finset.sum_le_sum fun k hk =>
+              mul_le_mul_of_nonneg_right
+                (pow_le_pow_left₀ (hσ0 k) (hσanti (hw k hk)) 2) (sq_nonneg _)
+        _ = σ m ^ 2 * ∑ k ∈ w, ‖inner 𝕜 (u k) x‖ ^ 2 := by rw [Finset.mul_sum]
+        _ ≤ σ m ^ 2 * ‖x‖ ^ 2 :=
+            mul_le_mul_of_nonneg_left (hu.sum_inner_products_le x w) (sq_nonneg _)
+        _ = (σ m * ‖x‖) ^ 2 := by rw [mul_pow]
+    have hnn : 0 ≤ σ m * ‖x‖ := mul_nonneg (hσ0 m) (norm_nonneg _)
+    have hsqrt := Real.sqrt_le_sqrt hsq
+    rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq hnn] at hsqrt
+  have htend0 : Tendsto
+      (fun t : Finset ℕ => ∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k))
+      atTop (𝓝 (S x)) := hsum x
+  have htend : Tendsto
+      (fun t : Finset ℕ => ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖)
+      atTop (𝓝 ‖S x - L x‖) := (htend0.sub_const (L x)).norm
+  have hev : ∀ᶠ t : Finset ℕ in atTop,
+      ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖ ≤ σ m * ‖x‖ := by
+    rw [Filter.eventually_atTop]
+    refine ⟨Finset.range m, fun t ht => ?_⟩
+    have hsub : (∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x
+        = ∑ k ∈ t \ Finset.range m, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
+      rw [hLg, ← Finset.sum_sdiff ht]; abel
+    rw [hsub]
+    exact hpartial _ fun k hk =>
+      not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
+  have hbound : ‖S x - L x‖ ≤ σ m * ‖x‖ := le_of_tendsto htend hev
+  rwa [sub_apply]
+
 omit [CompleteSpace H₁] [CompleteSpace H₂] in
 /-- **Eckart–Young.** From any SVD of `S` (`OrthonormalOrZero` singular vectors
 with the nonzero-σ tie, and the `HasSum` Schmidt expansion), the `m`-th singular
@@ -932,77 +1056,11 @@ lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ
   classical
   set L : H₁ →L[𝕜] H₂ :=
     ∑ k ∈ Finset.range m, (σ k : 𝕜) • (innerSL 𝕜 (u k)).smulRight (v k) with hLdef
-  have hLx : ∀ x : H₁, L x =
-      ∑ k ∈ Finset.range m, (σ k : 𝕜) • ((inner 𝕜 (u k) x : 𝕜) • v k) := by
-    intro x
-    simp only [hLdef, sum_apply, smul_apply,
-      ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
-  have hrankL : L.rank ≤ (m : Cardinal) := by
-    have hrange : LinearMap.range (L : H₁ →ₗ[𝕜] H₂) ≤
-        Submodule.span 𝕜 (↑(Finset.image v (Finset.range m)) : Set H₂) := by
-      intro y hy
-      rw [LinearMap.mem_range] at hy
-      obtain ⟨x, rfl⟩ := hy
-      rw [ContinuousLinearMap.coe_coe, hLx x]
-      refine Submodule.sum_mem _ fun k hk =>
-        Submodule.smul_mem _ _ (Submodule.smul_mem _ _ ?_)
-      exact Submodule.subset_span (Finset.mem_coe.mpr (Finset.mem_image_of_mem v hk))
-    show Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂)) ≤ (m : Cardinal)
-    calc Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂))
-        ≤ Module.rank 𝕜 (Submodule.span 𝕜 (↑(Finset.image v (Finset.range m)) : Set H₂)) :=
-          Submodule.rank_mono hrange
-      _ ≤ #(↑(Finset.image v (Finset.range m)) : Set H₂) := rank_span_le _
-      _ = ((Finset.image v (Finset.range m)).card : Cardinal) := Cardinal.mk_coe_finset
-      _ ≤ ((Finset.range m).card : Cardinal) := by exact_mod_cast Finset.card_image_le
-      _ = (m : Cardinal) := by rw [Finset.card_range]
+  -- `aₘ(S) ≤ ‖S - Lₘ‖ ≤ σₘ` for the truncation `Lₘ`.
   have hge : SNumbers.approximationNumber S m ≤ ‖S - L‖ :=
-    SNumbers.approximationNumber_le_norm_sub hrankL
-  have hle : ‖S - L‖ ≤ σ m := by
-    refine ContinuousLinearMap.opNorm_le_bound _ (hσ0 m) fun x => ?_
-    have hLg : L x = ∑ k ∈ Finset.range m, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
-      rw [hLx x]; exact Finset.sum_congr rfl fun k _ => by rw [smul_smul]
-    have hpartial : ∀ w : Finset ℕ, (∀ k ∈ w, m ≤ k) →
-        ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ≤ σ m * ‖x‖ := by
-      intro w hw
-      have hsq : ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ^ 2
-          ≤ (σ m * ‖x‖) ^ 2 := by
-        rw [hv.norm_sum_smul_sq_of_support (fun k => (σ k : 𝕜) * inner 𝕜 (u k) x) w
-              (fun k _ hvk => by
-                have hσk : σ k = 0 := by by_contra h; exact hvt k h hvk
-                rw [hσk]; simp)]
-        calc ∑ k ∈ w, ‖(σ k : 𝕜) * inner 𝕜 (u k) x‖ ^ 2
-            = ∑ k ∈ w, σ k ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 := by
-              refine Finset.sum_congr rfl fun k _ => ?_
-              rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 k)]
-          _ ≤ ∑ k ∈ w, σ m ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 :=
-              Finset.sum_le_sum fun k hk =>
-                mul_le_mul_of_nonneg_right
-                  (pow_le_pow_left₀ (hσ0 k) (hσanti (hw k hk)) 2) (sq_nonneg _)
-          _ = σ m ^ 2 * ∑ k ∈ w, ‖inner 𝕜 (u k) x‖ ^ 2 := by rw [Finset.mul_sum]
-          _ ≤ σ m ^ 2 * ‖x‖ ^ 2 :=
-              mul_le_mul_of_nonneg_left (hu.sum_inner_products_le x w) (sq_nonneg _)
-          _ = (σ m * ‖x‖) ^ 2 := by rw [mul_pow]
-      have hnn : 0 ≤ σ m * ‖x‖ := mul_nonneg (hσ0 m) (norm_nonneg _)
-      have hsqrt := Real.sqrt_le_sqrt hsq
-      rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq hnn] at hsqrt
-    have htend0 : Tendsto
-        (fun t : Finset ℕ => ∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k))
-        atTop (𝓝 (S x)) := hsum x
-    have htend : Tendsto
-        (fun t : Finset ℕ => ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖)
-        atTop (𝓝 ‖S x - L x‖) := (htend0.sub_const (L x)).norm
-    have hev : ∀ᶠ t : Finset ℕ in atTop,
-        ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖ ≤ σ m * ‖x‖ := by
-      rw [Filter.eventually_atTop]
-      refine ⟨Finset.range m, fun t ht => ?_⟩
-      have hsub : (∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x
-          = ∑ k ∈ t \ Finset.range m, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
-        rw [hLg, ← Finset.sum_sdiff ht]; abel
-      rw [hsub]
-      exact hpartial _ fun k hk =>
-        not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
-    have hbound : ‖S x - L x‖ ≤ σ m * ‖x‖ := le_of_tendsto htend hev
-    rwa [sub_apply]
+    SNumbers.approximationNumber_le_norm_sub (svd_truncation_rank_le hLdef)
+  have hle : ‖S - L‖ ≤ σ m :=
+    svd_truncation_residual_le hσ0 hσanti hu hv hvt hsum hLdef
   have hσa : σ m ≤ SNumbers.approximationNumber S m := by
     by_cases hσm : σ m = 0
     · rw [hσm]; exact SNumbers.approximationNumber_nonneg S m
@@ -1083,83 +1141,13 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
   -- The truncated SVD `L x = Σ_{k<n} σₖ ⟨uₖ,x⟩ vₖ`, a sum of `n` rank-one maps.
   set L : H₁ →L[𝕜] H₂ :=
     ∑ k ∈ Finset.range n, (σ k : 𝕜) • (innerSL 𝕜 (u k)).smulRight (v k) with hLdef
-  -- Pointwise formula for the truncation.
-  have hLx : ∀ x : H₁, L x =
-      ∑ k ∈ Finset.range n, (σ k : 𝕜) • ((inner 𝕜 (u k) x : 𝕜) • v k) := by
-    intro x
-    simp only [hLdef, sum_apply, smul_apply,
-      ContinuousLinearMap.smulRight_apply, innerSL_apply_apply]
-  -- `rank L ≤ n`: the range lies in `span {v₀, …, v_{n-1}}`.
-  have hrankL : L.rank ≤ (n : Cardinal) := by
-    have hrange : LinearMap.range (L : H₁ →ₗ[𝕜] H₂) ≤
-        Submodule.span 𝕜 (↑(Finset.image v (Finset.range n)) : Set H₂) := by
-      intro y hy
-      rw [LinearMap.mem_range] at hy
-      obtain ⟨x, rfl⟩ := hy
-      rw [ContinuousLinearMap.coe_coe, hLx x]
-      refine Submodule.sum_mem _ fun k hk =>
-        Submodule.smul_mem _ _ (Submodule.smul_mem _ _ ?_)
-      exact Submodule.subset_span (Finset.mem_coe.mpr (Finset.mem_image_of_mem v hk))
-    show Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂)) ≤ (n : Cardinal)
-    calc Module.rank 𝕜 (LinearMap.range (L : H₁ →ₗ[𝕜] H₂))
-        ≤ Module.rank 𝕜 (Submodule.span 𝕜 (↑(Finset.image v (Finset.range n)) : Set H₂)) :=
-          Submodule.rank_mono hrange
-      _ ≤ #(↑(Finset.image v (Finset.range n)) : Set H₂) := rank_span_le _
-      _ = ((Finset.image v (Finset.range n)).card : Cardinal) := Cardinal.mk_coe_finset
-      _ ≤ ((Finset.range n).card : Cardinal) := by exact_mod_cast Finset.card_image_le
-      _ = (n : Cardinal) := by rw [Finset.card_range]
-  refine ⟨L, hrankL, ?_⟩
+  refine ⟨L, svd_truncation_rank_le hLdef, ?_⟩
   -- (i) `aₙ(S) ≤ ‖S - L‖` since `rank L ≤ n`.
   have hge : SNumbers.approximationNumber S n ≤ ‖S - L‖ :=
-    SNumbers.approximationNumber_le_norm_sub hrankL
+    SNumbers.approximationNumber_le_norm_sub (svd_truncation_rank_le hLdef)
   -- (ii) `‖S - L‖ ≤ σ n`: the residual is the orthonormal tail `∑_{k ≥ n} σₖ⟨uₖ,·⟩vₖ`.
-  have hle : ‖S - L‖ ≤ σ n := by
-    refine ContinuousLinearMap.opNorm_le_bound _ (hσ0 n) fun x => ?_
-    have hLg : L x = ∑ k ∈ Finset.range n, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
-      rw [hLx x]; exact Finset.sum_congr rfl fun k _ => by rw [smul_smul]
-    -- every finite tail-block has norm `≤ σ n · ‖x‖`.
-    have hpartial : ∀ w : Finset ℕ, (∀ k ∈ w, n ≤ k) →
-        ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ≤ σ n * ‖x‖ := by
-      intro w hw
-      have hsq : ‖∑ k ∈ w, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)‖ ^ 2
-          ≤ (σ n * ‖x‖) ^ 2 := by
-        rw [hv.norm_sum_smul_sq_of_support (fun k => (σ k : 𝕜) * inner 𝕜 (u k) x) w
-              (fun k _ hvk => by
-                have hσk : σ k = 0 := by by_contra h; exact hvt k h hvk
-                rw [hσk]; simp)]
-        calc ∑ k ∈ w, ‖(σ k : 𝕜) * inner 𝕜 (u k) x‖ ^ 2
-            = ∑ k ∈ w, σ k ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 := by
-              refine Finset.sum_congr rfl fun k _ => ?_
-              rw [norm_mul, mul_pow, RCLike.norm_ofReal, abs_of_nonneg (hσ0 k)]
-          _ ≤ ∑ k ∈ w, σ n ^ 2 * ‖inner 𝕜 (u k) x‖ ^ 2 :=
-              Finset.sum_le_sum fun k hk =>
-                mul_le_mul_of_nonneg_right
-                  (pow_le_pow_left₀ (hσ0 k) (hσanti (hw k hk)) 2) (sq_nonneg _)
-          _ = σ n ^ 2 * ∑ k ∈ w, ‖inner 𝕜 (u k) x‖ ^ 2 := by rw [Finset.mul_sum]
-          _ ≤ σ n ^ 2 * ‖x‖ ^ 2 :=
-              mul_le_mul_of_nonneg_left (hu.sum_inner_products_le x w) (sq_nonneg _)
-          _ = (σ n * ‖x‖) ^ 2 := by rw [mul_pow]
-      have hnn : 0 ≤ σ n * ‖x‖ := mul_nonneg (hσ0 n) (norm_nonneg _)
-      have hsqrt := Real.sqrt_le_sqrt hsq
-      rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq hnn] at hsqrt
-    have htend0 : Tendsto
-        (fun t : Finset ℕ => ∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k))
-        atTop (𝓝 (S x)) := hsum x
-    have htend : Tendsto
-        (fun t : Finset ℕ => ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖)
-        atTop (𝓝 ‖S x - L x‖) := (htend0.sub_const (L x)).norm
-    have hev : ∀ᶠ t : Finset ℕ in atTop,
-        ‖(∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x‖ ≤ σ n * ‖x‖ := by
-      rw [Filter.eventually_atTop]
-      refine ⟨Finset.range n, fun t ht => ?_⟩
-      have hsub : (∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k)) - L x
-          = ∑ k ∈ t \ Finset.range n, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) := by
-        rw [hLg, ← Finset.sum_sdiff ht]; abel
-      rw [hsub]
-      exact hpartial _ fun k hk =>
-        not_lt.mp (by simpa [Finset.mem_range] using (Finset.mem_sdiff.mp hk).2)
-    have hbound : ‖S x - L x‖ ≤ σ n * ‖x‖ := le_of_tendsto htend hev
-    rwa [sub_apply]
+  have hle : ‖S - L‖ ≤ σ n :=
+    svd_truncation_residual_le hσ0 hσanti hu hv hvt hsum hLdef
   -- (iii) `σ n ≤ aₙ(S)`: the `m`-th singular value equals the `m`-th approximation
   -- number (`svd_sigma_eq_approx`).
   have hσa : σ n ≤ SNumbers.approximationNumber S n :=
