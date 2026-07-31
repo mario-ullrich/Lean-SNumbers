@@ -135,10 +135,18 @@ jobs:
           retention-days: 30
 
       # ----- Hand the site to the Pages deployment job
+      #
+      # Skipped while the repository is private: Pages needs a paid plan there,
+      # so `configure-pages` would fail for want of a Pages site (it only reads
+      # the site metadata; its `enablement` input defaults to false). The steps
+      # switch themselves on as soon as the repository becomes public. The
+      # blueprint artifacts above are uploaded either way.
       - name: Configure GitHub Pages
+        if: ${{ !github.event.repository.private }}
         uses: actions/configure-pages@v6
 
       - name: Upload the Pages artifact
+        if: ${{ !github.event.repository.private }}
         uses: actions/upload-pages-artifact@v5
         with:
           path: blueprint/web/
@@ -146,6 +154,7 @@ jobs:
   # Publishing runs in its own job, as required by the Pages deployment action.
   deploy:
     needs: build
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages

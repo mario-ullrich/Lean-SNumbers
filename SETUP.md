@@ -18,7 +18,9 @@ The workflow does the following:
   `blueprint-web` and `blueprint-pdf` as downloadable run artifacts
 
 The published blueprint is at <https://mario-ullrich.github.io/Lean-SNumbers/>.
-Pages must be enabled once, under *Settings → Pages → Source: GitHub Actions*.
+Pages must be enabled once, under *Settings → Pages → Source: GitHub Actions*;
+until then the Pages steps are skipped and the blueprint is delivered as run
+artifacts only.
 
 Local reproduction (from the project root, with `leanblueprint` installed):
 
