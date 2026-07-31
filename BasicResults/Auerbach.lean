@@ -158,8 +158,6 @@ theorem coordFunOfDet_apply {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
 -- § 5. Norm bounds for the coordinate functionals
 -- ============================================================================
 
-set_option maxHeartbeats 400000 in
--- Unfolding `coordFunOfDet` through `ContinuousLinearMap.mk` coercions is expensive.
 private theorem norm_coordFunOfDet_le_one {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
     (e : Fin n → V) (h_det : b₀.det e ≠ 0)
     (he_max : ∀ w ∈ Set.pi Set.univ (fun _ : Fin n => closedBall (0 : V) 1),

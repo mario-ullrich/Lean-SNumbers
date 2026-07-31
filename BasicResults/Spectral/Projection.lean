@@ -19,7 +19,7 @@ functional calculus applies to `P = S*S`. The projection `E = E_{[c²,∞)}(P)` 
 strong-operator limit of `cfc gₙ P`, where `gₙ` is a continuous approximation decreasing to the
 indicator `𝟙_{[c²,∞)}`. This file also proves `cfc_comm_of_comm`: anything commuting with `P`
 commutes with `E` — the ingredient that makes the projection conjugation/scalar invariant (used
-by `RealProjection` and `Instances`).
+by `RealProjection` and `Representation`).
 
 ## The approximating family `stepDown`
 

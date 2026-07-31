@@ -13,14 +13,21 @@ import Mathlib.Topology.MetricSpace.Sequences
 # The identity `ℓ₁ → ℓ_∞` and order-optimality of the maximal difference theorem
 
 The maximal difference theorem `max(cₙ, dₙ) ≤ e·(n+1)·hₙ` (see `SNumbers.MaxDifference`)
-has an optimal linear factor `n+1`. The witness is the natural inclusion
-`I : ℓ₁ → ℓ_∞`, for which
+is expected to have an optimal linear factor `n+1`, witnessed by the natural inclusion
+`I : ℓ₁ → ℓ_∞`: classically `½ ≤ cₙ(I) ≤ 1` and `hₙ(I) = 1/(n+1)`, so that
+`max(cₙ(I), dₙ(I)) / hₙ(I) ≍ n`.
 
-  `½ ≤ cₙ(I) ≤ 1`   and   `hₙ(I) = 1/(n+1)`,
+**What this file proves** are the pieces that need no Hilbert–Schmidt /
+little-Grothendieck machinery, namely the two Gelfand bounds
 
-so that `max(cₙ(I), dₙ(I)) / hₙ(I) ≍ n`. This file develops the pieces that do not
-require Hilbert–Schmidt / little-Grothendieck machinery: the two Gelfand bounds and the
-lower bound `hₙ(I) ≥ 1/(n+1)`. The matching upper bound `hₙ(I) ≤ 1/(n+1)` is deferred.
+  `½ ≤ cₙ(I) ≤ 1`
+
+and the *lower* bound on the Hilbert numbers
+
+  `hₙ(I) ≥ 1/(n+1)`.
+
+The matching upper bound `hₙ(I) ≤ 1/(n+1)` — and therefore the order-optimality
+conclusion itself — is **not** proved here; it is the one open goal of this file.
 
 Here `ℓ₁ = lp (fun _ : ℕ => 𝕜) 1` and `ℓ_∞ = lp (fun _ : ℕ => 𝕜) ∞`, and `𝕜` is `RCLike`.
 -/
@@ -89,7 +96,6 @@ arbitrarily close (Bolzano–Weierstrass). Lifting their difference back gives `
 lemma half_le_gelfandNumber (n : ℕ) :
     (1 : ℝ) / 2 ≤ gelfandNumber (incl : L1 𝕜 →L[𝕜] Linf 𝕜) n := by
   refine le_gelfandNumber (fun N hN_closed hN_rank => ?_)
-  haveI : IsClosed ((N : Set (L1 𝕜))) := hN_closed
   haveI : FiniteDimensional 𝕜 (L1 𝕜 ⧸ N) :=
     Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hN_rank (Cardinal.natCast_lt_aleph0))
   haveI : ProperSpace (L1 𝕜 ⧸ N) := FiniteDimensional.proper 𝕜 _

@@ -1,11 +1,20 @@
 /-
+Copyright (c) 2026 Mario Ullrich. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mario Ullrich
+-/
+import Mathlib.Analysis.InnerProductSpace.Basic
+import Mathlib.Analysis.InnerProductSpace.Adjoint
+import Mathlib.Tactic.Module
+
+/-!
 # Complexification of a real inner product space
 
 *Why this file is needed:* the spectral projection is built with the continuous functional
 calculus, which is only available over `ℂ`. To obtain it over `ℝ` (and uniformly over any `RCLike`
-field), `RealProjection`/`Instances` complexify the space, run the `ℂ` construction, and restrict
-back — and this file supplies the complexification with its complex inner product (a piece Mathlib
-does not yet have).
+field), `RealProjection`/`Representation` complexify the space, run the `ℂ` construction, and
+restrict back — and this file supplies the complexification with its complex inner product (a
+piece Mathlib does not yet have).
 
 Given a real inner product space `H`, this file builds its **complexification**
 `Complexification H`: the complex inner product space whose elements are thought
@@ -28,9 +37,6 @@ and prove that this makes `Complexification H` a complex inner product space
 of a real *inner product space* with its complex inner product. This file
 constructs it, kept deliberately elementary and self-contained.
 -/
-import Mathlib.Analysis.InnerProductSpace.Basic
-import Mathlib.Analysis.InnerProductSpace.Adjoint
-import Mathlib.Tactic.Module
 
 noncomputable section
 
