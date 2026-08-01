@@ -14,6 +14,7 @@ import SNumbers.KolmogorovLifting
 import SNumbers.Hilbert
 import SNumbers.Inequalities
 import SNumbers.MaxDifference
+import SNumbers.MaxDifferenceNew
 import SNumbers.Uniqueness
 import SNumbers.SingularValuesFinDim
 import SNumbers.Injectivity
@@ -68,6 +69,12 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular the
   Mityagin–Henkin conjecture `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e`
   (sharp constant `(n+1)^{n+1}/nⁿ`).
+* `SNumbers.MaxDifferenceNew`: the bound between **all** s-numbers,
+  `aₙ ≤ e·(n+1)·hₙ`, and hence `sₙ ≤ e·(n+1)·tₙ` for any two s-number
+  sequences. Same determinant quantities `Δₖ`, but the lower bound on their
+  decay now comes from the explicit rank-`n` approximant `L = SA(BSA)⁻¹BS`,
+  whose error is read off a bordered determinant. This proves the conjecture of
+  Carl and Pietsch up to the constant `e`.
 * `SNumbers.SingularValuesFinDim`: in finite dimension, Mathlib's singular
   numbers coincide with every s-number sequence
   (`sn_eq_singularValues_of_finiteDimensional`, `sₙ = σₙ`), via uniqueness
