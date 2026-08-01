@@ -30,9 +30,11 @@ that support the s-numbers framework:
   the **scalar factorisation** `SVD.exists_scalar_factorisation` that the
   s-numbers uniqueness theorem (`SNumbers.Uniqueness`) consumes.
   Following Pietsch, *Eigenvalues and s-numbers*, §2.11.
-* `BasicResults.Determinant` — elementary determinant facts for
-  endomorphisms of a finite-dimensional inner product space
-  (`det T* = conj (det T)` and `‖det T‖ = ∏ₖ σₖ`).
+* `BasicResults.Determinant` — elementary determinant facts:
+  `det T* = conj (det T)` and `‖det T‖ = ∏ₖ σₖ` for endomorphisms of a
+  finite-dimensional inner product space, and the bordered determinant
+  (column-operation Schur formula, over any commutative ring, no
+  invertibility).
 * `BasicResults.GarlingGordon` / `BasicResults.KadetsSnobar` — the
   Garling–Gordon and Kadets–Snobar projection theorems (`‖P‖ ≤ √n`), classical
   Banach-space geometry, both proved (over any `RCLike 𝕜`) by reduction to the

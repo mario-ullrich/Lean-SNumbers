@@ -83,8 +83,9 @@ Identity (∗) is a *column operation*, not a Schur complement: writing
 *above the corner*. Subtracting that combination therefore leaves a matrix
 whose last column is zero except at the corner, where it equals
 `μ²·(b(Sx) - b(S(Aζ))) = μ²·b((S - L)x)`; Laplace expansion along that column
-finishes. This is `det_eq_corner_mul_det_submatrix` below, a statement about
-matrices that needs no invertibility hypothesis.
+finishes. This is `Matrix.det_eq_corner_mul_det_submatrix`
+(`BasicResults.Determinant`), a statement about matrices over any commutative
+ring that needs no invertibility hypothesis.
 
 ## Remaining work
 
@@ -381,75 +382,6 @@ lemma detNumber_succ_le_hilbertNumber_mul (S : X →L[𝕜] Y) (n : ℕ) :
     _ = hilbertNumber S n * detNumber S n := mul_comm _ _
 
 
-/-! ### The bordered determinant identity
-
-If the last column of a `(k+1)×(k+1)` matrix `M` is, *above the corner*, the
-combination of the first `k` columns with coefficients `w`, then subtracting
-that combination clears the column and Laplace expansion gives `det M` as the
-resulting corner entry times the determinant of the top-left `k×k` block. -/
-
-/-- **Bordered determinant.** Let `M` be a `(k+1)×(k+1)` matrix and `w` a
-vector of `k` scalars such that the entries of the last column of `M` above the
-corner are given by the combination of the first `k` columns with coefficients
-`w`, i.e. `M i last = ∑ⱼ M i j · wⱼ` for `i < k`. Then
-
-  `det M = (M last last - ∑ⱼ M last j · wⱼ) · det (M restricted to the first k
-  rows and columns)`.
-
-No invertibility of the top-left block is required; this is the elementary
-column-operation form of the Schur determinant formula. -/
-lemma det_eq_corner_mul_det_submatrix {k : ℕ}
-    (M : Matrix (Fin (k + 1)) (Fin (k + 1)) 𝕜) (w : Fin k → 𝕜)
-    (hw : ∀ i : Fin k, M i.castSucc (Fin.last k)
-      = ∑ j, M i.castSucc j.castSucc * w j) :
-    M.det = (M (Fin.last k) (Fin.last k) - ∑ j, M (Fin.last k) j.castSucc * w j)
-      * (M.submatrix Fin.castSucc Fin.castSucc).det := by
-  classical
-  -- The coefficients of the column operation: keep the last column, subtract
-  -- `wⱼ` times the `j`-th one.
-  set c : Fin (k + 1) → 𝕜 := Fin.lastCases 1 (fun j => -w j) with hc
-  have hclast : c (Fin.last k) = 1 := by rw [hc]; simp
-  have hccast : ∀ j : Fin k, c j.castSucc = -w j := fun j => by rw [hc]; simp
-  -- The column obtained from the operation.
-  have hcol : ∀ r : Fin (k + 1), (∑ i, c i • M r i)
-      = M r (Fin.last k) - ∑ j, M r j.castSucc * w j := by
-    intro r
-    rw [Fin.sum_univ_castSucc, hclast, one_smul]
-    have hterm : ∀ j : Fin k,
-        c j.castSucc • M r j.castSucc = -(M r j.castSucc * w j) := by
-      intro j
-      rw [hccast j, neg_smul, smul_eq_mul]
-      ring
-    rw [Finset.sum_congr rfl fun j _ => hterm j, Finset.sum_neg_distrib]
-    ring
-  -- The matrix after the column operation; its determinant is unchanged.
-  set M' := M.updateCol (Fin.last k) (fun r => ∑ i, c i • M r i) with hM'
-  have hMM' : M'.det = M.det := by
-    rw [hM', Matrix.det_updateCol_sum, hclast, one_smul]
-  have hlastcol : ∀ r, M' r (Fin.last k)
-      = M r (Fin.last k) - ∑ j, M r j.castSucc * w j := fun r => by
-    rw [hM', Matrix.updateCol_self, hcol r]
-  -- The last column of `M'` vanishes above the corner.
-  have hzero : ∀ i : Fin k, M' i.castSucc (Fin.last k) = 0 := fun i => by
-    rw [hlastcol, hw i, sub_self]
-  -- The top-left block is unchanged.
-  have hsub : M'.submatrix Fin.castSucc Fin.castSucc
-      = M.submatrix Fin.castSucc Fin.castSucc := by
-    ext i j
-    rw [Matrix.submatrix_apply, Matrix.submatrix_apply, hM',
-      Matrix.updateCol_ne (Fin.castSucc_lt_last j).ne]
-  -- Laplace expansion along the last column of `M'`.
-  have hsign : ((-1 : 𝕜)) ^ ((Fin.last k : ℕ) + (Fin.last k : ℕ)) = 1 := by
-    rw [Fin.val_last]
-    exact Even.neg_one_pow ⟨k, rfl⟩
-  rw [← hMM', Matrix.det_succ_column M' (Fin.last k),
-    Finset.sum_eq_single (Fin.last k)
-      (fun i _ hi => by
-        obtain ⟨i', rfl⟩ := Fin.eq_castSucc_of_ne_last hi
-        rw [hzero i', mul_zero, zero_mul])
-      (fun h => absurd (Finset.mem_univ _) h),
-    hsign, one_mul, Fin.succAbove_last, hsub, hlastcol]
-
 /-! ### Basis expansions in `ℓ₂ᵏ`
 
 Two routine consequences of linearity: an operator on `ℓ₂ᵏ` is determined by
@@ -674,7 +606,7 @@ Pick `x ∈ B_X` with `‖(S - L)x‖` almost `‖S - L‖` and a norming functi
 with `λ² + μ² = 1`, which is again a contraction pair, now for `Δₖ₊₁(S)`. Above
 the corner, the last column of the matrix of `B₀SA₀` is the combination of the
 first `k` columns with coefficients `(μ/λ)·ζ`, where `ζ := T⁻¹B(Sx)`, so
-`det_eq_corner_mul_det_submatrix` gives
+`Matrix.det_eq_corner_mul_det_submatrix` gives
 
   `det (B₀SA₀) = λ^{2k}·μ²·b((S - L)x)·det T`.
 
@@ -851,7 +783,7 @@ lemma approximationNumber_mul_detNumber_le_detNumber_succ (S : X →L[𝕜] Y) (
       -- Hence the determinant identity (∗).
       have hdetM : Mmat.det
           = (lam : 𝕜) ^ (2 * k) * (mu : 𝕜) ^ 2 * b ((S - L) x) * Nmat.det := by
-        rw [det_eq_corner_mul_det_submatrix Mmat w hwrel, hcorner, hminor]
+        rw [Matrix.det_eq_corner_mul_det_submatrix Mmat w hwrel, hcorner, hminor]
         ring
       have hnormdet : ‖LinearMap.det (B'.comp (S.comp A') :
             EuclideanSpace 𝕜 (Fin (k + 1)) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin (k + 1)))‖

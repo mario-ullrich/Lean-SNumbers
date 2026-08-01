@@ -121,9 +121,11 @@ examples, which are the central targets of this formalisation:
 │   │                              the scalar factorisation `B∘S∘A = c·id`
 │   │                              (input to uniqueness) — all proved
 │   ├── Determinant.lean        ← det facts: det T* = conj det T, ‖det T‖ = ∏ₖ σₖ
-│   │                              (singular values), and det of a diagonal
-│   │                              endomorphism = ∏ diagonal entries; ingredient
-│   │                              of the maximal difference theorem
+│   │                              (singular values), det of a diagonal
+│   │                              endomorphism = ∏ diagonal entries, and the
+│   │                              bordered determinant (column-operation Schur
+│   │                              formula, no invertibility); ingredients of
+│   │                              the maximal difference theorem
 │   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n + ε, ker = M),
 │   │                              reduced to `John.exists_projection_ker`
 │   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V),
@@ -218,6 +220,7 @@ A green check means fully proved (no `sorry`).
 | `det T* = conj(det T)` | ✅ proved |
 | `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
 | `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
+| Bordered determinant (column-operation Schur formula, any commutative ring) | ✅ proved |
 
 ### Worked examples
 

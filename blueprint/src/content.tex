@@ -958,11 +958,12 @@ driven by the \emph{determinant quantities}
     A : \ell_2^k \to X,\ B : Y \to \ell_2^k,\ \|A\| \le 1,\ \|B\| \le 1 \,\bigr\},
 \]
 formalised, together with the theorems themselves, in
-\texttt{SNumbers/MaxDifference.lean}. The $\Delta_k$ are squeezed between the
-two quantities of interest: they do not decay faster than the approximation
-numbers allow (the growth lemma below, via the explicit rank-$k$ approximant
-$L = SA(BSA)^{-1}BS$), and consecutive ratios are bounded by the Hilbert
-numbers (the upper bound below, via contractive compressions).
+\texttt{SNumbers/MaxDifference.lean} (the bordered-determinant lemma, a pure
+matrix fact, in \texttt{BasicResults/Determinant.lean}). The $\Delta_k$ are
+squeezed between the two quantities of interest: they do not decay faster than
+the approximation numbers allow (the growth lemma below, via the explicit
+rank-$k$ approximant $L = SA(BSA)^{-1}BS$), and consecutive ratios are bounded
+by the Hilbert numbers (the upper bound below, via contractive compressions).
 
 \begin{definition}[Determinant quantities]
 \label{def:det-quantity}
@@ -997,7 +998,7 @@ $\|\det T\|^2 = \det(T^*T) = \prod \lambda_k(T^*T) = \prod \sigma_k^2$).
 
 \begin{lemma}[Bordered determinant]
 \label{lem:det-bordered}
-\lean{SNumbers.det_eq_corner_mul_det_submatrix}
+\lean{Matrix.det_eq_corner_mul_det_submatrix}
 \leanok
 Let $M$ be a $(k+1) \times (k+1)$ matrix and $w \in \mathbb{K}^k$ such that,
 above the corner, the last column of $M$ is the combination of the first $k$
@@ -1010,8 +1011,9 @@ for $i < k$. Then
   \cdot \det\bigl( M \text{ restricted to the first $k$ rows and columns}
   \bigr).
 \]
-No invertibility of the top-left block is required; this is the elementary
-column-operation form of the Schur determinant formula.
+No invertibility of the top-left block is required, and the statement holds
+over any commutative ring; this is the elementary column-operation form of
+the Schur determinant formula.
 \end{lemma}
 \begin{proof}
 \leanok
