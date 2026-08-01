@@ -950,16 +950,19 @@ $d_n(S)$ is the smaller.
 \section{The maximal difference theorem}
 \label{sec:ineq-maxdiff}
 
-The maximal difference theorem is \emph{pointwise} in the Hilbert numbers.
-It is driven by the \emph{determinant quantities}
+The maximal difference theorem $a_n \le e\,(n+1)\, h_n$ — a bound between the
+largest and the smallest $s$-number sequence, and hence between any two — is
+driven by the \emph{determinant quantities}
 \[
   \Delta_k(S) \;:=\; \sup\bigl\{\, \|\det(B \circ S \circ A)\| \;:\;
     A : \ell_2^k \to X,\ B : Y \to \ell_2^k,\ \|A\| \le 1,\ \|B\| \le 1 \,\bigr\},
 \]
-formalised, together with the theorem itself, in
-\texttt{SNumbers/MaxDifference.lean}. Two features make the
-$\Delta_k$ work: they are closed under contractive compressions, and they do
-not decay too fast from $\Delta_k$ to $\Delta_{k+1}$ (the growth lemma below).
+formalised, together with the theorems themselves, in
+\texttt{SNumbers/MaxDifference.lean}. The $\Delta_k$ are squeezed between the
+two quantities of interest: they do not decay faster than the approximation
+numbers allow (the growth lemma below, via the explicit rank-$k$ approximant
+$L = SA(BSA)^{-1}BS$), and consecutive ratios are bounded by the Hilbert
+numbers (the upper bound below, via contractive compressions).
 
 \begin{definition}[Determinant quantities]
 \label{def:det-quantity}
@@ -992,61 +995,68 @@ $\|\det T\| = \prod_k \sigma_k$ is pure linear algebra
 $\|\det T\|^2 = \det(T^*T) = \prod \lambda_k(T^*T) = \prod \sigma_k^2$).
 \end{proof}
 
-\begin{lemma}[Extension lemma]
-\label{lem:det-extension}
-\lean{SNumbers.exists_det_extension}
+\begin{lemma}[Bordered determinant]
+\label{lem:det-bordered}
+\lean{SNumbers.det_eq_corner_mul_det_submatrix}
 \leanok
-\uses{def:det-quantity}
-Let $(A, B)$ be admissible for $\Delta_k(S)$, let $u \in B_X$,
-$\rho \in B_{Y^*}$, and $\lambda, \mu \ge 0$ with $\lambda^2 + \mu^2 = 1$.
-If either $B(Su) = 0$ or $\rho(S(A e_j)) = 0$ for all $j$, then there is an
-admissible pair $(A', B')$ for $\Delta_{k+1}(S)$ with
+Let $M$ be a $(k+1) \times (k+1)$ matrix and $w \in \mathbb{K}^k$ such that,
+above the corner, the last column of $M$ is the combination of the first $k$
+columns with coefficients $w$, i.e.\ $M_{i,\mathrm{last}} = \sum_j M_{ij} w_j$
+for $i < k$. Then
 \[
-  \|\det(B' \circ S \circ A')\| \;=\;
-  \lambda^{2k} \mu^2\, \|\rho(Su)\|\, \|\det(B \circ S \circ A)\|.
+  \det M \;=\;
+  \Bigl( M_{\mathrm{last},\mathrm{last}}
+    - \sum_j M_{\mathrm{last},j}\, w_j \Bigr)
+  \cdot \det\bigl( M \text{ restricted to the first $k$ rows and columns}
+  \bigr).
 \]
+No invertibility of the top-left block is required; this is the elementary
+column-operation form of the Schur determinant formula.
 \end{lemma}
 \begin{proof}
 \leanok
-Take $A'(s \oplus t) := \lambda\, A s + \mu\, t\, u$ and
-$B'y := (\lambda\, B y) \oplus (\mu\, \rho(y))$. Contractivity of $A'$ is the
-two-term Cauchy--Schwarz inequality
-$\lambda a + \mu b \le \sqrt{a^2 + b^2}$, and
-$\|B'y\|^2 = \lambda^2\|By\|^2 + \mu^2|\rho(y)|^2 \le \|y\|^2$. In the
-standard basis the matrix of $B'SA'$ is the old matrix scaled by $\lambda^2$,
-bordered by one row and one column of which (by hypothesis) one vanishes
-outside the corner entry $\mu^2 \rho(Su)$; Laplace expansion along that line
-gives the determinant identity.
+Subtracting from the last column the combination of the other columns with
+coefficients $w$ leaves the determinant unchanged and clears the column above
+the corner; Laplace expansion along it gives the claim.
 \end{proof}
 
 \begin{lemma}[Growth lemma]
 \label{lem:det-growth}
-\lean{SNumbers.mul_detNumber_le_detNumber_succ}
+\lean{SNumbers.approximationNumber_mul_detNumber_le_detNumber_succ}
 \leanok
-\uses{def:det-quantity, lem:det-extension, def:gelfand-number, def:kolmogorov-number}
-Let $0 \le \gamma$ with $\gamma < c_n(S)$ or $\gamma < d_n(S)$. Then for every
-$k \le n$,
+\uses{def:det-quantity, lem:det-bordered, def:approximation-number}
+For every $S \in \mathcal{L}(X, Y)$ and $k \in \mathbb{N}_0$,
 \[
-  \frac{k^k}{(k+1)^{k+1}}\; \gamma\; \Delta_k(S) \;\le\; \Delta_{k+1}(S).
+  \frac{k^k}{(k+1)^{k+1}}\; a_k(S)\; \Delta_k(S) \;\le\; \Delta_{k+1}(S).
 \]
-In particular $\Delta_k(S) > 0$ for all $k \le n+1$ when $\gamma > 0$.
+In particular, if $a_n(S) > 0$ then $\Delta_k(S) > 0$ for all $k \le n+1$, by
+induction from $\Delta_0(S) = 1$ and $a_k(S) \ge a_n(S)$
+(\texttt{detNumber\_pos\_of\_approximationNumber\_pos}).
 \end{lemma}
 \begin{proof}
 \leanok
-\uses{lem:det-extension}
-For each admissible pair $(A, B)$ for $\Delta_k$, an oracle provides the input
-of the extension lemma. If $\gamma < c_n(S)$: the common kernel of the rows of
-$B$ composed with $S$ is closed of codimension $\le k \le n$, so it contains
-$u \in B_X$ with $B(Su) = 0$ and $\|Su\| > \gamma$, and Hahn--Banach provides
-a norming functional $\rho$ (\texttt{exists\_gelfand\_pair}). If
-$\gamma < d_n(S)$: some $u \in B_X$ has $Su$ at distance $> \gamma$ from
-$V := \operatorname{span}\{S(A e_j)\}$ (dimension $\le k \le n$), and a
-functional vanishing on $V$ realises that distance
-(\texttt{exists\_kolmogorov\_pair}). The weights $\lambda^2 = k/(k+1)$,
-$\mu^2 = 1/(k+1)$ maximise $\lambda^{2k}\mu^2$, giving exactly
-$k^k/(k+1)^{k+1}$; taking the supremum over $(A, B)$ finishes. Note that no
-near-maximiser has to be selected — \emph{every} admissible pair is improved,
-so no $\varepsilon \to 0$ passage is needed here.
+\uses{lem:det-bordered}
+Fix an admissible pair $(A, B)$ for $\Delta_k(S)$ and put $T := BSA$; if
+$\det T = 0$ there is nothing to prove. Otherwise $T$ is invertible, so
+$L := SA\,T^{-1}BS$ factors through $\ell_2^k$, hence has rank at most $k$,
+hence $\|S - L\| \ge a_k(S)$ by the definition of the approximation numbers.
+Pick $x \in B_X$ with $\|(S-L)x\|$ almost $\|S - L\|$ and a Hahn--Banach
+functional $b \in B_{Y^*}$ norming $(S-L)x$, and border the pair by them:
+$A_0(\xi \oplus \tau) := \lambda\, A\xi + \mu\, \tau\, x$ and
+$B_0 y := (\lambda\, B y) \oplus (\mu\, b(y))$ with
+$\lambda^2 + \mu^2 = 1$. Contractivity of $A_0$ is the two-term
+Cauchy--Schwarz inequality $\lambda a + \mu b \le \sqrt{a^2+b^2}$, and
+$\|B_0 y\|^2 = \lambda^2\|By\|^2 + \mu^2 |b(y)|^2 \le \|y\|^2$. Above the
+corner, the last column of the matrix of $B_0SA_0$ is the combination of the
+first $k$ columns with coefficients $(\mu/\lambda)\, \zeta$, where
+$\zeta := T^{-1}B(Sx)$, so Lemma~\ref{lem:det-bordered} gives
+\[
+  \det(B_0 S A_0) \;=\; \lambda^{2k} \mu^2\, b\bigl((S-L)x\bigr) \det T .
+\]
+The weights $\lambda^2 = k/(k+1)$, $\mu^2 = 1/(k+1)$ maximise
+$\lambda^{2k}\mu^2$, whose value is then exactly $k^k/(k+1)^{k+1}$; taking
+the supremum over $(A, B)$ finishes. Note that no near-maximiser has to be
+selected — \emph{every} admissible pair is improved.
 \end{proof}
 
 \begin{lemma}[Upper bound $\Delta_{n+1} \le h_n \Delta_n$]
@@ -1073,39 +1083,62 @@ $\Delta_{n+1}(S)$.
 
 \begin{theorem}[Maximal difference theorem]
 \label{thm:maximal-difference}
+\lean{SNumbers.approximationNumber_le_e_mul_hilbertNumber}
+\leanok
+\uses{lem:det-growth, lem:det-upper, def:approximation-number, def:hilbert-number}
+For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
+\[
+  a_n(S) \;\le\; \frac{(n+1)^{n+1}}{n^n}\, h_n(S)
+  \;\le\; e\,(n+1)\, h_n(S).
+\]
+Since $h_n$ is the smallest and $a_n$ the largest $s$-number sequence, it
+follows that $s_n(S) \le e\,(n+1)\, t_n(S)$ for \emph{any} two $s$-number
+sequences $s, t$ (\texttt{sn\_le\_e\_mul\_tn}) — the maximal possible
+difference between two $s$-number sequences is a factor linear in $n$. This
+proves the conjecture of Carl and Pietsch up to the constant $e$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{lem:det-growth, lem:det-upper}
+If $a_n(S) = 0$ there is nothing to prove. Otherwise chain the growth lemma
+at $k = n$ with the upper bound:
+$\frac{n^n}{(n+1)^{n+1}}\, a_n(S)\, \Delta_n(S) \le \Delta_{n+1}(S) \le
+h_n(S)\, \Delta_n(S)$, and cancel $\Delta_n(S) > 0$. Finally
+$(n+1)^{n+1}/n^n = (n+1)(1 + 1/n)^n \le e\,(n+1)$ from $1 + x \le e^x$ at
+$x = 1/n$.
+\end{proof}
+
+\begin{corollary}[Gelfand and Kolmogorov numbers]
+\label{cor:gelfand-kolmogorov}
 \lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber}
 \leanok
-\uses{lem:det-growth, lem:det-upper, def:hilbert-number}
+\uses{thm:maximal-difference, def:gelfand-number, def:kolmogorov-number}
 For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
 \[
   \max\bigl(c_n(S), d_n(S)\bigr) \;\le\; \frac{(n+1)^{n+1}}{n^n}\, h_n(S)
   \;\le\; e\,(n+1)\, h_n(S).
 \]
-\end{theorem}
+\end{corollary}
 \begin{proof}
 \leanok
-\uses{lem:det-growth, lem:det-upper}
-For $0 < \gamma < c_n(S)$ (resp.\ $< d_n(S)$), chain the growth lemma at
-$k = n$ with the upper bound:
-$\frac{n^n}{(n+1)^{n+1}}\, \gamma\, \Delta_n(S) \le \Delta_{n+1}(S) \le
-h_n(S)\, \Delta_n(S)$, and cancel $\Delta_n(S) > 0$. Letting $\gamma$ tend to
-$c_n(S)$ (resp.\ $d_n(S)$) gives the sharp constant; finally
-$(n+1)^{n+1}/n^n = (n+1)(1 + 1/n)^n \le e\,(n+1)$ from $1 + x \le e^x$ at
-$x = 1/n$.
+\uses{thm:maximal-difference}
+The Gelfand and Kolmogorov numbers are $s$-number sequences, so
+$c_n(S), d_n(S) \le a_n(S)$, and Theorem~\ref{thm:maximal-difference}
+applies.
 \end{proof}
 
 \begin{corollary}[Mityagin--Henkin up to the constant $e$]
 \label{cor:mityagin-henkin}
 \lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
 \leanok
-\uses{thm:maximal-difference, thm:sandwich, def:bernstein-number}
+\uses{cor:gelfand-kolmogorov, thm:sandwich, def:bernstein-number}
 $\max(c_n(S), d_n(S)) \le e\,(n+1)\, s_n(S)$ for every $s$-number sequence
 $s$; in particular $\max(c_n(S), d_n(S)) \le e\,(n+1)\, b_n(S)$ for the
 Bernstein numbers.
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{thm:maximal-difference}
+\uses{cor:gelfand-kolmogorov}
 The Hilbert numbers are the smallest $s$-number sequence
 (\texttt{hilbertNumber\_le\_sn}, part of Theorem~\ref{thm:sandwich}).
 \end{proof}
@@ -1113,16 +1146,17 @@ The Hilbert numbers are the smallest $s$-number sequence
 \begin{remark}
 By telescoping, $\prod_{k=0}^n (k+1)^{k+1}/k^k = (n+1)^{n+1}$,
 Theorem~\ref{thm:maximal-difference} recovers the geometric-mean
-bound $\max(c_n, d_n) \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$
-of Pietsch, \emph{Operator Ideals} (see also Ullrich, arXiv:2405.05509).
+bound $a_n \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$
+of Pietsch, \emph{Operator Ideals} (see also Ullrich, arXiv:2405.05509),
+there stated for $\max(c_n, d_n)$.
 \end{remark}
 
 \begin{remark}[Order-optimality of the factor $n+1$]
 \label{rem:l1-linf-sharp}
 \uses{thm:maximal-difference}
 The linear factor $n+1$ is order-optimal, witnessed by the inclusion
-$I \colon \ell_1 \to \ell_\infty$: there $c_n(I) \asymp 1$ while
-$h_n(I) = (n+1)^{-1}$, so $\max(c_n(I), d_n(I))/h_n(I) \asymp n$ (Heinrich--Linde;
+$I \colon \ell_1 \to \ell_\infty$: there $a_n(I) \ge c_n(I) \asymp 1$ while
+$h_n(I) = (n+1)^{-1}$, so $a_n(I)/h_n(I) \asymp n$ (Heinrich--Linde;
 Pietsch). The ingredients on the ``large'' side are formalised in
 \texttt{SNumbers/Examples/IdentityL1Linfty.lean}: $\tfrac12 \le c_n(I) \le 1$
 (\texttt{half\_le\_gelfandNumber}, \texttt{gelfand\_le\_one}) and the lower bound

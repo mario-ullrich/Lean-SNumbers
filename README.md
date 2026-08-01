@@ -83,16 +83,14 @@ examples, which are the central targets of this formalisation:
 │   │                              through John), and the determinant
 │   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
 │   ├── MaxDifference.lean      ← the maximal difference theorem
-│   │                              max(cₙ,dₙ) ≤ e·(n+1)·hₙ (proved), hence
-│   │                              ≤ e·(n+1)·sₙ for every s-number sequence and
-│   │                              the Mityagin–Henkin conjecture up to `e`;
-│   │                              via the determinant quantities Δₖ(S)
-│   ├── MaxDifferenceNew.lean    ← the bound between all s-numbers
 │   │                              aₙ ≤ e·(n+1)·hₙ (proved), hence
 │   │                              sₙ ≤ e·(n+1)·tₙ for any two s-number
-│   │                              sequences; same Δₖ(S), with the decay bounded
-│   │                              below through the rank-n approximant
-│   │                              L = SA(BSA)⁻¹BS and a bordered determinant
+│   │                              sequences (Carl–Pietsch up to `e`); via the
+│   │                              determinant quantities Δₖ(S), the rank-n
+│   │                              approximant L = SA(BSA)⁻¹BS and a bordered
+│   │                              determinant; corollaries:
+│   │                              max(cₙ,dₙ) ≤ e·(n+1)·hₙ and
+│   │                              Mityagin–Henkin up to `e`
 │   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
 │   │                              s-number (sₙ = σₙ) via uniqueness +
 │   │                              Eckart–Young (proved)
@@ -197,10 +195,9 @@ A green check means fully proved (no `sorry`).
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
 | Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved | 
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved |
-| `max(cₙ,dₙ) ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference thm) | ✅ proved |
-| `max(cₙ,dₙ) ≤ e·(n+1)·sₙ` for every s-number sequence, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) | ✅ proved |
-| `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (bound between all s-numbers, Carl–Pietsch up to `e`) | ✅ proved |
+| `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference theorem; Carl–Pietsch up to `e`) | ✅ proved |
 | `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences | ✅ proved |
+| `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) — corollaries | ✅ proved |
 | `aₙ ≤ √(e·(n+1))·hₙ` when `X` or `Y` is a Hilbert space | ⏳ not started |
 | factor `n+1` is order-optimal (via example `I : ℓ₁ → ℓ_∞`, see Worked examples) | ⏳ needs `hₙ(I) ≤ 1/(n+1)` |
 | Determinant quantities `Δₖ(S)`: growth lemmas + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
@@ -320,4 +317,4 @@ Apache 2.0 — same as Mathlib. See [LICENSE](LICENSE).
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
   mathematics 13, Cambridge University Press, 1987.
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9** (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
-* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*, preprint, 2026 (the maximal difference theorem and the bound `aₙ ≤ e·(n+1)·hₙ` between all s-numbers).
+* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*, preprint, 2026 (the maximal difference theorem `aₙ ≤ e·(n+1)·hₙ`).
