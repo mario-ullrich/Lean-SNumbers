@@ -60,8 +60,10 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   scalar factorisation `SVD.exists_scalar_factorisation` in `BasicResults.SVD`.
 * `SNumbers.Inequalities`: the general-space comparison results — the lower
   bound `hₙ ≤ sₙ`, the sandwich theorem `hₙ ≤ sₙ ≤ aₙ`, the bound
-  `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, and the determinant ingredients
-  (`∏ aₖ(T) = ‖det T‖`, point selection) for the maximal difference theorem.
+  `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, the determinant ingredients
+  (`∏ aₖ(T) = ‖det T‖`, `aₖ(B∘S∘A) ≤ ‖B‖‖A‖·hₖ(S)`) for the maximal
+  difference theorem, and point selection below the Gelfand / Kolmogorov
+  numbers.
 * `SNumbers.MaxDifference`: the **maximal difference theorem**
   `aₙ ≤ e·(n+1)·hₙ` (sharp constant `(n+1)^{n+1}/nⁿ`), hence
   `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences — the conjecture of Carl

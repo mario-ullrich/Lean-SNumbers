@@ -40,10 +40,10 @@ examples, which are the central targets of this formalisation:
 * `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))` (Gelfand and Kolmogorov numbers
   cannot both be much smaller than the approximation numbers);
 * the **maximal difference theorem**
-  `max(cₙ(T), dₙ(T)) ≤ e · (n+1) · hₙ(T)` — hence `≤ e·(n+1)·sₙ(T)` for
-  every s-number sequence, in particular the **Mityagin–Henkin conjecture**
-  `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the constant `e` (sharp constant
-  `(n+1)^{n+1}/nⁿ`);
+  `aₙ(T) ≤ e · (n+1) · hₙ(T)` (sharp constant `(n+1)^{n+1}/nⁿ`) — hence
+  `sₙ(T) ≤ e·(n+1)·tₙ(T)` for any two s-number sequences, in particular the
+  **Mityagin–Henkin conjecture** `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the
+  constant `e`;
 * **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
   the classical singular values `σₙ(T)`.
 

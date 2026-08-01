@@ -752,14 +752,14 @@ comparisons for operators between Banach spaces over $\mathbb{K}$:
         of operators in Banach spaces}, Studia Math.\ \textbf{51} (1974), and
         \emph{Eigenvalues and $s$-Numbers}, Cambridge, 1987, §2.10);
   \item the \emph{reverse} bound, the \emph{maximal difference theorem}
-        $\max(c_n(S), d_n(S)) \le e\,(n+1)\, h_n(S)$ — the maximal possible
-        difference between the Gelfand/Kolmogorov numbers and the smallest
-        $s$-numbers, the Hilbert numbers, is a factor linear in $n$ (Ullrich,
-        \emph{On bounds between $s$-numbers and widths of convex sets},
-        preprint, 2026). Since
-        $h_n$ is the smallest $s$-number sequence this proves the
-        \emph{Mityagin--Henkin conjecture} $\max(c_n, d_n) \lesssim n\, b_n$
-        up to the constant $e$.
+        $a_n(S) \le e\,(n+1)\, h_n(S)$ — the maximal possible difference
+        between the largest $s$-numbers, the approximation numbers, and the
+        smallest ones, the Hilbert numbers, is a factor linear in $n$
+        (Ullrich, \emph{On bounds between all $s$-numbers and widths of
+        convex sets}, preprint, 2026). Hence $s_n \le e\,(n+1)\, t_n$ for any
+        two $s$-number sequences; in particular
+        $\max(c_n, d_n) \le e\,(n+1)\, b_n$, the
+        \emph{Mityagin--Henkin conjecture} up to the constant $e$.
 \end{itemize}
 
 Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean}

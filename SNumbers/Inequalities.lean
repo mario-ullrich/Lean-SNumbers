@@ -39,12 +39,16 @@ for operators between **arbitrary** `𝕜`-Banach spaces.
 * `approximationNumber_le_sqrt_mul_min` — the combined bound
   `aₙ(S) ≤ (1 + √n)·min(cₙ(S), dₙ(S))` (Pietsch [Pie87, 2.10.2]).
 * Ingredients for the **maximal difference theorem**
-  `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)` (proved in `SNumbers.MaxDifference`
-  via the determinant quantities `Δₖ`): the identity `∏ aₖ(T) = ‖det T‖`
-  (`prod_approximationNumber_eq_norm_det`), the (S3)-type bound
-  `aₖ(B∘S∘A) ≤ ‖B‖·‖A‖·hₖ(S)`, and the point-selection lemmas
-  `exists_mem_norm_gt_of_lt_gelfandNumber` /
-  `exists_norm_mkQL_gt_of_lt_kolmogorovNumber`.
+  `aₙ(S) ≤ e·(n+1)·hₙ(S)` (proved in `SNumbers.MaxDifference` via the
+  determinant quantities `Δₖ`): the identity `∏ aₖ(T) = ‖det T‖`
+  (`prod_approximationNumber_eq_norm_det`) and the (S3)-type bound
+  `aₖ(B∘S∘A) ≤ ‖B‖·‖A‖·hₖ(S)`.
+* Point selection below the Gelfand / Kolmogorov numbers
+  (`exists_mem_norm_gt_of_lt_gelfandNumber` /
+  `exists_norm_mkQL_gt_of_lt_kolmogorovNumber`): from `c < cₙ(S)` (resp.
+  `c < dₙ(S)`), a unit vector on which `S` retains norm `> c` on a given
+  closed subspace of codimension `≤ n` (resp. modulo a given subspace of
+  dimension `≤ n`).
 
 ## The `aₙ` vs `cₙ`, `dₙ` bound and its two projection inputs
 
@@ -572,10 +576,10 @@ theorem approximationNumber_le_sqrt_mul_min (S : X →L[𝕜] Y) (n : ℕ) :
 
 /-! ## Determinant ingredients for the maximal difference theorem
 
-The maximal difference theorem `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)`
-lives in `SNumbers.MaxDifference`, built on the determinant quantities
-`Δₖ(S)` defined there. This section provides the ingredients that belong to
-the comparison theory developed here:
+The maximal difference theorem `aₙ(S) ≤ e·(n+1)·hₙ(S)` lives in
+`SNumbers.MaxDifference`, built on the determinant quantities `Δₖ(S)` defined
+there. This section provides the ingredients that belong to the comparison
+theory developed here:
 
 * `approximationNumber_comp_comp_le_mul_hilbertNumber` and its
   finite-dimensional form
