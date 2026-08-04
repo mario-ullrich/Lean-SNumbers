@@ -44,8 +44,9 @@ parallelogram law, and the resulting inequality is
   for the adjoint `A' : ℓ_∞ = ℓ₁' → H`, but stated without ever forming the
   adjoint.
 
-Both are stated as bounds on *finite* partial sums; `tsum` versions for the
-index set `ℕ` are provided at the end.
+Both are stated as bounds on *finite* partial sums. For the index set `ℕ` this
+makes `∑_j ‖w_j‖²` summable (`summable_norm_sq_row`), recorded at the end
+together with the `ℓ₂`-norm identity `norm_sq_eq_tsum_norm_sq`.
 -/
 
 open scoped ENNReal
@@ -63,6 +64,7 @@ the subset `S`: `ε_j = +1` for `j ∈ S` and `ε_j = -1` for `j ∉ S`. -/
 def signedSum (w : ι → G) (S J : Finset ι) : G :=
   ∑ j ∈ J, if j ∈ S then w j else -w j
 
+/-- The signed sum over the empty index set is `0`. -/
 @[simp] lemma signedSum_empty (w : ι → G) (S : Finset ι) : signedSum w S ∅ = 0 := by
   simp [signedSum]
 
@@ -253,13 +255,15 @@ theorem sum_norm_sq_row_le (A : H →L[𝕜] lp (fun _ : ι => 𝕜) 1) {w : ι 
 
 end L1
 
-/-! ## `tsum` versions and the `ℓ₂`-norm as a sum of squares -/
+/-! ## Summability and the `ℓ₂`-norm as a sum of squares -/
 
 section Tsum
 
 variable {𝕜 : Type*} [RCLike 𝕜]
 variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace 𝕜 H]
 
+/-- Over the index set `ℕ`, the row bound makes `∑_j ‖w_j‖²` a convergent
+series (its partial sums are nonnegative and bounded by `‖A‖²`). -/
 lemma summable_norm_sq_row (A : H →L[𝕜] lp (fun _ : ℕ => 𝕜) 1) {w : ℕ → H}
     (hw : ∀ (j : ℕ) (x : H), (inner 𝕜 (w j) x : 𝕜) = A x j) :
     Summable fun j => ‖w j‖ ^ 2 :=

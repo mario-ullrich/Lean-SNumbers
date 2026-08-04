@@ -661,6 +661,7 @@ theorem approximationNumber_comp_incl_comp_le (n : ℕ) :
         gcongr
         · exact approximationNumber_comp_incl_comp_trunc_le A B m n
         · exact hnorm.trans hδB
+
 end Factors
 
 /-! ## `hₙ(I) ≤ 1/(n+1)`, and order-optimality of the factor `n+1` -/

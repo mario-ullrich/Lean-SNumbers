@@ -127,6 +127,6 @@ operators lives in the `AddOns` library.
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator
   Theory **9** (2024), no. 4, article no. 82.
   <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
-* M. Ullrich, *On bounds between s-numbers and widths of convex sets*,
+* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*,
   preprint, 2026 (the maximal difference theorem).
 -/
