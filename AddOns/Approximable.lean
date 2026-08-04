@@ -33,7 +33,8 @@ treated in `AddOns.Compact` via the singular value decomposition.
 * `SVD.isApproximable_iff_existsLimit` — equivalent characterisation as a
   uniform limit of finite-rank operators.
 * `SVD.IsApproximable.isCompactOperator` — every approximable operator is
-  compact.
+  compact; `SVD.isCompactOperator_of_rank_le` specialises this to operators of
+  finite rank.
 -/
 
 universe u
@@ -359,6 +360,12 @@ theorem IsApproximable.isCompactOperator {S : X →L[𝕜] Y}
   -- Limit of compact operators is compact (closed-subset argument).
   exact isCompactOperator_of_tendsto h_tendsto
     (Filter.Eventually.of_forall h_each_compact)
+
+/-- **Finite rank ⇒ compact.** An operator of rank at most `m` is approximable
+(`IsApproximable.of_rank_le`), hence compact. -/
+theorem isCompactOperator_of_rank_le {S : X →L[𝕜] Y} {m : ℕ}
+    (hS : S.rank ≤ (m : Cardinal)) : IsCompactOperator S :=
+  (IsApproximable.of_rank_le hS).isCompactOperator
 
 end ApproximableImpliesCompact
 

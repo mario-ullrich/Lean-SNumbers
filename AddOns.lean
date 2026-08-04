@@ -11,14 +11,14 @@ import AddOns.Compact
 
 Auxiliary Hilbert/Banach-space material around the s-numbers framework,
 following Pietsch, *Eigenvalues and s-numbers* (Cambridge, 1987), §2.11.
-None of this is on the critical path of the s-numbers development; it is
-kept as optional supporting material.
 
 ## Layout
 
 * `AddOns.Approximable` — the class of *approximable* operators (those
   whose approximation numbers `aₙ` tend to zero), its closure properties,
-  and the implication `IsApproximable ⇒ IsCompactOperator`.
+  the implication `IsApproximable ⇒ IsCompactOperator`, and the special case
+  `isCompactOperator_of_rank_le` (finite rank ⇒ compact) used by the
+  example `SNumbers.Examples.IdentityL1Linfty`.
 * `AddOns.Compact` — the converse *compact ⇒ approximable* on Hilbert
   spaces and the equivalence `IsApproximable ↔ IsCompactOperator`.
 
