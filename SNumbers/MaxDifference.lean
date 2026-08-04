@@ -26,11 +26,30 @@ It proves the conjecture of Carl and Pietsch up to the constant `e`. The
 factor `n+1` is optimal, e.g. for the identity `ℓ₁ → ℓ∞`.
 
 Because `cₙ, dₙ ≤ aₙ`, the theorem specialises to the Gelfand and Kolmogorov
-numbers, `max (cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)`
-(`max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber`), and yields the
-**Mityagin–Henkin conjecture** up to the constant `e`,
-`max (cₙ, dₙ) ≤ e·(n+1)·bₙ`
-(`max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber`).
+numbers, `max (cₙ(S), dₙ(S)) ≤ e·(n+1)·sₙ(S)` for every s-number sequence `s`
+(`max_gelfandNumber_kolmogorovNumber_le_e_mul_sn`), which for `s = bₙ` is the
+**Mityagin–Henkin conjecture** up to the constant `e`.
+
+## Main results
+
+The two theorems and, below them, their consequences; every consequence is a
+one- or two-step specialisation of the one above it.
+
+* `approximationNumber_le_mul_hilbertNumber` — `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ`, the
+  sharp constant this proof produces.
+* `approximationNumber_le_e_mul_hilbertNumber` — the same in the readable form
+  `aₙ ≤ e·(n+1)·hₙ` (via `ratio_le_exp_mul`).
+* `approximationNumber_le_e_mul_sn` — `hₙ` replaced by an arbitrary s-number
+  sequence, since `hₙ` is the smallest one (`hilbertNumber_le_sn`).
+* `sn_le_e_mul_tn` — `sₙ ≤ e·(n+1)·tₙ` for *any two* s-number sequences, since
+  `aₙ` is the largest one (`sn_le_approximationNumber`). Carl–Pietsch up to `e`.
+* `gelfandNumber_le_approximationNumber`, `kolmogorovNumber_le_approximationNumber`
+  — `cₙ, dₙ ≤ aₙ`, the inputs for the classical numbers.
+* `max_gelfandNumber_kolmogorovNumber_le_e_mul_sn` — `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`
+  for every s-number sequence `s`, with the two named instances
+  `max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber` (`s = hₙ`) and
+  `max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber` (`s = bₙ`, the
+  Mityagin–Henkin form).
 
 ## The argument
 
@@ -921,47 +940,27 @@ lemma kolmogorovNumber_le_approximationNumber (S : X →L[𝕜] Y) (n : ℕ) :
     kolmogorovNumber S n ≤ approximationNumber S n :=
   sn_le_approximationNumber isSNumberSequence_kolmogorovNumber S n
 
-/-- **Gelfand vs. Hilbert numbers, sharp constant.**
-`cₙ(S) ≤ ((n+1)^{n+1}/nⁿ)·hₙ(S)`. -/
-theorem gelfandNumber_le_mul_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) :
-    gelfandNumber S n ≤ ((n : ℝ) + 1) ^ (n + 1) / (n : ℝ) ^ n * hilbertNumber S n :=
-  (gelfandNumber_le_approximationNumber S n).trans
-    (approximationNumber_le_mul_hilbertNumber S n)
-
-/-- **Kolmogorov vs. Hilbert numbers, sharp constant.**
-`dₙ(S) ≤ ((n+1)^{n+1}/nⁿ)·hₙ(S)`. -/
-theorem kolmogorovNumber_le_mul_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) :
-    kolmogorovNumber S n
-      ≤ ((n : ℝ) + 1) ^ (n + 1) / (n : ℝ) ^ n * hilbertNumber S n :=
-  (kolmogorovNumber_le_approximationNumber S n).trans
-    (approximationNumber_le_mul_hilbertNumber S n)
-
-/-- `max(cₙ(S), dₙ(S)) ≤ ((n+1)^{n+1}/nⁿ)·hₙ(S)`. -/
-theorem max_gelfandNumber_kolmogorovNumber_le_mul_hilbertNumber
-    (S : X →L[𝕜] Y) (n : ℕ) :
-    max (gelfandNumber S n) (kolmogorovNumber S n)
-      ≤ ((n : ℝ) + 1) ^ (n + 1) / (n : ℝ) ^ n * hilbertNumber S n :=
-  max_le (gelfandNumber_le_mul_hilbertNumber S n)
-    (kolmogorovNumber_le_mul_hilbertNumber S n)
-
-/-- `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)`: the Gelfand and Kolmogorov numbers
-exceed the (smallest) s-numbers `hₙ` by at most a factor linear in `n`. -/
-theorem max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber
-    (S : X →L[𝕜] Y) (n : ℕ) :
-    max (gelfandNumber S n) (kolmogorovNumber S n)
-      ≤ Real.exp 1 * ((n : ℝ) + 1) * hilbertNumber S n :=
-  (max_gelfandNumber_kolmogorovNumber_le_mul_hilbertNumber S n).trans
-    (mul_le_mul_of_nonneg_right (ratio_le_exp_mul n) (hilbertNumber_nonneg S n))
-
-/-- Since the Hilbert numbers are the smallest s-number sequence
-(`hilbertNumber_le_sn`), the bound holds with `hₙ` replaced by any s-number
-sequence: `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·sₙ(S)`. -/
+/-- **The bound for the Gelfand and Kolmogorov numbers.** Both are s-number
+sequences, so both are bounded by `aₙ`, and `sn_le_e_mul_tn` applies to each:
+`max(cₙ(S), dₙ(S)) ≤ e·(n+1)·sₙ(S)` for every s-number sequence `s`. -/
 theorem max_gelfandNumber_kolmogorovNumber_le_e_mul_sn {s : Family 𝕜}
     (hs : IsSNumberSequence s) (S : X →L[𝕜] Y) (n : ℕ) :
     max (gelfandNumber S n) (kolmogorovNumber S n)
       ≤ Real.exp 1 * ((n : ℝ) + 1) * s S n :=
-  (max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber S n).trans
-    (mul_le_mul_of_nonneg_left (hilbertNumber_le_sn hs S n) (by positivity))
+  max_le
+    ((gelfandNumber_le_approximationNumber S n).trans
+      (approximationNumber_le_e_mul_sn hs S n))
+    ((kolmogorovNumber_le_approximationNumber S n).trans
+      (approximationNumber_le_e_mul_sn hs S n))
+
+/-- `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·hₙ(S)`: the Gelfand and Kolmogorov numbers
+exceed the smallest s-numbers `hₙ` by at most a factor linear in `n`. -/
+theorem max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber
+    (S : X →L[𝕜] Y) (n : ℕ) :
+    max (gelfandNumber S n) (kolmogorovNumber S n)
+      ≤ Real.exp 1 * ((n : ℝ) + 1) * hilbertNumber S n :=
+  max_gelfandNumber_kolmogorovNumber_le_e_mul_sn
+    isSNumberSequence_hilbertNumber S n
 
 /-- **The Mityagin–Henkin conjecture, up to the constant `e`.** The Gelfand
 and Kolmogorov numbers are bounded by the Bernstein numbers:
