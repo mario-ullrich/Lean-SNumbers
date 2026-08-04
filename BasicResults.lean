@@ -8,6 +8,7 @@ import BasicResults.SVD
 import BasicResults.Determinant
 import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
+import BasicResults.LittleGrothendieck
 import BasicResults.John
 import BasicResults.JohnAux
 import BasicResults.Spectral.MonotoneConvergence
@@ -46,6 +47,12 @@ that support the s-numbers framework:
   (`John.john_decomposition`) is established by the classical variational
   argument, and Kadets–Snobar follows: `John.exists_projection` gives a
   projection onto any finite-dimensional subspace with `‖P‖ ≤ √(dim)`.
+* `BasicResults.LittleGrothendieck` — sign averaging in an inner product space
+  (`∑_j ‖w_j‖² ≤ M²` whenever every signed sum `∑_j ±w_j` has norm `≤ M`) and its
+  two consequences: `∑_j ‖B e_j‖² ≤ ‖B‖²` for `B : ℓ_∞ → H` (little Grothendieck
+  with constant one) and, dually, `∑_j ‖row_j‖² ≤ ‖A‖²` for `A : H → ℓ₁`. Both say
+  that such operators are Hilbert–Schmidt; they drive the sharp Hilbert-number
+  bound for `I : ℓ₁ → ℓ_∞` in `SNumbers.Examples.IdentityL1Linfty`.
 * `BasicResults.JohnAux` — general-purpose ingredients for the above, each a
   Mathlib-upstream candidate: compactness of convex hulls of compact sets in
   finite dimensions, Hahn–Banach dominated by a seminorm on an inner product
