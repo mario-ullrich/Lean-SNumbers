@@ -29,7 +29,9 @@ that support the s-numbers framework:
 * `BasicResults.SVD` — the singular value decomposition of a (compact)
   Hilbert-space operator via the singular-value iteration, together with
   the **scalar factorisation** `SVD.exists_scalar_factorisation` that the
-  s-numbers uniqueness theorem (`SNumbers.Uniqueness`) consumes.
+  s-numbers uniqueness theorem (`SNumbers.Uniqueness`) consumes, and the
+  bound `(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for a compact product
+  (`SVD.mul_approximationNumber_le_of_factorization`).
   Following Pietsch, *Eigenvalues and s-numbers*, §2.11.
 * `BasicResults.Determinant` — elementary determinant facts:
   `det T* = conj (det T)` and `‖det T‖ = ∏ₖ σₖ` for endomorphisms of a

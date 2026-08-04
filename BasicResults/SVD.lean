@@ -39,6 +39,12 @@ operators.
   (pinning the exact `aₖ`) requires `S` compact.
 * `SVD.exists_scalar_factorisation` — `B ∘ S ∘ A = c • id` for `c < aₙ(S)`,
   for an **arbitrary bounded** `S`.
+* `SVD.mul_approximationNumber_le_of_factorization` — for a compact `T = T₂T₁`,
+  `(n+1)·aₙ(T) ≤ ‖T₁‖_HS·‖T₂‖_HS` (Pietsch 2.11.23), with the two
+  Hilbert–Schmidt norms entering only as hypothesised bounds on
+  `∑ₖ ‖T₁ uₖ‖²` and `∑ₖ ‖T₂* vₖ‖²`, so that no Schatten-class theory is needed;
+  `SVD.sum_norm_sq_apply_le_of_rows` derives such a bound from the rows of an
+  operator (Bessel plus a row bound).
 -/
 
 universe u
@@ -1361,5 +1367,157 @@ theorem exists_scalar_factorisation
     · -- `B ∘ S ∘ A = c • id`.
       rw [hBdef, ← hTdef, ContinuousLinearMap.smul_comp, ContinuousLinearMap.comp_assoc,
         ← hGdef, hGinvG, ContinuousLinearMap.one_def]
+
+/-! ## The leading singular values of a product of Hilbert–Schmidt operators
+
+For a compact operator `T = T₂T₁`, the sum of the first `n+1` singular values is
+bounded by the product of the Hilbert–Schmidt norms of the two factors,
+```
+  (n+1) · aₙ(T) ≤ ∑_{k ≤ n} σₖ(T) ≤ ‖T₁‖_HS · ‖T₂‖_HS ,
+```
+the qualitative content of "the nuclear norm is at most the product of the
+Hilbert–Schmidt norms of the factors" (Pietsch, *Eigenvalues and s-numbers*,
+2.11.23). No Schatten-class theory is needed: the singular values are read off the
+Schmidt decomposition above, where `σₖ = aₖ(T)` by Eckart–Young
+(`svd_sigma_eq_approx`), and the estimate comes from
+```
+  σₖ = re ⟪vₖ, T uₖ⟫ = re ⟪T₂* vₖ, T₁ uₖ⟫ ≤ ‖T₂* vₖ‖ · ‖T₁ uₖ‖
+```
+by Cauchy–Schwarz over `k ≤ n`. The Hilbert–Schmidt property of the factors
+therefore enters only through the two hypotheses
+```
+  ∑ₖ ‖T₁ uₖ‖² ≤ a² and ∑ₖ ‖T₂* vₖ‖² ≤ b²
+```
+along arbitrary orthonormal-or-zero families. Those two hypotheses are in turn
+produced from *row data* by `sum_norm_sq_apply_le_of_rows` below, whose input is
+what `BasicResults.LittleGrothendieck` supplies for the inclusion `ℓ₁ → ℓ_∞` in
+`SNumbers.Examples.IdentityL1Linfty`. -/
+
+section Factorization
+
+variable {H₃ : Type u}
+variable [NormedAddCommGroup H₃] [InnerProductSpace 𝕜 H₃] [CompleteSpace H₃]
+
+omit [CompleteSpace H₁] [CompleteSpace H₂] in
+/-- **Bessel plus a row bound.** Suppose the operator `S` is described by a
+family `w` of "rows", in the sense that `‖S x‖² = ∑ⱼ |⟪wⱼ, x⟫|²`, and that the
+partial sums of `‖wⱼ‖²` are bounded by `c`. Then `∑ₖ ‖S uₖ‖² ≤ c` along every
+orthonormal-or-zero family `u`.
+
+This is the Hilbert–Schmidt estimate that
+`mul_approximationNumber_le_of_factorization` needs for each of its two factors:
+interchange the two summations (`hasSum_sum`), apply Bessel's inequality
+(`OrthonormalOrZero.sum_inner_products_le`) for each fixed row, and finish with
+the row bound. -/
+lemma sum_norm_sq_apply_le_of_rows {S : H₁ →L[𝕜] H₂} {w : ℕ → H₁} {c : ℝ}
+    (hS : ∀ x : H₁, ‖S x‖ ^ 2 = ∑' j, ‖(inner 𝕜 (w j) x : 𝕜)‖ ^ 2)
+    (hc : ∀ J : Finset ℕ, ∑ j ∈ J, ‖w j‖ ^ 2 ≤ c)
+    {u : ℕ → H₁} (hu : OrthonormalOrZero 𝕜 u) (s : Finset ℕ) :
+    ∑ k ∈ s, ‖S (u k)‖ ^ 2 ≤ c := by
+  have hw : Summable fun j => ‖w j‖ ^ 2 :=
+    summable_of_sum_range_le (fun _ => by positivity) fun n => hc (Finset.range n)
+  -- Each `j`-series is dominated by `∑ⱼ ‖wⱼ‖²`, because `‖uₖ‖ ≤ 1`.
+  have hsummable : ∀ k, Summable fun j => ‖(inner 𝕜 (w j) (u k) : 𝕜)‖ ^ 2 := by
+    intro k
+    refine Summable.of_nonneg_of_le (fun _ => by positivity) (fun j => ?_) hw
+    have huk : ‖u k‖ ≤ 1 := by
+      rcases hu.1 k with h | h
+      · exact le_of_eq h
+      · simp [h]
+    calc ‖(inner 𝕜 (w j) (u k) : 𝕜)‖ ^ 2 ≤ (‖w j‖ * ‖u k‖) ^ 2 :=
+          pow_le_pow_left₀ (norm_nonneg _) (norm_inner_le_norm _ _) 2
+      _ ≤ ‖w j‖ ^ 2 := by
+          rw [mul_pow]
+          have h1 : ‖u k‖ ^ 2 ≤ 1 ^ 2 := pow_le_pow_left₀ (norm_nonneg _) huk 2
+          calc ‖w j‖ ^ 2 * ‖u k‖ ^ 2 ≤ ‖w j‖ ^ 2 * 1 ^ 2 :=
+                mul_le_mul_of_nonneg_left h1 (sq_nonneg _)
+            _ = ‖w j‖ ^ 2 := by ring
+  -- Interchange the finite sum over `k` with the series over `j`.
+  have hHS : HasSum (fun j => ∑ k ∈ s, ‖(inner 𝕜 (w j) (u k) : 𝕜)‖ ^ 2)
+      (∑ k ∈ s, ‖S (u k)‖ ^ 2) := by
+    refine hasSum_sum fun k _ => ?_
+    rw [hS]
+    exact (hsummable k).hasSum
+  rw [← hHS.tsum_eq]
+  refine hHS.summable.tsum_le_of_sum_le fun J => ?_
+  calc ∑ j ∈ J, ∑ k ∈ s, ‖(inner 𝕜 (w j) (u k) : 𝕜)‖ ^ 2
+      ≤ ∑ j ∈ J, ‖w j‖ ^ 2 := by
+        refine Finset.sum_le_sum fun j _ => ?_
+        refine le_trans (le_of_eq ?_) (hu.sum_inner_products_le (w j) s)
+        exact Finset.sum_congr rfl fun k _ => by rw [norm_inner_symm]
+    _ ≤ c := hc J
+
+omit [CompleteSpace H₁] in
+/-- A single singular value of a factored operator is bounded by the norms of the
+two factors evaluated at the corresponding singular vectors:
+`σₖ ≤ ‖T₂* vₖ‖ · ‖T₁ uₖ‖`. Indeed `T uₖ = σₖ vₖ` with `‖vₖ‖ = 1` (or `σₖ = 0`),
+so `σₖ = re ⟪vₖ, T uₖ⟫ = re ⟪T₂* vₖ, T₁ uₖ⟫`. -/
+lemma svd_sigma_le_mul_of_factorization {T : H₁ →L[𝕜] H₃} {T₁ : H₁ →L[𝕜] H₂}
+    {T₂ : H₂ →L[𝕜] H₃} (hfact : T = T₂.comp T₁) {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₃}
+    (hu : OrthonormalOrZero 𝕜 u) (hv : OrthonormalOrZero 𝕜 v)
+    (hut : ∀ k, σ k ≠ 0 → u k ≠ 0) (hvt : ∀ k, σ k ≠ 0 → v k ≠ 0)
+    (hsum : ∀ x, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (T x)) (k : ℕ) :
+    σ k ≤ ‖ContinuousLinearMap.adjoint T₂ (v k)‖ * ‖T₁ (u k)‖ := by
+  by_cases hk : σ k = 0
+  · rw [hk]; positivity
+  · have hvnorm : ‖v k‖ = 1 := (hv.1 k).resolve_right (hvt k hk)
+    have hTu : T (u k) = (σ k : 𝕜) • v k := svd_apply_left hu hut hsum k
+    have h1 : ((σ k : ℝ) : 𝕜) = inner 𝕜 (v k) (T (u k)) := by
+      rw [hTu, inner_smul_right, inner_self_eq_norm_sq_to_K, hvnorm]
+      push_cast; ring
+    have h2 : (inner 𝕜 (v k) (T (u k)) : 𝕜)
+        = inner 𝕜 (ContinuousLinearMap.adjoint T₂ (v k)) (T₁ (u k)) := by
+      rw [hfact, ContinuousLinearMap.comp_apply, ContinuousLinearMap.adjoint_inner_left]
+    calc σ k = RCLike.re (((σ k : ℝ) : 𝕜)) := by simp
+      _ = RCLike.re (inner 𝕜 (ContinuousLinearMap.adjoint T₂ (v k)) (T₁ (u k)) : 𝕜) := by
+          rw [h1, h2]
+      _ ≤ ‖ContinuousLinearMap.adjoint T₂ (v k)‖ * ‖T₁ (u k)‖ := re_inner_le_norm _ _
+
+/-- **`(n+1)·aₙ(T) ≤ ‖T₁‖_HS·‖T₂‖_HS` for a factored compact operator.**
+
+Let `T = T₂T₁` be compact, and suppose that along every orthonormal-or-zero
+family the two factors satisfy the Hilbert–Schmidt bounds
+`∑ₖ ‖T₁ uₖ‖² ≤ a²` and `∑ₖ ‖T₂* vₖ‖² ≤ b²`. Then
+`(n+1)·aₙ(T) ≤ ∑_{k≤n} σₖ(T) ≤ b·a` for every `n`.
+
+The first inequality is antitonicity of the singular values, the second is
+`svd_sigma_le_mul_of_factorization` followed by Cauchy–Schwarz and the two
+hypotheses. -/
+theorem mul_approximationNumber_le_of_factorization {T : H₁ →L[𝕜] H₃}
+    (hT : IsCompactOperator T) {T₁ : H₁ →L[𝕜] H₂} {T₂ : H₂ →L[𝕜] H₃}
+    (hfact : T = T₂.comp T₁) {a b : ℝ}
+    (ha : ∀ u : ℕ → H₁, OrthonormalOrZero 𝕜 u → ∀ s : Finset ℕ,
+      ∑ k ∈ s, ‖T₁ (u k)‖ ^ 2 ≤ a ^ 2)
+    (hb : ∀ v : ℕ → H₃, OrthonormalOrZero 𝕜 v → ∀ s : Finset ℕ,
+      ∑ k ∈ s, ‖ContinuousLinearMap.adjoint T₂ (v k)‖ ^ 2 ≤ b ^ 2)
+    (ha0 : 0 ≤ a) (hb0 : 0 ≤ b) (n : ℕ) :
+    ((n : ℝ) + 1) * SNumbers.approximationNumber T n ≤ b * a := by
+  obtain ⟨σ, u, v, hσ0, hσanti, hu, hv, hut, hvt, hσlim, hsum⟩ := IsCompactOperator.SVD hT
+  have hσeq : σ n = SNumbers.approximationNumber T n :=
+    svd_sigma_eq_approx hσ0 hσanti hu hv hut hvt hsum n
+  -- Cauchy–Schwarz over `k ≤ n`, then the two Hilbert–Schmidt bounds.
+  have hcs : ∑ k ∈ Finset.range (n + 1), σ k ≤ b * a :=
+    calc ∑ k ∈ Finset.range (n + 1), σ k
+        ≤ ∑ k ∈ Finset.range (n + 1),
+            ‖ContinuousLinearMap.adjoint T₂ (v k)‖ * ‖T₁ (u k)‖ :=
+          Finset.sum_le_sum fun k _ =>
+            svd_sigma_le_mul_of_factorization hfact hu hv hut hvt hsum k
+      _ ≤ Real.sqrt (∑ k ∈ Finset.range (n + 1),
+              ‖ContinuousLinearMap.adjoint T₂ (v k)‖ ^ 2)
+            * Real.sqrt (∑ k ∈ Finset.range (n + 1), ‖T₁ (u k)‖ ^ 2) :=
+          Real.sum_mul_le_sqrt_mul_sqrt _ _ _
+      _ ≤ Real.sqrt (b ^ 2) * Real.sqrt (a ^ 2) :=
+          mul_le_mul (Real.sqrt_le_sqrt (hb v hv _)) (Real.sqrt_le_sqrt (ha u hu _))
+            (Real.sqrt_nonneg _) (Real.sqrt_nonneg _)
+      _ = b * a := by rw [Real.sqrt_sq hb0, Real.sqrt_sq ha0]
+  -- `(n+1)·σₙ ≤ ∑_{k ≤ n} σₖ` since `σ` is antitone.
+  have hcard : ((n : ℝ) + 1) * σ n ≤ ∑ k ∈ Finset.range (n + 1), σ k := by
+    have h := Finset.card_nsmul_le_sum (Finset.range (n + 1)) σ (σ n) fun k hk =>
+      hσanti (Nat.lt_succ_iff.mp (Finset.mem_range.mp hk))
+    simpa [Finset.card_range, nsmul_eq_mul] using h
+  rw [← hσeq]
+  exact hcard.trans hcs
+
+end Factorization
 
 end SVD
