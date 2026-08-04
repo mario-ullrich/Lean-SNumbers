@@ -102,17 +102,21 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `ℓ^r`-norm of the tail of the diagonal,
   `aₙ(D_σ) = (∑_{k≥n} ‖σ_k‖^r)^{1/r}` with `1/r = 1/p - 1/q`, and the operator
   norm is `‖D_σ‖ = ‖σ‖_{ℓ^r}`; for `q ≤ p` the `r = ∞` bounds are recorded.
-* `SNumbers.Examples.IdentityL1Linfty`: the inclusion `I : ℓ₁ → ℓ_∞`, the intended witness
-  for order-optimality of the factor `n+1` in the maximal difference theorem. Formalised so
-  far: `½ ≤ cₙ(I) ≤ 1` and `hₙ(I) ≥ 1/(n+1)`. The order-optimality conclusion itself follows
-  only once the matching upper bound `hₙ(I) ≤ 1/(n+1)` (little Grothendieck / Hilbert–Schmidt)
-  is proved, which is not yet done.
+* `SNumbers.Examples.IdentityL1Linfty`: the inclusion `I : ℓ₁ → ℓ_∞`, the witness for
+  order-optimality of the factor `n+1` in the maximal difference theorem: `½ ≤ cₙ(I) ≤ 1`
+  and `hₙ(I) = 1/(n+1)`, hence `((n+1)/2)·hₙ(I) ≤ cₙ(I)` while `cₙ ≤ e·(n+1)·hₙ` in
+  general. The upper bound `hₙ(I) ≤ 1/(n+1)` factors `I` through `ℓ₂` and estimates the
+  two Hilbert–Schmidt factors of `B I A` by sign averaging
+  (`BasicResults.LittleGrothendieck`), then sums the singular values of the compact
+  operator `B I A` via Bessel and Cauchy–Schwarz.
 
 A companion library `BasicResults` collects supporting material: Auerbach's
-lemma (fully proved) and the singular value decomposition `BasicResults.SVD`
-(the compact SVD plus the scalar factorisation for the uniqueness theorem).
-Auxiliary material on approximable operators lives in the
-`AddOns` library.
+lemma (fully proved), the singular value decomposition `BasicResults.SVD` (the
+compact SVD, the scalar factorisation for the uniqueness theorem, and the bound
+`(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for a compact product), and
+`BasicResults.LittleGrothendieck` (sign averaging and the little Grothendieck
+bounds behind the `ℓ₁ → ℓ_∞` example). Auxiliary material on approximable
+operators lives in the `AddOns` library.
 
 ## References
 

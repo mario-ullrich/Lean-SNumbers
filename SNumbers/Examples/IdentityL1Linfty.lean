@@ -5,6 +5,10 @@ Authors: Mario Ullrich
 -/
 import SNumbers.Gelfand
 import SNumbers.Hilbert
+import SNumbers.MaxDifference
+import BasicResults.LittleGrothendieck
+import BasicResults.SVD
+import AddOns.Approximable
 import Mathlib.Analysis.Normed.Lp.lpSpace
 import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.Topology.MetricSpace.Sequences
@@ -12,22 +16,31 @@ import Mathlib.Topology.MetricSpace.Sequences
 /-!
 # The identity `ℓ₁ → ℓ_∞` and order-optimality of the maximal difference theorem
 
-The maximal difference theorem `max(cₙ, dₙ) ≤ e·(n+1)·hₙ` (see `SNumbers.MaxDifference`)
-is expected to have an optimal linear factor `n+1`, witnessed by the natural inclusion
-`I : ℓ₁ → ℓ_∞`: classically `½ ≤ cₙ(I) ≤ 1` and `hₙ(I) = 1/(n+1)`, so that
-`max(cₙ(I), dₙ(I)) / hₙ(I) ≍ n`.
-
-**What this file proves** are the pieces that need no Hilbert–Schmidt /
-little-Grothendieck machinery, namely the two Gelfand bounds
+The maximal difference theorem `aₙ ≤ e·(n+1)·hₙ` (see `SNumbers.MaxDifference`)
+has an order-optimal linear factor `n+1`, witnessed by the natural inclusion
+`I : ℓ₁ → ℓ_∞`. This file proves the two Gelfand bounds
 
   `½ ≤ cₙ(I) ≤ 1`
 
-and the *lower* bound on the Hilbert numbers
+and the exact value of the Hilbert numbers
 
-  `hₙ(I) ≥ 1/(n+1)`.
+  `hₙ(I) = 1/(n+1)`,
 
-The matching upper bound `hₙ(I) ≤ 1/(n+1)` — and therefore the order-optimality
-conclusion itself — is **not** proved here; it is the one open goal of this file.
+whence `((n+1)/2)·hₙ(I) ≤ cₙ(I)` (`mul_hilbertNumber_le_gelfandNumber`): the factor
+cannot grow slower than linearly.
+
+The lower bound `hₙ(I) ≥ 1/(n+1)` comes from the factorization
+`id_{ℓ₂ⁿ⁺¹} = proj∞ ∘ I ∘ emb1` and the ideal property of the Hilbert numbers.
+For the upper bound, write `I = J₂ ∘ J₁` with the norm-one inclusions
+`J₁ : ℓ₁ → ℓ₂` and `J₂ : ℓ₂ → ℓ_∞`, so that `B I A = T₂ ∘ T₁` with `T₁ = J₁A` and
+`T₂ = BJ₂` acting on `ℓ₂`. Sign averaging (`BasicResults.LittleGrothendieck`)
+bounds the two Hilbert–Schmidt norms, `∑ⱼ‖Beⱼ‖² ≤ ‖B‖²` and `∑ⱼ‖rowⱼ(A)‖² ≤ ‖A‖²`,
+and the singular values of the product then satisfy
+`(n+1)·σₙ ≤ ∑_{k≤n} σₖ ≤ ‖T₁‖_HS·‖T₂‖_HS`. The last step is carried out directly
+from the Schmidt decomposition (Bessel and Cauchy–Schwarz), so no Schatten-class
+theory is needed; truncating `A` to finite rank supplies the compactness that the
+Schmidt decomposition requires, and the truncation is removed by subadditivity of
+the approximation numbers.
 
 Here `ℓ₁ = lp (fun _ : ℕ => 𝕜) 1` and `ℓ_∞ = lp (fun _ : ℕ => 𝕜) ∞`, and `𝕜` is `RCLike`.
 -/
@@ -38,8 +51,8 @@ namespace SNumbers.L1Linf
 
 variable {𝕜 : Type*} [RCLike 𝕜]
 
-instance : Fact ((1 : ℝ≥0∞) ≤ 1) := ⟨le_refl _⟩
-instance : Fact ((1 : ℝ≥0∞) ≤ ∞) := ⟨le_top⟩
+-- The `Fact (1 ≤ p)` instances needed for the `lp` norms are Mathlib's
+-- `fact_one_le_one_ennreal`, `fact_one_le_two_ennreal`, `fact_one_le_top_ennreal`.
 
 /-- `ℓ₁(ℕ; 𝕜)`, the space of absolutely summable scalar sequences. -/
 abbrev L1 (𝕜 : Type*) [RCLike 𝕜] : Type _ := lp (fun _ : ℕ => 𝕜) 1
@@ -47,17 +60,19 @@ abbrev L1 (𝕜 : Type*) [RCLike 𝕜] : Type _ := lp (fun _ : ℕ => 𝕜) 1
 /-- `ℓ_∞(ℕ; 𝕜)`, the space of bounded scalar sequences. -/
 abbrev Linf (𝕜 : Type*) [RCLike 𝕜] : Type _ := lp (fun _ : ℕ => 𝕜) ∞
 
-/-- `‖x‖_∞ ≤ ‖x‖₁`: each coordinate is bounded by the `ℓ₁` norm. -/
-lemma norm_coe_linf_le_norm_l1 (f : L1 𝕜) :
-    ‖(lp.linearMapOfLE 𝕜 (fun _ : ℕ => 𝕜) (le_top) f : Linf 𝕜)‖ ≤ ‖f‖ := by
+/-- `‖x‖_∞ ≤ ‖x‖_p`: each coordinate is bounded by the `ℓ^p` norm. Used for
+`p = 1` (the inclusion `I` below) and for `p = 2` (the inclusion `J₂`). -/
+lemma norm_coe_linf_le_norm {p : ℝ≥0∞} [Fact (1 ≤ p)] (hp : p ≠ 0)
+    (f : lp (fun _ : ℕ => 𝕜) p) :
+    ‖(lp.linearMapOfLE 𝕜 (fun _ : ℕ => 𝕜) le_top f : Linf 𝕜)‖ ≤ ‖f‖ := by
   refine lp.norm_le_of_forall_le (norm_nonneg f) (fun i => ?_)
   rw [lp.coe_linearMapOfLE_apply]
-  exact lp.norm_apply_le_norm (by norm_num) f i
+  exact lp.norm_apply_le_norm hp f i
 
 /-- The natural inclusion `I : ℓ₁ → ℓ_∞`, a contraction. -/
 noncomputable def incl : L1 𝕜 →L[𝕜] Linf 𝕜 :=
   LinearMap.mkContinuous (lp.linearMapOfLE 𝕜 (fun _ : ℕ => 𝕜) le_top) 1 (fun f => by
-    rw [one_mul]; exact norm_coe_linf_le_norm_l1 f)
+    rw [one_mul]; exact norm_coe_linf_le_norm (by norm_num) f)
 
 @[simp] lemma incl_apply (f : L1 𝕜) (i : ℕ) :
     ((incl : L1 𝕜 →L[𝕜] Linf 𝕜) f) i = f i := rfl
@@ -182,10 +197,10 @@ lemma half_le_gelfandNumber (n : ℕ) :
     nlinarith [hk, hδeq]
   linarith
 
-/-! ## `hₙ(I) ≥ 1/(n+1)`
+/-! ## Auxiliary norm bounds on `ℓ₂ᵐ`
 
-Auxiliary Cauchy–Schwarz bounds relating the `ℓ₁`/`ℓ₂` and `ℓ₂`/`ℓ_∞` norms of a
-finite vector, both with the factor `√m`. -/
+Cauchy–Schwarz bounds relating the `ℓ₁`/`ℓ₂` and `ℓ₂`/`ℓ_∞` norms of a finite
+vector, both with the factor `√m`. -/
 
 open scoped Finset in
 /-- `∑ᵢ ‖vᵢ‖ ≤ √m · ‖v‖₂` on `ℓ₂ᵐ` (Cauchy–Schwarz against the all-ones vector). -/
@@ -322,5 +337,362 @@ theorem one_div_le_hilbertNumber (n : ℕ) :
   rw [div_le_iff₀ (by positivity : (0 : ℝ) < (n : ℝ) + 1)]
   linarith [h3]
 
-end SNumbers.L1Linf
+/-- Coordinates of `emb1 v` beyond its support vanish. -/
+lemma emb1_coord_of_le (m : ℕ) (v : EuclideanSpace 𝕜 (Fin m)) {j : ℕ} (hj : m ≤ j) :
+    (emb1 m v) j = 0 := by
+  have h := congrArg (fun x : L1 𝕜 => x j) (emb1_apply m v)
+  refine h.trans ?_
+  rw [lp.coeFn_sum, Finset.sum_apply]
+  refine Finset.sum_eq_zero fun i _ => ?_
+  have hij : j ≠ (i : ℕ) := by have := i.isLt; omega
+  simp [lp.single_apply, hij]
 
+/-- The finite coordinate projection `ℓ₁ → ℓ₂ᵐ` onto the first `m` coordinates.
+Since `I` preserves coordinates, it is `proj∞` precomposed with `I`. -/
+noncomputable def proj1 (m : ℕ) : L1 𝕜 →L[𝕜] EuclideanSpace 𝕜 (Fin m) :=
+  (projinf m).comp (incl : L1 𝕜 →L[𝕜] Linf 𝕜)
+
+/-- Coordinate of `proj1 y`: the `j`-th entry is `y j`. -/
+lemma proj1_coord (m : ℕ) (y : L1 𝕜) (j : Fin m) :
+    (proj1 m : L1 𝕜 →L[𝕜] EuclideanSpace 𝕜 (Fin m)) y j = y (j : ℕ) := by
+  rw [proj1, ContinuousLinearMap.comp_apply, projinf_coord, incl_apply]
+
+/-! ## The factorization `I = J₂ ∘ J₁` through `ℓ₂`
+
+The upper bound `hₙ(I) ≤ 1/(n+1)` rests on splitting the inclusion into the two
+norm-one inclusions `J₁ : ℓ₁ → ℓ₂` and `J₂ : ℓ₂ → ℓ_∞`. For bounded operators
+`A : ℓ₂ → ℓ₁` and `B : ℓ_∞ → ℓ₂` this writes `B I A` as a product `T₂ T₁` of two
+Hilbert–Schmidt operators on `ℓ₂`, with `‖T₁‖_HS ≤ ‖A‖` and `‖T₂‖_HS ≤ ‖B‖`. -/
+
+/-- `‖x‖₂ ≤ ‖x‖₁`, since the cross terms in `(∑ᵢ |xᵢ|)²` are nonnegative:
+`∑ᵢ |xᵢ|² ≤ (∑ᵢ |xᵢ|)²`. -/
+lemma norm_coe_l2_le_norm_l1 (f : L1 𝕜) :
+    ‖(lp.linearMapOfLE 𝕜 (fun _ : ℕ => 𝕜) (by norm_num : (1 : ℝ≥0∞) ≤ 2) f : L2 𝕜)‖ ≤ ‖f‖ := by
+  set g := (lp.linearMapOfLE 𝕜 (fun _ : ℕ => 𝕜) (by norm_num : (1 : ℝ≥0∞) ≤ 2) f : L2 𝕜)
+    with hg
+  have hcoord : ∀ i : ℕ, (g : ℕ → 𝕜) i = f i := by
+    intro i
+    rw [hg]
+    exact congrFun (lp.coe_linearMapOfLE_apply _ _) i
+  have hsq : ‖g‖ ^ 2 = ∑' i, ‖f i‖ ^ 2 := by
+    rw [norm_sq_eq_tsum_norm_sq]
+    exact tsum_congr fun i => by rw [hcoord]
+  have hle : ∑' i, ‖f i‖ ^ 2 ≤ ‖f‖ ^ 2 :=
+    Real.tsum_le_of_sum_range_le (fun _ => by positivity) fun n =>
+      calc ∑ i ∈ Finset.range n, ‖f i‖ ^ 2
+          ≤ (∑ i ∈ Finset.range n, ‖f i‖) ^ 2 :=
+            Finset.sum_sq_le_sq_sum_of_nonneg fun i _ => norm_nonneg _
+        _ ≤ ‖f‖ ^ 2 :=
+            pow_le_pow_left₀ (Finset.sum_nonneg fun i _ => norm_nonneg _)
+              (sum_norm_apply_le_norm_l1 f (Finset.range n)) 2
+  nlinarith [norm_nonneg g, norm_nonneg f, hsq, hle]
+
+/-- The norm-one inclusion `J₁ : ℓ₁ → ℓ₂`. -/
+noncomputable def inclL1L2 : L1 𝕜 →L[𝕜] L2 𝕜 :=
+  LinearMap.mkContinuous (lp.linearMapOfLE 𝕜 (fun _ : ℕ => 𝕜)
+      (by norm_num : (1 : ℝ≥0∞) ≤ 2)) 1 (fun f => by
+    rw [one_mul]; exact norm_coe_l2_le_norm_l1 f)
+
+@[simp] lemma inclL1L2_apply (f : L1 𝕜) (i : ℕ) :
+    ((inclL1L2 : L1 𝕜 →L[𝕜] L2 𝕜) f) i = f i := rfl
+
+lemma norm_inclL1L2_le : ‖(inclL1L2 : L1 𝕜 →L[𝕜] L2 𝕜)‖ ≤ 1 :=
+  LinearMap.mkContinuous_norm_le _ zero_le_one _
+
+/-- The norm-one inclusion `J₂ : ℓ₂ → ℓ_∞`. -/
+noncomputable def inclL2Linf : L2 𝕜 →L[𝕜] Linf 𝕜 :=
+  LinearMap.mkContinuous (lp.linearMapOfLE 𝕜 (fun _ : ℕ => 𝕜) le_top) 1 (fun f => by
+    rw [one_mul]; exact norm_coe_linf_le_norm (by norm_num) f)
+
+@[simp] lemma inclL2Linf_apply (f : L2 𝕜) (i : ℕ) :
+    ((inclL2Linf : L2 𝕜 →L[𝕜] Linf 𝕜) f) i = f i := rfl
+
+lemma norm_inclL2Linf_le : ‖(inclL2Linf : L2 𝕜 →L[𝕜] Linf 𝕜)‖ ≤ 1 :=
+  LinearMap.mkContinuous_norm_le _ zero_le_one _
+
+/-- `I = J₂ ∘ J₁`: all three inclusions act as the identity on coordinates. -/
+lemma incl_eq_comp :
+    (incl : L1 𝕜 →L[𝕜] Linf 𝕜)
+      = (inclL2Linf : L2 𝕜 →L[𝕜] Linf 𝕜).comp (inclL1L2 : L1 𝕜 →L[𝕜] L2 𝕜) :=
+  ContinuousLinearMap.ext fun _ => lp.ext (funext fun _ => rfl)
+
+/-- `J₂` maps the `j`-th unit vector of `ℓ₂` to the `j`-th unit vector of `ℓ_∞`. -/
+@[simp] lemma inclL2Linf_single (j : ℕ) :
+    (inclL2Linf : L2 𝕜 →L[𝕜] Linf 𝕜) (lp.single 2 j (1 : 𝕜)) = lp.single ∞ j (1 : 𝕜) :=
+  lp.ext (funext fun _ => rfl)
+
+/-! ## The two Hilbert–Schmidt factors and their rows and columns -/
+
+section Factors
+
+variable (A : L2 𝕜 →L[𝕜] L1 𝕜) (B : Linf 𝕜 →L[𝕜] L2 𝕜)
+
+/-- The left factor `T₁ = J₁ A : ℓ₂ → ℓ₂`. -/
+noncomputable def T1 : L2 𝕜 →L[𝕜] L2 𝕜 := (inclL1L2 : L1 𝕜 →L[𝕜] L2 𝕜).comp A
+
+/-- The right factor `T₂ = B J₂ : ℓ₂ → ℓ₂`. -/
+noncomputable def T2 : L2 𝕜 →L[𝕜] L2 𝕜 := B.comp (inclL2Linf : L2 𝕜 →L[𝕜] Linf 𝕜)
+
+/-- The `j`-th **row** of `A`: the vector of `ℓ₂` representing the bounded
+functional `x ↦ (A x) j`, realised as the adjoint of `T₁` applied to the `j`-th
+unit vector. -/
+noncomputable def row (j : ℕ) : L2 𝕜 :=
+  ContinuousLinearMap.adjoint (T1 A) (lp.single 2 j (1 : 𝕜))
+
+/-- The `j`-th **column** of `B`: the image of the `j`-th unit vector of `ℓ_∞`. -/
+noncomputable def col (j : ℕ) : L2 𝕜 := B (lp.single ∞ j (1 : 𝕜))
+
+/-- The defining property of the rows: `⟪rowⱼ, x⟫ = (A x) j`. -/
+lemma inner_row (j : ℕ) (x : L2 𝕜) : (inner 𝕜 (row A j) x : 𝕜) = A x j := by
+  rw [row, ContinuousLinearMap.adjoint_inner_left, lp.inner_single_left]
+  simp [T1]
+
+/-- Hilbert–Schmidt bound for the left factor, via its rows:
+`∑ⱼ ‖rowⱼ‖² ≤ ‖A‖²`. -/
+lemma sum_norm_sq_row_le_norm_sq (J : Finset ℕ) : ∑ j ∈ J, ‖row A j‖ ^ 2 ≤ ‖A‖ ^ 2 :=
+  sum_norm_sq_row_le A (inner_row A) J
+
+lemma summable_norm_sq_row' : Summable fun j => ‖row A j‖ ^ 2 :=
+  summable_norm_sq_row A (inner_row A)
+
+/-- Hilbert–Schmidt bound for the right factor, via its columns:
+`∑ⱼ ‖colⱼ‖² ≤ ‖B‖²`. -/
+lemma sum_norm_sq_col_le_norm_sq (J : Finset ℕ) : ∑ j ∈ J, ‖col B j‖ ^ 2 ≤ ‖B‖ ^ 2 := by
+  simpa [col] using sum_norm_sq_apply_single_le B J
+
+/-- `‖T₁ x‖² = ∑ⱼ |⟪rowⱼ, x⟫|²`. -/
+lemma norm_T1_apply_sq (x : L2 𝕜) :
+    ‖T1 A x‖ ^ 2 = ∑' j, ‖(inner 𝕜 (row A j) x : 𝕜)‖ ^ 2 := by
+  rw [norm_sq_eq_tsum_norm_sq]
+  exact tsum_congr fun j => by rw [inner_row]; rfl
+
+/-- Coordinates of the adjoint of the right factor: `(T₂* y)ⱼ = ⟪colⱼ, y⟫`. -/
+lemma adjoint_T2_coord (y : L2 𝕜) (j : ℕ) :
+    (ContinuousLinearMap.adjoint (T2 B) y) j = (inner 𝕜 (col B j) y : 𝕜) := by
+  have h := ContinuousLinearMap.adjoint_inner_right (T2 B) (lp.single 2 j (1 : 𝕜)) y
+  rw [lp.inner_single_left] at h
+  simpa [T2, col] using h
+
+/-- `‖T₂* y‖² = ∑ⱼ |⟪colⱼ, y⟫|²`. -/
+lemma norm_adjoint_T2_apply_sq (y : L2 𝕜) :
+    ‖ContinuousLinearMap.adjoint (T2 B) y‖ ^ 2 = ∑' j, ‖(inner 𝕜 (col B j) y : 𝕜)‖ ^ 2 := by
+  rw [norm_sq_eq_tsum_norm_sq]
+  exact tsum_congr fun j => by rw [adjoint_T2_coord]
+
+/-! ### From rows to Hilbert–Schmidt bounds along an orthonormal family
+
+Both bounds are instances of `SVD.sum_norm_sq_apply_le_of_rows` (Bessel plus a
+row bound), applied to the rows of `A` and to the columns of `B`. -/
+
+/-- Hilbert–Schmidt bound for the left factor along an orthonormal-or-zero
+family: `∑ₖ ‖T₁ uₖ‖² ≤ ‖A‖²`. -/
+lemma sum_norm_sq_T1_le {u : ℕ → L2 𝕜} (hu : SVD.OrthonormalOrZero 𝕜 u) (s : Finset ℕ) :
+    ∑ k ∈ s, ‖T1 A (u k)‖ ^ 2 ≤ ‖A‖ ^ 2 :=
+  SVD.sum_norm_sq_apply_le_of_rows (norm_T1_apply_sq A)
+    (sum_norm_sq_row_le_norm_sq A) hu s
+
+/-- Hilbert–Schmidt bound for the adjoint of the right factor along an
+orthonormal-or-zero family: `∑ₖ ‖T₂* vₖ‖² ≤ ‖B‖²`. -/
+lemma sum_norm_sq_adjoint_T2_le {v : ℕ → L2 𝕜} (hv : SVD.OrthonormalOrZero 𝕜 v)
+    (s : Finset ℕ) :
+    ∑ k ∈ s, ‖ContinuousLinearMap.adjoint (T2 B) (v k)‖ ^ 2 ≤ ‖B‖ ^ 2 :=
+  SVD.sum_norm_sq_apply_le_of_rows (norm_adjoint_T2_apply_sq B)
+    (sum_norm_sq_col_le_norm_sq B) hv s
+
+/-! ### The estimate for operators of finite rank -/
+
+/-- `B I A` has at most the rank of `A`. -/
+lemma rank_comp_incl_comp_le :
+    (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)).rank ≤ A.rank := by
+  have h : B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)
+      = (B.comp (incl : L1 𝕜 →L[𝕜] Linf 𝕜)).comp
+          (A.comp (ContinuousLinearMap.id 𝕜 (L2 𝕜))) := by
+    simp only [ContinuousLinearMap.comp_assoc, ContinuousLinearMap.comp_id]
+  rw [h]
+  exact ContinuousLinearMap.rank_comp_comp_le _ _ _
+
+/-- If `A` has finite rank, so has `B I A`, and it is therefore compact. -/
+lemma isCompactOperator_comp_incl_comp {m : ℕ} (hrank : A.rank ≤ (m : Cardinal)) :
+    IsCompactOperator (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)) :=
+  SVD.isCompactOperator_of_rank_le ((rank_comp_incl_comp_le A B).trans hrank)
+
+/-- `B I A` factors through `ℓ₂` as the product of the two Hilbert–Schmidt
+factors `T₂ = B J₂` and `T₁ = J₁ A`. -/
+lemma comp_incl_comp_eq : B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A) = (T2 B).comp (T1 A) :=
+  ContinuousLinearMap.ext fun _ =>
+    congrArg (fun y : Linf 𝕜 => B y) (lp.ext (funext fun _ => rfl))
+
+/-- **The key estimate, for `A` of finite rank.** If `A` has rank at most `m`,
+then `aₙ(B I A) ≤ ‖A‖ ‖B‖ / (n+1)` for every `n`.
+
+`T := B I A` has finite rank, hence is compact, and factors as `T = T₂T₁` through
+`ℓ₂`; the two Hilbert–Schmidt bounds above then feed the general singular value
+estimate `SVD.mul_approximationNumber_le_of_factorization`. -/
+theorem approximationNumber_comp_incl_comp_le_of_rank {m : ℕ}
+    (hrank : A.rank ≤ (m : Cardinal)) (n : ℕ) :
+    approximationNumber (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)) n
+      ≤ ‖A‖ * ‖B‖ / (n + 1) := by
+  have key := SVD.mul_approximationNumber_le_of_factorization
+    (isCompactOperator_comp_incl_comp A B hrank) (comp_incl_comp_eq A B)
+    (fun u hu s => sum_norm_sq_T1_le A hu s)
+    (fun v hv s => sum_norm_sq_adjoint_T2_le B hv s)
+    (norm_nonneg A) (norm_nonneg B) n
+  rw [le_div_iff₀ (by positivity : (0 : ℝ) < (n : ℝ) + 1)]
+  linarith [key]
+
+/-! ### The finite-rank truncations of `A`
+
+Truncating `A` to its first `m` coordinates gives a finite-rank operator `Aₘ`
+with `‖Aₘ‖ ≤ ‖A‖`, so the estimate above applies to it. The truncation error is
+controlled by the rows: `‖I (A - Aₘ)‖ ≤ sup_{j ≥ m} ‖rowⱼ‖`, which tends to `0`
+because `∑ⱼ ‖rowⱼ‖² < ∞`. -/
+
+/-- The `m`-th coordinate truncation `Aₘ = emb1 ∘ proj1 ∘ A` of `A`; it factors
+through `ℓ₂ᵐ` and therefore has rank at most `m`. -/
+noncomputable def trunc (m : ℕ) : L2 𝕜 →L[𝕜] L1 𝕜 :=
+  (emb1 m).comp ((proj1 m).comp A)
+
+/-- Below the truncation index the coordinates of `Aₘ` agree with those of `A`. -/
+lemma trunc_coord_of_lt (m : ℕ) (x : L2 𝕜) {j : ℕ} (hj : j < m) :
+    (trunc A m x) j = A x j := by
+  have h1 := emb1_coord m ((proj1 m) (A x)) ⟨j, hj⟩
+  have h2 := proj1_coord m (A x) ⟨j, hj⟩
+  simpa [trunc, h2] using h1
+
+/-- From the truncation index on, the coordinates of `Aₘ` vanish. -/
+lemma trunc_coord_of_le (m : ℕ) (x : L2 𝕜) {j : ℕ} (hj : m ≤ j) :
+    (trunc A m x) j = 0 := by
+  simpa [trunc] using emb1_coord_of_le m ((proj1 m) (A x)) hj
+
+/-- The truncation has rank at most `m`, since it factors through `ℓ₂ᵐ`. -/
+lemma rank_trunc_le (m : ℕ) : (trunc A m).rank ≤ (m : Cardinal) := by
+  have h : trunc A m = (emb1 m).comp ((proj1 m).comp A) := by simp only [trunc]
+  rw [h]
+  exact rank_comp_le_of_euclidean _ _
+
+/-- Truncating does not increase the norm: `‖Aₘ x‖₁ ≤ ‖A x‖₁`, since the
+coordinates of `Aₘ x` are those of `A x` or zero. -/
+lemma norm_trunc_apply_le (m : ℕ) (x : L2 𝕜) : ‖trunc A m x‖ ≤ ‖A x‖ := by
+  refine lp.norm_le_of_forall_sum_le (by norm_num) (norm_nonneg _) fun s => ?_
+  have hone : ((1 : ℝ≥0∞)).toReal = (1 : ℝ) := by norm_num
+  simp only [hone, Real.rpow_one]
+  rw [← Finset.sum_filter_add_sum_filter_not s (fun i => i < m)]
+  have hlow : ∑ i ∈ s.filter (fun i => i < m), ‖(trunc A m x) i‖
+      = ∑ i ∈ s.filter (fun i => i < m), ‖A x i‖ :=
+    Finset.sum_congr rfl fun i hi => by
+      rw [trunc_coord_of_lt A m x (Finset.mem_filter.mp hi).2]
+  have hhigh : ∑ i ∈ s.filter (fun i => ¬ i < m), ‖(trunc A m x) i‖ = 0 :=
+    Finset.sum_eq_zero fun i hi => by
+      rw [trunc_coord_of_le A m x (not_lt.mp (Finset.mem_filter.mp hi).2), norm_zero]
+  rw [hlow, hhigh, add_zero]
+  exact sum_norm_apply_le_norm_l1 (A x) _
+
+lemma norm_trunc_le (m : ℕ) : ‖trunc A m‖ ≤ ‖A‖ :=
+  ContinuousLinearMap.opNorm_le_bound _ (norm_nonneg A) fun x =>
+    (norm_trunc_apply_le A m x).trans (A.le_opNorm x)
+
+/-- The key estimate for the truncations: `aₙ(B I Aₘ) ≤ ‖A‖ ‖B‖ / (n+1)`. -/
+theorem approximationNumber_comp_incl_comp_trunc_le (m n : ℕ) :
+    approximationNumber (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (trunc A m))) n
+      ≤ ‖A‖ * ‖B‖ / (n + 1) := by
+  refine (approximationNumber_comp_incl_comp_le_of_rank (trunc A m) B
+    (rank_trunc_le A m) n).trans ?_
+  gcongr
+  exact norm_trunc_le A m
+
+/-- **The key estimate.** `aₙ(B I A) ≤ ‖A‖ ‖B‖ / (n+1)` for *all* bounded
+`A : ℓ₂ → ℓ₁` and `B : ℓ_∞ → ℓ₂`.
+
+The truncation error is handled with the subadditivity of the approximation
+numbers: `aₙ(T) ≤ aₙ(Tₘ) + ‖T - Tₘ‖`, where `‖T - Tₘ‖ ≤ ‖B‖ δ` as soon as
+`‖rowⱼ‖ ≤ δ` for all `j ≥ m` — which holds eventually since `∑ⱼ ‖rowⱼ‖² < ∞`. -/
+theorem approximationNumber_comp_incl_comp_le (n : ℕ) :
+    approximationNumber (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)) n
+      ≤ ‖A‖ * ‖B‖ / (n + 1) := by
+  refine le_of_forall_pos_le_add fun ε hε => ?_
+  -- Choose a truncation index beyond which all rows are small.
+  set δ := ε / (‖B‖ + 1) with hδ
+  have hδpos : 0 < δ := by
+    rw [hδ]; positivity
+  obtain ⟨m, hm⟩ : ∃ m, ∀ j, m ≤ j → ‖row A j‖ ≤ δ := by
+    have h := (summable_norm_sq_row' A).tendsto_atTop_zero
+    obtain ⟨m, hm⟩ := Filter.eventually_atTop.mp
+      (h.eventually_lt_const (show (0 : ℝ) < δ ^ 2 by positivity))
+    refine ⟨m, fun j hj => ?_⟩
+    nlinarith [hm j hj, norm_nonneg (row A j), hδpos]
+  -- The truncation error is at most `‖B‖ δ ≤ ε`.
+  have hres : ‖(incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (A - trunc A m)‖ ≤ δ := by
+    refine ContinuousLinearMap.opNorm_le_bound _ hδpos.le fun x => ?_
+    refine lp.norm_le_of_forall_le (mul_nonneg hδpos.le (norm_nonneg x)) fun j => ?_
+    have hcoord : ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (A - trunc A m) x) j
+        = if j < m then 0 else (inner 𝕜 (row A j) x : 𝕜) := by
+      have h : ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (A - trunc A m) x) j
+          = A x j - (trunc A m x) j := by
+        simp [ContinuousLinearMap.comp_apply]
+      rw [h]
+      by_cases hj : j < m
+      · rw [if_pos hj, trunc_coord_of_lt A m x hj, sub_self]
+      · rw [if_neg hj, trunc_coord_of_le A m x (not_lt.mp hj), sub_zero, inner_row]
+    rw [hcoord]
+    by_cases hj : j < m
+    · rw [if_pos hj, norm_zero]
+      exact mul_nonneg hδpos.le (norm_nonneg x)
+    · rw [if_neg hj]
+      calc ‖(inner 𝕜 (row A j) x : 𝕜)‖ ≤ ‖row A j‖ * ‖x‖ := norm_inner_le_norm _ _
+        _ ≤ δ * ‖x‖ :=
+            mul_le_mul_of_nonneg_right (hm j (not_lt.mp hj)) (norm_nonneg x)
+  -- Subadditivity of the approximation numbers.
+  have hsplit : B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)
+      = B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (trunc A m))
+        + B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (A - trunc A m)) := by
+    ext x
+    simp [ContinuousLinearMap.comp_apply, sub_eq_add_neg]
+  have hnorm : ‖B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (A - trunc A m))‖ ≤ ‖B‖ * δ :=
+    (B.opNorm_comp_le _).trans (mul_le_mul_of_nonneg_left hres (norm_nonneg B))
+  have hδB : ‖B‖ * δ ≤ ε :=
+    calc ‖B‖ * δ ≤ (‖B‖ + 1) * δ :=
+          mul_le_mul_of_nonneg_right (by linarith) hδpos.le
+      _ = ε := by rw [hδ]; field_simp
+  calc approximationNumber (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)) n
+      ≤ approximationNumber (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (trunc A m))) n
+          + ‖B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp (A - trunc A m))‖ := by
+        rw [hsplit]; exact approximationNumber_add_le _ _ n
+    _ ≤ ‖A‖ * ‖B‖ / (n + 1) + ε := by
+        gcongr
+        · exact approximationNumber_comp_incl_comp_trunc_le A B m n
+        · exact hnorm.trans hδB
+end Factors
+
+/-! ## `hₙ(I) ≤ 1/(n+1)`, and order-optimality of the factor `n+1` -/
+
+/-- The Hilbert numbers of `I : ℓ₁ → ℓ_∞` are bounded above by `1/(n+1)`: every
+admissible ratio `aₙ(B I A)/(‖B‖‖A‖)` is, by the key estimate. -/
+theorem hilbertNumber_le_one_div (n : ℕ) :
+    hilbertNumber (incl : L1 𝕜 →L[𝕜] Linf 𝕜) n ≤ (1 : ℝ) / (n + 1) := by
+  rw [hilbertNumber_def]
+  refine Real.sSup_le ?_ (by positivity)
+  rintro r ⟨A, B, hA, hB, rfl⟩
+  have hpos : 0 < ‖B‖ * ‖A‖ := mul_pos (norm_pos_iff.mpr hB) (norm_pos_iff.mpr hA)
+  have h := approximationNumber_comp_incl_comp_le A B n
+  rw [le_div_iff₀ (by positivity : (0 : ℝ) < (n : ℝ) + 1)] at h
+  rw [div_le_div_iff₀ hpos (by positivity : (0 : ℝ) < (n : ℝ) + 1)]
+  linarith [h]
+
+/-- **The Hilbert numbers of the inclusion `I : ℓ₁ → ℓ_∞`:** `hₙ(I) = 1/(n+1)`. -/
+theorem hilbertNumber_eq_one_div (n : ℕ) :
+    hilbertNumber (incl : L1 𝕜 →L[𝕜] Linf 𝕜) n = (1 : ℝ) / (n + 1) :=
+  le_antisymm (hilbertNumber_le_one_div n) (one_div_le_hilbertNumber n)
+
+/-- **Order-optimality of the factor `n+1`** in the maximal difference theorem:
+for the inclusion `I : ℓ₁ → ℓ_∞` one has `((n+1)/2) · hₙ(I) ≤ cₙ(I)`, whereas the
+maximal difference theorem bounds `cₙ ≤ aₙ ≤ e·(n+1)·hₙ` from above. So the linear
+growth of the factor cannot be improved. -/
+theorem mul_hilbertNumber_le_gelfandNumber (n : ℕ) :
+    ((n : ℝ) + 1) / 2 * hilbertNumber (incl : L1 𝕜 →L[𝕜] Linf 𝕜) n
+      ≤ gelfandNumber (incl : L1 𝕜 →L[𝕜] Linf 𝕜) n := by
+  rw [hilbertNumber_eq_one_div,
+    show ((n : ℝ) + 1) / 2 * ((1 : ℝ) / (n + 1)) = 1 / 2 by
+      field_simp]
+  exact half_le_gelfandNumber n
+
+end SNumbers.L1Linf
