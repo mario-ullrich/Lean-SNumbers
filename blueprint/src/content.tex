@@ -822,10 +822,10 @@ comparisons for operators between Banach spaces over $\mathbb{K}$:
         between the largest $s$-numbers, the approximation numbers, and the
         smallest ones, the Hilbert numbers, is a factor linear in $n$
         (Ullrich, \emph{On bounds between all $s$-numbers and widths of
-        convex sets}, preprint, 2026). Hence $s_n \le e\,(n+1)\, t_n$ for any
-        two $s$-number sequences; in particular
-        $\max(c_n, d_n) \le e\,(n+1)\, b_n$, the
-        \emph{Mityagin--Henkin conjecture} up to the constant $e$.
+        convex sets}, preprint, 2026). Its consequences for two arbitrary
+        $s$-number sequences (Carl--Pietsch) and for the Gelfand, Kolmogorov and
+        Bernstein numbers (Mityagin--Henkin) are collected in
+        Corollary~\ref{cor:gelfand-kolmogorov}, both up to the constant $e$.
 \end{itemize}
 
 Everything in this chapter is proved in \texttt{SNumbers/Inequalities.lean}
@@ -1151,7 +1151,8 @@ $\Delta_{n+1}(S)$.
 
 \begin{theorem}[Maximal difference theorem]
 \label{thm:maximal-difference}
-\lean{SNumbers.approximationNumber_le_e_mul_hilbertNumber}
+\lean{SNumbers.approximationNumber_le_mul_hilbertNumber,
+      SNumbers.approximationNumber_le_e_mul_hilbertNumber}
 \leanok
 \uses{lem:det-growth, lem:det-upper, def:approximation-number, def:hilbert-number}
 For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
@@ -1159,11 +1160,6 @@ For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
   a_n(S) \;\le\; \frac{(n+1)^{n+1}}{n^n}\, h_n(S)
   \;\le\; e\,(n+1)\, h_n(S).
 \]
-Since $h_n$ is the smallest and $a_n$ the largest $s$-number sequence, it
-follows that $s_n(S) \le e\,(n+1)\, t_n(S)$ for \emph{any} two $s$-number
-sequences $s, t$ (\texttt{sn\_le\_e\_mul\_tn}) — the maximal possible
-difference between two $s$-number sequences is a factor linear in $n$. This
-proves the conjecture of Carl and Pietsch up to the constant $e$.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -1176,56 +1172,50 @@ $(n+1)^{n+1}/n^n = (n+1)(1 + 1/n)^n \le e\,(n+1)$ from $1 + x \le e^x$ at
 $x = 1/n$.
 \end{proof}
 
-\begin{corollary}[Gelfand and Kolmogorov numbers]
+\begin{corollary}[Carl--Pietsch and Mityagin--Henkin, up to the constant $e$]
 \label{cor:gelfand-kolmogorov}
-\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber}
+\lean{SNumbers.approximationNumber_le_e_mul_sn,
+      SNumbers.sn_le_e_mul_tn,
+      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_sn,
+      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber,
+      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
 \leanok
-\uses{thm:maximal-difference, def:gelfand-number, def:kolmogorov-number}
-For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
-\[
-  \max\bigl(c_n(S), d_n(S)\bigr) \;\le\; \frac{(n+1)^{n+1}}{n^n}\, h_n(S)
-  \;\le\; e\,(n+1)\, h_n(S).
-\]
+\uses{thm:maximal-difference, thm:sandwich, def:gelfand-number,
+  def:kolmogorov-number, def:bernstein-number}
+Let $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$.
+\begin{enumerate}
+  \item For \emph{any two} $s$-number sequences $s, t$,
+    \[
+      s_n(S) \;\le\; e\,(n+1)\, t_n(S) :
+    \]
+    the maximal possible difference between two $s$-number sequences is a factor
+    linear in $n$. This is the conjecture of Carl and Pietsch, up to the constant
+    $e$.
+  \item In particular, for every $s$-number sequence $s$,
+    \[
+      \max\bigl(c_n(S), d_n(S)\bigr) \;\le\; e\,(n+1)\, s_n(S) ,
+    \]
+    and taking $s = h$ resp.\ $s = b$ gives
+    $\max(c_n, d_n) \le e\,(n+1)\, h_n$ and
+    $\max(c_n, d_n) \le e\,(n+1)\, b_n$, the latter being the
+    \emph{Mityagin--Henkin conjecture} up to the constant $e$.
+\end{enumerate}
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{thm:maximal-difference}
-The Gelfand and Kolmogorov numbers are $s$-number sequences, so
-$c_n(S), d_n(S) \le a_n(S)$, and Theorem~\ref{thm:maximal-difference}
-applies.
+\uses{thm:maximal-difference, thm:sandwich}
+By the sandwich theorem the Hilbert numbers are the smallest and the
+approximation numbers the largest $s$-number sequence, so
+Theorem~\ref{thm:maximal-difference} gives
+$s_n(S) \le a_n(S) \le e\,(n+1)\, h_n(S) \le e\,(n+1)\, t_n(S)$, which is (1).
+For (2) apply (1) with $s := c$ and $s := d$ — both are $s$-number sequences —
+and take the maximum.
 \end{proof}
 
-\begin{corollary}[Mityagin--Henkin up to the constant $e$]
-\label{cor:mityagin-henkin}
-\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
-\leanok
-\uses{cor:gelfand-kolmogorov, thm:sandwich, def:bernstein-number}
-$\max(c_n(S), d_n(S)) \le e\,(n+1)\, s_n(S)$ for every $s$-number sequence
-$s$; in particular $\max(c_n(S), d_n(S)) \le e\,(n+1)\, b_n(S)$ for the
-Bernstein numbers.
-\end{corollary}
-\begin{proof}
-\leanok
-\uses{cor:gelfand-kolmogorov}
-The Hilbert numbers are the smallest $s$-number sequence
-(\texttt{hilbertNumber\_le\_sn}, part of Theorem~\ref{thm:sandwich}).
-\end{proof}
-
-\begin{remark}
-By telescoping, $\prod_{k=0}^n (k+1)^{k+1}/k^k = (n+1)^{n+1}$,
-Theorem~\ref{thm:maximal-difference} recovers the geometric-mean
-bound $a_n \le (n+1)\,(\prod_{k=0}^n h_k)^{1/(n+1)}$
-of Pietsch, \emph{Operator Ideals} (see also Ullrich, arXiv:2405.05509),
-there stated for $\max(c_n, d_n)$.
-\end{remark}
-
-\begin{remark}[Order-optimality of the factor $n+1$]
-\label{rem:l1-linf-sharp}
-The linear factor $n+1$ is order-optimal: for the inclusion
-$I \colon \ell_1 \to \ell_\infty$ of Chapter~\ref{ch:l1-linf} one has
-$a_n(I) \ge c_n(I) \asymp 1$ while $h_n(I) = (n+1)^{-1}$, so
-$a_n(I)/h_n(I) \asymp n$ (Heinrich--Linde; Pietsch).
-\end{remark}
+The factor $n+1$ is order-optimal: the inclusion $I \colon \ell_1 \to
+\ell_\infty$ of Chapter~\ref{ch:l1-linf} satisfies $c_n(I) \ge \tfrac12$ while
+$h_n(I) = (n+1)^{-1}$, so no bound $a_n \le \varphi(n)\, h_n$ can hold with
+$\varphi(n) = o(n)$ (Corollary~\ref{cor:l1-linf-order-optimal}).
 
 \chapter{A worked example: the inclusion \texorpdfstring{$\ell_1 \to \ell_\infty$}{l1 to linfty}}
 \label{ch:l1-linf}
