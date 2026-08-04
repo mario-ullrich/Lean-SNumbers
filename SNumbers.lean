@@ -17,6 +17,7 @@ import SNumbers.MaxDifference
 import SNumbers.Uniqueness
 import SNumbers.SingularValuesFinDim
 import SNumbers.Injectivity
+import SNumbers.Entropy
 import SNumbers.Examples.ExHelpers
 import SNumbers.Examples.Identity
 import SNumbers.Examples.DiagonalMatrices
@@ -84,6 +85,16 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
 * `SNumbers.Injectivity`: injective and surjective s-number sequences; the
   Gelfand numbers `cₙ` are injective and the Kolmogorov numbers `dₙ` are
   surjective.
+* `SNumbers.Entropy`: the entropy numbers
+  `eₙ(S) = inf{ε > 0 : S(B_X) is covered by 2ⁿ balls of radius ε}`, with the two
+  inequalities that govern them: additivity `e_{n+m}(S+T) ≤ eₙ(S) + e_m(T)` and,
+  over a densely normed scalar field, multiplicativity
+  `e_{n+m}(B∘S) ≤ eₙ(B)·e_m(S)`; the axioms (S2) and (S3) are corollaries of
+  these. They are *not* s-numbers — the rank axiom (S4) fails, since
+  `eₙ(S) > 0` for every `S ≠ 0`. What they measure is compactness: `S` is a
+  compact operator if and only if `eₙ(S) → 0`
+  (`isCompactOperator_iff_tendsto_entropyNumber`, for complete target spaces;
+  the forward implication needs no completeness).
 * `SNumbers.Examples.ExHelpers`: the geometric and rank ingredients shared by the
   worked examples — the coordinate pigeonhole and the (weighted) flatness lemmas
   behind the Gelfand-width lower bounds.

@@ -96,6 +96,9 @@ examples, which are the central targets of this formalisation:
 │   │                              Eckart–Young (proved)
 │   ├── Injectivity.lean        ← injective / surjective s-numbers:
 │   │                              cₙ injective, dₙ surjective (full proofs)
+│   ├── Entropy.lean            ← entropy numbers eₙ (not s-numbers): additivity
+│   │                              + multiplicativity, hence (S2)/(S3);
+│   │                              compact ⇔ eₙ → 0 on any Banach space
 │   └── Examples/
 │       ├── ExHelpers.lean       ← ingredients shared by the examples: coordinate
 │       │                          pigeonhole + (weighted) flatness lemmas behind
@@ -249,6 +252,23 @@ A green check means fully proved (no `sorry`).
 | Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≥ 1/(n+1)` | ✅ proved |
 | Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≤ 1/(n+1)` (little Grothendieck / Hilbert–Schmidt) | ✅ proved |
 | Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) = 1/(n+1)` and `((n+1)/2)·hₙ(I) ≤ cₙ(I)` (order-optimality) | ✅ proved |
+
+### Entropy numbers (not s-numbers)
+
+`eₙ(S) = inf{ε > 0 : S(B_X) is covered by 2ⁿ balls of radius ε}`. These are not
+s-numbers: the rank axiom (S4) fails, since `eₙ(S) = 0` would force `S(B_X)` to
+have at most `2ⁿ` points, while the image of the unit ball is infinite for every
+`S ≠ 0`. What they measure is compactness.
+
+| Result                                    | Status              |
+|-------------------------------------------|---------------------|
+| Entropy numbers `eₙ` (`entropyNumber`)    | ✅ defined          |
+| Monotonicity, non-negativity, `eₙ(S) ≤ ‖S‖` | ✅ proved (S1b, S1c) |
+| Additivity `e_{n+m}(S+T) ≤ eₙ(S) + e_m(T)`, hence `eₙ(S+T) ≤ eₙ(S) + ‖T‖` | ✅ proved (S2) |
+| `eₙ(B∘S) ≤ ‖B‖·eₙ(S)` (Lipschitz half of the ideal property) | ✅ proved |
+| Multiplicativity `e_{n+m}(B∘S) ≤ eₙ(B)·e_m(S)`, hence `eₙ(B∘S∘A) ≤ ‖B‖·eₙ(S)·‖A‖` (densely normed field, e.g. `ℝ`, `ℂ`) | ✅ proved (S3) |
+| `eₙ(S) → 0` ⇔ `S(B_X)` totally bounded    | ✅ proved           |
+| Compact ⇔ `eₙ(S) → 0` (`isCompactOperator_iff_tendsto_entropyNumber`, complete target space; "⇒" needs no completeness) | ✅ proved |
 
 ### Add ons
 
