@@ -545,11 +545,14 @@ $L_{\lfloor n/2 \rfloor} + K_{\lceil n/2 \rceil}$ construction together with
 
 \begin{theorem}[Approximable $\Rightarrow$ compact]
 \label{thm:approximable-implies-compact}
-\lean{SVD.IsApproximable.isCompactOperator}
+\lean{SVD.IsApproximable.isCompactOperator,
+      SVD.isCompactOperator_of_rank_le}
 \leanok
-\uses{def:approximable}
+\uses{def:approximable, prop:approximable-closure}
 Every approximable operator $S : X \to Y$ from a normed space $X$ to a
-Banach space $Y$ over a locally compact field $\mathbb{K}$ is compact.
+Banach space $Y$ over a locally compact field $\mathbb{K}$ is compact. In
+particular every operator of finite rank is compact, since finite-rank
+operators are approximable (Proposition~\ref{prop:approximable-closure}).
 \end{theorem}
 \begin{proof}
 \leanok
@@ -694,6 +697,69 @@ Unlike the diagonal factorisation this holds for \emph{arbitrary} bounded
 $S$ (no compactness): the strict inequality $c < a_n(S)$ needs only an
 $(n+1)$-dimensional subspace on which $\|S x\| \ge c\|x\|$, which exists for
 every bounded operator.
+
+\section{Leading singular values of a product of Hilbert--Schmidt operators}
+\label{sec:svd-hs-product}
+
+The Schmidt representation also yields the estimate behind the classical
+statement that the nuclear norm of a product is at most the product of the
+Hilbert--Schmidt norms of its factors (Pietsch, \emph{Eigenvalues and
+$s$-numbers}, 2.11.23). We need it only in the following quantitative form, and
+we never define the Hilbert--Schmidt or nuclear norms: the two Hilbert--Schmidt
+bounds enter as hypotheses.
+
+\begin{lemma}[Bessel plus a row bound]
+\label{lem:bessel-rows}
+\lean{SVD.sum_norm_sq_apply_le_of_rows}
+\leanok
+Let $S \in \mathcal{L}(H_1, H_2)$ be described by \emph{rows} $w_j \in H_1$, in
+the sense that $\|S x\|^2 = \sum_j |\langle w_j, x\rangle|^2$ for all $x$, and
+suppose $\sum_{j \in J} \|w_j\|^2 \le c$ for every finite $J$. Then
+$\sum_{k \in s} \|S u_k\|^2 \le c$ for every finite $s$ and every family
+$(u_k)$ of pairwise orthogonal vectors of norm $1$ or $0$.
+\end{lemma}
+\begin{proof}
+\leanok
+Interchange the two summations and apply Bessel's inequality
+$\sum_k |\langle u_k, w_j\rangle|^2 \le \|w_j\|^2$ for each fixed $j$, then sum
+over $j$ and use the row bound.
+\end{proof}
+
+\begin{theorem}[Leading singular values of a product]
+\label{thm:hs-product-bound}
+\lean{SVD.mul_approximationNumber_le_of_factorization}
+\leanok
+\uses{thm:schmidt-representation, thm:eckart-young, def:approximation-number}
+Let $T = T_2 T_1$ be compact, with $T_1 \in \mathcal{L}(H_1, H_2)$ and
+$T_2 \in \mathcal{L}(H_2, H_3)$, and let $a, b \ge 0$ be such that
+\[
+  \sum_{k \in s} \|T_1 u_k\|^2 \le a^2
+  \qquad\text{and}\qquad
+  \sum_{k \in s} \|T_2^{*} v_k\|^2 \le b^2
+\]
+for all finite $s$ and all orthonormal(-or-zero) families $(u_k)$ in $H_1$ and
+$(v_k)$ in $H_3$. Then
+\[
+  (n+1)\, a_n(T) \;\le\; \sum_{k=0}^{n} \sigma_k(T) \;\le\; b\,a
+  \qquad (n \in \mathbb{N}).
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:schmidt-representation, thm:eckart-young}
+Take a Schmidt representation of $T$ with singular values $\sigma_k$ and
+singular vectors $u_k, v_k$; by Eckart--Young $\sigma_n = a_n(T)$, and since
+$\sigma$ is antitone, $(n+1)\sigma_n \le \sum_{k \le n} \sigma_k$. For each $k$
+with $\sigma_k \ne 0$ the vector $v_k$ is a unit vector and $T u_k = \sigma_k v_k$,
+whence
+\[
+  \sigma_k = \operatorname{Re}\langle v_k, T u_k\rangle
+           = \operatorname{Re}\langle T_2^{*} v_k, T_1 u_k\rangle
+           \le \|T_2^{*} v_k\|\,\|T_1 u_k\| .
+\]
+Summing over $k \le n$ and applying Cauchy--Schwarz together with the two
+hypotheses gives $\sum_{k \le n}\sigma_k \le b\,a$.
+\end{proof}
 
 \section{Compact $\Leftrightarrow$ approximable on Hilbert spaces}
 \label{sec:svd-compact-equiv}
@@ -1155,20 +1221,207 @@ there stated for $\max(c_n, d_n)$.
 
 \begin{remark}[Order-optimality of the factor $n+1$]
 \label{rem:l1-linf-sharp}
-\uses{thm:maximal-difference}
-The linear factor $n+1$ is order-optimal, witnessed by the inclusion
-$I \colon \ell_1 \to \ell_\infty$: there $a_n(I) \ge c_n(I) \asymp 1$ while
-$h_n(I) = (n+1)^{-1}$, so $a_n(I)/h_n(I) \asymp n$ (Heinrich--Linde;
-Pietsch). The ingredients on the ``large'' side are formalised in
-\texttt{SNumbers/Examples/IdentityL1Linfty.lean}: $\tfrac12 \le c_n(I) \le 1$
-(\texttt{half\_le\_gelfandNumber}, \texttt{gelfand\_le\_one}) and the lower bound
-$h_n(I) \ge (n+1)^{-1}$ (\texttt{one\_div\_le\_hilbertNumber}, from the
-factorisation $\mathrm{id}_{\ell_2^{\,n+1}} = \mathrm{proj}_\infty \circ I \circ
-\mathrm{emb}_1$ and the Hilbert-number ideal property). The matching upper bound
-$h_n(I) \le (n+1)^{-1}$ (an elementary instance of the little Grothendieck
-inequality), and hence the order-optimality conclusion itself, are not yet
-formalised.
+The linear factor $n+1$ is order-optimal: for the inclusion
+$I \colon \ell_1 \to \ell_\infty$ of Chapter~\ref{ch:l1-linf} one has
+$a_n(I) \ge c_n(I) \asymp 1$ while $h_n(I) = (n+1)^{-1}$, so
+$a_n(I)/h_n(I) \asymp n$ (Heinrich--Linde; Pietsch).
 \end{remark}
+
+\chapter{A worked example: the inclusion \texorpdfstring{$\ell_1 \to \ell_\infty$}{l1 to linfty}}
+\label{ch:l1-linf}
+
+This chapter is a leaf of the development: it consumes the general theory and
+nothing depends on it. Its purpose is to show that the linear factor $n+1$ in
+the maximal difference theorem (Theorem~\ref{thm:maximal-difference}) cannot be
+improved in order, by computing both sides for the natural inclusion
+\[
+  I \colon \ell_1 \to \ell_\infty, \qquad (x_j)_j \mapsto (x_j)_j ,
+\]
+a contraction which is \emph{not} compact. Everything here is formalised in
+\texttt{SNumbers/Examples/IdentityL1Linfty.lean}, with the two little
+Grothendieck bounds in \texttt{BasicResults/LittleGrothendieck.lean}.
+
+\section{Sign averaging and two little Grothendieck bounds}
+\label{sec:l1-linf-grothendieck}
+
+\begin{lemma}[Sign averaging]
+\label{lem:sign-averaging}
+\lean{SNumbers.sum_norm_sq_le_sq_of_signedSum_le}
+\leanok
+Let $w_j$ ($j \in J$, $J$ finite) be vectors in an inner product space and
+$M \in \mathbb{R}$. If $\|\sum_{j \in J} \varepsilon_j w_j\| \le M$ for every
+choice of signs $\varepsilon \in \{\pm 1\}^J$, then
+$\sum_{j \in J} \|w_j\|^2 \le M^2$.
+\end{lemma}
+\begin{proof}
+\leanok
+Summing over all $2^{|J|}$ sign patterns, the cross terms cancel:
+\[
+  \sum_{\varepsilon \in \{\pm 1\}^J} \Bigl\| \sum_{j \in J} \varepsilon_j w_j \Bigr\|^2
+  = 2^{|J|} \sum_{j \in J} \|w_j\|^2 ,
+\]
+proved by induction on $J$, pairing the two extensions of each sign pattern to a
+new index by the parallelogram law. Each summand on the left is at most $M^2$,
+and there are $2^{|J|}$ of them.
+\end{proof}
+
+\begin{lemma}[Little Grothendieck bounds, constant one]
+\label{lem:little-grothendieck}
+\lean{SNumbers.sum_norm_sq_apply_single_le,
+      SNumbers.sum_norm_sq_row_le}
+\leanok
+\uses{lem:sign-averaging}
+Let $H$ be a Hilbert space and $J$ a finite set of indices.
+\begin{enumerate}
+  \item For every $B \in \mathcal{L}(\ell_\infty, H)$,
+    $\displaystyle \sum_{j \in J} \|B e_j\|^2 \le \|B\|^2$.
+  \item For every $A \in \mathcal{L}(H, \ell_1)$ with rows $w_j \in H$, i.e.
+    $\langle w_j, x\rangle = (A x)_j$ for all $x$,
+    $\displaystyle \sum_{j \in J} \|w_j\|^2 \le \|A\|^2$.
+\end{enumerate}
+In Hilbert--Schmidt language: both operators are Hilbert--Schmidt with
+$\|\cdot\|_{HS} \le \|\cdot\|$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:sign-averaging}
+(1) The vectors $\sum_{j \in J} \varepsilon_j e_j$ all have $\ell_\infty$-norm
+$1$, so $\|\sum_j \varepsilon_j B e_j\| \le \|B\|$ and
+Lemma~\ref{lem:sign-averaging} applies with $M = \|B\|$.
+
+(2) For a signed sum $z := \sum_{j \in J}\varepsilon_j w_j$ the rows reproduce
+the signs on the coordinates of $A z$:
+\[
+  \|z\|^2 = \operatorname{Re}\langle z, z\rangle
+          = \operatorname{Re} \sum_{j \in J} \varepsilon_j (A z)_j
+          \le \sum_{j \in J} |(A z)_j| \le \|A z\|_1 \le \|A\|\,\|z\| ,
+\]
+so $\|z\| \le \|A\|$, and Lemma~\ref{lem:sign-averaging} applies with
+$M = \|A\|$. This is the little Grothendieck bound for the dual operator
+$\ell_\infty = \ell_1^{\,\prime} \to H$, formulated through the rows so that no
+adjoint has to be constructed.
+\end{proof}
+
+\section{The Gelfand numbers of \texorpdfstring{$I$}{I}}
+\label{sec:l1-linf-gelfand}
+
+\begin{proposition}[$\tfrac12 \le c_n(I) \le 1$]
+\label{prop:l1-linf-gelfand}
+\lean{SNumbers.L1Linf.gelfand_le_one,
+      SNumbers.L1Linf.half_le_gelfandNumber}
+\leanok
+\uses{def:gelfand-number}
+For all $n$, $\tfrac12 \le c_n(I) \le 1$.
+\end{proposition}
+\begin{proof}
+\leanok
+\uses{def:gelfand-number}
+The upper bound is $c_n(I) \le \|I\| \le 1$. For the lower bound let
+$N \subseteq \ell_1$ be closed of codimension $\le n$. Then $\ell_1/N$ is
+finite dimensional, so among the classes $[e_i]$ of the unit vectors two are
+arbitrarily close (Bolzano--Weierstrass). Lifting the difference gives
+$x \in N$ close to $e_i - e_{i'}$, with $\|x\|_1 \approx 2$ but
+$\|I x\|_\infty \approx 1$; hence $\|I|_N\| \ge \tfrac12 - \varepsilon$ for
+every $\varepsilon > 0$.
+\end{proof}
+
+\section{The Hilbert numbers of \texorpdfstring{$I$}{I}}
+\label{sec:l1-linf-hilbert}
+
+\begin{proposition}[Lower bound]
+\label{prop:l1-linf-hilbert-lower}
+\lean{SNumbers.L1Linf.one_div_le_hilbertNumber}
+\leanok
+\uses{def:hilbert-number, prop:hilbert-is-snumber}
+$h_n(I) \ge (n+1)^{-1}$ for all $n$.
+\end{proposition}
+\begin{proof}
+\leanok
+\uses{def:hilbert-number, prop:hilbert-is-snumber}
+The identity of $\ell_2^{\,n+1}$ factors as
+$\mathrm{id}_{\ell_2^{\,n+1}} = \mathrm{proj}_\infty \circ I \circ \mathrm{emb}_1$
+with $\|\mathrm{emb}_1\|, \|\mathrm{proj}_\infty\| \le \sqrt{n+1}$. By the ideal
+property of the Hilbert numbers and their normalisation
+$h_n(\mathrm{id}_{\ell_2^{\,n+1}}) \ge 1$,
+\[
+  1 \le \|\mathrm{proj}_\infty\|\, h_n(I)\, \|\mathrm{emb}_1\| \le (n+1)\, h_n(I) .
+\]
+\end{proof}
+
+\begin{theorem}[Upper bound]
+\label{thm:l1-linf-hilbert-upper}
+\lean{SNumbers.L1Linf.hilbertNumber_le_one_div}
+\leanok
+\uses{def:hilbert-number, lem:little-grothendieck, lem:bessel-rows,
+  thm:hs-product-bound, thm:approximable-implies-compact}
+$h_n(I) \le (n+1)^{-1}$ for all $n$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{lem:little-grothendieck, lem:bessel-rows, thm:hs-product-bound,
+  thm:approximable-implies-compact}
+Let $A \in \mathcal{L}(\ell_2, \ell_1)$ and $B \in \mathcal{L}(\ell_\infty,
+\ell_2)$ be non-zero; we must bound $a_n(B I A) \le \|A\|\,\|B\|/(n+1)$.
+Factorising $I = J_2 J_1$ with the norm-one inclusions
+$J_1 \colon \ell_1 \to \ell_2$ and $J_2 \colon \ell_2 \to \ell_\infty$, we obtain
+$T := B I A = T_2 T_1$ with $T_1 := J_1 A$ and $T_2 := B J_2$ on $\ell_2$.
+Applying Lemma~\ref{lem:little-grothendieck} to $B$ and to the rows of $A$,
+\[
+  \|T_2\|_{HS}^2 = \sum_j \|B e_j\|^2 \le \|B\|^2
+  \qquad\text{and}\qquad
+  \|T_1\|_{HS}^2 = \sum_j \|\mathrm{row}_j(A)\|^2 \le \|A\|^2 ,
+\]
+which by Lemma~\ref{lem:bessel-rows} gives the two hypotheses of
+Theorem~\ref{thm:hs-product-bound} along the singular vectors of $T$. That
+theorem yields $(n+1)\, a_n(T) \le \|A\|\,\|B\|$ \emph{provided $T$ is compact}.
+
+For compactness, replace $A$ by its coordinate truncation $A_m$, of rank
+$\le m$ and with $\|A_m\| \le \|A\|$; then $B I A_m$ has finite rank, hence is
+compact (Theorem~\ref{thm:approximable-implies-compact}), and the estimate above
+applies to it. Since $\sum_j \|\mathrm{row}_j(A)\|^2 < \infty$ we have
+$\|\mathrm{row}_j(A)\| \to 0$, so $\|I(A - A_m)\| \to 0$, and subadditivity of the
+approximation numbers,
+\[
+  a_n(B I A) \le a_n(B I A_m) + \|B\|\,\|I(A - A_m)\| ,
+\]
+lets $m \to \infty$. Dividing by $\|A\|\,\|B\|$ and taking the supremum over all
+admissible $A, B$ gives $h_n(I) \le (n+1)^{-1}$.
+\end{proof}
+
+\begin{corollary}[$h_n(I) = (n+1)^{-1}$]
+\label{cor:l1-linf-hilbert-eq}
+\lean{SNumbers.L1Linf.hilbertNumber_eq_one_div}
+\leanok
+\uses{thm:l1-linf-hilbert-upper, prop:l1-linf-hilbert-lower}
+$h_n(I) = (n+1)^{-1}$ for all $n$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:l1-linf-hilbert-upper, prop:l1-linf-hilbert-lower}
+Combine the two bounds.
+\end{proof}
+
+\section{Order-optimality of the factor \texorpdfstring{$n+1$}{n+1}}
+\label{sec:l1-linf-optimal}
+
+\begin{corollary}[The factor $n+1$ is order-optimal]
+\label{cor:l1-linf-order-optimal}
+\lean{SNumbers.L1Linf.mul_hilbertNumber_le_gelfandNumber}
+\leanok
+\uses{cor:l1-linf-hilbert-eq, prop:l1-linf-gelfand, thm:maximal-difference}
+For all $n$,
+\[
+  \frac{n+1}{2}\, h_n(I) \;\le\; c_n(I) \;\le\; a_n(I) ,
+\]
+whereas the maximal difference theorem gives $a_n \le e\,(n+1)\,h_n$ in general.
+Hence no bound $a_n \le \varphi(n)\,h_n$ can hold with $\varphi(n) = o(n)$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{cor:l1-linf-hilbert-eq, prop:l1-linf-gelfand}
+By Corollary~\ref{cor:l1-linf-hilbert-eq}, $\tfrac{n+1}{2}\, h_n(I) = \tfrac12$,
+which is at most $c_n(I)$ by Proposition~\ref{prop:l1-linf-gelfand}.
+\end{proof}
 
 \chapter{Injective and surjective \texorpdfstring{$s$}{s}-numbers}
 \label{ch:injectivity}

@@ -110,16 +110,18 @@ examples, which are the central targets of this formalisation:
 │       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞):
 │       │                          ‖D_σ‖ = maxᵢ‖σᵢ‖ and sₙ ≤ ‖σ_n‖
 │       └── IdentityL1Linfty.lean ← inclusion I : ℓ₁ → ℓ_∞: ½ ≤ cₙ(I) ≤ 1 and
-│                                  hₙ(I) ≥ 1/(n+1) (n+1 in the max-difference thm
-│                                  is order-optimal; hₙ ≤ 1/(n+1) still to do)
+│                                  hₙ(I) = 1/(n+1), so ((n+1)/2)·hₙ(I) ≤ cₙ(I):
+│                                  the factor n+1 in the max-difference theorem
+│                                  is order-optimal
 ├── BasicResults.lean           ← library entry point
 ├── BasicResults/
 │   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
 │   ├── SVD.lean                ← compact SVD via singular-value iteration:
 │   │                              norm_isSingularValue, `SVD` (Schmidt decomp.),
-│   │                              Eckart–Young, diagonal factorisation, and
-│   │                              the scalar factorisation `B∘S∘A = c·id`
-│   │                              (input to uniqueness) — all proved
+│   │                              Eckart–Young, diagonal factorisation, the
+│   │                              scalar factorisation `B∘S∘A = c·id` (input to
+│   │                              uniqueness), and for a compact product T₂T₁
+│   │                              (n+1)·aₙ ≤ ‖T₁‖_HS·‖T₂‖_HS — all proved
 │   ├── Determinant.lean        ← det facts: det T* = conj det T, ‖det T‖ = ∏ₖ σₖ
 │   │                              (singular values), det of a diagonal
 │   │                              endomorphism = ∏ diagonal entries, and the
@@ -138,12 +140,16 @@ examples, which are the central targets of this formalisation:
 │   ├── JohnAux.lean            ← general ingredients (Mathlib candidates): compact
 │   │                              convex hulls, seminorm Hahn–Banach, trace duality,
 │   │                              ∏(1+aᵢ) ≥ 1−2∑aᵢ²
+│   ├── LittleGrothendieck.lean ← sign averaging (∑‖wⱼ‖² ≤ M² if all signed sums
+│   │                              have norm ≤ M) ⇒ ∑‖Beⱼ‖² ≤ ‖B‖² for B : ℓ_∞ → H
+│   │                              and ∑‖rowⱼ‖² ≤ ‖A‖² for A : H → ℓ₁
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
 │                                  (cfc over ℂ + complexification for ℝ); the
 │                                  input to s-number uniqueness for bounded ops
 ├── AddOns.lean                 ← auxiliary library entry point
 ├── AddOns/
-│   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact
+│   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact,
+│   │                              hence finite rank ⇒ compact
 │   └── Compact.lean            ← compact ⇔ approximable on Hilbert
 ├── LICENSE                     ← Apache 2.0
 ├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
@@ -201,7 +207,7 @@ A green check means fully proved (no `sorry`).
 | `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences | ✅ proved |
 | `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) — corollaries | ✅ proved |
 | `aₙ ≤ √(e·(n+1))·hₙ` when `X` or `Y` is a Hilbert space | ⏳ not started |
-| factor `n+1` is order-optimal (via example `I : ℓ₁ → ℓ_∞`, see Worked examples) | ⏳ needs `hₙ(I) ≤ 1/(n+1)` |
+| factor `n+1` is order-optimal (via example `I : ℓ₁ → ℓ_∞`, see Worked examples) | ✅ proved |
 | Determinant quantities `Δₖ(S)`: growth lemmas + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
 | `Δₖ₊₁ ≥ (kᵏ/(k+1)^{k+1})·aₖ·Δₖ` via `L = SA(BSA)⁻¹BS` (bordered determinant) | ✅ proved |
 | `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
@@ -216,6 +222,7 @@ A green check means fully proved (no `sorry`).
 | Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved |
 | Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved |
 | Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved |
+| `(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for compact `T₂T₁` (Pietsch 2.11.23) | ✅ proved |
 | Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | ✅ proved |
 | `det T* = conj(det T)` | ✅ proved |
 | `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
@@ -240,7 +247,8 @@ A green check means fully proved (no `sorry`).
 | `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ ‖σ_n‖` (all s-numbers, `q ≤ p`, `σ` antitone) | ✅ proved |
 | Inclusion `I : ℓ₁ → ℓ_∞`: `½ ≤ cₙ(I) ≤ 1` | ✅ proved |
 | Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≥ 1/(n+1)` | ✅ proved |
-| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≤ 1/(n+1)` (little Grothendieck / Hilbert–Schmidt) | ⏳ missing |
+| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≤ 1/(n+1)` (little Grothendieck / Hilbert–Schmidt) | ✅ proved |
+| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) = 1/(n+1)` and `((n+1)/2)·hₙ(I) ≤ cₙ(I)` (order-optimality) | ✅ proved |
 
 ### Add ons
 
@@ -248,6 +256,7 @@ A green check means fully proved (no `sorry`).
 |-------------------------------------------|---------------------|
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | Compact ⇔ approximable on Hilbert         | ✅ proved           |
+| Finite rank ⇒ compact (`SVD.isCompactOperator_of_rank_le`) | ✅ proved |
 
 ## Completeness
 
