@@ -89,7 +89,8 @@ examples, which are the central targets of this formalisation:
 │   │                              determinant quantities Δₖ(S), the rank-n
 │   │                              approximant L = SA(BSA)⁻¹BS and a bordered
 │   │                              determinant; corollaries:
-│   │                              max(cₙ,dₙ) ≤ e·(n+1)·hₙ and
+│   │                              max(cₙ,dₙ) ≤ e·(n+1)·sₙ for every s-number
+│   │                              sequence, hence ≤ e·(n+1)·hₙ and
 │   │                              Mityagin–Henkin up to `e`
 │   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
 │   │                              s-number (sₙ = σₙ) via uniqueness +
@@ -97,19 +98,20 @@ examples, which are the central targets of this formalisation:
 │   ├── Injectivity.lean        ← injective / surjective s-numbers:
 │   │                              cₙ injective, dₙ surjective (full proofs)
 │   ├── Entropy.lean            ← entropy numbers eₙ (not s-numbers): additivity
-│   │                              + multiplicativity, hence (S2)/(S3);
+│   │                              + multiplicativity (densely normed field),
+│   │                              hence (S2)/(S3);
 │   │                              compact ⇔ eₙ → 0 on any Banach space
 │   └── Examples/
 │       ├── ExHelpers.lean       ← ingredients shared by the examples: coordinate
 │       │                          pigeonhole + (weighted) flatness lemmas behind
 │       │                          the Gelfand-width lower bounds, rank of id_{ℓ^p_k}
-│       ├── Identity.lean        ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q):
+│       ├── Identity.lean        ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q < ∞):
 │       │                          ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
 │       │                          (the unit-diagonal case, self-contained)
 │       ├── DiagonalMatrices.lean ← worked example: s-numbers of the diagonal
 │       │                          operators, all pairs of exponents.
 │       │                          Same exponent D_σ : ℓ^p_m → ℓ^p_m: sₙ = ‖σ_n‖.
-│       │                          Mixed p < q: aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
+│       │                          Mixed p < q < ∞: aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
 │       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞):
 │       │                          ‖D_σ‖ = maxᵢ‖σᵢ‖ and sₙ ≤ ‖σ_n‖
 │       └── IdentityL1Linfty.lean ← inclusion I : ℓ₁ → ℓ_∞: ½ ≤ cₙ(I) ≤ 1 and
@@ -221,8 +223,8 @@ A green check means fully proved (no `sorry`).
 |-------------------------------------------|---------------------|
 | `sₙ(S) = σₙ(S)` (fin-dim: all s-numbers = Mathlib singular numbers) | ✅ proved |
 | Singular-value uniqueness `project σ = Mathlib σ` (`project_singularValues_eq`) | ✅ proved |
-| `norm_isSingularValue` (compact attains norm) | ✅ proved        |
-| Compact SVD `IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved |
+| `SVD.IsCompactOperator.norm_isSingularValue` (compact attains norm) | ✅ proved |
+| Compact SVD `SVD.IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved |
 | Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved |
 | Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved |
 | `(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for compact `T₂T₁` (Pietsch 2.11.23) | ✅ proved |
@@ -240,12 +242,12 @@ A green check means fully proved (no `sorry`).
 | `sₙ(D_σ) = ‖σ_n‖` for every **strict** s-number (`aₙ, cₙ, dₙ, bₙ`) | ✅ proved |
 | Hilbert numbers `hₙ(D_σ) ≤ ‖σ_n‖` (equality fails for `p ≠ 2`) | ✅ proved |
 | Unit diagonal = identity, `sₙ(id_{ℓ^p_m}) = 1` for `n < m` | ✅ proved |
-| Identity embedding `id : ℓ^q_m → ℓ^p_m` (`p ≤ q`), `‖id‖ = m^{1/p-1/q}` | ✅ proved |
-| `aₙ(id : ℓ^q_m → ℓ^p_m) ≤ (m-n)^{1/p-1/q}` (all s-numbers) | ✅ proved |
-| `aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}` (`p ≤ q`, `n < m`) | ✅ proved |
-| Mixed-exponent diagonal `D_σ : ℓ^q_m → ℓ^p_m` (`p < q`), `‖D_σ‖ = ‖σ‖_{ℓ^r}` (`1/r = 1/p-1/q`) | ✅ proved |
-| `aₙ(D_σ : ℓ^q_m → ℓ^p_m) = (∑_{k≥n}‖σ_k‖^r)^{1/r}` (`p < q`, `σ` antitone, `n < m`) | ✅ proved |
-| `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ (∑_{k≥n}‖σ_k‖^r)^{1/r}` (all s-numbers) | ✅ proved |
+| Identity embedding `id : ℓ^q_m → ℓ^p_m` (`p ≤ q < ∞`), `‖id‖ = m^{1/p-1/q}` | ✅ proved |
+| `aₙ(id : ℓ^q_m → ℓ^p_m) ≤ (m-n)^{1/p-1/q}` (all s-numbers, `p ≤ q < ∞`) | ✅ proved |
+| `aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}` (`p ≤ q < ∞`, `n < m`) | ✅ proved |
+| Mixed-exponent diagonal `D_σ : ℓ^q_m → ℓ^p_m` (`p < q < ∞`), `‖D_σ‖ = ‖σ‖_{ℓ^r}` (`1/r = 1/p-1/q`) | ✅ proved |
+| `aₙ(D_σ : ℓ^q_m → ℓ^p_m) = (∑_{k≥n}‖σ_k‖^r)^{1/r}` (`p < q < ∞`, `σ` antitone, `n < m`) | ✅ proved |
+| `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ (∑_{k≥n}‖σ_k‖^r)^{1/r}` (all s-numbers, `p < q < ∞`) | ✅ proved |
 | Reverse regime `q ≤ p` (incl. `p = ∞`): `‖D_σ : ℓ^q_m → ℓ^p_m‖ = maxᵢ‖σᵢ‖` | ✅ proved |
 | `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ ‖σ_n‖` (all s-numbers, `q ≤ p`, `σ` antitone) | ✅ proved |
 | Inclusion `I : ℓ₁ → ℓ_∞`: `½ ≤ cₙ(I) ≤ 1` | ✅ proved |
@@ -257,10 +259,10 @@ A green check means fully proved (no `sorry`).
 
 `eₙ(S) = inf{ε > 0 : S(B_X) is covered by 2ⁿ balls of radius ε}`. These are not
 s-numbers: the rank axiom (S4) fails, since `eₙ(S) = 0` would force `S(B_X)` to
-have at most `2ⁿ` points, while the image of the unit ball is infinite for every
-`S ≠ 0`; and the norming axiom (S5) fails from `n = 2` on. A sequence keeping the
-remaining properties is called a *pseudo-s-number* sequence. What they measure is
-compactness.
+have at most `2ⁿ` points, which it never has for `S ≠ 0`.
+The norming axiom (S5) also fails.
+A sequence keeping the remaining properties is called a *pseudo-s-number*
+sequence.
 
 | Result                                    | Status              |
 |-------------------------------------------|---------------------|
@@ -331,7 +333,7 @@ The blueprint follows the [leanblueprint](https://github.com/PatrickMassot/leanb
 convention. With `leanblueprint` installed:
 
 ```bash
-leanblueprint pdf      # produces blueprint/print/blueprint.pdf
+leanblueprint pdf      # produces blueprint/print/print.pdf
 leanblueprint web      # produces blueprint/web/index.html
 leanblueprint checkdecls   # checks that every \lean{Decl} resolves
 ```

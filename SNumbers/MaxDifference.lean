@@ -32,8 +32,7 @@ numbers, `max (cₙ(S), dₙ(S)) ≤ e·(n+1)·sₙ(S)` for every s-number seque
 
 ## Main results
 
-The two theorems and, below them, their consequences; every consequence is a
-one- or two-step specialisation of the one above it.
+The two theorems and, below them, their consequences.
 
 * `approximationNumber_le_mul_hilbertNumber` — `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ`, the
   sharp constant this proof produces.
@@ -941,7 +940,8 @@ lemma kolmogorovNumber_le_approximationNumber (S : X →L[𝕜] Y) (n : ℕ) :
   sn_le_approximationNumber isSNumberSequence_kolmogorovNumber S n
 
 /-- **The bound for the Gelfand and Kolmogorov numbers.** Both are s-number
-sequences, so both are bounded by `aₙ`, and `sn_le_e_mul_tn` applies to each:
+sequences, so both are bounded by `aₙ`, to which
+`approximationNumber_le_e_mul_sn` applies:
 `max(cₙ(S), dₙ(S)) ≤ e·(n+1)·sₙ(S)` for every s-number sequence `s`. -/
 theorem max_gelfandNumber_kolmogorovNumber_le_e_mul_sn {s : Family 𝕜}
     (hs : IsSNumberSequence s) (S : X →L[𝕜] Y) (n : ℕ) :

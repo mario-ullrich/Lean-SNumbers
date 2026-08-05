@@ -35,9 +35,9 @@ that support the s-numbers framework:
   Following Pietsch, *Eigenvalues and s-numbers*, §2.11.
 * `BasicResults.Determinant` — elementary determinant facts:
   `det T* = conj (det T)` and `‖det T‖ = ∏ₖ σₖ` for endomorphisms of a
-  finite-dimensional inner product space, and the bordered determinant
-  (column-operation Schur formula, over any commutative ring, no
-  invertibility).
+  finite-dimensional inner product space, the determinant of an endomorphism
+  diagonal in a basis, and the bordered determinant (column-operation Schur
+  formula, over any commutative ring, no invertibility).
 * `BasicResults.GarlingGordon` / `BasicResults.KadetsSnobar` — the
   Garling–Gordon and Kadets–Snobar projection theorems (`‖P‖ ≤ √n`), classical
   Banach-space geometry, both proved (over any `RCLike 𝕜`) by reduction to the
@@ -58,8 +58,8 @@ that support the s-numbers framework:
 * `BasicResults.JohnAux` — general-purpose ingredients for the above, each a
   Mathlib-upstream candidate: compactness of convex hulls of compact sets in
   finite dimensions, Hahn–Banach dominated by a seminorm on an inner product
-  space, trace duality for endomorphisms, the determinant of an endomorphism
-  diagonal in a basis, and the product bound `∏(1+aᵢ) ≥ 1 - 2∑aᵢ²` for `∑aᵢ = 0`.
+  space, trace duality for endomorphisms, and the product bound
+  `∏(1+aᵢ) ≥ 1 - 2∑aᵢ²` for `∑aᵢ = 0`.
 
 ## The `BasicResults.Spectral` subpackage
 

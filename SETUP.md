@@ -25,7 +25,7 @@ Local reproduction (from the project root, with `leanblueprint` installed):
 ```bash
 lake exe cache get
 lake build
-leanblueprint pdf          # blueprint/print/blueprint.pdf
+leanblueprint pdf          # blueprint/print/print.pdf
 leanblueprint web          # blueprint/web/index.html
 leanblueprint checkdecls
 ```

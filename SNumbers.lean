@@ -48,8 +48,8 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `SNumbers.Hilbert`: the further canonical examples `bₙ`, `cₙ`, `dₙ`, `hₙ`,
   one file each, all proved to form s-number sequences (Bernstein, Gelfand,
   Kolmogorov strict). The Hilbert numbers are developed over any `RCLike`
-  field; their (S5) normalisation rests on the singular value decomposition
-  (see `BasicResults.SVD`).
+  field; their (S5) normalisation rests on the singular value decomposition,
+  formalised via `exists_l2_section` and `approximationNumber_id_euclidean`.
 * `SNumbers.KolmogorovLifting`: an alternative development of the
   Kolmogorov numbers via Pietsch's identity `d_n S = a_n(S ∘ Q_X)`,
   where `Q_X : ℓ¹(B_X) →L[𝕜] X` is the canonical summation surjection.
@@ -71,8 +71,9 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   and Pietsch up to the constant `e`. Proved via the determinant quantities
   `Δₖ(S) = sup{|det(B∘S∘A)| : ‖A‖, ‖B‖ ≤ 1}`, whose decay is bounded below
   through the explicit rank-`n` approximant `L = SA(BSA)⁻¹BS` and a bordered
-  determinant. Corollaries: `max(cₙ,dₙ) ≤ e·(n+1)·hₙ` and the
-  Mityagin–Henkin conjecture `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the
+  determinant. Corollary for every s-number sequence `s`:
+  `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`, hence in particular `max(cₙ,dₙ) ≤ e·(n+1)·hₙ`
+  and the Mityagin–Henkin conjecture `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the
   constant `e`.
 * `SNumbers.SingularValuesFinDim`: in finite dimension, Mathlib's singular
   numbers coincide with every s-number sequence
@@ -110,7 +111,7 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   (`D_σ : ℓ^p_m → ℓ^p_m`): for every strict s-number sequence
   `sₙ(D_σ) = ‖σ_n‖` (the `(n+1)`-th largest entry), the Hilbert numbers being
   only bounded above, plus the operator norm `‖D_σ‖ = ⨆ i, ‖σ i‖`. Mixed
-  exponents (`D_σ : ℓ^q_m → ℓ^p_m`, `p < q`): the approximation numbers are the
+  exponents (`D_σ : ℓ^q_m → ℓ^p_m`, `p < q < ∞`): the approximation numbers are the
   `ℓ^r`-norm of the tail of the diagonal,
   `aₙ(D_σ) = (∑_{k≥n} ‖σ_k‖^r)^{1/r}` with `1/r = 1/p - 1/q`, and the operator
   norm is `‖D_σ‖ = ‖σ‖_{ℓ^r}`; for `q ≤ p` the `r = ∞` bounds are recorded.

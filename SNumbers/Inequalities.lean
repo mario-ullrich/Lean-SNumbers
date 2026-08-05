@@ -59,9 +59,10 @@ subspace into a finite-rank approximant `L`, using a bounded projection:
 
 * **Gelfand half** (`aₙ ≤ (1+√n)·cₙ`): pick a closed `M ⊆ X` of
   codimension `≤ n` with `‖S|_M‖` near `cₙ(S)`; the **Garling–Gordon**
-  theorem supplies a projection `P` with kernel `M` and `‖P‖ ≤ √n`. Then
-  `L := S ∘ P` has rank `≤ n` and `S - L = S ∘ (id − P)` has range
-  inside `M`, so `‖S − L‖ ≤ ‖S|_M‖·‖id − P‖ ≤ (1 + √n)·‖S|_M‖`.
+  theorem supplies, for every `ε > 0`, a projection `P` with kernel `M` and
+  `‖P‖ ≤ √n + ε`. Then `L := S ∘ P` has rank `≤ n` and `S - L = S ∘ (id − P)`
+  has range inside `M`, so `‖S − L‖ ≤ ‖S|_M‖·‖id − P‖ ≤ (1 + √n + ε)·‖S|_M‖`,
+  and `ε → 0` gives the factor `1 + √n`.
 * **Kolmogorov half** (`aₙ ≤ (1+√n)·dₙ`): pick `V ⊆ Y` of dimension
   `≤ n` with `‖π_V ∘ S‖` near `dₙ(S)`; the **Kadets–Snobar** theorem
   supplies a projection `P` onto `V` with `‖P‖ ≤ √n`. Then `L := P ∘ S`
