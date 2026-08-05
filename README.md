@@ -258,7 +258,9 @@ A green check means fully proved (no `sorry`).
 `eₙ(S) = inf{ε > 0 : S(B_X) is covered by 2ⁿ balls of radius ε}`. These are not
 s-numbers: the rank axiom (S4) fails, since `eₙ(S) = 0` would force `S(B_X)` to
 have at most `2ⁿ` points, while the image of the unit ball is infinite for every
-`S ≠ 0`. What they measure is compactness.
+`S ≠ 0`; and the norming axiom (S5) fails from `n = 2` on. A sequence keeping the
+remaining properties is called a *pseudo-s-number* sequence. What they measure is
+compactness.
 
 | Result                                    | Status              |
 |-------------------------------------------|---------------------|
@@ -346,6 +348,7 @@ Apache 2.0 — same as Mathlib. See [LICENSE](LICENSE).
 
 * A. Pietsch, *s-Numbers of operators in Banach spaces*, Studia Math. 51
   (1974), 201–223.
+* A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20, North-Holland, 1980.
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
   mathematics 13, Cambridge University Press, 1987.
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9** (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).

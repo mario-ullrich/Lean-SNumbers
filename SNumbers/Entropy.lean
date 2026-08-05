@@ -19,55 +19,56 @@ where `B_X` is the closed unit ball of `X` and the centres of the covering
 balls may be arbitrary points of `Y`. As everywhere in this development the
 indexing is 0-based, so `e_0` allows a single ball.
 
+The entropy numbers measure *compactness*: their definition quantifies the
+"finite subcover definition" of compactness. An operator `S` is compact
+precisely when `e_n S → 0`.
+This equivalence holds on arbitrary Banach spaces, and is also true for
+Gelfand and Kolmogorov numbers (to be formalized). For the approximation
+numbers, however, the corresponding statement fails in general: a compact
+operator into a space without the approximation property need not be a
+limit of finite-rank operators.
+But it is available on Hilbert spaces (`AddOns.Compact`).
+
 ## Entropy numbers are not s-numbers
 
-The two inequalities that govern entropy numbers are the **additivity**
+Over `ℝ` or `ℂ`, entropy numbers satisfy all of Pietsch's axioms but two:
 
-`e_{n+m} (S + T) ≤ e_n S + e_m T`  (`entropyNumber_add_le'`)
+* (S4) rank fails: an operator `S ≠ 0` of rank `≤ n` still has `e_n S > 0`,
+  because `e_n S = 0` would cover `S(B_X)` by `2ⁿ` balls of arbitrarily small
+  radius and hence leave it at most `2ⁿ` points, while the image of the unit
+  ball is infinite.
+* (S5) norming fails from `n = 2` on: covering the Euclidean unit ball of
+  `ℝ^d` by balls of radius below `1` takes `d + 1` of them but no more, and
+  `2ⁿ ≥ n + 2` exactly from there, so `e_n (id_{ℓ₂ⁿ⁺¹}) < 1`.
 
-and the **multiplicativity**
+A sequence that keeps the other properties and drops these two is called a
+**pseudo-s-number** sequence (Pietsch, *Operator ideals*, 12.1.1).
 
-`e_{n+m} (B ∘ S) ≤ e_n B · e_m S`  (`entropyNumber_comp_le'`),
+Those other properties come from two inequalities, both proved below:
+additivity `e_{n+m}(S + T) ≤ e_n S + e_m T` (`entropyNumber_additive`) and
+multiplicativity `e_{n+m}(B ∘ S) ≤ e_n B · e_m S`
+(`entropyNumber_multiplicative`). Specialising one index to `0` and using
+`e_0 ≤ ‖·‖` turns them into (S2) and (S3) (`entropyNumber_add_le`,
+`entropyNumber_comp_comp_le`); with (S1b) monotonicity and (S1c)
+non-negativity that covers (S1b)–(S3).
 
-both proved below. Pietsch's axioms (S2) and (S3) follow by specialising one
-index to `0` and using `e_0 ≤ ‖·‖`, and are derived here as corollaries
-(`entropyNumber_add_le`, `entropyNumber_comp_comp_le`). Together with
-monotonicity (S1b) and non-negativity (S1c) this covers (S1b)–(S3).
+Of these, only multiplicativity constrains the scalar field: it needs dense
+norm values, `DenselyNormedField 𝕜`, and therefore lives in a separate
+section, whereas everything else holds over an arbitrary
+`NontriviallyNormedField`. The reason is that a covering of `B(B_Y)` has to be
+transported to a ball of radius `δ`, so a vector `u` with `‖u‖ ≤ δ` must be
+written as `u = c • w` with `‖w‖ ≤ 1` and `‖c‖` close to `δ`. Norm values are
+dense in `ℝ`, `ℂ` and every `RCLike` field, and discrete in `ℚ_p`.
 
-Multiplicativity needs one hypothesis that additivity does not: to reuse a
-covering of `B(B_Y)` for a ball of radius `δ`, a vector `u` with `‖u‖ ≤ δ`
-must be written as `u = c • w` with `‖w‖ ≤ 1` and `‖c‖` close to `δ`, so the
-scalar field must contain elements of (almost) prescribed norm. That is
-exactly `DenselyNormedField 𝕜`, which holds for `ℝ`, `ℂ` and every `RCLike`
-field, and fails for a field with discrete norm values such as `ℚ_p`. The
-multiplicative results therefore live in a separate section; everything else
-holds over an arbitrary `NontriviallyNormedField`.
-
-Over `ℝ` or `ℂ` the normalisation (S1a) `e_0 S = ‖S‖` holds as well, by a
-symmetry argument: `S(B_X)` is symmetric, so if a single ball of radius `ε`
-around `y` covers it, then `2‖Sx‖ = ‖(Sx - y) - (-Sx - y)‖ ≤ 2ε` for every
-`x ∈ B_X`. This is not formalised here, because the last step divides by
-`‖(2 : 𝕜)‖`, which need not equal `2` over a general (even densely) normed
-field. Only the inequality `e_n S ≤ ‖S‖` is proved below, and that suffices
-for the corollaries.
-
-What genuinely fails is the rank axiom (S4): an operator `S ≠ 0` of rank
-`≤ n` still has `e_n S > 0`. Indeed `e_n S = 0` would mean that `S(B_X)` is
-covered by `2ⁿ` balls of arbitrarily small radius, and a set with that
-property has at most `2ⁿ` points; but for `S ≠ 0` the image of the unit ball
-is infinite. Entropy numbers therefore do not vanish on finite-rank
-operators, which is exactly what the s-number axioms are designed to enforce.
-
-What they measure instead is *compactness*, and this is the point of the
-file: `S` is a compact operator precisely when `e_n S → 0`. In particular the
-identity of a fixed finite-dimensional space, being compact, has entropy
-numbers tending to `0`, whereas its approximation numbers are constantly `1`
-up to its dimension (`approximationNumber_strict`). Note also that the
-equivalence below holds on arbitrary Banach spaces, whereas for the
-approximation numbers the corresponding statement is available only on
-Hilbert spaces (`AddOns.Compact`) — and indeed fails in general, a compact
-operator into a space without the approximation property need not be a limit
-of finite-rank operators.
+The remaining axiom (S1a) `e_0 S = ‖S‖` is not formalised: it holds over `ℝ`
+and `ℂ`, is false in general, and only `e_n S ≤ ‖S‖` is proved below, which is
+all the corollaries need. Over `ℝ` or `ℂ` it follows from the symmetry of
+`S(B_X)`, as `2‖Sx‖ = ‖(Sx - y) - (-Sx - y)‖ ≤ 2ε`, and that last step divides
+by `‖(2 : 𝕜)‖`, which need not be `2`. Without dense norm values the statement
+itself fails: over `ℚ_p` take `X = ℚ_p²` with
+`‖(a, b)‖ = max(|a|, p^{1/2}·|b|)` and `S (a, b) = b`; then `‖S‖ = p^{-1/2}`,
+while `S(B_X) = p·ℤ_p` is a single ball of radius `p^{-1}`, so
+`e_0 S ≤ p^{-1} < ‖S‖`.
 
 ## Main definitions
 
@@ -80,10 +81,10 @@ of finite-rank operators.
 * `SNumbers.entropyNumber_antitone` : `e_{n+1} S ≤ e_n S`                 (S1b)
 * `SNumbers.entropyNumber_le_norm` : `e_n S ≤ ‖S‖`
 * `SNumbers.entropyNumber_zero_op` : `e_n 0 = 0`
-* `SNumbers.entropyNumber_add_le'` : `e_{n+m} (S + T) ≤ e_n S + e_m T`
+* `SNumbers.entropyNumber_additive` : `e_{n+m} (S + T) ≤ e_n S + e_m T`
 * `SNumbers.entropyNumber_add_le` : `e_n (S + T) ≤ e_n S + ‖T‖`           (S2)
 * `SNumbers.entropyNumber_comp_le` : `e_n (B ∘ S) ≤ ‖B‖ · e_n S`
-* `SNumbers.entropyNumber_comp_le'` : `e_{n+m} (B ∘ S) ≤ e_n B · e_m S`
+* `SNumbers.entropyNumber_multiplicative` : `e_{n+m} (B ∘ S) ≤ e_n B · e_m S`
     (densely normed scalar field)
 * `SNumbers.entropyNumber_comp_comp_le` :
     `e_n (B ∘ S ∘ A) ≤ ‖B‖ · e_n S · ‖A‖`                                 (S3)
@@ -91,9 +92,7 @@ of finite-rank operators.
 * `SNumbers.tendsto_entropyNumber_iff_totallyBounded` :
     `e_n S → 0` iff `S(B_X)` is totally bounded.
 * `SNumbers.isCompactOperator_iff_tendsto_entropyNumber` :
-    `S` is a compact operator iff `e_n S → 0`. The forward implication
-    (`tendsto_entropyNumber_of_isCompactOperator`) needs no completeness; the
-    converse assumes `[CompleteSpace Y]`.
+    `S` is a compact operator iff `e_n S → 0` (complete target space).
 
 ## Implementation notes
 
@@ -250,7 +249,7 @@ lemma add_mem_entropySet_add {S T : X →L[𝕜] Y} {n m : ℕ} {ε δ : ℝ}
 
 /-- **Additivity of the entropy numbers**: `e_{n+m}(S + T) ≤ e_n S + e_m T`.
 The budget of balls multiplies, so the indices add. -/
-lemma entropyNumber_add_le' (S T : X →L[𝕜] Y) (n m : ℕ) :
+lemma entropyNumber_additive (S T : X →L[𝕜] Y) (n m : ℕ) :
     entropyNumber (S + T) (n + m) ≤ entropyNumber S n + entropyNumber T m := by
   refine le_of_forall_pos_le_add fun η hη => ?_
   obtain ⟨ε, hε, hεlt⟩ := exists_mem_entropySet_lt
@@ -265,7 +264,7 @@ lemma entropyNumber_add_le' (S T : X →L[𝕜] Y) (n m : ℕ) :
 `e_0 T ≤ ‖T‖`. -/
 lemma entropyNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
     entropyNumber (S + T) n ≤ entropyNumber S n + ‖T‖ := by
-  have h := entropyNumber_add_le' S T n 0
+  have h := entropyNumber_additive S T n 0
   rw [Nat.add_zero] at h
   linarith [entropyNumber_le_norm T 0]
 
@@ -444,7 +443,7 @@ lemma entropyNumber_comp_le_of_mem {B : Y →L[𝕜] Z} {S : X →L[𝕜] Y} {n 
 /-- **Multiplicativity of the entropy numbers**:
 `e_{n+m}(B ∘ S) ≤ e_n B · e_m S`. Again the budgets of balls multiply, so the
 indices add. -/
-lemma entropyNumber_comp_le' (B : Y →L[𝕜] Z) (S : X →L[𝕜] Y) (n m : ℕ) :
+lemma entropyNumber_multiplicative (B : Y →L[𝕜] Z) (S : X →L[𝕜] Y) (n m : ℕ) :
     entropyNumber (B.comp S) (n + m) ≤ entropyNumber B n * entropyNumber S m := by
   -- first: the bound with an arbitrary slack `t > 0` on the factor for `S`
   have key : ∀ t : ℝ, 0 < t →
@@ -477,11 +476,11 @@ lemma entropyNumber_comp_comp_le (B : Y →L[𝕜] Z) (S : X →L[𝕜] Y) (A : 
     (n : ℕ) :
     entropyNumber (B.comp (S.comp A)) n ≤ ‖B‖ * entropyNumber S n * ‖A‖ := by
   have hSA : entropyNumber (S.comp A) n ≤ entropyNumber S n * ‖A‖ := by
-    have h := entropyNumber_comp_le' S A n 0
+    have h := entropyNumber_multiplicative S A n 0
     rw [Nat.add_zero] at h
     exact h.trans
       (mul_le_mul_of_nonneg_left (entropyNumber_le_norm A 0) (entropyNumber_nonneg S n))
-  have h := entropyNumber_comp_le' B (S.comp A) 0 n
+  have h := entropyNumber_multiplicative B (S.comp A) 0 n
   rw [Nat.zero_add] at h
   calc entropyNumber (B.comp (S.comp A)) n
       ≤ entropyNumber B 0 * entropyNumber (S.comp A) n := h

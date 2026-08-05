@@ -91,8 +91,9 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   over a densely normed scalar field, multiplicativity
   `e_{n+m}(B∘S) ≤ eₙ(B)·e_m(S)`; the axioms (S2) and (S3) are corollaries of
   these. They are *not* s-numbers — the rank axiom (S4) fails, since
-  `eₙ(S) > 0` for every `S ≠ 0`. What they measure is compactness: `S` is a
-  compact operator if and only if `eₙ(S) → 0`
+  `eₙ(S) > 0` for every `S ≠ 0`, and the norming axiom (S5) fails from `n = 2`
+  on; such a sequence is called a *pseudo-s-number* sequence. What they measure
+  is compactness: `S` is a compact operator if and only if `eₙ(S) → 0`
   (`isCompactOperator_iff_tendsto_entropyNumber`, for complete target spaces;
   the forward implication needs no completeness).
 * `SNumbers.Examples.ExHelpers`: the geometric and rank ingredients shared by the
@@ -133,6 +134,8 @@ operators lives in the `AddOns` library.
 
 * A. Pietsch, *s-Numbers of operators in Banach spaces*, Studia Math. 51
   (1974), 201–223.
+* A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20,
+  North-Holland, 1980.
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
   mathematics 13, Cambridge University Press, 1987.
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator
