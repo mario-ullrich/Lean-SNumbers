@@ -17,15 +17,50 @@
             citecolor=blue!55!black,
             urlcolor=blue!55!black]{hyperref}
 \usepackage[capitalize]{cleveref}
+\usepackage{etoolbox}
 
 % --- leanblueprint macros -------------------------------------------------
-% These are stubs for compiling locally with pdflatex; the real macros are
-% provided by the `blueprint` LaTeX package shipped with leanblueprint.
-\providecommand{\lean}[1]{}      % \lean{Decl.Name}: link to the Lean decl
-\providecommand{\leanok}{}        % marks: Lean proof exists and is sorry-free
-\providecommand{\uses}[1]{}       % \uses{label1, label2}: dependency tracking
-\providecommand{\notready}{}      % marks: definition not yet ready in Lean
-\providecommand{\proves}[1]{}     % marks: theorem proven w/o sorries
+% Definitions for compiling with pdflatex; in the web build the `blueprint`
+% package shipped with leanblueprint provides the real, clickable versions.
+\providecommand{\lean}[1]{}
+\providecommand{\leanok}{}
+\providecommand{\uses}[1]{}
+\providecommand{\notready}{}
+\providecommand{\proves}[1]{}
+
+% \lean{A, B}: name the Lean declaration(s) a statement corresponds to. The
+% tag sits at the top of the environment (the leanblueprint convention), but
+% reads better after the statement, so it is stored here and printed by
+% \bp@leanflush, which \AtEndEnvironment hooks to the theorem environments.
+% Two subtleties in the printing:
+%   * `\detokenize` is required: declaration names contain underscores, which
+%     TeX would otherwise read as math subscripts;
+%   * the list is split at the commas, so that a long list wraps while each
+%     individual name stays on one line (detokenized spaces are not
+%     breakpoints, so a single detokenized string would run into the margin).
+\makeatletter
+\newcommand{\bp@leanlist}{}
+\renewcommand{\lean}[1]{\gdef\bp@leanlist{#1}}
+\newcommand{\bp@leanname}[1]{\mbox{\detokenize{#1}}}
+\newcommand{\bp@leanflush}{%
+  \ifx\bp@leanlist\@empty\else
+    \par\nobreak\smallskip
+    {\normalfont\footnotesize\raggedright
+     [\textsf{Lean:}\nobreakspace\ttfamily
+     \expandafter\@for\expandafter\bp@leanitem\expandafter:%
+       \expandafter=\bp@leanlist\do{%
+         \expandafter\bp@leanname\expandafter{\bp@leanitem}\allowbreak}%
+     \unskip\unpenalty]%
+     \par}%
+    \medskip
+    \gdef\bp@leanlist{}%
+  \fi}
+\makeatother
+
+% \leanok marks a formalized statement or proof. Everything in this blueprint
+% is formalized, so printing a marker on every one of them would be noise;
+% the convention is stated once in the first chapter instead.
+\renewcommand{\leanok}{}
 
 % Give TeX extra inter-word stretch before it lets a line overflow into the
 % margin; long typewriter identifiers and inline formulas make this necessary.
@@ -40,6 +75,17 @@
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{example}[theorem]{Example}
+
+% Print the Lean declaration at the end of each statement. The hook runs
+% while the theorem's italic font is still in force, hence the \normalfont
+% inside \bp@leanflush.
+\makeatletter
+\AtEndEnvironment{theorem}{\bp@leanflush}
+\AtEndEnvironment{proposition}{\bp@leanflush}
+\AtEndEnvironment{lemma}{\bp@leanflush}
+\AtEndEnvironment{corollary}{\bp@leanflush}
+\AtEndEnvironment{definition}{\bp@leanflush}
+\makeatother
 
 % --- title ----------------------------------------------------------------
 \title{Blueprint:\\ s-Numbers of Bounded Linear Operators\\

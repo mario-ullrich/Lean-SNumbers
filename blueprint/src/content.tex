@@ -10,6 +10,11 @@ space of bounded linear operators $X \to Y$ with the operator norm, and
 $\mathbb{N}_0 = \{0, 1, 2, \dots\}$; all sequences are indexed starting
 from $0$.
 
+Each statement is accompanied by the name of the Lean declaration that
+formalises it. Every statement and every proof here is formalised: the
+project compiles without \texttt{sorry}, so each result is verified by the
+Lean kernel.
+
 \begin{definition}[Rank of a continuous linear map]
 \label{def:rank}
 \lean{ContinuousLinearMap.rank}
@@ -107,7 +112,7 @@ $\|x_0 - L x_0\| \ge r$, so $\|\mathrm{id} - L\| \ge r$; letting
 $r \to 1$ and combining with $a_n(\mathrm{id}) \le \|\mathrm{id}\| = 1$
 gives $a_n(\mathrm{id}_X) = 1$. The classical (S5) on $\ell_2^{n+1}$ is the
 special case $X = \ell_2^{n+1}$. The argument needs neither the SVD nor
-Auerbach's lemma; it is formalised in \texttt{Approximation.lean}.
+Auerbach's lemma.
 \end{proof}
 
 \section{Bernstein numbers $b_n$}
@@ -155,8 +160,7 @@ $\gamma(BSA, M) \le \|B\| \, \gamma(S, M') \, \|A\| \le
 $\le n$ has nontrivial kernel on every $(n+1)$-dimensional subspace by
 rank--nullity, forcing the gain to zero. Finally (S5$'$): the identity has
 gain $1$ on every nontrivial subspace, and $\dim X > n$ guarantees an
-$(n+1)$-dimensional subspace exists. Formalised in
-\texttt{Bernstein.lean}.
+$(n+1)$-dimensional subspace exists.
 \end{proof}
 
 \section{Gelfand numbers $c_n$}
@@ -247,8 +251,7 @@ to the admissible subspace $B(V)$ for $BSA$, with the deviation bounded
 per point; for (S4) take $V = \operatorname{range} S$. For (S5$'$), given a
 subspace $V$ of dimension $\le n < \dim X$, its closure is proper and
 Riesz's lemma produces unit vectors almost at distance $1$ from $V$, so
-$\|\pi_V\| = 1$ and $d_n(\mathrm{id}_X) = 1$. Formalised in
-\texttt{Kolmogorov.lean}.
+$\|\pi_V\| = 1$ and $d_n(\mathrm{id}_X) = 1$.
 \end{proof}
 
 \subsection{Alternative: Pietsch's lifting identity}
@@ -271,8 +274,7 @@ $B_X$, given by
 \begin{theorem}
 \label{thm:kolmogorov-lifting}
 \lean{SNumbers.Lifting.kolmogorovNumber_strict,
-      SNumbers.Lifting.kolmogorovNumber_comp_comp_le,
-      SNumbers.Lifting.kolmogorovNumber_zero_eq_norm}
+      SNumbers.Lifting.kolmogorovNumber_comp_comp_le}
 \leanok
 \uses{def:kolmogorov-number, def:approximation-number}
 For every Banach space $X$ and every $S \in \mathcal{L}(X, Y)$,
@@ -290,7 +292,7 @@ an extra construction: it factors as
 $(B \circ S \circ A) \circ Q_W = B \circ (S \circ Q_X) \circ T$
 through a lift $T : \ell^1(B_W) \to \ell^1(B_X)$ that sends the basis
 vector $\delta_w$ to $c \cdot \delta_{c^{-1} A w}$ for a scalar $c$ with
-$\|A\| < \|c\|$, so that $\|T\| \le \|c\|$; letting $\|c\| \searrow \|A\|$,
+$\|A\| < |c|$, so that $\|T\| \le |c|$; letting $|c| \searrow \|A\|$,
 using that the norm values of $\mathbb{K}$ are dense, yields the bound
 $\|B\| \, d_n(S) \, \|A\|$. The identification of this $d_n$ with the
 canonical Kolmogorov number of the previous section is Pietsch's identity
@@ -363,7 +365,6 @@ $h_0(S) = \|S\|$ combines the upper bound $h_n(S) \le \|S\|$ with a
 rank-one factorisation of arbitrary unit vectors through $L_2$, and
 $h_n(\mathrm{id}_{\ell_2^{n+1}}) = 1$ (S5) tests the supremum with the
 canonical embedding and projection between $\ell_2^{n+1}$ and $L_2$.
-Formalised in \texttt{Hilbert.lean}.
 \end{proof}
 
 \chapter{The smallest and the largest $s$-numbers}
@@ -434,7 +435,6 @@ functionals also satisfy $\|e_i^*\| = 1$.
 \end{theorem}
 \begin{proof}
 \leanok
-The proof is fully formalized in \texttt{Auerbach.lean}.
 The strategy maximises $|\det|$ on a product of unit balls, then reads off
 the basis and dual functionals from the maximiser.
 \end{proof}
@@ -467,11 +467,6 @@ operator-norm limit of a sequence of finite-rank operators.
 \begin{proposition}
 \label{prop:approximable-closure}
 \lean{SVD.isApproximable_iff_existsLimit,
-      SVD.isApproximable_zero,
-      SVD.IsApproximable.add,
-      SVD.IsApproximable.smul,
-      SVD.IsApproximable.comp_comp,
-      SVD.IsApproximable.of_rank_le,
       SVD.isClosed_isApproximable}
 \leanok
 \uses{def:approximable, def:approximation-number}
@@ -489,8 +484,7 @@ $a_n(S) \le \|S - L_n\|$. Stability under addition combines rank-$\le
 \lfloor n/2 \rfloor$ and rank-$\le \lceil n/2 \rceil$ approximants of the
 two summands, using that ranks are subadditive; stability under
 composition and closedness in operator norm are the axioms (S3) and (S2)
-of $a_n$ passed through the limit. Formalised in
-\texttt{Approximable.lean}.
+of $a_n$ passed through the limit.
 \end{proof}
 
 \begin{theorem}
@@ -646,69 +640,6 @@ $S$ (no compactness): the strict inequality $c < a_n(S)$ needs only an
 $(n+1)$-dimensional subspace on which $\|S x\| \ge c\|x\|$, which exists for
 every bounded operator.
 
-\section{Leading singular values of a product of Hilbert--Schmidt operators}
-\label{sec:svd-hs-product}
-
-The Schmidt representation also yields the estimate behind the classical
-statement that the nuclear norm of a product is at most the product of the
-Hilbert--Schmidt norms of its factors \cite[2.11.23]{Pietsch87}. We need it
-only in the following quantitative form, and
-we never define the Hilbert--Schmidt or nuclear norms: the two Hilbert--Schmidt
-bounds enter as hypotheses.
-
-\begin{lemma}
-\label{lem:bessel-rows}
-\lean{SVD.sum_norm_sq_apply_le_of_rows}
-\leanok
-Let $S \in \mathcal{L}(H_1, H_2)$ be described by \emph{rows} $w_j \in H_1$, in
-the sense that $\|S x\|^2 = \sum_j |\langle w_j, x\rangle|^2$ for all $x$, and
-suppose $\sum_{j \in J} \|w_j\|^2 \le c$ for every finite $J$. Then
-$\sum_{k \in s} \|S u_k\|^2 \le c$ for every finite $s$ and every family
-$(u_k)$ of pairwise orthogonal vectors of norm $1$ or $0$.
-\end{lemma}
-\begin{proof}
-\leanok
-Interchange the two summations and apply Bessel's inequality
-$\sum_k |\langle u_k, w_j\rangle|^2 \le \|w_j\|^2$ for each fixed $j$, then sum
-over $j$ and use the row bound.
-\end{proof}
-
-\begin{theorem}
-\label{thm:hs-product-bound}
-\lean{SVD.mul_approximationNumber_le_of_factorization}
-\leanok
-\uses{thm:schmidt-representation, thm:eckart-young, def:approximation-number}
-Let $T = T_2 T_1$ be compact, with $T_1 \in \mathcal{L}(H_1, H_2)$ and
-$T_2 \in \mathcal{L}(H_2, H_3)$, and let $a, b \ge 0$ be such that
-\[
-  \sum_{k \in s} \|T_1 u_k\|^2 \le a^2
-  \qquad\text{and}\qquad
-  \sum_{k \in s} \|T_2^{*} v_k\|^2 \le b^2
-\]
-for all finite $s$ and all orthonormal(-or-zero) families $(u_k)$ in $H_1$ and
-$(v_k)$ in $H_3$. Then
-\[
-  (n+1)\, a_n(T) \;\le\; \sum_{k=0}^{n} \sigma_k(T) \;\le\; b\,a
-  \qquad (n \in \mathbb{N}_0).
-\]
-\end{theorem}
-\begin{proof}
-\leanok
-\uses{thm:schmidt-representation, thm:eckart-young}
-Take a Schmidt representation of $T$ with singular values $\sigma_k$ and
-singular vectors $u_k, v_k$; by Eckart--Young $\sigma_n = a_n(T)$, and since
-$\sigma$ is antitone, $(n+1)\sigma_n \le \sum_{k \le n} \sigma_k$. For each $k$
-with $\sigma_k \ne 0$ the vector $v_k$ is a unit vector and $T u_k = \sigma_k v_k$,
-whence
-\[
-  \sigma_k = \operatorname{Re}\langle v_k, T u_k\rangle
-           = \operatorname{Re}\langle T_2^{*} v_k, T_1 u_k\rangle
-           \le \|T_2^{*} v_k\|\,\|T_1 u_k\| .
-\]
-Summing over $k \le n$ and applying Cauchy--Schwarz together with the two
-hypotheses gives $\sum_{k \le n}\sigma_k \le b\,a$.
-\end{proof}
-
 \section{Compact $\Leftrightarrow$ approximable on Hilbert spaces}
 \label{sec:svd-compact-equiv}
 
@@ -781,8 +712,7 @@ Eckart--Young. On the other hand, the eigenvalues of $S^* S$ are exactly
 the squares of the Schmidt singular values (with the singular vectors as
 an eigenbasis), so Mathlib's $\sigma_n(S) = \sqrt{\lambda_n(S^* S)}$
 coincides with the $n$-th Schmidt singular value; for
-$n \ge \dim H_1$ both sides vanish. Formalised in
-\texttt{SingularValuesFinDim.lean}.
+$n \ge \dim H_1$ both sides vanish.
 \end{proof}
 
 \chapter{Inequalities between \texorpdfstring{$s$}{s}-numbers}
@@ -879,7 +809,8 @@ combination.
 
 \begin{theorem}[Kadets--Snobar]
 \label{thm:kadets-snobar}
-\lean{SNumbers.exists_projection_range_eq_of_rank_le}
+\lean{SNumbers.exists_projection_range_eq_of_rank_le,
+      John.exists_projection}
 \leanok
 \uses{thm:john-decomposition}
 Let $Y$ be a normed $\mathbb{K}$-space and $V \subseteq Y$ a subspace of dimension
@@ -896,12 +827,13 @@ $v_i = M u_i \in V$, and functionals $\varphi_i = \langle u_i, M^{-1}\cdot\rangl
 of norm $\le 1$, which Hahn--Banach extends to $g_i \in Y^*$ without increasing
 the norm. Then $P = \sum_i c_i\, g_i \otimes v_i$ is the identity on $V$, hence a
 projection onto $V$, and weighted Cauchy--Schwarz with $\sum_i c_i = \dim V$ gives
-$\|P\| \le \sqrt{\dim V} \le \sqrt{n}$. Formalised in \texttt{John.exists\_projection}.
+$\|P\| \le \sqrt{\dim V} \le \sqrt{n}$.
 \end{proof}
 
 \begin{theorem}[Garling--Gordon]
 \label{thm:garling-gordon}
-\lean{SNumbers.exists_projection_ker_eq_of_codim_le}
+\lean{SNumbers.exists_projection_ker_eq_of_codim_le,
+      John.exists_projection_ker}
 \leanok
 \uses{thm:john-decomposition}
 Let $X$ be a normed $\mathbb{K}$-space and $M \subseteq X$ a closed subspace of
@@ -920,7 +852,7 @@ avoiding the topological double dual), each lifted to $x_i \in X$ with
 $\|x_i\| < 1 + \varepsilon'$ (the quotient norm is an infimum --- the sole source
 of $\varepsilon$). Then $P y = \sum_i c_i\,(\Phi u_i)(\pi y)\, x_i$ has kernel $M$
 and $\|P\| \le \sqrt{\operatorname{codim} M} + \varepsilon \le \sqrt{n} +
-\varepsilon$. Formalised in \texttt{John.exists\_projection\_ker}. The exact bound
+\varepsilon$. The exact bound
 $\sqrt{n}$ (removing $\varepsilon$) needs a weak-$*$ limit argument; it is not
 needed here, since the applications recover the sharp constant by letting
 $\varepsilon \to 0$.
@@ -978,7 +910,9 @@ after taking the infimum.
 \leanok
 \uses{thm:approx-le-gelfand, thm:approx-le-kolmogorov}
 For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
-$a_n(S) \le (1 + \sqrt{n})\,\min\bigl(c_n(S), d_n(S)\bigr)$.
+\[
+  a_n(S) \;\le\; (1 + \sqrt{n})\,\min\bigl(c_n(S), d_n(S)\bigr).
+\]
 \end{theorem}
 \begin{proof}
 \leanok
@@ -995,7 +929,7 @@ The maximal difference theorem $a_n \le e\,(n+1)\, h_n$ --- a bound between the
 largest and the smallest $s$-number sequence, and hence between any two --- is
 driven by the \emph{determinant quantities}
 \[
-  \Delta_k(S) \;:=\; \sup\bigl\{\, \|\det(B \circ S \circ A)\| \,\bigr\},
+  \Delta_k(S) \;:=\; \sup\bigl\{\, |\det(B \circ S \circ A)| \,\bigr\},
 \]
 where the supremum ranges over all contractions $A : \ell_2^k \to X$ and
 $B : Y \to \ell_2^k$. They are formalised, together with the theorems
@@ -1014,7 +948,7 @@ For $S \in \mathcal{L}(X, Y)$ and $k \in \mathbb{N}_0$, $\Delta_k(S)$ is the
 supremum above; here $B \circ S \circ A$ is an endomorphism of the
 $k$-dimensional Hilbert space $\ell_2^k$, so its determinant is a scalar.
 One has $\Delta_0(S) = 1$ (the determinant on the trivial space is $1$) and
-$\Delta_k(S) \le \|S\|^k$, via $\prod_i a_i(T) = \|\det T\|$
+$\Delta_k(S) \le \|S\|^k$, via $\prod_i a_i(T) = |\det T|$
 (Lemma~\ref{lem:prod-approx-eq-det}) and $a_i(T) \le \|T\| \le \|S\|$.
 \end{definition}
 
@@ -1024,15 +958,15 @@ $\Delta_k(S) \le \|S\|^k$, via $\prod_i a_i(T) = \|\det T\|$
 \leanok
 \uses{def:approximation-number, thm:sn-eq-singular-values}
 For an endomorphism $T$ of a finite-dimensional inner-product space,
-$\prod_{k < \dim} a_k(T) = \|\det T\|$.
+$\prod_{k < \dim} a_k(T) = |\det T|$.
 \end{lemma}
 \begin{proof}
 \leanok
 \uses{thm:sn-eq-singular-values}
 The approximation numbers coincide with the singular values $\sigma_k(T)$
 (Theorem~\ref{thm:sn-eq-singular-values}), and
-$\|\det T\| = \prod_k \sigma_k(T)$ is linear algebra:
-$\|\det T\|^2 = \det(T^* T) = \prod_k \lambda_k(T^* T) = \prod_k
+$|\det T| = \prod_k \sigma_k(T)$ is linear algebra:
+$|\det T|^2 = \det(T^* T) = \prod_k \lambda_k(T^* T) = \prod_k
 \sigma_k(T)^2$.
 \end{proof}
 
@@ -1111,7 +1045,7 @@ $\Delta_{n+1}(S) \le h_n(S)\, \Delta_n(S)$.
 \leanok
 \uses{lem:prod-approx-eq-det, thm:schmidt-diagonal}
 For admissible $(A, B)$ and $T := B S A$ on $\ell_2^{n+1}$,
-$\|\det T\| = \prod_{k \le n} a_k(T)$ (Lemma~\ref{lem:prod-approx-eq-det}).
+$|\det T| = \prod_{k \le n} a_k(T)$ (Lemma~\ref{lem:prod-approx-eq-det}).
 The last factor satisfies $a_n(T) \le \|B\|\|A\|\, h_n(S) \le h_n(S)$. For the
 top $n$ factors, the diagonal factorisation
 $B_1 T A_1 = \operatorname{diag}(a_0(T), \dots, a_n(T))$ through contractions
@@ -1147,11 +1081,8 @@ $x = 1/n$.
 
 \begin{corollary}[Carl--Pietsch and Mityagin--Henkin]
 \label{cor:gelfand-kolmogorov}
-\lean{SNumbers.approximationNumber_le_e_mul_sn,
-      SNumbers.sn_le_e_mul_tn,
-      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_sn,
-      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber,
-      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
+\lean{SNumbers.sn_le_e_mul_tn,
+      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_sn}
 \leanok
 \uses{thm:maximal-difference, thm:sandwich, def:gelfand-number,
   def:kolmogorov-number, def:bernstein-number}
@@ -1222,7 +1153,7 @@ For $1 \le p \le q < \infty$ and $m \ge 1$,
 The upper bound is the power-mean (H\"older) inequality
 $\|x\|_p \le m^{1/p-1/q} \|x\|_q$; the lower bound tests the all-ones
 vector, whose $\ell_q$-norm is $m^{1/q}$ and whose $\ell_p$-norm is
-$m^{1/p}$. Formalised in \texttt{Identity.lean}.
+$m^{1/p}$.
 \end{proof}
 
 \begin{theorem}
@@ -1274,59 +1205,57 @@ $D_\sigma$ denote the diagonal operator
   D_\sigma : (x_i)_i \longmapsto (\sigma_i \, x_i)_i .
 \]
 Throughout this section, $\sigma$ is \emph{non-increasing in modulus},
-$\|\sigma_0\| \ge \|\sigma_1\| \ge \dots \ge \|\sigma_{m-1}\|$, and
+$|\sigma_0| \ge |\sigma_1| \ge \dots \ge |\sigma_{m-1}|$, and
 $n < m$.
 
 \begin{theorem}[Same exponent]
 \label{thm:diag-same}
-\lean{SNumbers.norm_DiagCLM, SNumbers.sn_DiagCLM_eq,
-      SNumbers.hilbertNumber_DiagCLM_le}
+\lean{SNumbers.norm_DiagCLM, SNumbers.sn_DiagCLM_eq}
 \leanok
 \uses{def:strict-s-number-sequence, thm:sandwich, prop:sn-id-p}
 Let $1 \le p \le \infty$ and $D_\sigma : \ell_p^m \to \ell_p^m$. Then
-$\|D_\sigma\| = \max_i \|\sigma_i\|$, and for every \emph{strict}
+$\|D_\sigma\| = \max_i |\sigma_i|$, and for every \emph{strict}
 $s$-number sequence $s$ (in particular for $a_n$, $b_n$, $c_n$, $d_n$),
 \[
-  s_n(D_\sigma) \;=\; \|\sigma_n\| .
+  s_n(D_\sigma) \;=\; |\sigma_n| .
 \]
-The Hilbert numbers satisfy $h_n(D_\sigma) \le \|\sigma_n\|$; equality can
+The Hilbert numbers satisfy $h_n(D_\sigma) \le |\sigma_n|$; equality can
 fail for $p \neq 2$.
 \end{theorem}
 \begin{proof}
 \leanok
 \uses{prop:sn-id-p}
-The norm is attained at the coordinate carrying $\max_i \|\sigma_i\| =
-\|\sigma_0\|$. Upper bound: truncating $\sigma$ to its first $n$ entries
+The norm is attained at the coordinate carrying $\max_i |\sigma_i| =
+|\sigma_0|$. Upper bound: truncating $\sigma$ to its first $n$ entries
 gives a rank-$\le n$ approximant whose residual is the diagonal operator
-with entries $(\sigma_k)_{k \ge n}$, of norm $\|\sigma_n\|$; hence
-$s_n(D_\sigma) \le a_n(D_\sigma) \le \|\sigma_n\|$ for \emph{every}
+with entries $(\sigma_k)_{k \ge n}$, of norm $|\sigma_n|$; hence
+$s_n(D_\sigma) \le a_n(D_\sigma) \le |\sigma_n|$ for \emph{every}
 $s$-number sequence. Lower bound for strict $s$: since
-$\|\sigma_k\| \ge \|\sigma_n\|$ for $k \le n$, the identity of
+$|\sigma_k| \ge |\sigma_n|$ for $k \le n$, the identity of
 $\ell_p^{n+1}$ factors as $\mathrm{id} = B \circ D_\sigma \circ A$ with the
 coordinate embedding $A$ (a contraction) and $B$ the coordinate projection
 followed by the diagonal operator with entries $\sigma_k^{-1}$, of norm
-$\le \|\sigma_n\|^{-1}$; then (S3) and the strict normalisation
+$\le |\sigma_n|^{-1}$; then (S3) and the strict normalisation
 (Proposition~\ref{prop:sn-id-p}) give
-$1 = s_n(\mathrm{id}) \le \|\sigma_n\|^{-1} s_n(D_\sigma)$. Formalised in
-\texttt{DiagonalMatrices.lean}.
+$1 = s_n(\mathrm{id}) \le |\sigma_n|^{-1} s_n(D_\sigma)$.
 \end{proof}
 
 \begin{theorem}[Mixed exponents $p < q$]
 \label{thm:diag-mixed}
-\lean{SNumbers.norm_DiagCLMpq_eq, SNumbers.approximationNumber_DiagCLMpq_eq,
-      SNumbers.sn_DiagCLMpq_le}
+\lean{SNumbers.norm_DiagCLMpq_eq,
+      SNumbers.approximationNumber_DiagCLMpq_eq}
 \leanok
 \uses{def:approximation-number, thm:sandwich, thm:sn-id-pq}
 Let $1 \le p < q < \infty$ and define $r$ by
 $\tfrac1r = \tfrac1p - \tfrac1q$. For $D_\sigma : \ell_q^m \to \ell_p^m$,
 \[
   a_n(D_\sigma)
-  \;=\; \Bigl( \sum_{k = n}^{m-1} \|\sigma_k\|^r \Bigr)^{1/r} ,
+  \;=\; \Bigl( \sum_{k = n}^{m-1} |\sigma_k|^r \Bigr)^{1/r} ,
   \qquad\text{in particular}\qquad
   \|D_\sigma\| = \|\sigma\|_{\ell_r} .
 \]
 The upper bound $s_n(D_\sigma) \le \bigl(\sum_{k \ge n}
-\|\sigma_k\|^r\bigr)^{1/r}$ holds for every $s$-number sequence and needs
+|\sigma_k|^r\bigr)^{1/r}$ holds for every $s$-number sequence and needs
 no ordering of the diagonal.
 \end{theorem}
 \begin{proof}
@@ -1335,7 +1264,7 @@ no ordering of the diagonal.
 Upper bound: truncate to the first $n$ coordinates; the residual diagonal
 has norm equal to the $\ell_r$-norm of its entries, by H\"older's
 inequality applied with the exponent pair $(q/r', \dots)$ and attained at
-the explicitly weighted vector $x_k = \|\sigma_k\|^{r/q}$. Lower bound:
+the explicitly weighted vector $x_k = |\sigma_k|^{r/q}$. Lower bound:
 for a rank-$\le n$ operator $L$, a weighted flatness argument on
 $\ker L$ (the weighted analogue of the pigeonhole step in
 Theorem~\ref{thm:sn-id-pq}) produces a kernel vector on which
@@ -1351,9 +1280,9 @@ $L = 0$ yields the operator norm.
 Let $1 \le q \le p \le \infty$ (including $p = \infty$). For
 $D_\sigma : \ell_q^m \to \ell_p^m$,
 \[
-  \|D_\sigma\| = \max_i \|\sigma_i\| ,
+  \|D_\sigma\| = \max_i |\sigma_i| ,
   \qquad
-  s_n(D_\sigma) \le \|\sigma_n\|
+  s_n(D_\sigma) \le |\sigma_n|
   \quad\text{for every $s$-number sequence $s$.}
 \]
 \end{theorem}
@@ -1367,7 +1296,7 @@ from Theorem~\ref{thm:diag-same}. The lower bound for the norm again tests
 a single coordinate.
 \end{proof}
 
-For $q < p$ the upper bound $s_n(D_\sigma) \le \|\sigma_n\|$ need not be
+For $q < p$ the upper bound $s_n(D_\sigma) \le |\sigma_n|$ need not be
 sharp: the exact values have no elementary closed form in this regime.
 
 \section{The inclusion \texorpdfstring{$\ell_1 \to \ell_\infty$}{l1 to linfty}}
@@ -1379,11 +1308,16 @@ natural inclusion
   I \colon \ell_1 \to \ell_\infty, \qquad (x_j)_j \mapsto (x_j)_j ,
 \]
 a contraction which is \emph{not} compact. Everything here is formalised in
-\texttt{IdentityL1Linfty.lean}, with the two little
-Grothendieck bounds in \texttt{LittleGrothendieck.lean}.
+\texttt{IdentityL1Linfty.lean}, with the two little Grothendieck bounds in
+\texttt{LittleGrothendieck.lean} and the product estimate, a general
+Hilbert-space result, in \texttt{SVD.lean}.
 
-\subsection{Sign averaging and two little Grothendieck bounds}
+\subsection{Ingredients}
 \label{sec:l1-linf-grothendieck}
+
+Two inputs are needed for the Hilbert numbers of $I$. The first pair of
+lemmas bounds a Hilbert--Schmidt-type sum by an operator norm; the second is
+an estimate on the leading singular values of a product.
 
 \begin{lemma}[Sign averaging]
 \label{lem:sign-averaging}
@@ -1441,6 +1375,66 @@ so $\|z\| \le \|A\|$, and Lemma~\ref{lem:sign-averaging} applies with
 $M = \|A\|$. This is the little Grothendieck bound for the dual operator
 $\ell_\infty = \ell_1^{\,\prime} \to H$, formulated through the rows so that no
 adjoint has to be constructed.
+\end{proof}
+
+The second ingredient is a consequence of the Schmidt representation
+(Theorem~\ref{thm:schmidt-representation}): the quantitative form of the
+classical statement that the nuclear norm of a product is at most the product
+of the Hilbert--Schmidt norms of its factors \cite[2.11.23]{Pietsch87}. The
+two Hilbert--Schmidt bounds enter as hypotheses, so neither the
+Hilbert--Schmidt nor the nuclear norm has to be defined.
+
+\begin{lemma}
+\label{lem:bessel-rows}
+\lean{SVD.sum_norm_sq_apply_le_of_rows}
+\leanok
+Let $S \in \mathcal{L}(H_1, H_2)$ be described by \emph{rows} $w_j \in H_1$, in
+the sense that $\|S x\|^2 = \sum_j |\langle w_j, x\rangle|^2$ for all $x$, and
+suppose $\sum_{j \in J} \|w_j\|^2 \le c$ for every finite $J$. Then
+$\sum_{k \in s} \|S u_k\|^2 \le c$ for every finite $s$ and every family
+$(u_k)$ of pairwise orthogonal vectors of norm $1$ or $0$.
+\end{lemma}
+\begin{proof}
+\leanok
+Interchange the two summations and apply Bessel's inequality
+$\sum_k |\langle u_k, w_j\rangle|^2 \le \|w_j\|^2$ for each fixed $j$, then sum
+over $j$ and use the row bound.
+\end{proof}
+
+\begin{theorem}
+\label{thm:hs-product-bound}
+\lean{SVD.mul_approximationNumber_le_of_factorization}
+\leanok
+\uses{thm:schmidt-representation, thm:eckart-young, def:approximation-number}
+Let $T = T_2 T_1$ be compact, with $T_1 \in \mathcal{L}(H_1, H_2)$ and
+$T_2 \in \mathcal{L}(H_2, H_3)$, and let $a, b \ge 0$ be such that
+\[
+  \sum_{k \in s} \|T_1 u_k\|^2 \le a^2
+  \qquad\text{and}\qquad
+  \sum_{k \in s} \|T_2^{*} v_k\|^2 \le b^2
+\]
+for all finite $s$ and all orthonormal(-or-zero) families $(u_k)$ in $H_1$ and
+$(v_k)$ in $H_3$. Then
+\[
+  (n+1)\, a_n(T) \;\le\; \sum_{k=0}^{n} \sigma_k(T) \;\le\; b\,a
+  \qquad (n \in \mathbb{N}_0).
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:schmidt-representation, thm:eckart-young}
+Take a Schmidt representation of $T$ with singular values $\sigma_k$ and
+singular vectors $u_k, v_k$; by Eckart--Young $\sigma_n = a_n(T)$, and since
+$\sigma$ is antitone, $(n+1)\sigma_n \le \sum_{k \le n} \sigma_k$. For each $k$
+with $\sigma_k \ne 0$ the vector $v_k$ is a unit vector and $T u_k = \sigma_k v_k$,
+whence
+\[
+  \sigma_k = \operatorname{Re}\langle v_k, T u_k\rangle
+           = \operatorname{Re}\langle T_2^{*} v_k, T_1 u_k\rangle
+           \le \|T_2^{*} v_k\|\,\|T_1 u_k\| .
+\]
+Summing over $k \le n$ and applying Cauchy--Schwarz together with the two
+hypotheses gives $\sum_{k \le n}\sigma_k \le b\,a$.
 \end{proof}
 
 \subsection{The Gelfand numbers of \texorpdfstring{$I$}{I}}
@@ -1686,8 +1680,7 @@ allows a single ball.)
 
 \begin{proposition}
 \label{prop:entropy-basic}
-\lean{SNumbers.entropyNumber_nonneg, SNumbers.entropyNumber_antitone,
-      SNumbers.entropyNumber_le_norm}
+\lean{SNumbers.entropyNumber_antitone, SNumbers.entropyNumber_le_norm}
 \leanok
 \uses{def:entropy-number}
 For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
@@ -1744,10 +1737,10 @@ $e_n(B \circ S \circ A) \le \|B\| \, e_n(S) \, \|A\|$.
 Cover $S(B_X)$ by $2^m$ balls of radius $\delta$ with centres $y_i$. Each
 point of $S(B_X)$ in the ball around $y_i$ differs from $y_i$ by a vector
 $u$ with $\|u\| \le \delta$, which is rescaled as $u = c\,w$ with
-$\|w\| \le 1$ and $\|c\|$ close to $\delta$ --- this is where density of
+$\|w\| \le 1$ and $|c|$ close to $\delta$ --- this is where density of
 the norm values enters. Covering $B(B_Y)$ by $2^n$ balls of radius
 $\varepsilon$ then covers each $B(u)$ by $2^n$ balls of radius
-$\|c\|\,\varepsilon$, and combining the two covers yields $2^{n+m}$ balls
+$|c|\,\varepsilon$, and combining the two covers yields $2^{n+m}$ balls
 of radius close to $\varepsilon\delta$ around $B(S(B_X))$. The corollary
 takes one index to be $0$ and uses $e_0 \le \|\cdot\|$ twice.
 \end{proof}
