@@ -45,17 +45,17 @@ The classical examples are the **approximation** `aₙ`, **Gelfand** `cₙ`,
 The whole theory is held together by a few inequalities relating these
 examples, which are the central targets of this formalisation:
 
+* **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
+  the classical singular values `σₙ(T)`;
 * `aₙ` is the **largest** and `hₙ` the **smallest** s-number, giving the
   sandwich `hₙ(T) ≤ sₙ(T) ≤ aₙ(T)` for every s-number sequence `s`;
 * `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))` (Gelfand and Kolmogorov numbers
-  cannot both be much smaller than the approximation numbers);
+  are within a factor `1+√n` of the approximation numbers);
 * the **maximal difference theorem**
   `aₙ(T) ≤ e · (n+1) · hₙ(T)` (sharp constant `(n+1)^{n+1}/nⁿ`) — hence
   `sₙ(T) ≤ e·(n+1)·tₙ(T)` for any two s-number sequences, in particular the
   **Mityagin–Henkin conjecture** `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the
-  constant `e`;
-* **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
-  the classical singular values `σₙ(T)`.
+  constant `e`.
 
 ## Layout
 
@@ -302,22 +302,12 @@ One note on provenance. The deepest classical ingredient is the **John
 decomposition of identity** `John.john_decomposition` in `BasicResults/John.lean`:
 in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points `uᵢ`, with
 `cᵢ ≥ 0` and `∑ᵢ cᵢ = k`. Its Lean proof was produced with substantial AI
-assistance and the author has not reviewed the proof script line by line; what
-guarantees it is the kernel check, not a human reading. The argument it follows
+assistance and I have not reviewed the proof script line by line; what
+guarantees it is the kernel check. The argument it follows
 is the classical variational one (Hahn–Banach separation of `k⁻¹·id` from the
 compact convex hull of the contact projections, trace duality, the first-order
 perturbation `(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and
-Carathéodory). Its general-purpose ingredients live in
-`BasicResults/JohnAux.lean` and are future candidates for Mathlib:
-
-* the convex hull of a compact set in a finite-dimensional real normed space is
-  compact (`IsCompact.convexHull`);
-* Hahn–Banach dominated by a *seminorm* on an inner product space over `RCLike`
-  (`Seminorm.exists_inner_le_of_apply`);
-* trace duality: every functional on the endomorphisms is `A ↦ tr (A ∘ G)`
-  (`ContinuousLinearMap.exists_trace_repr`);
-* the product bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` for `∑aᵢ = 0`, `|aᵢ| ≤ 1/2`
-  (`one_sub_two_mul_sum_sq_le_prod_one_add`).
+Carathéodory).
 
 The John development (`BasicResults/John.lean`, `BasicResults/JohnAux.lean`) is a
 self-contained subtree. It yields the Kadets–Snobar and Garling–Gordon projection
@@ -326,6 +316,73 @@ consumer is the sharp forward bound `aₙ ≤ (1+√n)·min(cₙ,dₙ)` — the 
 what John's ellipsoid provides (projections exist more cheaply, e.g. from an
 Auerbach basis, but with a weaker constant). Nothing else in the project depends
 on it.
+
+## Candidates for Mathlib
+
+Much of the project is general functional analysis that Mathlib currently
+lacks, kept here only because the s-numbers need it. Grouped by topic, with the
+main declarations:
+
+* **Determinants** (`BasicResults/Determinant.lean`, entirely in Mathlib
+  namespaces): `det T* = conj (det T)` (`LinearMap.det_adjoint`),
+  `‖det T‖ = ∏ₖ σₖ(T)` (`LinearMap.norm_det_eq_prod_singularValues`),
+  `det T = ∏ᵢ μᵢ` for an eigenbasis (`LinearMap.det_eq_prod_of_apply_eq_smul`),
+  and the bordered determinant over any commutative ring — the elementary
+  column-operation form of the Schur formula
+  (`Matrix.det_eq_corner_mul_det_submatrix`).
+* **Quotient operator norms** (`SNumbers/Helpers.lean`): Mathlib has
+  `Submodule.mkQL` and `liftQL` but no norm bounds for them —
+  `Submodule.norm_mkQL_le`, `norm_liftQL_le`, `liftQL_mkQL`. Plus the rank API
+  for continuous maps (`ContinuousLinearMap.rank`, `rank_comp_comp_le`).
+* **John's ellipsoid** (`BasicResults/John.lean`, `JohnAux.lean`): the theorem
+  itself (`John.exists_maxVolume`, `john_decomposition`) with the two
+  projection theorems it yields — Kadets–Snobar `‖P‖ ≤ √n`
+  (`exists_projection`) and Garling–Gordon (`exists_projection_ker`). Its
+  general-purpose ingredients: compactness of the convex hull of a compact set
+  in finite dimension (`IsCompact.convexHull`), Hahn–Banach dominated by a
+  *seminorm* over `RCLike` (`Seminorm.exists_inner_le_of_apply`), trace duality
+  (`ContinuousLinearMap.exists_trace_repr`, `trace_adjoint`), and the product
+  bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` (`one_sub_two_mul_sum_sq_le_prod_one_add`,
+  `Real.exp_sub_two_mul_sq_le`).
+* **Auerbach's lemma** (`BasicResults/Auerbach.lean`): every finite-dimensional
+  real normed space has a basis with `‖eᵢ‖ = ‖eᵢ*‖ = 1`
+  (`exists_isAuerbachBasis`).
+* **SVD of a compact operator** (`BasicResults/SVD.lean`, `AddOns/`): the
+  Schmidt representation (`SVD.IsCompactOperator.SVD`), norm attainment
+  (`norm_isSingularValue`), Eckart–Young, and compact ⇔ approximable on
+  Hilbert spaces (`SVD.isApproximable_iff_isCompactOperator`).
+* **Complexification** (`BasicResults/Spectral/Complexification.lean`): Mathlib
+  has base change of modules, but not the complexification of a real *inner
+  product* space — the space, its Hermitian inner product, conjugation, and the
+  norm-preserving complexification of operators (`Complexification.complexify`).
+* **Multiplication operators on `L²`**
+  (`BasicResults/Spectral/MultiplicationOperator.lean`, already in the
+  `MeasureTheory` namespace): `Mf : L² → L²` for essentially bounded `f`, with
+  `‖Mf‖ ≤ ‖f‖_∞`, multiplicativity, and self-adjointness for real `f`.
+* **Spectral toolkit** (`BasicResults/Spectral/`): monotone convergence for
+  positive operators (`exists_tendsto_of_antitone_isPositive`), the Cauchy
+  estimate `‖Ax‖² ≤ ‖A‖·re⟨Ax,x⟩`, commutation with the continuous functional
+  calculus (`cfc_comm_of_comm`), and the spectral projection of `S*S`
+  (`exists_spectral_projection`, over any `RCLike` field).
+* **`PiLp` coordinates** (`SNumbers/PiLpCoordinates.lean`, flagged as
+  upstreamable in its own header): the projection/embedding contractions
+  `projFin`/`padFin`, `finrank_piLp`, coordinatewise norm monotonicity; plus
+  the norm comparisons `‖x‖_p ≤ ‖x‖_q` for `q ≤ p`
+  (`piLp_norm_le_of_exponent_ge`) and `‖x‖_p ≤ m^{1/p−1/q}‖x‖_q`
+  (`piLp_norm_le_card_rpow_mul`).
+* **Sign averaging and little Grothendieck**
+  (`BasicResults/LittleGrothendieck.lean`): the Rademacher identity that the
+  average of `‖∑ εⱼwⱼ‖²` over all sign patterns is `∑ ‖wⱼ‖²`
+  (`sum_powerset_norm_signedSum_sq`), and the resulting bounds
+  `∑ ‖Beⱼ‖² ≤ ‖B‖²` for `B : ℓ_∞ → H` and `∑ ‖rowⱼ‖² ≤ ‖A‖²` for `A : H → ℓ₁`.
+* **The `ℓ₁` quotient** (`SNumbers/KolmogorovLifting.lean`): the canonical
+  summation surjection `Q_X : ℓ¹(B_X) ↠ X` realising every Banach space as a
+  quotient of an `ℓ₁` space, and the lifting of operators through it.
+* **Coordinate pigeonhole and flatness**
+  (`SNumbers/Examples/ExHelpers.lean`): a subspace of `𝕜^m` of dimension
+  `> |A|` contains a nonzero vector vanishing on `A`
+  (`exists_mem_ker_coords`), and the (weighted) flatness lemma
+  (`exists_flat_vector_weighted`).
 
 ## Building
 
