@@ -7,8 +7,18 @@ s-numbers** for bounded linear operators between Banach spaces.
 
 **Blueprint**: a human-readable account of the mathematics with links into the
 Lean code and a dependency graph, built from `blueprint/` by GitHub Actions on
-every push and available as a downloadable artifact under *Actions → latest run
-→ blueprint-web* (the PDF is bundled with it).
+every push:
+
+* **Web**: <https://mario-ullrich.github.io/Lean-SNumbers/>
+* **PDF**: <https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf>
+* Also available as a downloadable artifact under *Actions → latest run →
+  blueprint-web* (the PDF is bundled with it).
+
+**AI assistance.** This project started out written by hand, and as it grew I
+used AI assistance more and more. By now, most of the Lean proofs were produced
+this way. What I did throughout: design the structure of the development, and
+check and revise the statements of all definitions and results. The proofs
+themselves are guaranteed by the Lean kernel.
 
 ## What are s-numbers?
 
@@ -158,7 +168,8 @@ examples, which are the central targets of this formalisation:
 │   └── Compact.lean            ← compact ⇔ approximable on Hilbert
 ├── LICENSE                     ← Apache 2.0
 ├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
-├── .github/workflows/          ← CI: builds the project and the blueprint
+├── .github/workflows/          ← CI: builds the project and the blueprint,
+│                                  deploys the blueprint to GitHub Pages
 └── blueprint/
     └── src/
         ├── plastex.cfg         ← plastex / leanblueprint configuration
@@ -339,8 +350,10 @@ leanblueprint checkdecls   # checks that every \lean{Decl} resolves
 ```
 
 The workflow at `.github/workflows/blueprint.yml` builds the blueprint on every
-push to `main` and uploads `blueprint-web` and `blueprint-pdf` as downloadable
-run artifacts.
+push to `main`, deploys it to GitHub Pages
+(<https://mario-ullrich.github.io/Lean-SNumbers/>, PDF at
+[`blueprint.pdf`](https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf)),
+and uploads `blueprint-web` and `blueprint-pdf` as downloadable run artifacts.
 
 ## License
 

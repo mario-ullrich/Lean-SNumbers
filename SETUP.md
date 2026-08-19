@@ -16,9 +16,18 @@ The workflow does the following:
   named in the blueprint actually exists in the compiled project
 - uploads `blueprint-web` and `blueprint-pdf` as downloadable run artifacts,
   with the PDF also bundled into the web artifact as `blueprint.pdf`
+- deploys `blueprint/web` to GitHub Pages, at
+  <https://mario-ullrich.github.io/Lean-SNumbers/> with the PDF at
+  [`blueprint.pdf`](https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf)
 
-To read the blueprint, download `blueprint-web` from a run summary, unzip it and
-open `index.html`.
+The deploy job runs only on `main` and only while the repository is public
+(GitHub Pages on the free plan requires a public repository; on a private
+repository the job is skipped and the artifacts remain the way to read the
+blueprint). The job enables Pages with source "GitHub Actions" automatically
+on its first run, so no repository setting needs to be touched.
+
+To read the blueprint without Pages, download `blueprint-web` from a run
+summary, unzip it and open `index.html`.
 
 Local reproduction (from the project root, with `leanblueprint` installed):
 

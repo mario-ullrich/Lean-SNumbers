@@ -1,12 +1,15 @@
-# Builds the Lean project and the leanblueprint, and stores the results as
-# downloadable workflow artifacts. To read the blueprint:
+# Builds the Lean project and the leanblueprint, then publishes the result
+# two ways:
 #
-#   1. Go to the repository's Actions tab.
-#   2. Open the most recent successful run of this workflow.
-#   3. Download the `blueprint-web` artifact from the run summary.
-#   4. Unzip it and open `index.html` (the PDF is bundled as blueprint.pdf).
+#   * GitHub Pages (public repository): the rendered blueprint is deployed to
+#     https://mario-ullrich.github.io/Lean-SNumbers/ with the PDF at
+#     https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf.
+#     While the repository is private, the deploy job is skipped (Pages is
+#     unavailable on the free plan for private repositories).
 #
-# The PDF is uploaded separately as `blueprint-pdf` as well.
+#   * Workflow artifacts (always): `blueprint-web` and `blueprint-pdf` are
+#     downloadable from every run summary under the Actions tab; the PDF is
+#     also bundled into `blueprint-web` as blueprint.pdf.
 
 name: Build blueprint
 
@@ -126,3 +129,37 @@ jobs:
           name: blueprint-pdf
           path: blueprint/print/print.pdf
           retention-days: 30
+
+      # Same directory again, packaged in the special format deploy-pages
+      # expects (upload-artifact ZIPs are not compatible with Pages).
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: blueprint/web
+
+  # ----- Deploy the rendered blueprint to GitHub Pages. Skipped while the
+  # repository is private; once it is public, the next push to main (or a
+  # manual workflow_dispatch run) deploys. configure-pages enables Pages
+  # with source "GitHub Actions" automatically on the first run.
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && !github.event.repository.private
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Enable and configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
