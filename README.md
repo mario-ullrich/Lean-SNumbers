@@ -118,7 +118,7 @@ examples, which are the central targets of this formalisation:
 │       ├── Identity.lean        ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q < ∞):
 │       │                          ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
 │       │                          (the unit-diagonal case, self-contained)
-│       ├── DiagonalMatrices.lean ← worked example: s-numbers of the diagonal
+│       ├── DiagonalMatrices.lean ← example: s-numbers of the diagonal
 │       │                          operators, all pairs of exponents.
 │       │                          Same exponent D_σ : ℓ^p_m → ℓ^p_m: sₙ = ‖σ_n‖.
 │       │                          Mixed p < q < ∞: aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
@@ -223,7 +223,7 @@ A green check means fully proved (no `sorry`).
 | `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences | ✅ proved |
 | `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) — corollaries | ✅ proved |
 | `aₙ ≤ √(e·(n+1))·hₙ` when `X` or `Y` is a Hilbert space | ⏳ not started |
-| factor `n+1` is order-optimal (via example `I : ℓ₁ → ℓ_∞`, see Worked examples) | ✅ proved |
+| factor `n+1` is order-optimal (via example `I : ℓ₁ → ℓ_∞`, see Examples) | ✅ proved |
 | Determinant quantities `Δₖ(S)`: growth lemmas + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
 | `Δₖ₊₁ ≥ (kᵏ/(k+1)^{k+1})·aₖ·Δₖ` via `L = SA(BSA)⁻¹BS` (bordered determinant) | ✅ proved |
 | `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
@@ -245,7 +245,7 @@ A green check means fully proved (no `sorry`).
 | `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
 | Bordered determinant (column-operation Schur formula, any commutative ring) | ✅ proved |
 
-### Worked examples
+### Examples
 
 | Result                                    | Status              |
 |-------------------------------------------|---------------------|

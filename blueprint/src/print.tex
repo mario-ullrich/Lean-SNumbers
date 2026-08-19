@@ -12,7 +12,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{xcolor}
-\usepackage{hyperref}
+\usepackage[colorlinks,
+            linkcolor=blue!55!black,
+            citecolor=blue!55!black,
+            urlcolor=blue!55!black]{hyperref}
 \usepackage[capitalize]{cleveref}
 
 % --- leanblueprint macros -------------------------------------------------
@@ -23,6 +26,10 @@
 \providecommand{\uses}[1]{}       % \uses{label1, label2}: dependency tracking
 \providecommand{\notready}{}      % marks: definition not yet ready in Lean
 \providecommand{\proves}[1]{}     % marks: theorem proven w/o sorries
+
+% Give TeX extra inter-word stretch before it lets a line overflow into the
+% margin; long typewriter identifiers and inline formulas make this necessary.
+\emergencystretch=3em
 
 % --- theorem environments -------------------------------------------------
 \newtheorem{theorem}{Theorem}[chapter]
