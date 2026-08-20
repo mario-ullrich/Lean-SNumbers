@@ -28,6 +28,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+      # GitHub-hosted runners start with roughly 20 GB free on `/`, and both
+      # `~/.elan` and the workspace live there. A Lean toolchain, the Mathlib
+      # oleans and TeX Live together do not fit next to the preinstalled
+      # language toolchains, so drop the ones this project never uses.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/local/.ghcup /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force || true
+          df -h /
+
+      # Exact key only, no `restore-keys`: on a Mathlib bump the fallback would
+      # restore the *previous* toolchain and olean set, and the new ones would
+      # then have to fit alongside them.
       - name: Cache Lean toolchain and Lake artifacts
         uses: actions/cache@v5
         with:
@@ -36,8 +54,6 @@ jobs:
             .lake/packages
             .lake/build
           key: ${{ runner.os }}-lean-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: |
-            ${{ runner.os }}-lean-
 
       # ----- Lean side: build the project so that checkdecls can verify
       # each `\lean{Decl}` tag against the actually-existing declaration.
@@ -81,24 +97,6 @@ jobs:
       - name: Build blueprint web
         run: leanblueprint web
 
-      # Disk Space Cleanup for GitHub Actions
-      - name: Free disk space before artifact upload
-        if: always()
-        run: |
-          echo "Disk usage before cleanup:"
-          df -h
-          
-          # Remove large toolchain caches that won't be needed for artifact upload
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo apt-get clean
-          sudo apt-get autoclean
-          sudo apt-get autoremove -y
-          
-          echo "Disk usage after cleanup:"
-          df -h
-          
       # Tidy the dependency graph. plastexdepgraph exposes no options for
       # this, so we post-process the generated page:
       #   * Recolor the "ready to formalize" nodes from blue (#A3D6FF) to white,
