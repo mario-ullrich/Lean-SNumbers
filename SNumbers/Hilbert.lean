@@ -26,9 +26,9 @@ where `ℓ₂ = L2 𝕜` is `lp (fun _ : ℕ => 𝕜) 2`.
 * `SNumbers.hilbertNumber_nonneg`, `hilbertNumber_zero_eq_norm`,
   `hilbertNumber_le_norm`, `hilbertNumber_antitone`, `hilbertNumber_add_le`,
   `hilbertNumber_comp_comp_le`, `hilbertNumber_eq_zero_of_rank_le` — the
-  axioms (S1)–(S4), fully proved.
+  axioms (S1)–(S4).
 * `SNumbers.isSNumberSequence_hilbertNumber` — the Hilbert numbers form an
-  s-number sequence (S1)–(S5), **fully proved**.
+  s-number sequence (S1)–(S5).
 
 The two non-trivial halves are:
 
@@ -389,8 +389,8 @@ lemma one_le_hilbertNumber_id (n : ℕ) :
 /-! ### The Hilbert numbers form an s-number sequence -/
 
 /-- The Hilbert numbers form an s-number sequence. The axioms (S1)–(S4) are
-the proved lemmas above; (S1a≥) and (S5) are `norm_le_hilbertNumber_zero`
-and `one_le_hilbertNumber_id`. All five axioms are proved (no `sorry`). -/
+the lemmas above; (S1a≥) and (S5) are `norm_le_hilbertNumber_zero` and
+`one_le_hilbertNumber_id`. -/
 theorem isSNumberSequence_hilbertNumber :
     IsSNumberSequence (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => hilbertNumber S n) where
   nonneg := fun S n => hilbertNumber_nonneg S n

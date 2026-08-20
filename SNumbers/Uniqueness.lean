@@ -44,12 +44,11 @@ Then:
 
 Hence `c ≤ sₙ(S)` for every `c < aₙ(S)`, so `aₙ(S) ≤ sₙ(S)`.
 
-## Status
+## Input
 
-This file rests on `SVD.exists_scalar_factorisation` (the scalar factorisation
-`B ∘ S ∘ A = c • id` for `c < aₙ(S)`), taken as a black box; everything here is a
-complete proof on top of it. That factorisation is itself proved, resting on the
-single spectral-theory input `SpectralRepresentation.exists_spectral_projection`.
+The one ingredient from outside is `SVD.exists_scalar_factorisation` (the scalar
+factorisation `B ∘ S ∘ A = c • id` for `c < aₙ(S)`), whose own spectral-theory
+input is `SpectralRepresentation.exists_spectral_projection`.
 
 ## Main results
 

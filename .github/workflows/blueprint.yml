@@ -21,12 +21,6 @@ on:
 permissions:
   contents: read
 
-# All pinned action versions below natively target Node.js 24. This env
-# var is kept as a belt-and-suspenders guard against any future action
-# added at a Node 20 version, ahead of the June 2026 deprecation cutoff.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   build:
     runs-on: ubuntu-latest

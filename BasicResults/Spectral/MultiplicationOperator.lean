@@ -37,7 +37,7 @@ representation; nothing in the `s`-numbers chain depends on it.
 * `MeasureTheory.mulL2_one` — `M_1 = id` (unitality).
 * `MeasureTheory.mulL2_isSelfAdjoint` — `M_f` is self-adjoint when `f` is
   real-valued; with `mulL2_mul` this makes an indicator multiplier `M_𝟙` an
-  orthogonal projection (the spectral projection used downstream).
+  orthogonal projection.
 
 Mathlib reuse: Hölder's inequality for `L^∞ · L²`
 (`eLpNorm_smul_le_eLpNorm_top_mul_eLpNorm`), the `MemLp.toLp` /
@@ -132,8 +132,7 @@ theorem mulL2_one (h1 : MemLp (1 : α → 𝕜) ⊤ μ) :
 /-- **Self-adjointness.** If the symbol `f` is real-valued (a.e. fixed by
 complex conjugation), then `M_f` is self-adjoint. In particular an indicator
 symbol gives a self-adjoint operator; together with `mulL2_mul`
-(`M_𝟙 ∘ M_𝟙 = M_{𝟙·𝟙} = M_𝟙`) this makes `M_𝟙` an orthogonal projection —
-the spectral projection used downstream.
+(`M_𝟙 ∘ M_𝟙 = M_{𝟙·𝟙} = M_𝟙`) this makes `M_𝟙` an orthogonal projection.
 
 The proof is the pointwise Hölder identity for the `L²` inner product:
 `⟪f • x, y⟫ = ∫ conj(f) ⟪x, y⟫` and `⟪x, f • y⟫ = ∫ f ⟪x, y⟫`, equal when

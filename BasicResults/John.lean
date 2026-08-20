@@ -44,8 +44,8 @@ norm (`c‖x‖ ≤ p x ≤ C‖x‖`, `c > 0`). The ellipsoid `T (B₂)` lies i
   `q u ≤ ‖u‖`, `‖det S‖ ≤ 1` for every feasible `S`, and `‖M z‖ = q z`. The
   common core of both projection theorems below.
 * `John.john_decomposition` — the **decomposition of identity** in John position,
-  `∑ᵢ cᵢ uᵢ⊗uᵢ = id` over contact points with `∑ᵢ cᵢ = dim`. Fully proved, by the
-  classical variational argument: Hahn–Banach separation of `k⁻¹ • id` from the
+  `∑ᵢ cᵢ uᵢ⊗uᵢ = id` over contact points with `∑ᵢ cᵢ = dim`. By the classical
+  variational argument: Hahn–Banach separation of `k⁻¹ • id` from the
   compact convex hull of the contact projections, trace duality to produce a
   self-adjoint trace-zero improving direction, the first-order perturbation
   `(1-ρ)⁻¹ • (id + tH)` to contradict maximality, and Carathéodory to extract the

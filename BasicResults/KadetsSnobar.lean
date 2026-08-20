@@ -18,8 +18,8 @@ classical fact of Banach-space geometry (Kadets–Snobar 1971; Pietsch,
 
 The theorem is reduced to the John's-ellipsoid development in `BasicResults.John`:
 `John.exists_projection` supplies the projection with `‖P‖ ≤ √(dim V)`, and we
-weaken `dim V` to `n`. The result is fully proved: `John.john_decomposition` (the
-John decomposition of identity) is established in `BasicResults.John`.
+weaken `dim V` to `n`; the underlying input is `John.john_decomposition`, the
+John decomposition of identity.
 -/
 
 universe u

@@ -32,6 +32,8 @@ for operators between **arbitrary** `𝕜`-Banach spaces.
 * `bernsteinNumber_le_gelfandNumber` — the direct bound `bₙ(S) ≤ cₙ(S)`
   (constant `1`), via the extremality of the Bernstein numbers among
   injective strict `s`-number sequences.
+* `gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert` — the reverse bound
+  `cₙ(S) ≤ √(n+1)·bₙ(S)` for a Hilbert codomain.
 * `approximationNumber_le_sqrt_mul_gelfandNumber` —
   `aₙ(S) ≤ (1 + √n)·cₙ(S)`.
 * `approximationNumber_le_sqrt_mul_kolmogorovNumber` —
@@ -70,12 +72,10 @@ subspace into a finite-rank approximant `L`, using a bounded projection:
   through the quotient `Y ⧸ V`, so
   `‖S − L‖ ≤ ‖id − P‖·‖π_V ∘ S‖ ≤ (1 + √n)·‖π_V ∘ S‖`.
 
-The two projection theorems are deep results of Banach-space geometry, imported
-fully proved from `BasicResults.GarlingGordon`
-(`exists_projection_ker_eq_of_codim_le`) and `BasicResults.KadetsSnobar`
-(`exists_projection_range_eq_of_rank_le`), both resting on John's ellipsoid
-theorem in `BasicResults.John`; every other lemma in this section is a full proof
-built on top of them.
+The two projection theorems are deep results of Banach-space geometry, and come
+from `BasicResults.GarlingGordon` (`exists_projection_ker_eq_of_codim_le`) and
+`BasicResults.KadetsSnobar` (`exists_projection_range_eq_of_rank_le`), both
+resting on John's ellipsoid theorem in `BasicResults.John`.
 
 ## Proof strategy for `hₙ ≤ sₙ`
 
@@ -145,7 +145,7 @@ theorem bernsteinNumber_le_gelfandNumber (S : X →L[𝕜] Y) (n : ℕ) :
 /-! ## Reverse bound (Hilbert codomain): `cₙ ≤ √(n+1)·bₙ`
 
 The reverse of `bₙ ≤ cₙ`, when the codomain is a Hilbert space:
-`cₙ(S) ≤ √(n+1)·bₙ(S)` (Theorem 8 of arXiv:2406.05509 / 2406.07108). From
+`cₙ(S) ≤ √(n+1)·bₙ(S)` (Theorem 8 of arXiv:2406.07108). From
 `γ < cₙ(S)`, every closed subspace of codimension `≤ n` carries a unit vector
 that `S` stretches by more than `γ`; assembling `n+1` of these in nested kernels
 makes their images orthonormal, so `S` is bounded below on their span. -/

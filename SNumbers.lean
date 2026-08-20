@@ -37,9 +37,11 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   `sₙ(c • T) = ‖c‖ · sₙ(T)`.
 * `SNumbers.Helpers`: small generic facts shared across the development —
   rank lemmas for continuous linear maps (`rank_zero`,
-  `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and operator-norm bounds
+  `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`), operator-norm bounds
   for Mathlib's quotient CLMs `Submodule.mkQL` / `Submodule.liftQL`
-  (`norm_mkQL_le`, `norm_liftQL_le`, `liftQL_mkQL`).
+  (`norm_mkQL_le`, `norm_mkQL_apply_le`, `norm_liftQL_le`, `liftQL_mkQL`),
+  the bound `opNorm_le_of_unit_closedBall` from the closed unit ball, and
+  `finrank_euclideanSpace_fin'` over any `NontriviallyNormedField`.
 * `SNumbers.PiLpCoordinates`: the coordinate projection/embedding
   contractions `projFin` / `padFin` between `ℓ^p_n` and `ℓ^p_m`.
 * `SNumbers.Approximation`: the approximation numbers `aₙ`, proved to form a
@@ -62,10 +64,11 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   scalar factorisation `SVD.exists_scalar_factorisation` in `BasicResults.SVD`.
 * `SNumbers.Inequalities`: the general-space comparison results — the lower
   bound `hₙ ≤ sₙ`, the sandwich theorem `hₙ ≤ sₙ ≤ aₙ`, the bound
-  `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, the determinant ingredients
-  (`∏ aₖ(T) = ‖det T‖`, `aₖ(B∘S∘A) ≤ ‖B‖‖A‖·hₖ(S)`) for the maximal
-  difference theorem, and point selection below the Gelfand / Kolmogorov
-  numbers.
+  `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, the two Bernstein comparisons `bₙ ≤ cₙ` and
+  `cₙ ≤ √(n+1)·bₙ` (the latter for a Hilbert codomain), the determinant
+  ingredients (`∏ aₖ(T) = ‖det T‖`, `aₖ(B∘S∘A) ≤ ‖B‖‖A‖·hₖ(S)`) for the
+  maximal difference theorem, and point selection below the Gelfand /
+  Kolmogorov numbers.
 * `SNumbers.MaxDifference`: the **maximal difference theorem**
   `aₙ ≤ e·(n+1)·hₙ` (sharp constant `(n+1)^{n+1}/nⁿ`), hence
   `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences — the conjecture of Carl
@@ -132,13 +135,17 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   (`BasicResults.LittleGrothendieck`), then sums the singular values of the compact
   operator `B I A` via Bessel and Cauchy–Schwarz.
 
-A companion library `BasicResults` collects supporting material: Auerbach's
-lemma (fully proved), the singular value decomposition `BasicResults.SVD` (the
-compact SVD, the scalar factorisation for the uniqueness theorem, and the bound
-`(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for a compact product), and
-`BasicResults.LittleGrothendieck` (sign averaging and the little Grothendieck
-bounds behind the `ℓ₁ → ℓ_∞` example). Auxiliary material on approximable
-operators lives in the `AddOns` library.
+A companion library `BasicResults` collects the supporting classical theory:
+Auerbach's lemma, John's ellipsoid with the two projection theorems it yields
+(`BasicResults.John`, `JohnAux`, `GarlingGordon`, `KadetsSnobar`), determinants
+(`BasicResults.Determinant`), the singular value decomposition
+`BasicResults.SVD` (the compact SVD, the scalar factorisation for the uniqueness
+theorem, and the bound `(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for a compact
+product), `BasicResults.LittleGrothendieck` (sign averaging and the little
+Grothendieck bounds behind the `ℓ₁ → ℓ_∞` example), and
+`BasicResults.Spectral` (the spectral projection of `S*S` over any `RCLike`
+field). The `AddOns` library holds the compactness theory: approximable
+operators, and which `s`-number sequences detect compactness.
 
 ## References
 

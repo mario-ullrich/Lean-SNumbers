@@ -22,10 +22,10 @@ themselves are guaranteed by the Lean kernel.
 
 ## What are s-numbers?
 
-**s-numbers are a generalisation of singular values** to bounded 
-linear operators `T : X → Y` between arbitrary Banach (or normed) 
-spaces, while singular values are only defined for operators 
-between Hilbert spaces. 
+**s-numbers are a generalisation of singular values** to bounded
+linear operators `T : X → Y` between arbitrary Banach (or normed)
+spaces, while singular values are only defined for operators
+between Hilbert spaces.
 
 Following Pietsch's axiomatic approach, an **s-number sequence** is a rule `s` assigning to each operator `T` a
 non-increasing sequence of non-negative reals `s₀(T) ≥ s₁(T) ≥ ⋯ ≥ 0`
@@ -59,7 +59,8 @@ examples, which are the central targets of this formalisation:
 
 ## What is formalised
 
-A green check means fully proved (no `sorry`).
+A green check means the entry is in the code: definitions are defined, results
+are proved (no `sorry`). Each row says which.
 
 ### Axioms and framework
 
@@ -95,7 +96,7 @@ A green check means fully proved (no `sorry`).
 |-------------------------------------------|---------------------|
 | Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
 | `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
-| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved | 
+| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved |
 | `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved |
 | `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference theorem; Carl–Pietsch up to `e`) | ✅ proved |
 | `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences | ✅ proved |
@@ -178,14 +179,14 @@ sequence.
 | Compact ⇔ approximable on Hilbert         | ✅ proved           |
 | Finite rank ⇒ compact (`SVD.isCompactOperator_of_rank_le`) | ✅ proved |
 | Compact ⇔ `S(B_X)` totally bounded (`isCompactOperator_iff_totallyBounded_image_closedBall`) | ✅ proved |
-| **Compact ⇔ `dₙ(S) → 0`** (`isCompactOperator_iff_tendsto_kolmogorovNumber`) | ✅ proved |
-| **Compact ⇔ `cₙ(S) → 0`** (`isCompactOperator_iff_tendsto_gelfandNumber`) | ✅ proved |
+| Compact ⇔ `dₙ(S) → 0` (`isCompactOperator_iff_tendsto_kolmogorovNumber`) | ✅ proved |
+| Compact ⇔ `cₙ(S) → 0` (`isCompactOperator_iff_tendsto_gelfandNumber`) | ✅ proved |
 | `dₙ(S) → 0` ⇔ `S(B_X)` totally bounded, same for `cₙ` (no completeness needed) | ✅ proved |
 | On Hilbert spaces: compact ⇔ `sₙ(S) → 0` for *every* s-number sequence (`SVD.isCompactOperator_iff_tendsto_sn`) | ✅ proved |
 
 ## Completeness
 
-The whole project builds **`sorry`-free**, so every result listed above is
+The whole project builds **`sorry`-free**, so every result marked ✅ above is
 verified by the Lean kernel.
 
 One note on provenance. The deepest classical ingredient is the **John
@@ -236,7 +237,8 @@ main declarations:
   general-purpose ingredients: compactness of the convex hull of a compact set
   in finite dimension (`IsCompact.convexHull`), Hahn–Banach dominated by a
   *seminorm* over `RCLike` (`Seminorm.exists_inner_le_of_apply`), trace duality
-  (`ContinuousLinearMap.exists_trace_repr`, `trace_adjoint`), and the product
+  (`ContinuousLinearMap.exists_trace_repr`, `ContinuousLinearMap.trace_adjoint`),
+  and the product
   bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` (`one_sub_two_mul_sum_sq_le_prod_one_add`,
   `Real.exp_sub_two_mul_sq_le`).
 * **Auerbach's lemma** (`BasicResults/Auerbach.lean`): every finite-dimensional
@@ -244,7 +246,8 @@ main declarations:
   (`exists_isAuerbachBasis`).
 * **SVD of a compact operator** (`BasicResults/SVD.lean`, `AddOns/`): the
   Schmidt representation (`SVD.IsCompactOperator.SVD`), norm attainment
-  (`norm_isSingularValue`), Eckart–Young, and compact ⇔ approximable on
+  (`SVD.IsCompactOperator.norm_isSingularValue`), Eckart–Young, and
+  compact ⇔ approximable on
   Hilbert spaces (`SVD.isApproximable_iff_isCompactOperator`).
 * **Complexification** (`BasicResults/Spectral/Complexification.lean`): Mathlib
   has base change of modules, but not the complexification of a real *inner
@@ -261,10 +264,13 @@ main declarations:
   (`exists_spectral_projection`, over any `RCLike` field).
 * **`PiLp` coordinates** (`SNumbers/PiLpCoordinates.lean`, flagged as
   upstreamable in its own header): the projection/embedding contractions
-  `projFin`/`padFin`, `finrank_piLp`, coordinatewise norm monotonicity; plus
-  the norm comparisons `‖x‖_p ≤ ‖x‖_q` for `q ≤ p`
-  (`piLp_norm_le_of_exponent_ge`) and `‖x‖_p ≤ m^{1/p−1/q}‖x‖_q`
-  (`piLp_norm_le_card_rpow_mul`).
+  `projFin`/`padFin`, `finrank_piLp`, coordinatewise norm monotonicity
+  (`piLp_norm_mono`).
+* **`PiLp` norm comparisons across exponents**, developed with the examples that
+  need them: `‖x‖_p ≤ ‖x‖_q` for `q ≤ p`
+  (`piLp_norm_le_of_exponent_ge`, `SNumbers/Examples/DiagonalMatrices.lean`) and
+  `‖x‖_p ≤ m^{1/p−1/q}‖x‖_q` (`piLp_norm_le_card_rpow_mul`,
+  `SNumbers/Examples/Identity.lean`). Both belong in `PiLp.lean`.
 * **Sign averaging and little Grothendieck**
   (`BasicResults/LittleGrothendieck.lean`): the Rademacher identity that the
   average of `‖∑ εⱼwⱼ‖²` over all sign patterns is `∑ ‖wⱼ‖²`
@@ -285,6 +291,7 @@ main declarations:
 .
 ├── lakefile.toml               ← Lake configuration; depends on Mathlib
 ├── lean-toolchain              ← Lean 4 version
+├── lake-manifest.json          ← the pinned Mathlib revision
 ├── SNumbers.lean               ← s-numbers library entry point
 ├── SNumbers/
 │   ├── Basic.lean              ← rank API + Pietsch axioms (S1)–(S5)
@@ -311,7 +318,7 @@ main declarations:
 │   │                              for all bounded operators (ℝ and ℂ), proved
 │   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
 │   │                              sandwich hₙ ≤ sₙ ≤ aₙ, aₙ ≤ (1+√n)·min(cₙ,dₙ)
-│   │                              via Garling–Gordon / Kadets–Snobar (now proved
+│   │                              via Garling–Gordon / Kadets–Snobar (both
 │   │                              through John), and the determinant
 │   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
 │   ├── MaxDifference.lean      ← the maximal difference theorem
@@ -386,8 +393,17 @@ main declarations:
 │   │                              have norm ≤ M) ⇒ ∑‖Beⱼ‖² ≤ ‖B‖² for B : ℓ_∞ → H
 │   │                              and ∑‖rowⱼ‖² ≤ ‖A‖² for A : H → ℓ₁
 │   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
-│                                  (cfc over ℂ + complexification for ℝ); the
-│                                  input to s-number uniqueness for bounded ops
+│       │                          (cfc over ℂ + complexification for ℝ); the
+│       │                          input to s-number uniqueness for bounded ops
+│       ├── Complexification.lean ← complexification of a real inner product
+│       │                          space, and of operators on it
+│       ├── MonotoneConvergence.lean ← antitone sequences of positive operators
+│       │                          converge; the Cauchy estimate ‖Ax‖² ≤ ‖A‖·re⟪Ax,x⟫
+│       ├── Projection.lean      ← spectral projection over ℂ via the cfc
+│       ├── RealProjection.lean  ← the real case, via complexification
+│       ├── Representation.lean  ← exists_spectral_projection for S*S, any RCLike
+│       └── MultiplicationOperator.lean ← M_f : L² → L² for f ∈ L^∞; an
+│                                  independent building block, unused elsewhere
 ├── AddOns.lean                 ← auxiliary library entry point
 ├── AddOns/
 │   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact,
@@ -405,6 +421,7 @@ main declarations:
         ├── extra_styles.css    ← CSS tweaks for the rendered web blueprint
         ├── print.tex           ← pdflatex master (leanblueprint pdf)
         ├── web.tex             ← plastex master (leanblueprint web)
+        ├── latexmkrc           ← latexmk configuration for the PDF build
         └── content.tex         ← actual content with \lean / \uses tags
 ```
 
