@@ -5,6 +5,8 @@ Authors: Mario Ullrich
 -/
 import SNumbers.Entropy
 import SNumbers.Inequalities
+import BasicResults.SVD
+import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
 /-!
 # Bounding the Gelfand and Kolmogorov numbers by the entropy numbers
@@ -51,6 +53,11 @@ two of them, and here two in one box is a contradiction.
   triangular systems below `dₙ` resp. `cₙ`.
 * `SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber` :
     `max (cₙ S) (dₙ S) ≤ (n+1) · eₙ S`, the sharp bound of [Pie80, 12.3.2].
+* `SNumbers.half_le_entropyNumber_id` : `eₙ (id_X) ≥ 1/2` when `dim X > n`,
+  by comparing volumes.
+* `SNumbers.approximationNumber_le_two_mul_entropyNumber` :
+    `aₙ S ≤ 2 · eₙ S` between Hilbert spaces.
+* `SNumbers.hilbertNumber_le_two_mul_entropyNumber` : `hₙ S ≤ 2 · eₙ S`.
 
 ## Implementation notes
 
@@ -73,7 +80,7 @@ Nets are passed as functions `Fin k → Y` rather than as the `Finset` of
 universe u
 
 open Filter Topology
-open scoped Cardinal
+open scoped Cardinal ENNReal
 open ContinuousLinearMap
 
 namespace SNumbers
@@ -625,6 +632,87 @@ theorem gelfandNumber_le_succ_mul_entropyNumber (S : X →L[𝕜] Y) (n : ℕ) :
   exact absurd (le_succ_mul_of_sep hn1
     (le_entropyNumber_of_sign_family hz_mem (by positivity) hsep)) (not_le.mpr hγ1)
 
+/-! ### Entropy numbers of the identity
+
+The entropy numbers never vanish, and a volume comparison says how large they
+are: a cover of the unit ball of a `D`-dimensional space by `2 ^ n` balls of
+radius `ε` forces `1 ≤ 2 ^ n · ε ^ D`. For `D > n` this keeps `ε` above `1/2`,
+which is the source of the constant `2` in the Hilbert-entropy bound. -/
+
+section Identity
+
+open MeasureTheory
+
+/-- **`eₙ(id_X) ≥ 1/2` whenever `dim X > n`.** Scaling a ball by `ε` scales its
+volume by `ε ^ D`, so a cover of the unit ball by `2 ^ n` balls of radius `ε`
+gives `1 ≤ 2 ^ n · ε ^ D`; with `ε ≤ 1/2` and `D ≥ n+1` the right-hand side
+would be at most `1/2`. -/
+lemma half_le_entropyNumber_id (X : Type u) [NormedAddCommGroup X]
+    [NormedSpace 𝕜 X] [FiniteDimensional 𝕜 X] {n : ℕ}
+    (hn : n < Module.finrank 𝕜 X) :
+    1 / 2 ≤ entropyNumber (ContinuousLinearMap.id 𝕜 X) n := by
+  haveI : NormedSpace ℝ X := NormedSpace.restrictScalars ℝ 𝕜 X
+  haveI : FiniteDimensional ℝ X := FiniteDimensional.trans ℝ 𝕜 X
+  -- The real dimension is at least the `𝕜`-dimension.
+  have hD : n < Module.finrank ℝ X := by
+    have hmul := Module.finrank_mul_finrank ℝ 𝕜 X
+    have hpos : 0 < Module.finrank ℝ 𝕜 := Module.finrank_pos
+    calc n < Module.finrank 𝕜 X := hn
+      _ ≤ Module.finrank ℝ 𝕜 * Module.finrank 𝕜 X := Nat.le_mul_of_pos_left _ hpos
+      _ = Module.finrank ℝ X := hmul
+  borelize X
+  set D := Module.finrank ℝ X with hDdef
+  set μ : Measure X := (Module.finBasis ℝ X).addHaar with hμ
+  have hμ0 : μ (Metric.closedBall (0 : X) 1) ≠ 0 :=
+    (Metric.measure_closedBall_pos μ 0 one_pos).ne'
+  have hμtop : μ (Metric.closedBall (0 : X) 1) ≠ ⊤ := measure_closedBall_lt_top.ne
+  rw [entropyNumber_def]
+  refine le_csInf (entropySet_nonempty _ n) fun ε hε => ?_
+  by_contra hcon
+  have hεhalf : ε < 1 / 2 := not_le.mp hcon
+  obtain ⟨hε0, N, hNcard, hcov⟩ := hε
+  rw [show ⇑(ContinuousLinearMap.id 𝕜 X) '' Metric.closedBall 0 1
+      = Metric.closedBall (0 : X) 1 by simp] at hcov
+  -- Volume comparison.
+  have h1 : μ (Metric.closedBall (0 : X) 1)
+      ≤ ∑ _y ∈ N, ENNReal.ofReal (ε ^ D) * μ (Metric.closedBall (0 : X) 1) := by
+    refine (measure_mono hcov).trans ?_
+    refine (measure_biUnion_finset_le N _).trans ?_
+    exact Finset.sum_le_sum fun y _ =>
+      le_of_eq (Measure.addHaar_closedBall' μ y hε0.le)
+  rw [Finset.sum_const, nsmul_eq_mul, ← mul_assoc] at h1
+  -- Pass to real numbers, where the common factor `vol B` can be cancelled.
+  have hfin : (N.card : ℝ≥0∞) * ENNReal.ofReal (ε ^ D)
+      * μ (Metric.closedBall (0 : X) 1) ≠ ⊤ :=
+    ENNReal.mul_ne_top (ENNReal.mul_ne_top (by simp) ENNReal.ofReal_ne_top) hμtop
+  have hBpos : 0 < μ.real (Metric.closedBall (0 : X) 1) :=
+    ENNReal.toReal_pos hμ0 hμtop
+  have h2 : μ.real (Metric.closedBall (0 : X) 1)
+      ≤ (N.card : ℝ) * ε ^ D * μ.real (Metric.closedBall (0 : X) 1) := by
+    have h := ENNReal.toReal_mono hfin h1
+    simpa [Measure.real, ENNReal.toReal_mul,
+      ENNReal.toReal_ofReal (by positivity : (0 : ℝ) ≤ ε ^ D)] using h
+  have h3 : (1 : ℝ) ≤ (N.card : ℝ) * ε ^ D := by nlinarith [h2, hBpos]
+  -- But `N.card ≤ 2 ^ n` and `ε < 1/2` make the right-hand side at most `1/2`.
+  have h4 : (N.card : ℝ) * ε ^ D ≤ 2 ^ n * ε ^ D := by
+    have hcard : (N.card : ℝ) ≤ 2 ^ n := by exact_mod_cast hNcard
+    have hpow : (0 : ℝ) ≤ ε ^ D := by positivity
+    nlinarith
+  have h5 : ε ^ D ≤ (1 / 2 : ℝ) ^ (n + 1) := by
+    obtain ⟨d, hd⟩ : ∃ d, D = (n + 1) + d := ⟨D - (n + 1), by omega⟩
+    have hεle1 : ε ≤ 1 := by linarith
+    rw [hd, pow_add]
+    calc ε ^ (n + 1) * ε ^ d ≤ ε ^ (n + 1) * 1 :=
+          mul_le_mul_of_nonneg_left (pow_le_one₀ hε0.le hεle1) (by positivity)
+      _ = ε ^ (n + 1) := mul_one _
+      _ ≤ (1 / 2 : ℝ) ^ (n + 1) := pow_le_pow_left₀ hε0.le hεhalf.le _
+  have h6 : (2 : ℝ) ^ n * ((1 : ℝ) / 2) ^ (n + 1) = 1 / 2 := by
+    rw [pow_succ, ← mul_assoc, ← mul_pow]
+    norm_num
+  nlinarith [h3, h4, h5, h6, pow_pos hε0 D]
+
+end Identity
+
 /-- **Pietsch 12.3.2**: `max(cₙ(S), dₙ(S)) ≤ (n+1) · eₙ(S)`. -/
 theorem max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber
     (S : X →L[𝕜] Y) (n : ℕ) :
@@ -632,6 +720,84 @@ theorem max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber
       ((n : ℝ) + 1) * entropyNumber S n :=
   max_le (gelfandNumber_le_succ_mul_entropyNumber S n)
     (kolmogorovNumber_le_succ_mul_entropyNumber S n)
+
+/-! ### The Hilbert-entropy bound
+
+The Hilbert numbers are the *smallest* `s`-number sequence, and they are also
+smaller than twice the entropy numbers. This essentially follows from
+`eₙ(id) ≥ 1/2`. -/
+
+section Hilbert
+
+variable {H₁ H₂ : Type u}
+variable [NormedAddCommGroup H₁] [InnerProductSpace 𝕜 H₁] [CompleteSpace H₁]
+variable [NormedAddCommGroup H₂] [InnerProductSpace 𝕜 H₂] [CompleteSpace H₂]
+
+/-- **`aₙ(T) ≤ 2·eₙ(T)` between Hilbert spaces.** For `γ < aₙ(T)` the scalar
+factorisation gives contractions with `B ∘ T ∘ A = γ · id` on `ℓ₂ⁿ⁺¹`; rescaling
+`B` by `γ⁻¹` makes the composition the identity, so
+`1/2 ≤ eₙ(id) ≤ γ⁻¹ · eₙ(T)`. -/
+theorem approximationNumber_le_two_mul_entropyNumber (T : H₁ →L[𝕜] H₂) (n : ℕ) :
+    approximationNumber T n ≤ 2 * entropyNumber T n := by
+  by_contra hcon
+  obtain ⟨γ, hγ1, hγ2⟩ := exists_between (not_le.mp hcon)
+  have hγ0 : 0 < γ :=
+    lt_of_le_of_lt (by positivity [entropyNumber_nonneg T n]) hγ1
+  obtain ⟨A, B, hA, hB, hfact⟩ := SVD.exists_scalar_factorisation T n hγ0.le hγ2
+  have hγ𝕜 : ((γ : ℝ) : 𝕜) ≠ 0 := by
+    simpa using (RCLike.ofReal_ne_zero (K := 𝕜)).mpr (ne_of_gt hγ0)
+  -- Rescale `B` so that the composition is exactly the identity.
+  set B' : H₂ →L[𝕜] EuclideanSpace 𝕜 (Fin (n + 1)) := (((γ : ℝ) : 𝕜)⁻¹) • B with hB'
+  have hcomp : B'.comp (T.comp A) =
+      ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
+    rw [hB', ContinuousLinearMap.smul_comp, hfact, smul_smul,
+      inv_mul_cancel₀ hγ𝕜, one_smul]
+  have hB'norm : ‖B'‖ ≤ γ⁻¹ := by
+    rw [hB', norm_smul, norm_inv, RCLike.norm_ofReal, abs_of_pos hγ0]
+    calc γ⁻¹ * ‖B‖ ≤ γ⁻¹ * 1 :=
+          mul_le_mul_of_nonneg_left hB (by positivity)
+      _ = γ⁻¹ := mul_one _
+  -- The identity on `ℓ₂ⁿ⁺¹` has entropy numbers at least `1/2`.
+  have hid : 1 / 2 ≤ entropyNumber
+      (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n := by
+    refine half_le_entropyNumber_id _ ?_
+    rw [finrank_euclideanSpace_fin']
+    exact Nat.lt_succ_self n
+  rw [← hcomp] at hid
+  have hchain : entropyNumber (B'.comp (T.comp A)) n ≤ γ⁻¹ * entropyNumber T n := by
+    have h0 : (0 : ℝ) ≤ entropyNumber T n := entropyNumber_nonneg T n
+    calc entropyNumber (B'.comp (T.comp A)) n
+        ≤ ‖B'‖ * entropyNumber T n * ‖A‖ := entropyNumber_comp_comp_le B' T A n
+      _ ≤ γ⁻¹ * entropyNumber T n * 1 :=
+          mul_le_mul (mul_le_mul_of_nonneg_right hB'norm h0) hA (norm_nonneg A)
+            (mul_nonneg (inv_pos.mpr hγ0).le h0)
+      _ = γ⁻¹ * entropyNumber T n := mul_one _
+  have hfinal : γ ≤ 2 * entropyNumber T n := by
+    have h1 : 1 / 2 ≤ γ⁻¹ * entropyNumber T n := hid.trans hchain
+    have h2 : γ * γ⁻¹ = 1 := mul_inv_cancel₀ (ne_of_gt hγ0)
+    nlinarith [h1, h2, hγ0, entropyNumber_nonneg T n]
+  linarith
+
+end Hilbert
+
+/-- **The Hilbert-entropy bound** `hₙ(S) ≤ 2·eₙ(S)`, for operators between
+arbitrary Banach spaces. Every factorisation `B ∘ S ∘ A` over `ℓ₂` satisfies
+`aₙ(B∘S∘A) ≤ 2·eₙ(B∘S∘A) ≤ 2·‖B‖·eₙ(S)·‖A‖`, and `hₙ` is the supremum of
+`aₙ(B∘S∘A)/(‖B‖‖A‖)`. -/
+theorem hilbertNumber_le_two_mul_entropyNumber (S : X →L[𝕜] Y) (n : ℕ) :
+    hilbertNumber S n ≤ 2 * entropyNumber S n := by
+  rw [hilbertNumber_def]
+  refine Real.sSup_le ?_ (by positivity [entropyNumber_nonneg S n])
+  rintro r ⟨A, B, hA, hB, rfl⟩
+  have hpos : 0 < ‖B‖ * ‖A‖ := mul_pos (norm_pos_iff.mpr hB) (norm_pos_iff.mpr hA)
+  rw [div_le_iff₀ hpos]
+  calc approximationNumber (B.comp (S.comp A)) n
+      ≤ 2 * entropyNumber (B.comp (S.comp A)) n :=
+        approximationNumber_le_two_mul_entropyNumber _ n
+    _ ≤ 2 * (‖B‖ * entropyNumber S n * ‖A‖) := by
+        have := entropyNumber_comp_comp_le B S A n
+        linarith
+    _ = 2 * entropyNumber S n * (‖B‖ * ‖A‖) := by ring
 
 end SNumbers
 
