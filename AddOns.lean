@@ -7,7 +7,7 @@ import AddOns.Approximable
 import AddOns.Compact
 
 /-!
-# Add-ons: approximable operators and the compact ↔ approximable theory
+# Add-ons: compactness measured by s-numbers
 
 Auxiliary Hilbert/Banach-space material around the s-numbers framework,
 following Pietsch, *Eigenvalues and s-numbers* (Cambridge, 1987), §2.11.
@@ -19,8 +19,10 @@ following Pietsch, *Eigenvalues and s-numbers* (Cambridge, 1987), §2.11.
   the implication `IsApproximable ⇒ IsCompactOperator`, and the special case
   `isCompactOperator_of_rank_le` (finite rank ⇒ compact) used by the
   example `SNumbers.Examples.IdentityL1Linfty`.
-* `AddOns.Compact` — the converse *compact ⇒ approximable* on Hilbert
-  spaces and the equivalence `IsApproximable ↔ IsCompactOperator`.
+* `AddOns.Compact` — which s-number sequences detect compactness. On every
+  Banach space `S` is compact iff `cₙ(S) → 0`, iff `dₙ(S) → 0`. For the
+  approximation numbers this fails (Enflo), but on Hilbert spaces
+  *every* s-number sequence works, since all of them agree with `aₙ` there.
 
 The singular value decomposition itself — including the **scalar
 factorisation** `SVD.exists_scalar_factorisation` consumed by the

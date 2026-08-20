@@ -1787,6 +1787,254 @@ complete, its closure is compact, which is the definition of a compact
 operator.
 \end{proof}
 
+\chapter{Compactness and the Gelfand/Kolmogorov numbers}
+\label{ch:compactness}
+
+Among the $s$-number sequences, exactly two detect compactness on every
+Banach space: the Gelfand and the Kolmogorov numbers. The approximation
+numbers do not --- a compact operator into a space without the approximation
+property is not a limit of finite-rank operators (Enflo) --- so the
+equivalence $a_n(S) \to 0 \iff S$ compact is available only on Hilbert
+spaces, where all $s$-numbers agree with $a_n$.
+
+The route goes through the entropy numbers of the previous chapter, in both
+directions: upper bounds for $c_n, d_n$ in terms of $e_n$ give
+``compact $\Rightarrow$ decay'', and a lower bound for $e_n$ gives the sharp
+comparison. The comparisons are formalised in \texttt{EntropyBounds.lean},
+the compactness criteria in \texttt{AddOns/Compact.lean}, both over
+$\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$.
+
+\section{Covering estimates}
+
+\begin{theorem}[Covering estimates]
+\label{thm:covering-estimates}
+\lean{SNumbers.kolmogorovNumber_le_of_fin_net,
+      SNumbers.gelfandNumber_le_two_mul_of_fin_net}
+\leanok
+Let $S \in \mathcal{L}(X, Y)$ and suppose every $x \in B_X$ satisfies
+$\|Sx - y_i\| \le \varepsilon$ for some member of a family
+$y_1, \dots, y_k \in Y$. Then
+\[
+  d_k(S) \;\le\; \varepsilon
+  \qquad\text{and}\qquad
+  c_k(S) \;\le\; 2\varepsilon .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+For $d_k$ take $V := \operatorname{span}\{y_1, \dots, y_k\}$, of dimension at
+most $k$. Since $y_i \in V$, the quotient map satisfies
+$\|\pi_V(Sx)\| = \|\pi_V(Sx - y_i)\| \le \|Sx - y_i\| \le \varepsilon$, so
+$\|\pi_V \circ S\| \le \varepsilon$.
+
+For $c_k$ choose norming functionals $b_i$ with $\|b_i\| \le 1$ and
+$b_i(y_i) = \|y_i\|$ (Hahn--Banach) and let $M$ be the common kernel of the
+$b_i \circ S$, a closed subspace of codimension at most $k$. For $x \in M$
+with $\|x\| \le 1$ pick $i$ with $\|Sx - y_i\| \le \varepsilon$; then
+$\|y_i\| = b_i(y_i - Sx) \le \varepsilon$ and hence
+$\|Sx\| \le \|Sx - y_i\| + \|y_i\| \le 2\varepsilon$.
+\end{proof}
+
+\begin{corollary}[Dyadic comparison]
+\label{cor:dyadic-entropy}
+\lean{SNumbers.kolmogorovNumber_two_pow_le_entropyNumber,
+      SNumbers.gelfandNumber_two_pow_le_two_mul_entropyNumber}
+\leanok
+\uses{thm:covering-estimates, def:entropy-number}
+For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
+\[
+  d_{2^n}(S) \;\le\; e_n(S)
+  \qquad\text{and}\qquad
+  c_{2^n}(S) \;\le\; 2\, e_n(S) .
+\]
+\end{corollary}
+\begin{proof}
+\leanok
+An admissible radius $\varepsilon$ for $e_n(S)$ provides a net of at most
+$2^n$ points, so Theorem~\ref{thm:covering-estimates} applies with
+$k \le 2^n$; both sequences are antitone in the index.
+\end{proof}
+
+\section{The compactness criteria}
+
+\begin{theorem}
+\label{thm:compact-iff-gelfand-kolmogorov}
+\lean{SNumbers.isCompactOperator_iff_tendsto_kolmogorovNumber,
+      SNumbers.isCompactOperator_iff_tendsto_gelfandNumber,
+      SNumbers.tendsto_kolmogorovNumber_iff_totallyBounded,
+      SNumbers.tendsto_gelfandNumber_iff_totallyBounded}
+\leanok
+\uses{cor:dyadic-entropy}
+For $S \in \mathcal{L}(X, Y)$, each of $d_n(S) \to 0$ and $c_n(S) \to 0$ is
+equivalent to total boundedness of $S(B_X)$. If $Y$ is complete, then
+\[
+  S \text{ is compact} \iff c_n(S) \to 0 \iff d_n(S) \to 0 .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+If $S(B_X)$ is totally bounded, a finite $\varepsilon$-net with $k$ points
+bounds $d_k(S)$ and $c_k(S)$ by Theorem~\ref{thm:covering-estimates}, and
+antitonicity gives the decay.
+
+Conversely, suppose $d_n(S) < \varepsilon$ and pick $V$ of dimension at most
+$n$ with $\|\pi_V \circ S\| < \varepsilon$. Every $Sx$ with $\|x\| \le 1$ is
+then within $\varepsilon$ of a point of $V$ of norm at most
+$\|S\| + \varepsilon$; that bounded piece of the finite-dimensional space $V$
+is compact, so a finite $\varepsilon$-net of it yields a finite
+$2\varepsilon$-net of $S(B_X)$.
+
+For $c_n(S) < \varepsilon$ pick a closed $M$ of finite codimension with
+$\|S|_M\| < \varepsilon$. The image of $B_X$ in the finite-dimensional
+quotient $X / M$ is bounded, hence totally bounded; choose a finite
+$\delta$-net inside that image and lift its centres to $u_1, \dots, u_N \in
+B_X$. If $\|[x] - [u_j]\| < \delta$ there is $m \in M$ with
+$\|(x - u_j) - m\| < \delta$ and --- this is the point ---
+$\|m\| \le 2 + \delta$, a bound \emph{independent of the codimension}. Hence
+\[
+  \|Sx - Su_j\| \;\le\; \|Sm\| + \|S\|\,\delta
+  \;<\; \varepsilon (2 + \delta) + \|S\|\,\delta ,
+\]
+which is small for suitable $\varepsilon$ and $\delta$. (Splitting $x$ by a
+projection with kernel $M$ instead would cost the factor $1 + \sqrt{n}$ of
+Garling--Gordon, and $\sqrt{n}\, c_n(S)$ need not tend to $0$.)
+\end{proof}
+
+\begin{theorem}[Hilbert spaces: every $s$-number sequence]
+\label{thm:compact-iff-sn-hilbert}
+\lean{SVD.isCompactOperator_iff_tendsto_sn}
+\leanok
+\uses{thm:all-eq-on-hilbert, thm:compact-iff-approximable}
+Let $H_1, H_2$ be Hilbert spaces and $s$ any $s$-number sequence. Then
+$S \in \mathcal{L}(H_1, H_2)$ is compact if and only if $s_n(S) \to 0$.
+\end{theorem}
+\begin{proof}
+\leanok
+On Hilbert spaces $s_n(S) = a_n(S)$, and $a_n(S) \to 0$ is equivalent to
+compactness by the Schmidt representation.
+\end{proof}
+
+\section{The sharp bound}
+
+\begin{proposition}[Separation bounds $e_n$ from below]
+\label{prop:entropy-lower-bound}
+\lean{SNumbers.le_entropyNumber_of_separated}
+\leanok
+\uses{def:entropy-number}
+If $S(B_X)$ contains more than $2^n$ points that are pairwise at distance at
+least $\delta$, then $e_n(S) \ge \delta / 2$.
+\end{proposition}
+\begin{proof}
+\leanok
+A ball of radius $\varepsilon$ has diameter at most $2\varepsilon$, so if
+$2\varepsilon < \delta$ then each ball of an admissible cover contains at
+most one of the points. Assigning to every point a covering centre is then
+injective, so there are at least as many centres as points --- more than
+$2^n$, contradicting admissibility.
+\end{proof}
+
+\begin{theorem}[Triangular flags]
+\label{thm:triangular-flags}
+\lean{SNumbers.exists_kolmogorov_flag, SNumbers.exists_gelfand_flag}
+\leanok
+Let $\gamma < d_n(S)$. Then there are $x_0, \dots, x_n \in B_X$ and subspaces
+$V_0, \dots, V_n \subseteq Y$ with $S x_k \in V_j$ for $k < j$ and
+$\|S x_j + w\| > \gamma$ for all $w \in V_j$. Dually, for
+$0 < \gamma < c_n(S)$ there are $x_0, \dots, x_n \in B_X$ and functionals
+$\rho_0, \dots, \rho_n$ with $\|\rho_j\| \le 1$,
+$\rho_j(S x_j) = \gamma$ and $\rho_i(S x_j) = 0$ for $i < j$.
+\end{theorem}
+\begin{proof}
+\leanok
+Both are built one vector at a time. For $d_n$, take $V_j$ to be the span of
+the images already chosen --- of dimension at most $n$ --- and apply the
+point selection below $d_n$. For $c_n$, apply the point selection below
+$c_n$ on the common kernel of the functionals already chosen, and rescale
+the resulting unit-image vector by $\gamma$ to land in $B_X$.
+\end{proof}
+
+\begin{theorem}[Pietsch]
+\label{thm:entropy-bound}
+\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber}
+\leanok
+\uses{prop:entropy-lower-bound, thm:triangular-flags}
+For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
+\[
+  \max \bigl\{ c_n(S), d_n(S) \bigr\} \;\le\; (n+1)\, e_n(S) .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+Let $\gamma < d_n(S)$ and take a flag $x_0, \dots, x_n$ as in
+Theorem~\ref{thm:triangular-flags}. For $\sigma \in \{\pm 1\}^{n+1}$ set
+\[
+  z_\sigma := S \Bigl( \tfrac{1}{n+1} \sum_k \sigma_k x_k \Bigr) \in S(B_X) .
+\]
+For $\sigma \neq \tau$ let $j$ be the \emph{largest} index with
+$\sigma_j \neq \tau_j$. Then
+$z_\sigma - z_\tau = \tfrac{1}{n+1}\bigl( (\sigma_j - \tau_j) S x_j + w
+\bigr)$ with $w \in V_j$, because the indices $k > j$ contribute nothing and
+those $k < j$ contribute elements of $V_j$. Since $|\sigma_j - \tau_j| = 2$,
+the flag property gives $\|z_\sigma - z_\tau\| > 2\gamma/(n+1)$. So
+$2^{n+1}$ points of $S(B_X)$ are pairwise more than $2\gamma/(n+1)$ apart,
+and Proposition~\ref{prop:entropy-lower-bound} yields
+$e_n(S) \ge \gamma/(n+1)$. Letting $\gamma \nearrow d_n(S)$ gives the claim.
+
+For $c_n$ the same computation is read off by the functional $\rho_j$ at the
+\emph{smallest} disagreeing index $j$: it annihilates $S x_k$ for $k > j$,
+while $\sigma_k = \tau_k$ kills the terms with $k < j$.
+\end{proof}
+
+\section{The Hilbert numbers}
+
+\begin{proposition}[Entropy of the identity]
+\label{prop:entropy-identity}
+\lean{SNumbers.half_le_entropyNumber_id}
+\leanok
+\uses{def:entropy-number}
+If $\dim X > n$ then $e_n(\mathrm{id}_X) \ge 1/2$.
+\end{proposition}
+\begin{proof}
+\leanok
+Let $D$ be the dimension of $X$ as a real vector space, so $D > n$, and let
+$\mu$ be a Haar measure on $X$. Scaling a ball by $\varepsilon$ scales its
+measure by $\varepsilon^D$, so a cover of $B_X$ by $2^n$ balls of radius
+$\varepsilon$ gives
+$\mu(B_X) \le 2^n \varepsilon^D \mu(B_X)$ and hence
+$1 \le 2^n \varepsilon^D$, the measure of $B_X$ being positive and finite.
+Were $\varepsilon \le 1/2$, then
+$2^n \varepsilon^D \le 2^n 2^{-(n+1)} = 1/2$, a contradiction.
+\end{proof}
+
+\begin{theorem}[Hilbert-entropy bound]
+\label{thm:hilbert-entropy}
+\lean{SNumbers.hilbertNumber_le_two_mul_entropyNumber,
+      SNumbers.approximationNumber_le_two_mul_entropyNumber}
+\leanok
+\uses{prop:entropy-identity, thm:scalar-factorisation, thm:entropy-multiplicative}
+For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
+\[
+  h_n(S) \;\le\; 2\, e_n(S) .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+First let $T$ be an operator between Hilbert spaces and $\gamma < a_n(T)$.
+The scalar factorisation provides contractions $A, B$ with
+$B \circ T \circ A = \gamma \cdot \mathrm{id}$ on $\ell_2^{n+1}$; replacing
+$B$ by $\gamma^{-1} B$ makes the composition the identity, so
+\[
+  \tfrac12 \;\le\; e_n(\mathrm{id}_{\ell_2^{n+1}})
+  \;\le\; \gamma^{-1} e_n(T)
+\]
+by Proposition~\ref{prop:entropy-identity} and the ideal property of $e_n$.
+Hence $a_n(T) \le 2 e_n(T)$.
+
+Now $h_n(S)$ is the supremum of $a_n(B \circ S \circ A)/(\|B\|\,\|A\|)$ over
+factorisations through $\ell_2$, and each numerator is at most
+$2 e_n(B \circ S \circ A) \le 2 \|B\| e_n(S) \|A\|$.
+\end{proof}
+
 \begin{thebibliography}{99}
 
 \bibitem{CP78}

@@ -634,10 +634,10 @@ theorem gelfandNumber_le_succ_mul_entropyNumber (S : X →L[𝕜] Y) (n : ℕ) :
 
 /-! ### Entropy numbers of the identity
 
-The entropy numbers never vanish, and a volume comparison says how large they
-are: a cover of the unit ball of a `D`-dimensional space by `2 ^ n` balls of
-radius `ε` forces `1 ≤ 2 ^ n · ε ^ D`. For `D > n` this keeps `ε` above `1/2`,
-which is the source of the constant `2` in the Hilbert-entropy bound. -/
+Comparing volumes bounds the entropy numbers of the identity from below: a
+cover of the unit ball of a `D`-dimensional space by `2 ^ n` balls of radius
+`ε` forces `1 ≤ 2 ^ n · ε ^ D`, so `ε > 1/2` as soon as `D > n`. That is where
+the constant `2` in the Hilbert-entropy bound comes from. -/
 
 section Identity
 

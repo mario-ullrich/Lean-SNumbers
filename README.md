@@ -57,128 +57,6 @@ examples, which are the central targets of this formalisation:
   **Mityagin–Henkin conjecture** `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the
   constant `e`.
 
-## Layout
-
-```
-.
-├── lakefile.toml               ← Lake configuration; depends on Mathlib
-├── lean-toolchain              ← Lean 4 version
-├── SNumbers.lean               ← s-numbers library entry point
-├── SNumbers/
-│   ├── Basic.lean              ← rank API + Pietsch axioms (S1)–(S5)
-│   │                              + IsSNumberSequence / IsStrictSNumberSequence
-│   │                              + homogeneity sₙ(c•T)=‖c‖·sₙ(T) (norm_smul_sn)
-│   ├── Helpers.lean            ← shared rank facts + norm bounds for the
-│   │                              Mathlib quotient CLMs Submodule.mkQL/liftQL
-│   │                              + finrank (EuclideanSpace 𝕜 (Fin n)) = n
-│   ├── PiLpCoordinates.lean    ← generic ℓ^p facts: norm monotonicity, dim ℓ^p_k = k,
-│   │                              and the coordinate projection/embedding
-│   │                              contractions projFin / padFin (ℓ^p_n ↔ ℓ^p_m)
-│   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
-│   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
-│   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
-│   │                              + bₙ = smallest injective strict s-number
-│   ├── Gelfand.lean            ← gelfandNumber    + (S1)–(S5')
-│   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
-│   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
-│   │                              (Banach-only variant; SNumbers.Lifting)
-│   │                              + kolmogorovNumber_eq_approx: the identity
-│   │                              itself, dₙ = aₙ(S∘Q) for the canonical dₙ
-│   ├── Hilbert.lean            ← hilbertNumber + (S1)–(S5)
-│   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9),
-│   │                              for all bounded operators (ℝ and ℂ), proved
-│   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
-│   │                              sandwich hₙ ≤ sₙ ≤ aₙ, aₙ ≤ (1+√n)·min(cₙ,dₙ)
-│   │                              via Garling–Gordon / Kadets–Snobar (now proved
-│   │                              through John), and the determinant
-│   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
-│   ├── MaxDifference.lean      ← the maximal difference theorem
-│   │                              aₙ ≤ e·(n+1)·hₙ (proved), hence
-│   │                              sₙ ≤ e·(n+1)·tₙ for any two s-number
-│   │                              sequences (Carl–Pietsch up to `e`); via the
-│   │                              determinant quantities Δₖ(S), the rank-n
-│   │                              approximant L = SA(BSA)⁻¹BS and a bordered
-│   │                              determinant; corollaries:
-│   │                              max(cₙ,dₙ) ≤ e·(n+1)·sₙ for every s-number
-│   │                              sequence, hence ≤ e·(n+1)·hₙ and
-│   │                              Mityagin–Henkin up to `e`
-│   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
-│   │                              s-number (sₙ = σₙ) via uniqueness +
-│   │                              Eckart–Young (proved)
-│   ├── Injectivity.lean        ← injective / surjective s-numbers:
-│   │                              cₙ injective, dₙ surjective (full proofs)
-│   ├── Entropy.lean            ← entropy numbers eₙ (not s-numbers): additivity
-│   │                              + multiplicativity (densely normed field),
-│   │                              hence (S2)/(S3);
-│   │                              compact ⇔ eₙ → 0 on any Banach space
-│   └── Examples/
-│       ├── ExHelpers.lean       ← ingredients shared by the examples: coordinate
-│       │                          pigeonhole + (weighted) flatness lemmas behind
-│       │                          the Gelfand-width lower bounds, rank of id_{ℓ^p_k}
-│       ├── Identity.lean        ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q < ∞):
-│       │                          ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
-│       │                          (the unit-diagonal case, self-contained)
-│       ├── DiagonalMatrices.lean ← example: s-numbers of the diagonal
-│       │                          operators, all pairs of exponents.
-│       │                          Same exponent D_σ : ℓ^p_m → ℓ^p_m: sₙ = ‖σ_n‖.
-│       │                          Mixed p < q < ∞: aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
-│       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞):
-│       │                          ‖D_σ‖ = maxᵢ‖σᵢ‖ and sₙ ≤ ‖σ_n‖
-│       └── IdentityL1Linfty.lean ← inclusion I : ℓ₁ → ℓ_∞: ½ ≤ cₙ(I) ≤ 1 and
-│                                  hₙ(I) = 1/(n+1), so ((n+1)/2)·hₙ(I) ≤ cₙ(I):
-│                                  the factor n+1 in the max-difference theorem
-│                                  is order-optimal
-├── BasicResults.lean           ← library entry point
-├── BasicResults/
-│   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
-│   ├── SVD.lean                ← compact SVD via singular-value iteration:
-│   │                              norm_isSingularValue, `SVD` (Schmidt decomp.),
-│   │                              Eckart–Young, diagonal factorisation, the
-│   │                              scalar factorisation `B∘S∘A = c·id` (input to
-│   │                              uniqueness), and for a compact product T₂T₁
-│   │                              (n+1)·aₙ ≤ ‖T₁‖_HS·‖T₂‖_HS — all proved
-│   ├── Determinant.lean        ← det facts: det T* = conj det T, ‖det T‖ = ∏ₖ σₖ
-│   │                              (singular values), det of a diagonal
-│   │                              endomorphism = ∏ diagonal entries, and the
-│   │                              bordered determinant (column-operation Schur
-│   │                              formula, no invertibility); ingredients of
-│   │                              the maximal difference theorem
-│   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n + ε, ker = M),
-│   │                              reduced to `John.exists_projection_ker`
-│   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V),
-│   │                              reduced to `John.exists_projection`
-│   ├── John.lean               ← John's ellipsoid over any RCLike 𝕜: max-volume
-│   │                              position + decomposition of identity
-│   │                              `john_decomposition` + Kadets–Snobar
-│   │                              `exists_projection` (‖P‖ ≤ √dim) + Garling–Gordon
-│   │                              `exists_projection_ker` (‖P‖ ≤ √dim + ε); all proved
-│   ├── JohnAux.lean            ← general ingredients (Mathlib candidates): compact
-│   │                              convex hulls, seminorm Hahn–Banach, trace duality,
-│   │                              ∏(1+aᵢ) ≥ 1−2∑aᵢ²
-│   ├── LittleGrothendieck.lean ← sign averaging (∑‖wⱼ‖² ≤ M² if all signed sums
-│   │                              have norm ≤ M) ⇒ ∑‖Beⱼ‖² ≤ ‖B‖² for B : ℓ_∞ → H
-│   │                              and ∑‖rowⱼ‖² ≤ ‖A‖² for A : H → ℓ₁
-│   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
-│                                  (cfc over ℂ + complexification for ℝ); the
-│                                  input to s-number uniqueness for bounded ops
-├── AddOns.lean                 ← auxiliary library entry point
-├── AddOns/
-│   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact,
-│   │                              hence finite rank ⇒ compact
-│   └── Compact.lean            ← compact ⇔ approximable on Hilbert
-├── LICENSE                     ← Apache 2.0
-├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
-├── .github/workflows/          ← CI: builds the project and the blueprint,
-│                                  deploys the blueprint to GitHub Pages
-└── blueprint/
-    └── src/
-        ├── plastex.cfg         ← plastex / leanblueprint configuration
-        ├── extra_styles.css    ← CSS tweaks for the rendered web blueprint
-        ├── print.tex           ← pdflatex master (leanblueprint pdf)
-        ├── web.tex             ← plastex master (leanblueprint web)
-        └── content.tex         ← actual content with \lean / \uses tags
-```
-
 ## What is formalised
 
 A green check means fully proved (no `sorry`).
@@ -284,6 +162,13 @@ sequence.
 | Multiplicativity `e_{n+m}(B∘S) ≤ eₙ(B)·e_m(S)`, hence `eₙ(B∘S∘A) ≤ ‖B‖·eₙ(S)·‖A‖` (densely normed field, e.g. `ℝ`, `ℂ`) | ✅ proved (S3) |
 | `eₙ(S) → 0` ⇔ `S(B_X)` totally bounded    | ✅ proved           |
 | Compact ⇔ `eₙ(S) → 0` (`isCompactOperator_iff_tendsto_entropyNumber`, complete target space; "⇒" needs no completeness) | ✅ proved |
+| Covering estimates: a `k`-point `ε`-net of `S(B_X)` gives `d_k(S) ≤ ε` and `c_k(S) ≤ 2ε` | ✅ proved |
+| `d_{2ⁿ}(S) ≤ eₙ(S)` and `c_{2ⁿ}(S) ≤ 2·eₙ(S)` | ✅ proved |
+| `eₙ(S) ≥ δ/2` from more than `2ⁿ` points of `S(B_X)` that are `δ`-separated | ✅ proved |
+| Triangular flags below `dₙ` / `cₙ` (`exists_kolmogorov_flag`, `exists_gelfand_flag`) | ✅ proved |
+| `max(cₙ(S), dₙ(S)) ≤ (n+1)·eₙ(S)` (Pietsch 12.3.2) | ✅ proved |
+| `eₙ(id_X) ≥ 1/2` when `dim X > n` (volume comparison) | ✅ proved |
+| `aₙ(S) ≤ 2·eₙ(S)` on Hilbert spaces, hence `hₙ(S) ≤ 2·eₙ(S)` in general | ✅ proved |
 
 ### Add ons
 
@@ -292,6 +177,11 @@ sequence.
 | Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
 | Compact ⇔ approximable on Hilbert         | ✅ proved           |
 | Finite rank ⇒ compact (`SVD.isCompactOperator_of_rank_le`) | ✅ proved |
+| Compact ⇔ `S(B_X)` totally bounded (`isCompactOperator_iff_totallyBounded_image_closedBall`) | ✅ proved |
+| **Compact ⇔ `dₙ(S) → 0`** (`isCompactOperator_iff_tendsto_kolmogorovNumber`) | ✅ proved |
+| **Compact ⇔ `cₙ(S) → 0`** (`isCompactOperator_iff_tendsto_gelfandNumber`) | ✅ proved |
+| `dₙ(S) → 0` ⇔ `S(B_X)` totally bounded, same for `cₙ` (no completeness needed) | ✅ proved |
+| On Hilbert spaces: compact ⇔ `sₙ(S) → 0` for *every* s-number sequence (`SVD.isCompactOperator_iff_tendsto_sn`) | ✅ proved |
 
 ## Completeness
 
@@ -332,8 +222,13 @@ main declarations:
   (`Matrix.det_eq_corner_mul_det_submatrix`).
 * **Quotient operator norms** (`SNumbers/Helpers.lean`): Mathlib has
   `Submodule.mkQL` and `liftQL` but no norm bounds for them —
-  `Submodule.norm_mkQL_le`, `norm_liftQL_le`, `liftQL_mkQL`. Plus the rank API
-  for continuous maps (`ContinuousLinearMap.rank`, `rank_comp_comp_le`).
+  `Submodule.norm_mkQL_le`, `norm_mkQL_apply_le`, `norm_liftQL_le`,
+  `liftQL_mkQL`. Plus the rank API for continuous maps
+  (`ContinuousLinearMap.rank`, `rank_comp_comp_le`).
+* **Operator norm from the unit ball** (`SNumbers/Helpers.lean`): over a densely
+  normed field, a bound on the closed unit ball bounds the operator norm
+  (`ContinuousLinearMap.opNorm_le_of_unit_closedBall`). Mathlib has the
+  supremum identity `sSup_unitClosedBall_eq_norm` but not the bound form.
 * **John's ellipsoid** (`BasicResults/John.lean`, `JohnAux.lean`): the theorem
   itself (`John.exists_maxVolume`, `john_decomposition`) with the two
   projection theorems it yields — Kadets–Snobar `‖P‖ ≤ √n`
@@ -383,6 +278,135 @@ main declarations:
   `> |A|` contains a nonzero vector vanishing on `A`
   (`exists_mem_ker_coords`), and the (weighted) flatness lemma
   (`exists_flat_vector_weighted`).
+
+## Layout
+
+```
+.
+├── lakefile.toml               ← Lake configuration; depends on Mathlib
+├── lean-toolchain              ← Lean 4 version
+├── SNumbers.lean               ← s-numbers library entry point
+├── SNumbers/
+│   ├── Basic.lean              ← rank API + Pietsch axioms (S1)–(S5)
+│   │                              + IsSNumberSequence / IsStrictSNumberSequence
+│   │                              + homogeneity sₙ(c•T)=‖c‖·sₙ(T) (norm_smul_sn)
+│   ├── Helpers.lean            ← shared rank facts + norm bounds for the
+│   │                              Mathlib quotient CLMs Submodule.mkQL/liftQL
+│   │                              + finrank (EuclideanSpace 𝕜 (Fin n)) = n
+│   ├── PiLpCoordinates.lean    ← generic ℓ^p facts: norm monotonicity, dim ℓ^p_k = k,
+│   │                              and the coordinate projection/embedding
+│   │                              contractions projFin / padFin (ℓ^p_n ↔ ℓ^p_m)
+│   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
+│   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
+│   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
+│   │                              + bₙ = smallest injective strict s-number
+│   ├── Gelfand.lean            ← gelfandNumber    + (S1)–(S5')
+│   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
+│   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
+│   │                              (Banach-only variant; SNumbers.Lifting)
+│   │                              + kolmogorovNumber_eq_approx: the identity
+│   │                              itself, dₙ = aₙ(S∘Q) for the canonical dₙ
+│   ├── Hilbert.lean            ← hilbertNumber + (S1)–(S5)
+│   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9),
+│   │                              for all bounded operators (ℝ and ℂ), proved
+│   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
+│   │                              sandwich hₙ ≤ sₙ ≤ aₙ, aₙ ≤ (1+√n)·min(cₙ,dₙ)
+│   │                              via Garling–Gordon / Kadets–Snobar (now proved
+│   │                              through John), and the determinant
+│   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
+│   ├── MaxDifference.lean      ← the maximal difference theorem
+│   │                              aₙ ≤ e·(n+1)·hₙ (proved), hence
+│   │                              sₙ ≤ e·(n+1)·tₙ for any two s-number
+│   │                              sequences (Carl–Pietsch up to `e`); via the
+│   │                              determinant quantities Δₖ(S), the rank-n
+│   │                              approximant L = SA(BSA)⁻¹BS and a bordered
+│   │                              determinant; corollaries:
+│   │                              max(cₙ,dₙ) ≤ e·(n+1)·sₙ for every s-number
+│   │                              sequence, hence ≤ e·(n+1)·hₙ and
+│   │                              Mityagin–Henkin up to `e`
+│   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
+│   │                              s-number (sₙ = σₙ) via uniqueness +
+│   │                              Eckart–Young (proved)
+│   ├── Injectivity.lean        ← injective / surjective s-numbers:
+│   │                              cₙ injective, dₙ surjective (full proofs)
+│   ├── Entropy.lean            ← entropy numbers eₙ (not s-numbers): additivity
+│   │                              + multiplicativity (densely normed field),
+│   │                              hence (S2)/(S3);
+│   │                              compact ⇔ eₙ → 0 on any Banach space
+│   ├── EntropyBounds.lean      ← cₙ, dₙ, hₙ against eₙ: covering estimates and
+│   │                              the dyadic bounds d_{2ⁿ} ≤ eₙ, c_{2ⁿ} ≤ 2eₙ;
+│   │                              triangular flags and signed averages give
+│   │                              max(cₙ,dₙ) ≤ (n+1)eₙ; a volume comparison
+│   │                              (eₙ(id) ≥ ½) gives hₙ ≤ 2eₙ
+│   └── Examples/
+│       ├── ExHelpers.lean       ← ingredients shared by the examples: coordinate
+│       │                          pigeonhole + (weighted) flatness lemmas behind
+│       │                          the Gelfand-width lower bounds, rank of id_{ℓ^p_k}
+│       ├── Identity.lean        ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q < ∞):
+│       │                          ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
+│       │                          (the unit-diagonal case, self-contained)
+│       ├── DiagonalMatrices.lean ← example: s-numbers of the diagonal
+│       │                          operators, all pairs of exponents.
+│       │                          Same exponent D_σ : ℓ^p_m → ℓ^p_m: sₙ = ‖σ_n‖.
+│       │                          Mixed p < q < ∞: aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
+│       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞):
+│       │                          ‖D_σ‖ = maxᵢ‖σᵢ‖ and sₙ ≤ ‖σ_n‖
+│       └── IdentityL1Linfty.lean ← inclusion I : ℓ₁ → ℓ_∞: ½ ≤ cₙ(I) ≤ 1 and
+│                                  hₙ(I) = 1/(n+1), so ((n+1)/2)·hₙ(I) ≤ cₙ(I):
+│                                  the factor n+1 in the max-difference theorem
+│                                  is order-optimal
+├── BasicResults.lean           ← library entry point
+├── BasicResults/
+│   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
+│   ├── SVD.lean                ← compact SVD via singular-value iteration:
+│   │                              norm_isSingularValue, `SVD` (Schmidt decomp.),
+│   │                              Eckart–Young, diagonal factorisation, the
+│   │                              scalar factorisation `B∘S∘A = c·id` (input to
+│   │                              uniqueness), and for a compact product T₂T₁
+│   │                              (n+1)·aₙ ≤ ‖T₁‖_HS·‖T₂‖_HS — all proved
+│   ├── Determinant.lean        ← det facts: det T* = conj det T, ‖det T‖ = ∏ₖ σₖ
+│   │                              (singular values), det of a diagonal
+│   │                              endomorphism = ∏ diagonal entries, and the
+│   │                              bordered determinant (column-operation Schur
+│   │                              formula, no invertibility); ingredients of
+│   │                              the maximal difference theorem
+│   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n + ε, ker = M),
+│   │                              reduced to `John.exists_projection_ker`
+│   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V),
+│   │                              reduced to `John.exists_projection`
+│   ├── John.lean               ← John's ellipsoid over any RCLike 𝕜: max-volume
+│   │                              position + decomposition of identity
+│   │                              `john_decomposition` + Kadets–Snobar
+│   │                              `exists_projection` (‖P‖ ≤ √dim) + Garling–Gordon
+│   │                              `exists_projection_ker` (‖P‖ ≤ √dim + ε); all proved
+│   ├── JohnAux.lean            ← general ingredients (Mathlib candidates): compact
+│   │                              convex hulls, seminorm Hahn–Banach, trace duality,
+│   │                              ∏(1+aᵢ) ≥ 1−2∑aᵢ²
+│   ├── LittleGrothendieck.lean ← sign averaging (∑‖wⱼ‖² ≤ M² if all signed sums
+│   │                              have norm ≤ M) ⇒ ∑‖Beⱼ‖² ≤ ‖B‖² for B : ℓ_∞ → H
+│   │                              and ∑‖rowⱼ‖² ≤ ‖A‖² for A : H → ℓ₁
+│   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
+│                                  (cfc over ℂ + complexification for ℝ); the
+│                                  input to s-number uniqueness for bounded ops
+├── AddOns.lean                 ← auxiliary library entry point
+├── AddOns/
+│   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact,
+│   │                              hence finite rank ⇒ compact
+│   └── Compact.lean            ← compactness measured by s-numbers: compact ⇔
+│                                  cₙ → 0 ⇔ dₙ → 0 on any Banach space; on
+│                                  Hilbert spaces every s-number sequence works
+├── LICENSE                     ← Apache 2.0
+├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
+├── .github/workflows/          ← CI: builds the project and the blueprint,
+│                                  deploys the blueprint to GitHub Pages
+└── blueprint/
+    └── src/
+        ├── plastex.cfg         ← plastex / leanblueprint configuration
+        ├── extra_styles.css    ← CSS tweaks for the rendered web blueprint
+        ├── print.tex           ← pdflatex master (leanblueprint pdf)
+        ├── web.tex             ← plastex master (leanblueprint web)
+        └── content.tex         ← actual content with \lean / \uses tags
+```
 
 ## Building
 

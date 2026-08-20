@@ -22,11 +22,11 @@ indexing is 0-based, so `e_0` allows a single ball.
 The entropy numbers measure *compactness*: their definition quantifies the
 "finite subcover definition" of compactness. An operator `S` is compact
 precisely when `e_n S → 0`.
-This equivalence holds on arbitrary Banach spaces, and is also true for
-Gelfand and Kolmogorov numbers (to be formalized). For the approximation
-numbers, however, the corresponding statement fails in general: a compact
-operator into a space without the approximation property need not be a
-limit of finite-rank operators.
+This equivalence holds on arbitrary Banach spaces, and the same is true of the
+Gelfand and Kolmogorov numbers (`AddOns.Compact`, via the comparisons in
+`SNumbers.EntropyBounds`). For the approximation numbers the corresponding
+statement fails in general: a compact operator into a space without the
+approximation property need not be a limit of finite-rank operators.
 But it is available on Hilbert spaces (`AddOns.Compact`).
 
 ## Entropy numbers are not s-numbers

@@ -98,6 +98,14 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   is compactness: `S` is a compact operator if and only if `eₙ(S) → 0`
   (`isCompactOperator_iff_tendsto_entropyNumber`, for complete target spaces;
   the forward implication needs no completeness).
+* `SNumbers.EntropyBounds`: the comparison of `cₙ`, `dₙ` and `hₙ` with the
+  entropy numbers. Upper bounds come from covering estimates: a `k`-point
+  `ε`-net of `S(B_X)` gives `d_k(S) ≤ ε` and `c_k(S) ≤ 2ε`, hence the dyadic
+  bounds `d_{2ⁿ} ≤ eₙ` and `c_{2ⁿ} ≤ 2·eₙ` that drive the compactness criteria
+  in `AddOns.Compact`. Lower bounds come from counting separated points, which
+  gives the sharp `max(cₙ,dₙ) ≤ (n+1)·eₙ` (Pietsch 12.3.2) via triangular flags
+  and their `2^(n+1)` signed averages, and — using a volume comparison for
+  `eₙ(id) ≥ 1/2` — the Hilbert-entropy bound `hₙ ≤ 2·eₙ`.
 * `SNumbers.Examples.ExHelpers`: the geometric and rank ingredients shared by the
   worked examples — the coordinate pigeonhole and the (weighted) flatness lemmas
   behind the Gelfand-width lower bounds.
