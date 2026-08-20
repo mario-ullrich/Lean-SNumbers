@@ -18,6 +18,7 @@ import SNumbers.Uniqueness
 import SNumbers.SingularValuesFinDim
 import SNumbers.Injectivity
 import SNumbers.Entropy
+import SNumbers.EntropyBounds
 import SNumbers.Examples.ExHelpers
 import SNumbers.Examples.Identity
 import SNumbers.Examples.DiagonalMatrices
