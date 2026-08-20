@@ -7,9 +7,9 @@
 #     While the repository is private, the deploy job is skipped (Pages is
 #     unavailable on the free plan for private repositories).
 #
-#   * Workflow artifacts (always): `blueprint-web` and `blueprint-pdf` are
-#     downloadable from every run summary under the Actions tab; the PDF is
-#     also bundled into `blueprint-web` as blueprint.pdf.
+#   * Workflow artifact (always): `blueprint-YYYYMMDD` is downloadable from
+#     every run summary under the Actions tab. It contains the PDF and the
+#     web pages.
 
 name: Build blueprint
 
@@ -126,20 +126,17 @@ jobs:
             cp blueprint/print/print.pdf blueprint/web/blueprint.pdf
           fi
 
-      # ----- Upload as workflow artifacts (downloadable from the run page)
-      - name: Upload blueprint web (HTML site)
-        uses: actions/upload-artifact@v5
-        with:
-          name: blueprint-web
-          path: blueprint/web/
-          retention-days: 30
+      # ----- Upload as a workflow artifact (downloadable from the run page).
+      # The artifact contains the PDF and the web pages.
+      - name: Name the artifact after the build date
+        id: stamp
+        run: echo "name=blueprint-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
 
-      - name: Upload blueprint PDF
+      - name: Upload blueprint (HTML site with blueprint.pdf)
         uses: actions/upload-artifact@v5
-        if: hashFiles('blueprint/print/print.pdf') != ''
         with:
-          name: blueprint-pdf
-          path: blueprint/print/print.pdf
+          name: ${{ steps.stamp.outputs.name }}
+          path: blueprint/web/
           retention-days: 30
 
       # Same directory again, packaged in the special format deploy-pages

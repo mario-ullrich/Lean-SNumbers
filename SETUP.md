@@ -14,20 +14,29 @@ The workflow does the following:
 - builds the blueprint PDF and web site via `leanblueprint`
 - checks with `leanblueprint checkdecls` that every `\lean{...}` declaration
   named in the blueprint actually exists in the compiled project
-- uploads `blueprint-web` and `blueprint-pdf` as downloadable run artifacts,
-  with the PDF also bundled into the web artifact as `blueprint.pdf`
+- uploads `blueprint-YYYYMMDD` as a downloadable run artifact, containing the
+  PDF (as `blueprint.pdf`) and the web pages
 - deploys `blueprint/web` to GitHub Pages, at
   <https://mario-ullrich.github.io/Lean-SNumbers/> with the PDF at
   [`blueprint.pdf`](https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf)
 
 The deploy job runs only on `main` and only while the repository is public
 (GitHub Pages on the free plan requires a public repository; on a private
-repository the job is skipped and the artifacts remain the way to read the
+repository the job is skipped and the artifact remains the way to read the
 blueprint). The job enables Pages with source "GitHub Actions" automatically
 on its first run, so no repository setting needs to be touched.
 
-To read the blueprint without Pages, download `blueprint-web` from a run
-summary, unzip it and open `index.html`.
+To read the blueprint without Pages, download `blueprint-YYYYMMDD` from a run
+summary and unzip it. Serve the folder rather than opening `index.html` from
+disk: the dependency graph (`dep_graph_document.html`) is drawn in the browser
+and its loads are blocked under `file://`. From inside the unzipped directory,
+
+```bash
+python -m http.server 8000
+```
+
+then open <http://localhost:8000/> (any free port will do). Formulas come from a
+MathJax CDN, so an internet connection is needed either way.
 
 Local reproduction (from the project root, with `leanblueprint` installed):
 
