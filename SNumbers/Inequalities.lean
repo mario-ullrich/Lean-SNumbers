@@ -298,7 +298,7 @@ theorem gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert
   set M : Submodule 𝕜 X := Submodule.span 𝕜 (Set.range e) with hM
   have hrankM : Module.rank 𝕜 M = ((n + 1 : ℕ) : Cardinal) := by
     classical
-    haveI : Fintype (Set.range e) := Set.fintypeRange e
+    have : Fintype (Set.range e) := Set.fintypeRange e
     rw [hM, rank_span hindep, Cardinal.mk_fintype,
       Set.card_range_of_injective hindep.injective, Fintype.card_fin]
   have hgain : γ / Real.sqrt ((n : ℝ) + 1) ≤ gainOnSubspace S M := by

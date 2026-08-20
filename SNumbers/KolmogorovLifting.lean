@@ -167,7 +167,7 @@ lemma norm_Q_le : ‖(Q : BallLp 𝕜 X →L[𝕜] X)‖ ≤ 1 :=
 lemma Q_single (x : X) (hx : ‖x‖ ≤ 1) (c : 𝕜) :
     letI : DecidableEq (Ball X) := Classical.decEq _
     (Q : BallLp 𝕜 X →L[𝕜] X) (lp.single 1 (⟨x, hx⟩ : Ball X) c) = c • x := by
-  letI : DecidableEq (Ball X) := Classical.decEq _
+  let : DecidableEq (Ball X) := Classical.decEq _
   rw [Q_apply, tsum_eq_single (⟨x, hx⟩ : Ball X)]
   · rw [lp.single_apply_self]
   · intro y hy; rw [lp.single_apply_ne 1 _ _ hy, zero_smul]
@@ -222,7 +222,7 @@ private lemma exists_lift_of_pos_norm
     rw [norm_smul, norm_inv, inv_mul_le_iff₀ hc_pos, mul_one]; exact hc_lb.le
   refine ⟨c, h_in, hc_lb, hc_ub, ?_, ?_⟩
   · rw [Q_single _ h_in c, smul_smul, mul_inv_cancel₀ hc_ne, one_smul]
-  · letI := Classical.decEq (Ball X)
+  · let := Classical.decEq (Ball X)
     rw [lp.norm_single (by norm_num : (0 : ℝ≥0∞) < 1)]
 
 /-- `‖B‖ ≤ ‖B ∘ Q‖`: the summation surjection `Q` sends the unit vector
@@ -242,7 +242,7 @@ lemma norm_le_norm_comp_Q {Z : Type u} [SeminormedAddCommGroup Z] [NormedSpace �
   obtain ⟨c, h_in, _hc_lb, hc_ub, hQα, hαnorm⟩ :=
     exists_lift_of_pos_norm (𝕜 := 𝕜) (X := X) (norm_pos_iff.mpr hx)
       (div_pos hε hM1_pos)
-  letI : DecidableEq (Ball X) := Classical.decEq _
+  let : DecidableEq (Ball X) := Classical.decEq _
   have h_op := (B.comp (Q : BallLp 𝕜 X →L[𝕜] X)).le_opNorm
                 (lp.single 1 (⟨c⁻¹ • x, h_in⟩ : Ball X) c)
   rw [coe_comp, Function.comp_apply, hQα, hαnorm] at h_op
@@ -327,7 +327,7 @@ private noncomputable def liftBasis {A : W →L[𝕜] X} {c : 𝕜}
 
 private lemma norm_liftBasis {A : W →L[𝕜] X} {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
     (w : Ball W) : ‖liftBasis hc hc_ne w‖ = ‖c‖ := by
-  letI := Classical.decEq (Ball X)
+  let := Classical.decEq (Ball X)
   exact lp.norm_single (by norm_num : (0 : ℝ≥0∞) < 1) _ _
 
 private lemma Q_liftBasis (A : W →L[𝕜] X) {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
@@ -458,9 +458,9 @@ variable [NormedAddCommGroup X] [NormedSpace 𝕜 X] [CompleteSpace X]
 private lemma one_le_norm_Q_sub_L (n : ℕ) (h_dim : n < Module.finrank 𝕜 X)
     (L : BallLp 𝕜 X →L[𝕜] X) (hL : L.rank ≤ (n : Cardinal)) :
     1 ≤ ‖(Q : BallLp 𝕜 X →L[𝕜] X) - L‖ := by
-  haveI : FiniteDimensional 𝕜 X :=
+  have : FiniteDimensional 𝕜 X :=
     .of_finrank_pos (Nat.lt_of_le_of_lt (Nat.zero_le _) h_dim)
-  haveI : Nontrivial X := Module.nontrivial_of_finrank_pos
+  have : Nontrivial X := Module.nontrivial_of_finrank_pos
     (Nat.lt_of_le_of_lt (Nat.zero_le _) h_dim)
   set V : Submodule 𝕜 X := LinearMap.range (L : BallLp 𝕜 X →ₗ[𝕜] X)
   have hV_lt : Module.finrank 𝕜 V < Module.finrank 𝕜 X :=
@@ -485,7 +485,7 @@ private lemma one_le_norm_Q_sub_L (n : ℕ) (h_dim : n < Module.finrank 𝕜 X)
   have hδ_pos : 0 < δ := by positivity
   obtain ⟨c, _, hc_lb, hc_ub, hα_Q, hα_norm⟩ :=
     exists_lift_of_pos_norm (𝕜 := 𝕜) hx₀_pos hδ_pos
-  letI := Classical.decEq (Ball X)
+  let := Classical.decEq (Ball X)
   set α : BallLp 𝕜 X := lp.single 1 (⟨c⁻¹ • x₀, _⟩ : Ball X) c
   -- `(1 − ε/2) · ‖x₀‖ ≤ ‖x₀ − L α‖ = ‖(Q − L) α‖ ≤ ‖Q − L‖ · ‖c‖`.
   have h_riesz : (1 - ε / 2) * ‖x₀‖ ≤ ‖x₀ - L α‖ :=
@@ -509,7 +509,7 @@ private lemma one_le_norm_Q_sub_L (n : ℕ) (h_dim : n < Module.finrank 𝕜 X)
 `n < Module.finrank 𝕜 X`. -/
 lemma kolmogorovNumber_strict (n : ℕ) (h : n < Module.finrank 𝕜 X) :
     kolmogorovNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
-  haveI : Nontrivial X :=
+  have : Nontrivial X :=
     Module.nontrivial_of_finrank_pos (Nat.lt_of_le_of_lt (Nat.zero_le _) h)
   refine le_antisymm ((kolmogorovNumber_le_norm _ _).trans norm_id.le) ?_
   show 1 ≤ approximationNumber
@@ -602,9 +602,9 @@ lemma approx_le_kolmogorovNumber (S : X →L[𝕜] Y) (n : ℕ) :
   set d : ℝ := deviationFromSubspace S V with hd_def
   have hd_nn : 0 ≤ d := deviationFromSubspace_nonneg S V
   -- `V` is finite-dimensional (rank `≤ n < ℵ₀`), hence complete.
-  haveI hVfin : FiniteDimensional 𝕜 V :=
+  have hVfin : FiniteDimensional 𝕜 V :=
     Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hV (Cardinal.natCast_lt_aleph0))
-  haveI : CompleteSpace V := FiniteDimensional.complete 𝕜 V
+  have : CompleteSpace V := FiniteDimensional.complete 𝕜 V
   refine le_of_forall_pos_le_add fun ε hε => ?_
   -- Choose, for each `x ∈ B_X`, a point `w x ∈ V` with `‖S x − w x‖ < d + ε`.
   have hchoice : ∀ x : Ball X, ∃ w : V, ‖S (x : X) - (w : Y)‖ < d + ε := by

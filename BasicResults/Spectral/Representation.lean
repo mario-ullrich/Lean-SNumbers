@@ -54,12 +54,12 @@ theorem exists_spectral_projection (S : H₁ →L[𝕜] H₂) {c : ℝ} (hc0 : 0
     ∃ E : H₁ →L[𝕜] H₁,
       (∀ x : H₁, c * ‖E x‖ ≤ ‖S (E x)‖) ∧ ‖S.comp (1 - E)‖ ≤ c := by
   rcases subsingleton_or_nontrivial H₁ with hsub | hnt
-  · haveI := hsub
+  · have := hsub
     have hS0 : S = 0 := by ext x; rw [Subsingleton.elim x 0]; simp
     exact ⟨0, fun x => by simp, by rw [hS0]; simpa using hc0⟩
-  · haveI := hnt
-    letI : InnerProductSpace ℝ H₁ := InnerProductSpace.rclikeToReal 𝕜 H₁
-    letI : InnerProductSpace ℝ H₂ := InnerProductSpace.rclikeToReal 𝕜 H₂
+  · have := hnt
+    let : InnerProductSpace ℝ H₁ := InnerProductSpace.rclikeToReal 𝕜 H₁
+    let : InnerProductSpace ℝ H₂ := InnerProductSpace.rclikeToReal 𝕜 H₂
     -- The real adjoint of the realified operator equals the realified `𝕜`-adjoint.
     have hadj : adjoint (S.restrictScalars ℝ) = (adjoint S).restrictScalars ℝ := by
       symm

@@ -207,7 +207,7 @@ theorem gelfandNumber_comp_metricInjection {J : Y →L[𝕜] Z}
   unfold gelfandNumber
   congr 1
   ext r
-  simp only [gelfandSet, Set.mem_setOf_eq]
+  simp only [gelfandSet, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨M, hcl, hrank, rfl⟩
     exact ⟨M, hcl, hrank, deviationFromRestriction_comp_metricInjection hJ S M⟩
@@ -267,7 +267,7 @@ theorem kolmogorovNumber_comp_metricSurjection {Q : W →L[𝕜] X}
   unfold kolmogorovNumber
   congr 1
   ext r
-  simp only [kolmogorovSet, Set.mem_setOf_eq]
+  simp only [kolmogorovSet, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨V, hrank, rfl⟩
     exact ⟨V, hrank, deviationFromSubspace_comp_metricSurjection hQ S V⟩

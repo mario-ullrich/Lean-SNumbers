@@ -124,7 +124,7 @@ lemma cfcHom_comm_of_comm {P : H₁ →L[ℂ] H₁} (hP : IsSelfAdjoint P)
   | frequently f hf =>
       have hSclosed : IsClosed {g : C(spectrum ℝ P, ℝ) |
           ∀ x, J (cfcHom hP g x) = cfcHom hP g (J x)} := by
-        rw [Set.setOf_forall]
+        rw [Set.ofPred_forall]
         exact isClosed_iInter fun x => isClosed_eq
           (J.continuous.comp ((cfcHom_continuous hP).clm_apply continuous_const))
           ((cfcHom_continuous hP).clm_apply continuous_const)

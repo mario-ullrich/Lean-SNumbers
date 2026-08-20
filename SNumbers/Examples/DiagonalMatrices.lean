@@ -142,7 +142,7 @@ approximation number of `D_σ : ℓ^p_m → ℓ^p_m` is at most `‖σ_n‖` (th
 theorem approximationNumber_DiagCLM_le {σ : Fin m → 𝕜}
     (hσ : _root_.Antitone fun i => ‖σ i‖) {n : ℕ} (hn : n < m) :
     approximationNumber (DiagCLM p σ) n ≤ ‖σ ⟨n, hn⟩‖ := by
-  haveI : Nonempty (Fin m) := ⟨⟨n, hn⟩⟩
+  have : Nonempty (Fin m) := ⟨⟨n, hn⟩⟩
   -- The rank-`≤ n` approximant `L = D_σ ∘ Pₙ`, written as `B ∘ id_{ℓ^p_n} ∘ A`
   -- so its rank is bounded by `dim ℓ^p_n = n`.
   set A : PiLp p (fun _ : Fin m => 𝕜) →L[𝕜] PiLp p (fun _ : Fin n => 𝕜) :=
@@ -201,7 +201,7 @@ theorem le_sn_DiagCLM {s : Family 𝕜} (hs : IsStrictSNumberSequence s)
   · rw [h0]; exact hs.nonneg _ _
   have hpos : 0 < ‖σ ⟨n, hn⟩‖ := (norm_nonneg _).lt_of_ne (Ne.symm h0)
   have hnm : n + 1 ≤ m := hn
-  haveI : Nonempty (Fin (n + 1)) := ⟨⟨0, Nat.succ_pos n⟩⟩
+  have : Nonempty (Fin (n + 1)) := ⟨⟨0, Nat.succ_pos n⟩⟩
   -- The top `n+1` entries dominate `‖σ_n‖`, hence are nonzero.
   have hdom : ∀ j : Fin (n + 1), ‖σ ⟨n, hn⟩‖ ≤ ‖σ (Fin.castLE hnm j)‖ := by
     intro j
@@ -1015,7 +1015,7 @@ same-exponent value `aₙ(D_σ^{(q)}) = ‖σ_n‖` through the contraction `id`
 theorem approximationNumber_DiagCLMpq_le_of_exponent_ge (hqp : q ≤ p) (σ : Fin m → 𝕜)
     (hσ : _root_.Antitone fun i => ‖σ i‖) {n : ℕ} (hn : n < m) :
     approximationNumber (DiagCLMpq p q σ) n ≤ ‖σ ⟨n, hn⟩‖ := by
-  haveI : Nonempty (Fin m) := ⟨⟨n, hn⟩⟩
+  have : Nonempty (Fin m) := ⟨⟨n, hn⟩⟩
   rw [DiagCLMpq_eq_comp]
   calc approximationNumber ((idEmbed p q).comp (DiagCLM q σ)) n
       = approximationNumber ((idEmbed p q).comp ((DiagCLM q σ).comp

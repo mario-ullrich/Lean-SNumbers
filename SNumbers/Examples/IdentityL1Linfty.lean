@@ -111,9 +111,9 @@ arbitrarily close (Bolzano–Weierstrass). Lifting their difference back gives `
 lemma half_le_gelfandNumber (n : ℕ) :
     (1 : ℝ) / 2 ≤ gelfandNumber (incl : L1 𝕜 →L[𝕜] Linf 𝕜) n := by
   refine le_gelfandNumber (fun N hN_closed hN_rank => ?_)
-  haveI : FiniteDimensional 𝕜 (L1 𝕜 ⧸ N) :=
+  have : FiniteDimensional 𝕜 (L1 𝕜 ⧸ N) :=
     Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hN_rank (Cardinal.natCast_lt_aleph0))
-  haveI : ProperSpace (L1 𝕜 ⧸ N) := FiniteDimensional.proper 𝕜 _
+  have : ProperSpace (L1 𝕜 ⧸ N) := FiniteDimensional.proper 𝕜 _
   set D : ℝ := deviationFromRestriction (incl : L1 𝕜 →L[𝕜] Linf 𝕜) N with hD
   have hD_nn : 0 ≤ D := deviationFromRestriction_nonneg _ _
   -- Operator-norm bound on the restriction: `‖I x‖ ≤ D · ‖x‖` for `x ∈ N`.

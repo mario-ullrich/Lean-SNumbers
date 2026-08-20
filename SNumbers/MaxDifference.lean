@@ -165,10 +165,10 @@ lemma norm_det_le_pow_norm {k : ℕ}
       ≤ ‖T‖ ^ k := by
   cases k with
   | zero =>
-    haveI := subsingleton_euclidean_zero (𝕜 := 𝕜)
+    have := subsingleton_euclidean_zero (𝕜 := 𝕜)
     rw [LinearMap.det_eq_one_of_subsingleton, norm_one, pow_zero]
   | succ m =>
-    haveI : Nontrivial (EuclideanSpace 𝕜 (Fin (m + 1))) :=
+    have : Nontrivial (EuclideanSpace 𝕜 (Fin (m + 1))) :=
       Module.nontrivial_of_finrank_pos (by rw [finrank_euclideanSpace_fin]; omega)
     have h := prod_approximationNumber_eq_norm_det T
     rw [finrank_euclideanSpace_fin] at h
@@ -207,7 +207,7 @@ lemma detNumber_nonneg (S : X →L[𝕜] Y) (k : ℕ) : 0 ≤ detNumber S k :=
 /-- **`Δ₀(S) = 1`.** Every endomorphism of the trivial space `ℓ₂⁰` has
 determinant `1`, so the admissible set is exactly `{1}`. -/
 lemma detNumber_zero (S : X →L[𝕜] Y) : detNumber S 0 = 1 := by
-  haveI := subsingleton_euclidean_zero (𝕜 := 𝕜)
+  have := subsingleton_euclidean_zero (𝕜 := 𝕜)
   have hset : detSet S 0 = {(1 : ℝ)} := by
     ext r
     constructor
@@ -293,7 +293,7 @@ lemma prod_approximationNumber_le_detNumber (S : X →L[𝕜] Y) {n : ℕ}
     ∏ i ∈ Finset.range n, approximationNumber (B.comp (S.comp A)) i
       ≤ detNumber S n := by
   classical
-  haveI : Nontrivial (EuclideanSpace 𝕜 (Fin (n + 1))) :=
+  have : Nontrivial (EuclideanSpace 𝕜 (Fin (n + 1))) :=
     Module.nontrivial_of_finrank_pos (by rw [finrank_euclideanSpace_fin]; omega)
   set T := B.comp (S.comp A) with hTdef
   have hTc : IsCompactOperator T := isCompactOperator_of_locallyCompactSpace_rng T
@@ -374,7 +374,7 @@ lemma detNumber_succ_le_hilbertNumber_mul (S : X →L[𝕜] Y) (n : ℕ) :
     detNumber S (n + 1) ≤ hilbertNumber S n * detNumber S n := by
   refine csSup_le (detSet_nonempty S (n + 1)) ?_
   rintro r ⟨A, B, hA, hB, rfl⟩
-  haveI : Nontrivial (EuclideanSpace 𝕜 (Fin (n + 1))) :=
+  have : Nontrivial (EuclideanSpace 𝕜 (Fin (n + 1))) :=
     Module.nontrivial_of_finrank_pos (by rw [finrank_euclideanSpace_fin]; omega)
   have h1 : ‖LinearMap.det (B.comp (S.comp A) :
         EuclideanSpace 𝕜 (Fin (n + 1)) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin (n + 1)))‖

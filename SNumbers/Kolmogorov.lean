@@ -387,8 +387,8 @@ lemma kolmogorovNumber_strict {X : Type u} [NormedAddCommGroup X]
     kolmogorovNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
   have h_finrank_pos : 0 < Module.finrank 𝕜 X :=
     Nat.lt_of_le_of_lt (Nat.zero_le _) h
-  haveI : FiniteDimensional 𝕜 X := .of_finrank_pos h_finrank_pos
-  haveI : Nontrivial X := Module.nontrivial_of_finrank_pos h_finrank_pos
+  have : FiniteDimensional 𝕜 X := .of_finrank_pos h_finrank_pos
+  have : Nontrivial X := Module.nontrivial_of_finrank_pos h_finrank_pos
   set I := ContinuousLinearMap.id 𝕜 X with hI_def
   refine le_antisymm ?_ ?_
   · -- `≤ 1`: take `V = ⊥`. `deviation(I, ⊥) = ‖I‖ = 1`.
@@ -409,7 +409,7 @@ lemma kolmogorovNumber_strict {X : Type u} [NormedAddCommGroup X]
       intro h_top
       rw [h_top, finrank_top] at hV_finrank_lt
       exact lt_irrefl _ hV_finrank_lt
-    haveI : FiniteDimensional 𝕜 V := FiniteDimensional.finiteDimensional_submodule V
+    have : FiniteDimensional 𝕜 V := FiniteDimensional.finiteDimensional_submodule V
     have h_dev_eq : deviationFromSubspace I V = ‖V.mkQL‖ := by
       show ‖V.mkQL.comp I‖ = ‖V.mkQL‖
       rw [hI_def, ContinuousLinearMap.comp_id]

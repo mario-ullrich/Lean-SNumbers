@@ -412,7 +412,7 @@ main declarations:
 
 Requires [`elan`](https://github.com/leanprover/elan); the Lean version is
 pinned in `lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone
-builds against exactly the tested revisions:
+builds against Lean / Mathlib v4.33.0:
 
 ```bash
 lake exe cache get   # downloads the prebuilt Mathlib oleans

@@ -82,7 +82,7 @@ def Feasible (p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k))) :
 /-- The feasible set is closed: for each `u`, `T ↦ p (T u)` is continuous. -/
 lemma isClosed_feasible (p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)))
     (hp : Continuous p) : IsClosed (Feasible p) := by
-  rw [Feasible, Set.setOf_forall]
+  rw [Feasible, Set.ofPred_forall]
   refine isClosed_iInter fun u => isClosed_le ?_ continuous_const
   exact hp.comp (continuous_id.clm_apply continuous_const)
 
@@ -129,7 +129,7 @@ theorem exists_maxVolume (p : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)))
       _ ≤ 1 * ‖u‖ := mul_le_mul_of_nonneg_right hδ1 (norm_nonneg _)
       _ = ‖u‖ := one_mul _
   -- The determinant is continuous and the feasible set is compact.
-  haveI : ProperSpace (EuclideanSpace 𝕜 (Fin k) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) :=
+  have : ProperSpace (EuclideanSpace 𝕜 (Fin k) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) :=
     FiniteDimensional.proper_rclike 𝕜 _
   have hcompact : IsCompact (Feasible p) :=
     Metric.isCompact_of_isClosed_isBounded (isClosed_feasible p hp)
@@ -250,7 +250,7 @@ lemma isCompact_contact (q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k))) :
     have heq : Contact q =
         {u : EuclideanSpace 𝕜 (Fin k) | ‖u‖ = 1} ∩ ⋂ x, {u | re ⟪x, u⟫_𝕜 ≤ q x} := by
       ext u
-      simp only [Contact, Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter]
+      simp only [Contact, Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_iInter]
     rw [heq]
     refine (isClosed_eq continuous_norm continuous_const).inter
       (isClosed_iInter fun x => isClosed_le ?_ continuous_const)
@@ -421,7 +421,7 @@ lemma exists_selfAdjoint_of_not_mem_convexHull (hk : 0 < k)
         (H : EuclideanSpace 𝕜 (Fin k) →ₗ[𝕜] EuclideanSpace 𝕜 (Fin k)) = 0 ∧
       ∀ u ∈ Contact q, re ⟪u, H u⟫_𝕜 ≤ -δ := by
   classical
-  haveI : FiniteDimensional ℝ
+  have : FiniteDimensional ℝ
       (EuclideanSpace 𝕜 (Fin k) →L[𝕜] EuclideanSpace 𝕜 (Fin k)) :=
     Module.Finite.trans 𝕜 (EuclideanSpace 𝕜 (Fin k) →L[𝕜] EuclideanSpace 𝕜 (Fin k))
   -- the convex hull of the contact projections is compact, hence closed
@@ -698,7 +698,7 @@ lemma no_neg_direction_of_maxVolume (hk : 0 < k)
   set B : Set (EuclideanSpace 𝕜 (Fin k)) :=
     {u | ‖u‖ = 1 ∧ -(δ / 2) ≤ re ⟪u, H u⟫_𝕜} with hB
   have hBclosed : IsClosed B := by
-    rw [hB, Set.setOf_and]
+    rw [hB, Set.ofPred_and]
     exact (isClosed_eq continuous_norm continuous_const).inter
       (isClosed_le continuous_const
         (RCLike.continuous_re.comp (Continuous.inner continuous_id H.continuous)))
@@ -860,7 +860,7 @@ theorem john_decomposition (q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k)))
     exact no_neg_direction_of_maxVolume hk hq hq1 hmax hHsa htr hδ
       fun u hu hqu => hneg u (mem_contact_of_apply_eq_one hq1 hu hqu)
   obtain ⟨ι, hfin, w, z, hw0, hw1, hz, hsum⟩ := mem_convexHull_iff_exists_fintype.mp hmem
-  letI : Fintype ι := hfin
+  let : Fintype ι := hfin
   choose v hv hvz using fun i => hz i
   set e : Fin (Fintype.card ι) ≃ ι := (Fintype.equivFin ι).symm with he
   have hkR : ((k : ℝ)) ≠ 0 := Nat.cast_ne_zero.mpr hk.ne'
@@ -1105,7 +1105,7 @@ private lemma exists_witness_of_contact [FiniteDimensional 𝕜 W]
     (Φ : EuclideanSpace 𝕜 (Fin k) →L[𝕜] StrongDual 𝕜 W).flip with hT
   have hTapply : ∀ (v : W) (z : EuclideanSpace 𝕜 (Fin k)), T v z = Φ z v :=
     fun v z => ContinuousLinearMap.flip_apply _ z v
-  haveI : FiniteDimensional 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) :=
+  have : FiniteDimensional 𝕜 (StrongDual 𝕜 (EuclideanSpace 𝕜 (Fin k))) :=
     Module.Finite.equiv
       (LinearMap.toContinuousLinearMap :
         ((EuclideanSpace 𝕜 (Fin k)) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((EuclideanSpace 𝕜 (Fin k)) →L[𝕜] 𝕜))
@@ -1226,7 +1226,7 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
     · simp only [norm_zero]; positivity
   -- From now on `0 < k`. The finite-dimensional dual `D := (X ⧸ M)*`.
   have hEfin : Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin k)) = k := finrank_euclideanSpace_fin
-  haveI hDfin : FiniteDimensional 𝕜 (StrongDual 𝕜 (X ⧸ M)) :=
+  have hDfin : FiniteDimensional 𝕜 (StrongDual 𝕜 (X ⧸ M)) :=
     Module.Finite.equiv
       (LinearMap.toContinuousLinearMap : ((X ⧸ M) →ₗ[𝕜] 𝕜) ≃ₗ[𝕜] ((X ⧸ M) →L[𝕜] 𝕜))
   have hkD : Module.finrank 𝕜 (StrongDual 𝕜 (X ⧸ M)) = k := by

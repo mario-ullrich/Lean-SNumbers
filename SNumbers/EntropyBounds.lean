@@ -651,8 +651,8 @@ lemma half_le_entropyNumber_id (X : Type u) [NormedAddCommGroup X]
     [NormedSpace 𝕜 X] [FiniteDimensional 𝕜 X] {n : ℕ}
     (hn : n < Module.finrank 𝕜 X) :
     1 / 2 ≤ entropyNumber (ContinuousLinearMap.id 𝕜 X) n := by
-  haveI : NormedSpace ℝ X := NormedSpace.restrictScalars ℝ 𝕜 X
-  haveI : FiniteDimensional ℝ X := FiniteDimensional.trans ℝ 𝕜 X
+  have : NormedSpace ℝ X := NormedSpace.restrictScalars ℝ 𝕜 X
+  have : FiniteDimensional ℝ X := FiniteDimensional.trans ℝ 𝕜 X
   -- The real dimension is at least the `𝕜`-dimension.
   have hD : n < Module.finrank ℝ X := by
     have hmul := Module.finrank_mul_finrank ℝ 𝕜 X

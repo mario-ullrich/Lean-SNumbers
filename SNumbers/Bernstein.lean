@@ -102,7 +102,7 @@ lemma gainOnSubspace_le_norm (S : X →L[𝕜] Y) (M : Submodule 𝕜 X) :
   · -- gainSet is empty when `M = ⊥`, so `sInf = 0 ≤ ‖S‖`.
     have h_empty : {r : ℝ | ∃ x : X, x ∈ M ∧ x ≠ 0 ∧ r = ‖S x‖ / ‖x‖} = ∅ := by
       ext r
-      simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false, not_exists]
+      simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false, not_exists]
       rintro x ⟨hx_mem, hx_ne, _⟩
       exact hx_ne (by rwa [hM, Submodule.mem_bot] at hx_mem)
     show sInf _ ≤ ‖S‖
@@ -129,7 +129,7 @@ private lemma rank_span_range_fin {V : Type u} [AddCommGroup V] [Module 𝕜 V]
     {n : ℕ} {g : Fin n → V} (hg : LinearIndependent 𝕜 g) :
     Module.rank 𝕜 (Submodule.span 𝕜 (Set.range g)) = (n : Cardinal) := by
   classical
-  haveI : Fintype (Set.range g) := Set.fintypeRange g
+  have : Fintype (Set.range g) := Set.fintypeRange g
   rw [rank_span hg, Cardinal.mk_fintype, Set.card_range_of_injective hg.injective,
       Fintype.card_fin]
 
@@ -318,7 +318,7 @@ private lemma gainOnSubspace_id_eq_one {M : Submodule 𝕜 X} (hM : M ≠ ⊥) :
 lemma bernsteinNumber_strict {X : Type u} [NormedAddCommGroup X]
     [NormedSpace 𝕜 X] (n : ℕ) (h : n < Module.finrank 𝕜 X) :
     bernsteinNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
-  haveI : FiniteDimensional 𝕜 X :=
+  have : FiniteDimensional 𝕜 X :=
     .of_finrank_pos (Nat.lt_of_le_of_lt (Nat.zero_le _) h)
   -- Construct an `(n+1)`-dim subspace `M ⊆ X`.
   obtain ⟨g, hg_li⟩ := exists_linearIndependent_of_le_finrank (h : n + 1 ≤ _)

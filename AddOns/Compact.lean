@@ -120,7 +120,7 @@ private lemma exists_fin_net_of_totallyBounded {s : Set Y} (hs : TotallyBounded 
     ∃ (k : ℕ) (y : Fin k → Y), ∀ z ∈ s, ∃ i, ‖z - y i‖ ≤ ε := by
   classical
   obtain ⟨t, ht_fin, ht_cov⟩ := Metric.totallyBounded_iff.mp hs ε hε
-  haveI : Fintype ↥t := ht_fin.fintype
+  have : Fintype ↥t := ht_fin.fintype
   refine ⟨Fintype.card ↥t,
     fun i => (((Fintype.equivFin ↥t).symm i : ↥t) : Y), fun z hz => ?_⟩
   have hmem := ht_cov hz
@@ -182,7 +182,7 @@ theorem totallyBounded_of_tendsto_kolmogorovNumber {S : X →L[𝕜] Y}
   obtain ⟨n, hn⟩ := exists_lt_of_tendsto_zero (kolmogorovNumber_nonneg S) hS hε
   obtain ⟨-, ⟨V, hV_rank, rfl⟩, hV_lt⟩ :=
     exists_lt_of_csInf_lt (kolmogorovSet_nonempty S n) hn
-  haveI : FiniteDimensional 𝕜 V :=
+  have : FiniteDimensional 𝕜 V :=
     Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hV_rank (Cardinal.natCast_lt_aleph0))
   -- Every point of `S(B_X)` is `η/3`-close to a point of `V` of norm `≤ ‖S‖ + η/3`.
   have hVne : (V : Set Y).Nonempty := ⟨0, V.zero_mem⟩
@@ -316,10 +316,10 @@ theorem totallyBounded_of_tendsto_gelfandNumber {S : X →L[𝕜] Y}
   obtain ⟨n, hn⟩ := exists_lt_of_tendsto_zero (gelfandNumber_nonneg S) hS hε
   obtain ⟨-, ⟨M, hM_closed, hM_rank, rfl⟩, hM_lt⟩ :=
     exists_lt_of_csInf_lt (gelfandSet_nonempty S n) hn
-  haveI : IsClosed (M : Set X) := hM_closed
-  haveI : FiniteDimensional 𝕜 (X ⧸ M) :=
+  have : IsClosed (M : Set X) := hM_closed
+  have : FiniteDimensional 𝕜 (X ⧸ M) :=
     Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hM_rank (Cardinal.natCast_lt_aleph0))
-  haveI : ProperSpace (X ⧸ M) := FiniteDimensional.proper 𝕜 (X ⧸ M)
+  have : ProperSpace (X ⧸ M) := FiniteDimensional.proper 𝕜 (X ⧸ M)
   -- The image of the unit ball in the finite-dimensional quotient.
   have hq : TotallyBounded (⇑M.mkQL '' Metric.closedBall (0 : X) 1) := by
     refine TotallyBounded.subset ?_

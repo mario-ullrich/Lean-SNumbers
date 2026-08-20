@@ -343,8 +343,8 @@ theorem IsApproximable.isCompactOperator {S : X →L[𝕜] Y}
     set V : Submodule 𝕜 Y := LinearMap.range (L n : X →ₗ[𝕜] Y) with hV_def
     have h_rank_V_lt : Module.rank 𝕜 V < Cardinal.aleph0 :=
       lt_of_le_of_lt (hL_rank n) Cardinal.natCast_lt_aleph0
-    haveI : FiniteDimensional 𝕜 V := Module.rank_lt_aleph0_iff.mp h_rank_V_lt
-    haveI : ProperSpace V := FiniteDimensional.proper 𝕜 V
+    have : FiniteDimensional 𝕜 V := Module.rank_lt_aleph0_iff.mp h_rank_V_lt
+    have : ProperSpace V := FiniteDimensional.proper 𝕜 V
     -- Codrestrict `L n` to `V`.
     have hLn_mem : ∀ x, L n x ∈ V := fun x => ⟨x, rfl⟩
     let Ln' : X →L[𝕜] V := (L n).codRestrict V hLn_mem

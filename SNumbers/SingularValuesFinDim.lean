@@ -375,9 +375,9 @@ reduces the goal to `singularValues S n = σ n`. Mathlib defines
 `n ≥ finrank` both sides vanish (`svd_sigma_eq_zero_of_finrank_le`). -/
 theorem project_singularValues_eq (S : H₁ →L[𝕜] H₂) (n : ℕ) :
     (S : H₁ →ₗ[𝕜] H₂).singularValues n = approximationNumber S n := by
-  haveI : ProperSpace H₁ := FiniteDimensional.proper 𝕜 (E := H₁)
-  haveI : CompleteSpace H₁ := FiniteDimensional.complete 𝕜 H₁
-  haveI : CompleteSpace H₂ := FiniteDimensional.complete 𝕜 H₂
+  have : ProperSpace H₁ := FiniteDimensional.proper 𝕜 (E := H₁)
+  have : CompleteSpace H₁ := FiniteDimensional.complete 𝕜 H₁
+  have : CompleteSpace H₂ := FiniteDimensional.complete 𝕜 H₂
   have hScompact : IsCompactOperator S := isCompactOperator_of_locallyCompactSpace_rng S
   obtain ⟨σ, u, v, hσ0, hσanti, hu, hv, hut, hvt, _hσlim, hsum⟩ :=
     SVD.IsCompactOperator.SVD hScompact
@@ -409,8 +409,8 @@ statement is needed. -/
 theorem sn_eq_singularValues_of_finiteDimensional {s : Family 𝕜} (hs : IsSNumberSequence s)
     (S : H₁ →L[𝕜] H₂) (n : ℕ) :
     s S n = (S : H₁ →ₗ[𝕜] H₂).singularValues n := by
-  haveI : CompleteSpace H₁ := FiniteDimensional.complete 𝕜 H₁
-  haveI : CompleteSpace H₂ := FiniteDimensional.complete 𝕜 H₂
+  have : CompleteSpace H₁ := FiniteDimensional.complete 𝕜 H₁
+  have : CompleteSpace H₂ := FiniteDimensional.complete 𝕜 H₂
   rw [allSNumbers_eq_on_HilbertSpace hs S n, ← project_singularValues_eq S n]
 
 end SNumbers

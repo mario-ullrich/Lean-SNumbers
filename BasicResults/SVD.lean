@@ -786,11 +786,11 @@ theorem IsCompactOperator.SVD
       ∀ x : H₁, HasSum (fun k => ((σ k : 𝕜) * inner 𝕜 (u k) x) • v k) (S x) := by
   -- The singular-value iteration needs nonzero spaces; otherwise `S = 0`.
   rcases subsingleton_or_nontrivial H₁ with hs | h1
-  · exact svd_of_eq_zero (by haveI := hs; ext x; rw [Subsingleton.elim x 0]; simp)
+  · exact svd_of_eq_zero (by have := hs; ext x; rw [Subsingleton.elim x 0]; simp)
   rcases subsingleton_or_nontrivial H₂ with hs | h2
-  · exact svd_of_eq_zero (by haveI := hs; ext x; exact Subsingleton.elim _ _)
-  haveI := h1
-  haveI := h2
+  · exact svd_of_eq_zero (by have := hs; ext x; exact Subsingleton.elim _ _)
+  have := h1
+  have := h2
   classical
   -- Mask the singular vectors to `0` at the inactive indices (`σₖ = 0`).
   set u' : ℕ → H₁ := fun n => if ‖svdT S hS n‖ = 0 then 0 else svdU S hS n with hu'
@@ -1095,7 +1095,7 @@ lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ
         he_orth.linearIndependent
       have hMrank : Module.rank 𝕜 M = ((m + 1 : ℕ) : Cardinal) := by
         classical
-        haveI : Fintype (Set.range (fun i : Fin (m + 1) => u i)) := Set.fintypeRange _
+        have : Fintype (Set.range (fun i : Fin (m + 1) => u i)) := Set.fintypeRange _
         rw [hMdef, rank_span he_li, Cardinal.mk_fintype,
           Set.card_range_of_injective he_li.injective, Fintype.card_fin]
       have hMne : M ≠ ⊥ := by

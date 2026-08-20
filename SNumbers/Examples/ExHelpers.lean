@@ -111,7 +111,7 @@ lemma exists_flat_vector_weighted {V : Submodule 𝕜 (Fin m → 𝕜)} {k : ℕ
   set B : Set (Fin m → 𝕜) := {x | x ∈ V ∧ ∀ i, ‖x i‖ ≤ w i} with hBdef
   have hBne : B.Nonempty := ⟨0, V.zero_mem, fun i => by simp only [Pi.zero_apply, norm_zero]; exact hw i⟩
   have hBeq : B = (V : Set (Fin m → 𝕜)) ∩ ⋂ i, {x : Fin m → 𝕜 | ‖x i‖ ≤ w i} := by
-    ext x; simp only [hBdef, Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter, SetLike.mem_coe]
+    ext x; simp only [hBdef, Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_iInter, SetLike.mem_coe]
   have hBclosed : IsClosed B := by
     rw [hBeq]
     refine V.closed_of_finiteDimensional.inter (isClosed_iInter fun i => ?_)

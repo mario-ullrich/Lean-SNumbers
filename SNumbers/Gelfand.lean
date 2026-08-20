@@ -359,8 +359,8 @@ lemma gelfandNumber_strict {X : Type u} [NormedAddCommGroup X]
     gelfandNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
   have h_finrank_pos : 0 < Module.finrank 𝕜 X :=
     Nat.lt_of_le_of_lt (Nat.zero_le _) h
-  haveI : FiniteDimensional 𝕜 X := .of_finrank_pos h_finrank_pos
-  haveI : Nontrivial X := Module.nontrivial_of_finrank_pos h_finrank_pos
+  have : FiniteDimensional 𝕜 X := .of_finrank_pos h_finrank_pos
+  have : Nontrivial X := Module.nontrivial_of_finrank_pos h_finrank_pos
   set I := ContinuousLinearMap.id 𝕜 X with hI_def
   refine le_antisymm ?_ ?_
   · -- `≤ 1`: take `M = ⊤`. `deviation(I, ⊤) = ‖I‖ = 1`.
@@ -385,7 +385,7 @@ lemma gelfandNumber_strict {X : Type u} [NormedAddCommGroup X]
         Module.finrank 𝕜 (X ⧸ M) + Module.finrank 𝕜 M = Module.finrank 𝕜 X :=
       Submodule.finrank_quotient_add_finrank M
     have hM_finrank_pos : 0 < Module.finrank 𝕜 M := by omega
-    haveI : Nontrivial M := Module.nontrivial_of_finrank_pos hM_finrank_pos
+    have : Nontrivial M := Module.nontrivial_of_finrank_pos hM_finrank_pos
     -- `I.comp M.subtypeL = M.subtypeL`, and its norm is 1.
     have h_dev_eq : deviationFromRestriction I M = ‖M.subtypeL‖ := by
       show ‖I.comp M.subtypeL‖ = ‖M.subtypeL‖

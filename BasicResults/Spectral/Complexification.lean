@@ -54,9 +54,21 @@ namespace Complexification
 /-- The underlying additive group is that of `H × H`. -/
 instance : AddCommGroup (Complexification H) := inferInstanceAs (AddCommGroup (H × H))
 
+/-- The element `x + i·y` of the complexification.
+
+This is the pair `(x, y)`, but wrapped in a name. Writing a bare pair `(x, y)` at
+type `Complexification H` is only type-correct after unfolding `Complexification`,
+which `simp` and `rw` refuse to do; going through `mk` together with the
+projection lemmas `mk_fst`/`mk_snd` below keeps every goal in this file stated in
+terms the simp set can act on. -/
+def mk (x y : H) : Complexification H := (x, y)
+
+@[simp] lemma mk_fst (x y : H) : (mk x y).1 = x := rfl
+@[simp] lemma mk_snd (x y : H) : (mk x y).2 = y := rfl
+
 /-- Complex scalar multiplication: `(a + b·i) • (x, y) = (a·x - b·y, a·y + b·x)`. -/
 instance : SMul ℂ (Complexification H) where
-  smul c u := (c.re • u.1 - c.im • u.2, c.re • u.2 + c.im • u.1)
+  smul c u := mk (c.re • u.1 - c.im • u.2) (c.re • u.2 + c.im • u.1)
 
 @[simp] lemma smul_fst (c : ℂ) (u : Complexification H) :
     (c • u).1 = c.re • u.1 - c.im • u.2 := rfl
@@ -153,16 +165,16 @@ instance [Nontrivial H] : Nontrivial (Complexification H) :=
   rw [RCLike.real_smul_eq_coe_smul (K := ℂ), smul_snd]; simp
 
 /-- The canonical embedding `x ↦ x + i·0` of `H` into its complexification. -/
-def ofReal (x : H) : Complexification H := (x, 0)
+def ofReal (x : H) : Complexification H := mk x 0
 
 @[simp] lemma ofReal_fst (x : H) : (ofReal x).1 = x := rfl
 @[simp] lemma ofReal_snd (x : H) : (ofReal x).2 = 0 := rfl
 
 @[simp] lemma ofReal_add (x y : H) : ofReal (x + y) = ofReal x + ofReal y := by
-  apply Prod.ext <;> simp [ofReal, add_fst, add_snd]
+  apply Prod.ext <;> simp
 
 @[simp] lemma ofReal_sub (x y : H) : ofReal (x - y) = ofReal x - ofReal y := by
-  apply Prod.ext <;> simp [ofReal, sub_fst, sub_snd]
+  apply Prod.ext <;> simp
 
 /-- The embedding `ofReal` preserves norms: `‖x + i·0‖ = ‖x‖`. -/
 @[simp] lemma norm_ofReal (x : H) : ‖ofReal x‖ = ‖x‖ := by
@@ -174,8 +186,8 @@ def ofReal (x : H) : Complexification H := (x, 0)
 /-- The embedding `ofReal` as a real-linear isometry `H →ₗᵢ[ℝ] Complexification H`. -/
 def ofRealLi : H →ₗᵢ[ℝ] Complexification H where
   toFun := ofReal
-  map_add' x y := by apply Prod.ext <;> simp [ofReal, add_fst, add_snd]
-  map_smul' r x := by apply Prod.ext <;> simp [ofReal, rsmul_fst, rsmul_snd]
+  map_add' x y := by apply Prod.ext <;> simp
+  map_smul' r x := by apply Prod.ext <;> simp
   norm_map' := norm_ofReal
 
 /-! ### Completeness
@@ -227,7 +239,7 @@ instance [CompleteSpace H] : CompleteSpace (Complexification H) := by
       simp only [dist_eq_norm, NNReal.coe_one, one_mul]; exact norm_snd_le (u - v)
   obtain ⟨a, ha⟩ := cauchySeq_tendsto_of_complete (lip1.uniformContinuous.comp_cauchySeq hf)
   obtain ⟨b, hb⟩ := cauchySeq_tendsto_of_complete (lip2.uniformContinuous.comp_cauchySeq hf)
-  refine ⟨(a, b), ?_⟩
+  refine ⟨mk a b, ?_⟩
   rw [tendsto_iff_norm_sub_tendsto_zero]
   have h1 : Tendsto (fun n => ‖(f n).1 - a‖) atTop (𝓝 0) := tendsto_iff_norm_sub_tendsto_zero.mp ha
   have h2 : Tendsto (fun n => ‖(f n).2 - b‖) atTop (𝓝 0) := tendsto_iff_norm_sub_tendsto_zero.mp hb
@@ -242,7 +254,7 @@ involution of the complexification. Its set of fixed points is exactly the image
 object descends to the real space. -/
 
 /-- Complex conjugation on the complexification: `(x, y) ↦ (x, -y)`. -/
-def conj (u : Complexification H) : Complexification H := (u.1, -u.2)
+def conj (u : Complexification H) : Complexification H := mk u.1 (-u.2)
 
 @[simp] lemma conj_fst (u : Complexification H) : (conj u).1 = u.1 := rfl
 @[simp] lemma conj_snd (u : Complexification H) : (conj u).2 = -u.2 := rfl
@@ -251,7 +263,7 @@ def conj (u : Complexification H) : Complexification H := (u.1, -u.2)
   apply Prod.ext <;> simp
 
 @[simp] lemma conj_ofReal (x : H) : conj (ofReal x) = ofReal x := by
-  apply Prod.ext <;> simp [ofReal]
+  apply Prod.ext <;> simp
 
 lemma conj_add (u v : Complexification H) : conj (u + v) = conj u + conj v := by
   apply Prod.ext <;> simp only [conj_fst, conj_snd, add_fst, add_snd, neg_add]
@@ -290,7 +302,7 @@ lemma conj_eq_self_iff (u : Complexification H) : conj u = u ↔ ∃ x, u = ofRe
     have hz : u.2 = 0 := by
       have h2 : (2 : ℝ) • u.2 = 0 := by rw [two_smul]; exact add_eq_zero_iff_eq_neg.mpr hsnd.symm
       exact (smul_eq_zero.mp h2).resolve_left (by norm_num)
-    exact ⟨u.1, by apply Prod.ext <;> simp [ofReal, hz]⟩
+    exact ⟨u.1, by apply Prod.ext <;> simp [hz]⟩
   · rintro ⟨x, rfl⟩; exact conj_ofReal x
 
 /-! ### Complexification of operators
@@ -308,7 +320,7 @@ variable {H₁ H₂ : Type*}
 
 /-- The complexification of `S` as a `ℂ`-linear map, `(x, y) ↦ (S x, S y)`. -/
 def complexifyₗ (S : H₁ →L[ℝ] H₂) : Complexification H₁ →ₗ[ℂ] Complexification H₂ where
-  toFun u := (S u.1, S u.2)
+  toFun u := mk (S u.1) (S u.2)
   map_add' u v := by apply Prod.ext <;> simp
   map_smul' c u := by apply Prod.ext <;> simp [map_sub, map_smul]
 
@@ -348,7 +360,7 @@ def complexify (S : H₁ →L[ℝ] H₂) : Complexification H₁ →L[ℂ] Compl
 /-- `Sℂ` agrees with `S` on the real subspace: `Sℂ (x + i·0) = (S x) + i·0`. -/
 @[simp] lemma complexify_ofReal (S : H₁ →L[ℝ] H₂) (x : H₁) :
     complexify S (ofReal x) = ofReal (S x) := by
-  apply Prod.ext <;> simp [ofReal]
+  apply Prod.ext <;> simp
 
 /-- `Sℂ` commutes with conjugation (this is what it means for `Sℂ` to be "real"). -/
 @[simp] lemma complexify_conj (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :

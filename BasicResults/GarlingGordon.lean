@@ -44,7 +44,7 @@ theorem exists_projection_ker_eq_of_codim_le
     (hM_codim : Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal)) {ε : ℝ} (hε : 0 < ε) :
     ∃ P : X →L[𝕜] X, P.comp P = P ∧
       LinearMap.ker (P : X →ₗ[𝕜] X) = M ∧ ‖P‖ ≤ Real.sqrt n + ε := by
-  haveI : FiniteDimensional 𝕜 (X ⧸ M) :=
+  have : FiniteDimensional 𝕜 (X ⧸ M) :=
     Module.rank_lt_aleph0_iff.mp (lt_of_le_of_lt hM_codim Cardinal.natCast_lt_aleph0)
   have hfrn : Module.finrank 𝕜 (X ⧸ M) ≤ n := by
     rw [← Nat.cast_le (α := Cardinal), Module.finrank_eq_rank]; exact hM_codim

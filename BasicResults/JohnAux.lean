@@ -112,7 +112,7 @@ theorem IsCompact.convexHull {s : Set E} (hs : IsCompact s) :
     · intro x hx
       obtain ⟨ι, hfin, z, w, hzs, hai, hw0, hw1, hxeq⟩ :=
         eq_pos_convex_span_of_mem_convexHull hx
-      letI : Fintype ι := hfin
+      let : Fintype ι := hfin
       -- Carathéodory: affinely independent families have at most `finrank + 1` members.
       have hcard : Fintype.card ι ≤ Module.finrank ℝ E + 1 :=
         le_trans hai.card_le_finrank_succ (Nat.add_le_add_right (Submodule.finrank_le _) 1)
@@ -192,7 +192,7 @@ point. The proof extends the real functional `t • u ↦ t · q u` on the real 
 it by a vector via the Riesz isomorphism (`InnerProductSpace.toDual`). -/
 theorem Seminorm.exists_inner_le_of_apply (q : Seminorm 𝕜 E) (u : E) :
     ∃ v : E, (∀ x, re ⟪x, v⟫_𝕜 ≤ q x) ∧ re ⟪u, v⟫_𝕜 = q u := by
-  haveI : CompleteSpace E := FiniteDimensional.complete 𝕜 E
+  have : CompleteSpace E := FiniteDimensional.complete 𝕜 E
   rcases eq_or_ne u 0 with rfl | hu
   · exact ⟨0, fun x => by simp, by simp⟩
   -- the partial functional `t • u ↦ t * q u` on the real span of `u` is dominated by `q`
@@ -265,7 +265,7 @@ theorem ContinuousLinearMap.exists_trace_repr (f : (E →L[𝕜] E) →ₗ[𝕜]
     ∃ G : E →L[𝕜] E, ∀ A : E →L[𝕜] E,
       f A = LinearMap.trace 𝕜 E ((A : E →ₗ[𝕜] E) ∘ₗ (G : E →ₗ[𝕜] E)) := by
   classical
-  haveI : FiniteDimensional 𝕜 (E →L[𝕜] E) :=
+  have : FiniteDimensional 𝕜 (E →L[𝕜] E) :=
     Module.Finite.equiv
       (LinearMap.toContinuousLinearMap : (E →ₗ[𝕜] E) ≃ₗ[𝕜] (E →L[𝕜] E))
   -- the pairing `G ↦ (A ↦ tr (A ∘ G))`, as a linear map into the dual
