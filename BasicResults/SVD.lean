@@ -739,6 +739,9 @@ private theorem svd_of_eq_zero {S : H₁ →L[𝕜] H₂} (hS0 : S = 0) :
     fun _ h => absurd rfl h, fun _ h => absurd rfl h, tendsto_const_nhds,
     fun x => by simp [hS0]⟩
 
+-- The full name `SVD.IsCompactOperator.SVD` repeats `SVD`, which reads correctly
+-- here: it is the SVD of a compact operator.
+set_option linter.dupNamespace false in
 /-- **Singular value decomposition / Schmidt representation.**
 Every compact operator between Hilbert spaces has a
 Schmidt expansion

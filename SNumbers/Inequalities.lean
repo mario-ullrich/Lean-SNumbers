@@ -418,7 +418,7 @@ lemma norm_comp_le_norm_mul_deviationFromSubspace {S : X →L[𝕜] Y}
 
 /-! ### Per-subspace bounds -/
 
-omit [CompleteSpace Y] in
+omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Gelfand half, per subspace.** For a closed `M ⊆ X` of codimension
 `≤ n`, `aₙ(S) ≤ (1 + √n)·‖S|_M‖`. The approximant is `L := S ∘ P` for the
 Garling–Gordon projection `P` with kernel `M`. -/
@@ -479,7 +479,7 @@ lemma approximationNumber_le_sqrt_mul_deviationFromRestriction
           + deviationFromRestriction S M * ε := by ring
     _ ≤ (1 + Real.sqrt n) * deviationFromRestriction S M + δ := by gcongr
 
-omit [CompleteSpace X] in
+omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Kolmogorov half, per subspace.** For `V ⊆ Y` of dimension `≤ n`,
 `aₙ(S) ≤ (1 + √n)·‖π_V ∘ S‖`. The approximant is `L := P ∘ S` for the
 Kadets–Snobar projection `P` onto `V`. -/
@@ -527,7 +527,7 @@ lemma approximationNumber_le_sqrt_mul_deviationFromSubspace
 
 /-! ### The infimum bounds and the combined result -/
 
-omit [CompleteSpace Y] in
+omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Gelfand bound.** `aₙ(S) ≤ (1 + √n)·cₙ(S)` (Pietsch [Pie87, 2.10.2]).
 The per-subspace bound is uniform over the closed codimension-`≤ n`
 subspaces, so it passes to the infimum defining `cₙ`. -/
@@ -542,7 +542,7 @@ theorem approximationNumber_le_sqrt_mul_gelfandNumber
   rw [div_le_iff₀' hc_pos]
   exact approximationNumber_le_sqrt_mul_deviationFromRestriction S hM_closed hM_codim
 
-omit [CompleteSpace X] in
+omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Kolmogorov bound.** `aₙ(S) ≤ (1 + √n)·dₙ(S)` (Pietsch
 [Pie87, 2.10.2]). The per-subspace bound is uniform over the
 dimension-`≤ n` subspaces, so it passes to the infimum defining `dₙ`. -/
@@ -556,6 +556,7 @@ theorem approximationNumber_le_sqrt_mul_kolmogorovNumber
   rw [div_le_iff₀' hc_pos]
   exact approximationNumber_le_sqrt_mul_deviationFromSubspace S hV_rank
 
+omit [CompleteSpace X] [CompleteSpace Y] in
 /-- **Approximation vs. Gelfand and Kolmogorov numbers.** The combined
 bound `aₙ(S) ≤ (1 + √n)·min(cₙ(S), dₙ(S))`: the largest `s`-number `aₙ`
 exceeds neither `cₙ` nor `dₙ` by more than the factor `1 + √n`. -/

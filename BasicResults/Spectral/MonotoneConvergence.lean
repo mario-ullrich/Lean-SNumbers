@@ -72,12 +72,14 @@ theorem norm_apply_sq_le_of_isPositive {A : H →L[ℂ] H} (hA : A.IsPositive) (
   exact hmono.trans_eq hsmul
 
 open Filter Topology in
+omit [CompleteSpace H] [Nontrivial H] in
 /-- `re⟪(B - C) x, x⟫` splits additively over the difference. -/
 private theorem reApplyInnerSelf_sub (B C : H →L[ℂ] H) (x : H) :
     (B - C).reApplyInnerSelf x = B.reApplyInnerSelf x - C.reApplyInnerSelf x := by
   simp only [ContinuousLinearMap.reApplyInnerSelf_apply, sub_apply,
     inner_sub_left, map_sub]
 
+omit [CompleteSpace H] [Nontrivial H] in
 /-- The map `B ↦ re⟪B x, x⟫` is monotone for the Loewner order. -/
 theorem reApplyInnerSelf_mono {B C : H →L[ℂ] H} (h : B ≤ C) (x : H) :
     B.reApplyInnerSelf x ≤ C.reApplyInnerSelf x := by
@@ -182,6 +184,7 @@ These transfer the per-`n` facts to the limit by continuity of the inner
 product and of operator application. -/
 
 open Filter Topology in
+omit [CompleteSpace H] [Nontrivial H] in
 /-- A strong limit of symmetric operators is symmetric (`⟪E x, y⟫ = ⟪x, E y⟫`). -/
 theorem isSymmetric_of_tendsto {T : ℕ → H →L[ℂ] H} {E : H →L[ℂ] H}
     (hsymm : ∀ n, (T n : H →ₗ[ℂ] H).IsSymmetric)
@@ -193,6 +196,7 @@ theorem isSymmetric_of_tendsto {T : ℕ → H →L[ℂ] H} {E : H →L[ℂ] H}
   exact tendsto_const_nhds.inner (hE y)
 
 open Filter Topology in
+omit [CompleteSpace H] [Nontrivial H] in
 /-- A strong limit of positive operators is positive. -/
 theorem isPositive_of_tendsto {T : ℕ → H →L[ℂ] H} {E : H →L[ℂ] H}
     (hpos : ∀ n, (T n).IsPositive)
@@ -205,6 +209,7 @@ theorem isPositive_of_tendsto {T : ℕ → H →L[ℂ] H} {E : H →L[ℂ] H}
   rwa [ContinuousLinearMap.reApplyInnerSelf_apply] at this
 
 open Filter Topology in
+omit [CompleteSpace H] [Nontrivial H] in
 /-- If every `T n` commutes with `P`, so does the strong limit `E`. -/
 theorem commute_of_tendsto {T : ℕ → H →L[ℂ] H} {E P : H →L[ℂ] H}
     (hcomm : ∀ n, (T n).comp P = P.comp (T n))

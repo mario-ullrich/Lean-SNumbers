@@ -66,6 +66,7 @@ eigenvectors of the Gram operator `S* ∘ S` with eigenvalues `σₖ²`. This is
 analytic heart of the coincidence with Mathlib's eigenvalue-defined singular
 values. -/
 
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **Dual SVD relation `S* vₖ = σₖ uₖ`.** Testing against an arbitrary `x`,
 `⟪vₖ, S x⟫` collapses (orthonormality of the `vⱼ` and the nonzero-`σ` tie) to
 `σₖ ⟪uₖ, x⟫`, which is `⟪σₖ uₖ, x⟫`. -/
@@ -95,6 +96,7 @@ private lemma svd_adjoint_apply {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u
   · have hσ : σ k = 0 := by by_contra h; exact hvt k h h0
     rw [hσ]; simp
 
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **`uₖ` is an eigenvector of `S* ∘ S` with eigenvalue `σₖ²`.** Immediate from
 `S uₖ = σₖ vₖ` and `S* vₖ = σₖ uₖ`. -/
 private lemma svd_adjoint_comp_self_apply {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₂}
@@ -107,8 +109,9 @@ private lemma svd_adjoint_comp_self_apply {S : H₁ →L[𝕜] H₂} {σ : ℕ �
     rw [ContinuousLinearMap.coe_coe]; exact SVD.svd_apply_left hu hut hsum k
   rw [LinearMap.comp_apply, hSu, map_smul, svd_adjoint_apply hv hvt hsum k, smul_smul]
   congr 1
-  push_cast; ring
+  ring
 
+omit [Nontrivial H₁] in
 /-- **At most `finrank H₁` singular values are nonzero.** If `σ k ≠ 0` with
 `k ≥ finrank H₁`, then `σ 0, …, σ k` are all `> 0` (antitone), so `u 0, …, u k`
 is an orthonormal family of `k + 1 > finrank H₁` vectors — impossible. -/
@@ -136,6 +139,7 @@ private lemma svd_sigma_eq_zero_of_finrank_le {σ : ℕ → ℝ} {u : ℕ → H�
 
 /-! ### Diagonalisation of the Gram operator and its eigenspaces -/
 
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **Diagonalisation of `S* ∘ S`.** Mapping the Schmidt `HasSum` through the
 adjoint, `(S* ∘ S) x = ∑ₖ σₖ² ⟪uₖ, x⟫ uₖ`. -/
 private lemma svd_gram_hasSum {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ → H₁} {v : ℕ → H₂}
@@ -180,6 +184,7 @@ private lemma eq_of_antitone_card {m : ℕ} {f g : Fin m → ℝ}
     exact hc a
 
 open Module in
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **Lower bound on an eigenspace dimension (`ν > 0`).** The `uₖ` with `σₖ² = ν`
 are orthonormal eigenvectors of `S* ∘ S` for the eigenvalue `ν`, so their span
 (of dimension `#{k | σₖ² = ν}`) sits inside the eigenspace. -/
@@ -230,6 +235,7 @@ private lemma card_le_finrank_eigenspace_pos {S : H₁ →L[𝕜] H₂} {σ : �
     _ ≤ finrank 𝕜 (Module.End.eigenspace T (ν : 𝕜)) := Submodule.finrank_mono hmem
 
 open Module in
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **Lower bound on the kernel dimension (`ν = 0`).** `eigenspace (S*∘S) 0 = ker(S*∘S) ⊇ ker S`,
 and `dim ker S = m − rank S ≥ m − #{k | σₖ ≠ 0} = #{i | σᵢ² = 0}` because
 `range S ⊆ span {vₖ | σₖ ≠ 0}`. -/
@@ -291,6 +297,7 @@ private lemma card_le_finrank_eigenspace_zero {S : H₁ →L[𝕜] H₂} {σ : �
   omega
 
 open Module in
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **The eigenvalues of `S* ∘ S` are `i ↦ σᵢ²`.** Both sides are antitone
 `Fin m → ℝ`, so it suffices to match multiplicities. By
 `card_filter_eigenvalues_eq` the eigenvalue-multiplicity `#{i | eigenvalues i = w}`
@@ -366,6 +373,7 @@ private lemma svd_eigenvalues_eq_sq {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ
           (Finset.mem_image_of_mem g (Finset.mem_univ i)))
       rw [hf0, hg0]
 
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **`aₙ(S) = σₙ(S)`: the SVD's singular values are Mathlib's.** `S` is compact
 (finite-dimensional domain), so the SVD applies and `svd_sigma_eq_approx`
 reduces the goal to `singularValues S n = σ n`. Mathlib defines
@@ -398,6 +406,7 @@ theorem project_singularValues_eq (S : H₁ →L[𝕜] H₂) (n : ℕ) :
     rw [(S : H₁ →ₗ[𝕜] H₂).singularValues_of_finrank_le hn]
     exact (svd_sigma_eq_zero_of_finrank_le hσ0 hσanti hu hut hn).symm
 
+omit [Nontrivial H₁] [Nontrivial H₂] in
 /-- **Singular numbers coincide with all `s`-numbers (finite dimension).** For
 every `s`-number sequence `s` and operator `S` between finite-dimensional
 Hilbert spaces, `sₙ(S) = σₙ(S)`.
