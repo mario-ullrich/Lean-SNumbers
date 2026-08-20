@@ -47,3 +47,25 @@ leanblueprint pdf          # blueprint/print/print.pdf
 leanblueprint web          # blueprint/web/index.html
 leanblueprint checkdecls
 ```
+
+## Two checks nothing else covers
+
+`checkdecls` validates the `\lean{...}` tags in the blueprint. Two kinds of name
+live outside its reach — declarations named in `README.md`, which is not
+compiled, and Mathlib declarations named in prose inside a doc comment, which the
+compiler never resolves. Both go stale silently, the second one typically at a
+Mathlib version bump. Worth running whenever the pin in `lake-manifest.json`
+moves:
+
+```bash
+# every declaration the README names should still exist
+sed -n '/^## Candidates for Mathlib/,/^## Layout/p' README.md \
+  | grep -o '`[A-Za-z_][A-Za-z0-9_.]*`' | tr -d '`' | sort -u
+# every Mathlib name mentioned in prose should still exist
+grep -rn "Mathlib's \`" --include=*.lean .
+```
+
+Both print candidates to look up rather than passing or failing; names ending in
+a namespace prefix and bare words in backticks are expected noise. The same bump
+is the moment to re-read the *Candidates for Mathlib* section itself: a claim
+that Mathlib lacks a result cannot fail a build once the result is upstreamed.

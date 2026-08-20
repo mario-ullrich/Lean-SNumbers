@@ -216,7 +216,6 @@ main declarations:
 
 * **Determinants** (`BasicResults/Determinant.lean`, entirely in Mathlib
   namespaces): `det T* = conj (det T)` (`LinearMap.det_adjoint`),
-  `‖det T‖ = ∏ₖ σₖ(T)` (`LinearMap.norm_det_eq_prod_singularValues`),
   `det T = ∏ᵢ μᵢ` for an eigenbasis (`LinearMap.det_eq_prod_of_apply_eq_smul`),
   and the bordered determinant over any commutative ring — the elementary
   column-operation form of the Schur formula
@@ -235,8 +234,13 @@ main declarations:
   projection theorems it yields — Kadets–Snobar `‖P‖ ≤ √n`
   (`exists_projection`) and Garling–Gordon (`exists_projection_ker`). Its
   general-purpose ingredients: compactness of the convex hull of a compact set
-  in finite dimension (`IsCompact.convexHull`), Hahn–Banach dominated by a
-  *seminorm* over `RCLike` (`Seminorm.exists_inner_le_of_apply`), trace duality
+  in finite dimension (`IsCompact.convexHull`) — Mathlib's
+  `TotallyBounded.convexHull` gives total boundedness of the hull, hence
+  compactness only of its *closure*, and closing that gap is the Carathéodory
+  argument; the supporting-vector
+  form of Hahn–Banach dominated by a *seminorm*, which represents the functional
+  by a vector via Riesz (`Seminorm.exists_inner_le_of_apply`, on top of Mathlib's
+  `Module.Dual.exists_extension_of_le_seminorm`); trace duality
   (`ContinuousLinearMap.exists_trace_repr`, `ContinuousLinearMap.trace_adjoint`),
   and the product
   bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` (`one_sub_two_mul_sum_sq_le_prod_one_add`,
@@ -248,7 +252,12 @@ main declarations:
   Schmidt representation (`SVD.IsCompactOperator.SVD`), norm attainment
   (`SVD.IsCompactOperator.norm_isSingularValue`), Eckart–Young, and
   compact ⇔ approximable on
-  Hilbert spaces (`SVD.isApproximable_iff_isCompactOperator`).
+  Hilbert spaces (`SVD.isApproximable_iff_isCompactOperator`). Mathlib's
+  `LinearMap.singularValues` is finite-dimensional and carries no decomposition;
+  its own file lists as a goal the generalisation to *approximation numbers* of a
+  `ContinuousLinearMap` in possibly infinite dimension — which is what this
+  project builds — so `Analysis/InnerProductSpace/SingularValues.lean` is the
+  natural home.
 * **Complexification** (`BasicResults/Spectral/Complexification.lean`): Mathlib
   has base change of modules, but not the complexification of a real *inner
   product* space — the space, its Hermitian inner product, conjugation, and the
@@ -256,7 +265,9 @@ main declarations:
 * **Multiplication operators on `L²`**
   (`BasicResults/Spectral/MultiplicationOperator.lean`, already in the
   `MeasureTheory` namespace): `Mf : L² → L²` for essentially bounded `f`, with
-  `‖Mf‖ ≤ ‖f‖_∞`, multiplicativity, and self-adjointness for real `f`.
+  multiplicativity and self-adjointness for real `f`. The norm bound
+  `‖Mf‖ ≤ ‖f‖_∞` follows from Mathlib's `ContinuousLinearMap.holderL` at the
+  Hölder triple `(∞, 2, 2)`.
 * **Spectral toolkit** (`BasicResults/Spectral/`): monotone convergence for
   positive operators (`exists_tendsto_of_antitone_isPositive`), the Cauchy
   estimate `‖Ax‖² ≤ ‖A‖·re⟨Ax,x⟩`, commutation with the continuous functional
@@ -270,15 +281,18 @@ main declarations:
   need them: `‖x‖_p ≤ ‖x‖_q` for `q ≤ p`
   (`piLp_norm_le_of_exponent_ge`, `SNumbers/Examples/DiagonalMatrices.lean`) and
   `‖x‖_p ≤ m^{1/p−1/q}‖x‖_q` (`piLp_norm_le_card_rpow_mul`,
-  `SNumbers/Examples/Identity.lean`). Both belong in `PiLp.lean`.
+  `SNumbers/Examples/Identity.lean`). Both belong in `PiLp.lean`; the second is
+  the `PiLp` reading of Mathlib's
+  `eLpNorm_le_eLpNorm_mul_rpow_measure_univ` for the counting measure.
 * **Sign averaging and little Grothendieck**
   (`BasicResults/LittleGrothendieck.lean`): the Rademacher identity that the
   average of `‖∑ εⱼwⱼ‖²` over all sign patterns is `∑ ‖wⱼ‖²`
   (`sum_powerset_norm_signedSum_sq`), and the resulting bounds
   `∑ ‖Beⱼ‖² ≤ ‖B‖²` for `B : ℓ_∞ → H` and `∑ ‖rowⱼ‖² ≤ ‖A‖²` for `A : H → ℓ₁`.
-* **The `ℓ₁` quotient** (`SNumbers/KolmogorovLifting.lean`): the canonical
-  summation surjection `Q_X : ℓ¹(B_X) ↠ X` realising every Banach space as a
-  quotient of an `ℓ₁` space, and the lifting of operators through it.
+* **The `ℓ₁` quotient** (`SNumbers/KolmogorovLifting.lean`): that the canonical
+  summation map `Q_X : ℓ¹(B_X) ↠ X` is *surjective*, realising every Banach space
+  as a quotient of an `ℓ₁` space, and the lifting of operators through it. The map
+  itself is Mathlib's `lp.tsumCLM`, which carries no surjectivity statement.
 * **Coordinate pigeonhole and flatness**
   (`SNumbers/Examples/ExHelpers.lean`): a subspace of `𝕜^m` of dimension
   `> |A|` contains a nonzero vector vanishing on `A`

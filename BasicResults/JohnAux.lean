@@ -32,10 +32,15 @@ candidate for upstreaming to Mathlib:
   `∏ (1 + aᵢ) ≥ 1 - 2 ∑ aᵢ²`. This is why a trace-zero perturbation `1 + tH` of the
   identity loses determinant only to *second* order in `t`.
 * `IsCompact.convexHull` — in a finite-dimensional real normed space, the convex hull
-  of a compact set is compact (Mathlib only has the finite-set case).
-* `Seminorm.exists_inner_le_of_apply` — Hahn–Banach dominated by a *seminorm* on an
-  inner product space over `RCLike 𝕜`: every point admits a supporting functional
-  `x ↦ re ⟪x, v⟫` of the seminorm attaining its value at the point.
+  of a compact set is compact. Mathlib's `TotallyBounded.convexHull` yields total
+  boundedness of the hull, hence compactness only of its *closure*; the work here
+  is that in finite dimension the hull is already closed.
+* `Seminorm.exists_inner_le_of_apply` — the supporting-vector form of Hahn–Banach
+  dominated by a *seminorm* on an inner product space over `RCLike 𝕜`: every point
+  admits a supporting functional `x ↦ re ⟪x, v⟫` of the seminorm attaining its value
+  at the point. The extension itself is Mathlib's
+  `Module.Dual.exists_extension_of_le_seminorm`; what is added is the representing
+  vector `v`.
 * `ContinuousLinearMap.exists_trace_repr` — trace duality: every linear functional on
   the endomorphisms of a finite-dimensional inner product space is `A ↦ tr (A ∘ G)`
   for some endomorphism `G`.
@@ -89,7 +94,10 @@ section CompactConvexHull
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
 
 /-- **The convex hull of a compact set is compact**, in a finite-dimensional real normed
-space. (Mathlib has only the case of a finite set, `Set.Finite.isCompact_convexHull`.)
+space. Mathlib has the finite-set case (`Set.Finite.isCompact_convexHull`) and
+`TotallyBounded.convexHull`, which gives total boundedness of the hull and so
+compactness only of its *closure*; the point here is that in finite dimension the
+hull is already closed.
 
 By Carathéodory's theorem every point of the hull is a convex combination of at most
 `finrank ℝ E + 1` affinely independent points of `s`, so the hull is the image of the

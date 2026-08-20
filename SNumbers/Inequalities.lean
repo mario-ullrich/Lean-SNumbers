@@ -14,6 +14,7 @@ import BasicResults.GarlingGordon
 import BasicResults.KadetsSnobar
 import Mathlib.Analysis.Normed.Module.HahnBanach
 import Mathlib.Analysis.InnerProductSpace.Basic
+import Mathlib.Analysis.InnerProductSpace.NormDet
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 
 /-!
@@ -609,14 +610,15 @@ lemma approximationNumber_comp_comp_le_mul_hilbertNumber
 
 /-- **`∏ aₖ(T) = ‖det T‖`** for an endomorphism of a finite-dimensional Hilbert
 space. The approximation numbers are Mathlib's singular values
-(`sn_eq_singularValues_of_finiteDimensional`), and `‖det T‖ = ∏ σₖ`
-(`LinearMap.norm_det_eq_prod_singularValues`). This is the determinant
-ingredient of the maximal difference theorem. -/
+(`sn_eq_singularValues_of_finiteDimensional`), and `‖det T‖ = ∏ σₖ` is Mathlib's
+`LinearMap.normDet_eq_prod_singularValues` read through
+`LinearMap.normDet_eq_norm_det`. This is the determinant ingredient of the
+maximal difference theorem. -/
 theorem prod_approximationNumber_eq_norm_det {E : Type u} [NormedAddCommGroup E]
     [InnerProductSpace 𝕜 E] [FiniteDimensional 𝕜 E] [Nontrivial E] (T : E →L[𝕜] E) :
     ∏ k ∈ Finset.range (Module.finrank 𝕜 E), approximationNumber T k
       = ‖LinearMap.det (T : E →ₗ[𝕜] E)‖ := by
-  rw [LinearMap.norm_det_eq_prod_singularValues]
+  rw [← LinearMap.normDet_eq_norm_det, LinearMap.normDet_eq_prod_singularValues]
   exact Finset.prod_congr rfl fun k _ =>
     sn_eq_singularValues_of_finiteDimensional isSNumberSequence_approximationNumber T k
 
