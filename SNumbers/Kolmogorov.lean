@@ -67,10 +67,19 @@ quotient projection `Y →L[𝕜] Y ⧸ V`. -/
 noncomputable def deviationFromSubspace (S : X →L[𝕜] Y) (V : Submodule 𝕜 Y) : ℝ :=
   ‖V.mkQL.comp S‖
 
+/-- The set of admissible deviations at stage `n`: the numbers
+`‖π_V ∘ S‖` for subspaces `V ⊆ Y` of dimension at most `n`. The `n`-th
+Kolmogorov number is its infimum. -/
+def kolmogorovSet (S : X →L[𝕜] Y) (n : ℕ) : Set ℝ :=
+  {r | ∃ V : Submodule 𝕜 Y,
+      Module.rank 𝕜 V ≤ (n : Cardinal) ∧ r = deviationFromSubspace S V}
+
 /-- Quotient form of the `n`-th Kolmogorov number. -/
 noncomputable def kolmogorovNumber (S : X →L[𝕜] Y) (n : ℕ) : ℝ :=
-  sInf {r | ∃ V : Submodule 𝕜 Y,
-      Module.rank 𝕜 V ≤ (n : Cardinal) ∧ r = deviationFromSubspace S V}
+  sInf (kolmogorovSet S n)
+
+lemma kolmogorovNumber_def (S : X →L[𝕜] Y) (n : ℕ) :
+    kolmogorovNumber S n = sInf (kolmogorovSet S n) := rfl
 
 /-! ### Basic facts about `deviationFromSubspace` -/
 
@@ -86,22 +95,33 @@ lemma deviationFromSubspace_le_norm (S : X →L[𝕜] Y) (V : Submodule 𝕜 Y) 
     _ ≤ 1 * ‖S‖ := mul_le_mul_of_nonneg_right V.norm_mkQL_le (norm_nonneg _)
     _ = ‖S‖ := one_mul _
 
-/-! ### Helpers for the infimum set defining `kolmogorovNumber` -/
+/-! ### Basic facts about `kolmogorovSet` -/
 
-private lemma kSet_nonempty (S : X →L[𝕜] Y) (n : ℕ) :
-    {r : ℝ | ∃ V : Submodule 𝕜 Y,
-        Module.rank 𝕜 V ≤ (n : Cardinal) ∧ r = deviationFromSubspace S V}.Nonempty :=
+/-- The set of admissible deviations is non-empty: the zero subspace `⊥` has
+dimension `0 ≤ n`, so it is admissible at every stage. -/
+lemma kolmogorovSet_nonempty (S : X →L[𝕜] Y) (n : ℕ) :
+    (kolmogorovSet S n).Nonempty :=
   ⟨_, ⊥, by rw [rank_bot]; exact bot_le, rfl⟩
 
-private lemma kSet_bddBelow (S : X →L[𝕜] Y) (n : ℕ) :
-    BddBelow {r : ℝ | ∃ V : Submodule 𝕜 Y,
-        Module.rank 𝕜 V ≤ (n : Cardinal) ∧ r = deviationFromSubspace S V} :=
+/-- The set of admissible deviations is bounded below by `0`. -/
+lemma bddBelow_kolmogorovSet (S : X →L[𝕜] Y) (n : ℕ) :
+    BddBelow (kolmogorovSet S n) :=
   ⟨0, by rintro _ ⟨V, _, rfl⟩; exact deviationFromSubspace_nonneg S V⟩
 
 lemma kolmogorovNumber_le_deviation {S : X →L[𝕜] Y} {n : ℕ} {V : Submodule 𝕜 Y}
     (hV : Module.rank 𝕜 V ≤ (n : Cardinal)) :
     kolmogorovNumber S n ≤ deviationFromSubspace S V :=
-  csInf_le (kSet_bddBelow S n) ⟨V, hV, rfl⟩
+  csInf_le (bddBelow_kolmogorovSet S n) ⟨V, hV, rfl⟩
+
+/-- Lower bound for the Kolmogorov number: if `f` is a lower bound for the
+quotient deviation over every admissible (dimension `≤ n`) subspace, then
+`f ≤ d_n(S)`. Dual to `le_gelfandNumber`. -/
+lemma le_kolmogorovNumber {S : X →L[𝕜] Y} {n : ℕ} {f : ℝ}
+    (h : ∀ V : Submodule 𝕜 Y, Module.rank 𝕜 V ≤ (n : Cardinal) →
+        f ≤ deviationFromSubspace S V) :
+    f ≤ kolmogorovNumber S n :=
+  le_csInf (kolmogorovSet_nonempty S n) <| by
+    rintro _ ⟨V, hV, rfl⟩; exact h V hV
 
 /-! ## (S1c) Non-negativity -/
 
@@ -112,11 +132,22 @@ lemma kolmogorovNumber_nonneg (S : X →L[𝕜] Y) (n : ℕ) :
 
 /-! ## (S1b) Antitone in `n` -/
 
-lemma kolmogorovNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
-    kolmogorovNumber S (n + 1) ≤ kolmogorovNumber S n := by
-  refine csInf_le_csInf (kSet_bddBelow S (n + 1)) (kSet_nonempty S n) ?_
+/-- Raising `n` allows subspaces of larger dimension, hence more deviations
+become admissible. -/
+lemma kolmogorovSet_subset (S : X →L[𝕜] Y) {n m : ℕ} (h : n ≤ m) :
+    kolmogorovSet S n ⊆ kolmogorovSet S m := by
   rintro _ ⟨V, hV, rfl⟩
-  exact ⟨V, hV.trans (by exact_mod_cast Nat.le_succ n), rfl⟩
+  exact ⟨V, hV.trans (by exact_mod_cast h), rfl⟩
+
+/-- If `n ≤ m`, then `d_m S ≤ d_n S`. -/
+lemma kolmogorovNumber_antitone' (S : X →L[𝕜] Y) {n m : ℕ} (h : n ≤ m) :
+    kolmogorovNumber S m ≤ kolmogorovNumber S n :=
+  csInf_le_csInf (bddBelow_kolmogorovSet S m) (kolmogorovSet_nonempty S n)
+    (kolmogorovSet_subset S h)
+
+lemma kolmogorovNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
+    kolmogorovNumber S (n + 1) ≤ kolmogorovNumber S n :=
+  kolmogorovNumber_antitone' S (Nat.le_succ n)
 
 /-! ## (S1a) Value at `n = 0`: `kolmogorovNumber S 0 = ‖S‖`
 
@@ -168,7 +199,7 @@ lemma kolmogorovNumber_zero_eq_norm (S : X →L[𝕜] Y) :
   · have h_rank : Module.rank 𝕜 (⊥ : Submodule 𝕜 Y) ≤ ((0 : ℕ) : Cardinal) := by
       rw [rank_bot]; exact_mod_cast Nat.zero_le 0
     exact (kolmogorovNumber_le_deviation h_rank).trans_eq (deviationFromSubspace_bot S)
-  · refine le_csInf (kSet_nonempty S 0) ?_
+  · refine le_csInf (kolmogorovSet_nonempty S 0) ?_
     rintro _ ⟨V, hV, rfl⟩
     have hV_bot : V = ⊥ := by
       rw [← Submodule.rank_eq_zero]
@@ -187,7 +218,7 @@ lemma kolmogorovNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
 lemma kolmogorovNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
     kolmogorovNumber (S + T) n ≤ kolmogorovNumber S n + ‖T‖ := by
   rw [← sub_le_iff_le_add]
-  refine le_csInf (kSet_nonempty S n) ?_
+  refine le_csInf (kolmogorovSet_nonempty S n) ?_
   rintro _ ⟨V, hV, rfl⟩
   -- `V.mkQL.comp (S+T) = V.mkQL.comp S + V.mkQL.comp T`. Triangle:
   -- `‖V.mkQL.comp (S+T)‖ ≤ ‖V.mkQL.comp S‖ + ‖V.mkQL.comp T‖ ≤ deviation S V + ‖T‖`.
@@ -283,7 +314,7 @@ lemma kolmogorovNumber_comp_comp_le
       {r | ∃ V : Submodule 𝕜 Y,
             Module.rank 𝕜 V ≤ (n : Cardinal) ∧ r = deviationFromSubspace S V}
     rw [← Real.sInf_smul_of_nonneg (mul_nonneg (norm_nonneg _) (norm_nonneg _))]
-    refine le_csInf ((kSet_nonempty S n).image _) ?_
+    refine le_csInf ((kolmogorovSet_nonempty S n).image _) ?_
     rintro _ ⟨_, ⟨V, hV, rfl⟩, rfl⟩
     exact hkey V hV
   exact h_inf.trans_eq (by ring)
@@ -369,7 +400,7 @@ lemma kolmogorovNumber_strict {X : Type u} [NormedAddCommGroup X]
       _ = 1 := norm_id
   · -- `≥ 1`: every admissible `V` is proper, so `‖V.mkQL‖ ≥ 1`, and
     -- `deviation(I, V) = ‖V.mkQL.comp I‖ = ‖V.mkQL‖`.
-    refine le_csInf (kSet_nonempty I n) ?_
+    refine le_csInf (kolmogorovSet_nonempty I n) ?_
     rintro _ ⟨V, hV, rfl⟩
     have hV_finrank_le : Module.finrank 𝕜 V ≤ n := Module.finrank_le_of_rank_le hV
     have hV_finrank_lt : Module.finrank 𝕜 V < Module.finrank 𝕜 X :=

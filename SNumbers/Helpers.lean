@@ -16,8 +16,11 @@ None of the content here is specific to a particular `s`-number sequence.
   `ContinuousLinearMap.rank_zero`, `eq_zero_of_rank_le_zero`,
   `rank_comp_comp_le`. The bare definition `ContinuousLinearMap.rank` lives
   in `SNumbers.Basic`.
-* `Submodule.norm_mkQL_le` — operator-norm bound `‖V.mkQL‖ ≤ 1` for the
-  quotient projection `Submodule.mkQL`.
+* `ContinuousLinearMap.opNorm_le_of_unit_closedBall` — a bound on the closed
+  unit ball bounds the operator norm (densely normed scalars).
+* `Submodule.norm_mkQL_le` and `Submodule.norm_mkQL_apply_le` — operator-norm
+  bound `‖V.mkQL‖ ≤ 1` for the quotient projection `Submodule.mkQL`, and its
+  pointwise form `‖V.mkQL y‖ ≤ ‖y‖`.
 * `Submodule.norm_liftQL_le` — operator-norm bound `‖V.liftQL f h‖ ≤ ‖f‖`
   for the universal lift `Submodule.liftQL`, plus the computation rule
   `Submodule.liftQL_mkQL`.
@@ -83,6 +86,32 @@ lemma rank_comp_comp_le (A : W →L[𝕜] X) (L : X →L[𝕜] Y) (B : Y →L[�
 
 end CompRank
 
+section UnitBall
+/-! The operator norm is the supremum of `‖f x‖` over the *closed unit ball*
+only when the scalar norms are dense: over a discretely valued field one can
+never rescale a vector to have norm exactly `1`, and the supremum over the
+unit ball may fall short of `‖f‖`. Mathlib's
+`ContinuousLinearMap.sSup_unitClosedBall_eq_norm` is stated in exactly that
+`DenselyNormedField` setting; the lemma below is the bound-form we need. The
+codomain may be merely seminormed, which matters because our applications take
+values in a quotient `Y ⧸ V`. -/
+
+variable {𝕜' : Type*} [DenselyNormedField 𝕜']
+variable {E F : Type*}
+variable [NormedAddCommGroup E] [NormedSpace 𝕜' E]
+variable [SeminormedAddCommGroup F] [NormedSpace 𝕜' F]
+
+/-- A bound on the closed unit ball bounds the operator norm:
+if `‖f x‖ ≤ C` for every `x` with `‖x‖ ≤ 1`, then `‖f‖ ≤ C`. -/
+lemma opNorm_le_of_unit_closedBall (f : E →L[𝕜'] F) {C : ℝ}
+    (h : ∀ x : E, ‖x‖ ≤ 1 → ‖f x‖ ≤ C) : ‖f‖ ≤ C := by
+  rw [← f.sSup_unitClosedBall_eq_norm]
+  refine csSup_le ((Metric.nonempty_closedBall.2 zero_le_one).image _) ?_
+  rintro _ ⟨x, hx, rfl⟩
+  exact h x (mem_closedBall_zero_iff.mp hx)
+
+end UnitBall
+
 end ContinuousLinearMap
 
 /-! ## Operator-norm bounds for the quotient CLMs `Submodule.mkQL` / `liftQL`
@@ -108,6 +137,12 @@ lemma norm_mkQL_le (V : Submodule 𝕜 Y) : ‖V.mkQL‖ ≤ 1 :=
   ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun x => by
     rw [one_mul, V.mkQL_apply, mkQ_apply]
     exact _root_.Submodule.Quotient.norm_mk_le (S := V) x
+
+/-- Pointwise form of `norm_mkQL_le`: passing to the quotient does not
+increase the norm, `‖V.mkQL y‖ ≤ ‖y‖`. -/
+lemma norm_mkQL_apply_le (V : Submodule 𝕜 Y) (y : Y) : ‖V.mkQL y‖ ≤ ‖y‖ := by
+  rw [V.mkQL_apply, mkQ_apply]
+  exact _root_.Submodule.Quotient.norm_mk_le (S := V) y
 
 /-- Lifting `f` and then precomposing with the quotient projection recovers
 `f`: `V.liftQL f h (V.mkQL y) = f y`. -/

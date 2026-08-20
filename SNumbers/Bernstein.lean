@@ -48,12 +48,21 @@ when `M = ⊥`. -/
 noncomputable def gainOnSubspace (S : X →L[𝕜] Y) (M : Submodule 𝕜 X) : ℝ :=
   sInf {r | ∃ x : X, x ∈ M ∧ x ≠ 0 ∧ r = ‖S x‖ / ‖x‖}
 
+/-- The set of admissible gains at stage `n`: the numbers
+`gainOnSubspace S M` for subspaces `M ⊆ X` of dimension exactly `n + 1`.
+The `n`-th Bernstein number is its supremum. -/
+def bernsteinSet (S : X →L[𝕜] Y) (n : ℕ) : Set ℝ :=
+  {r | ∃ M : Submodule 𝕜 X,
+      Module.rank 𝕜 M = (n + 1 : ℕ) ∧ r = gainOnSubspace S M}
+
 /-- The `n`-th **Bernstein number** of a continuous linear map.
 
 `b_n S = sup_{M ⊆ X, dim M = n + 1} gainOnSubspace S M`. -/
 noncomputable def bernsteinNumber (S : X →L[𝕜] Y) (n : ℕ) : ℝ :=
-  sSup {r | ∃ M : Submodule 𝕜 X,
-      Module.rank 𝕜 M = (n + 1 : ℕ) ∧ r = gainOnSubspace S M}
+  sSup (bernsteinSet S n)
+
+lemma bernsteinNumber_def (S : X →L[𝕜] Y) (n : ℕ) :
+    bernsteinNumber S n = sSup (bernsteinSet S n) := rfl
 
 /-! ### Basic facts about `gainOnSubspace` -/
 
@@ -101,11 +110,11 @@ lemma gainOnSubspace_le_norm (S : X →L[𝕜] Y) (M : Submodule 𝕜 X) :
   · obtain ⟨x, hx_mem, hx_ne⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hM
     exact (gainOnSubspace_le_div hx_mem hx_ne).trans (S.ratio_le_opNorm x)
 
-/-! ### Helpers for the supremum set defining `bernsteinNumber` -/
+/-! ### Basic facts about `bernsteinSet` -/
 
-private lemma bSet_bddAbove (S : X →L[𝕜] Y) (n : ℕ) :
-    BddAbove {r : ℝ | ∃ M : Submodule 𝕜 X,
-        Module.rank 𝕜 M = (n + 1 : ℕ) ∧ r = gainOnSubspace S M} :=
+/-- The set of admissible gains is bounded above by `‖S‖`. -/
+lemma bddAbove_bernsteinSet (S : X →L[𝕜] Y) (n : ℕ) :
+    BddAbove (bernsteinSet S n) :=
   ⟨‖S‖, by rintro _ ⟨M, _, rfl⟩; exact gainOnSubspace_le_norm S M⟩
 
 /-- The `(n+1)`-rank constraint forces `M ≠ ⊥`. -/
@@ -167,7 +176,7 @@ private lemma gainOnSubspace_span_singleton {S : X →L[𝕜] Y} {v : X} (hv_ne 
   have hM_rank : Module.rank 𝕜 (Submodule.span 𝕜 ({v} : Set X)) = ((0 + 1 : ℕ) : Cardinal) := by
     rw [rank_span_set (LinearIndepOn.singleton hv_ne), Cardinal.mk_singleton]; norm_cast
   have h_le : gainOnSubspace S (Submodule.span 𝕜 ({v} : Set X)) ≤ bernsteinNumber S 0 :=
-    le_csSup (bSet_bddAbove S 0) ⟨_, hM_rank, rfl⟩
+    le_csSup (bddAbove_bernsteinSet S 0) ⟨_, hM_rank, rfl⟩
   rw [gainOnSubspace_span_singleton hv_ne, div_le_iff₀ hv_pos] at h_le
   linarith
 
@@ -203,7 +212,7 @@ lemma bernsteinNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
   calc gainOnSubspace S M
       ≤ gainOnSubspace S M' :=
         gainOnSubspace_anti hM'_le (rank_eq_succ_implies_ne_bot hM'_rank)
-    _ ≤ bernsteinNumber S n := le_csSup (bSet_bddAbove S n) ⟨M', hM'_rank, rfl⟩
+    _ ≤ bernsteinNumber S n := le_csSup (bddAbove_bernsteinSet S n) ⟨M', hM'_rank, rfl⟩
 
 /-- Upper bound by the operator norm: `b_n S ≤ ‖S‖`, since `b_n S ≤ b_0 S = ‖S‖`. -/
 lemma bernsteinNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
@@ -239,7 +248,7 @@ lemma bernsteinNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
   have h1 : gainOnSubspace (S + T) M ≤ gainOnSubspace S M + ‖T‖ :=
     gainOnSubspace_add_le S T (rank_eq_succ_implies_ne_bot hM_rank)
   have h2 : gainOnSubspace S M ≤ bernsteinNumber S n :=
-    le_csSup (bSet_bddAbove S n) ⟨M, hM_rank, rfl⟩
+    le_csSup (bddAbove_bernsteinSet S n) ⟨M, hM_rank, rfl⟩
   linarith
 
 /-! ## (S4) Vanishing on operators of rank at most `n`
@@ -324,7 +333,7 @@ lemma bernsteinNumber_strict {X : Type u} [NormedAddCommGroup X]
   · -- `≥ 1`: `M` is a witness with gain `= 1`.
     refine (le_of_eq (gainOnSubspace_id_eq_one
       (rank_eq_succ_implies_ne_bot hM_rank)).symm).trans ?_
-    exact le_csSup (bSet_bddAbove _ n) ⟨M, hM_rank, rfl⟩
+    exact le_csSup (bddAbove_bernsteinSet _ n) ⟨M, hM_rank, rfl⟩
 
 /-- (S5) Normalisation on `id_{ℓ₂^{n+1}}`: a special case of (S5'). -/
 lemma bernsteinNumber_id_euclidean (n : ℕ) :
@@ -442,7 +451,7 @@ lemma bernsteinNumber_comp_comp_le
           gainOnSubspace_comp_comp_le_of_injective A S B hM_ne_bot h_inj
       _ ≤ ‖B‖ * ‖A‖ * bernsteinNumber S n :=
           mul_le_mul_of_nonneg_left
-            (le_csSup (bSet_bddAbove S n) ⟨M', hM'_rank, rfl⟩)
+            (le_csSup (bddAbove_bernsteinSet S n) ⟨M', hM'_rank, rfl⟩)
             (mul_nonneg (norm_nonneg _) (norm_nonneg _))
       _ = ‖B‖ * bernsteinNumber S n * ‖A‖ := by ring
   · -- Non-injective case: some nonzero `x ∈ M` has `A x = 0`, so `(BSA) x = 0`.

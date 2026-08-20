@@ -150,13 +150,6 @@ The reverse of `bₙ ≤ cₙ`, when the codomain is a Hilbert space:
 that `S` stretches by more than `γ`; assembling `n+1` of these in nested kernels
 makes their images orthonormal, so `S` is bounded below on their span. -/
 
-/-- Boundedness of the supremum set defining `bernsteinNumber` (the version in
-`SNumbers.Bernstein` is private): every gain is `≤ ‖S‖`. -/
-private lemma bSet_bddAbove' (S : X →L[𝕜] Y) (n : ℕ) :
-    BddAbove {r : ℝ | ∃ M : Submodule 𝕜 X,
-        Module.rank 𝕜 M = (n + 1 : ℕ) ∧ r = gainOnSubspace S M} :=
-  ⟨‖S‖, by rintro _ ⟨M, _, rfl⟩; exact gainOnSubspace_le_norm S M⟩
-
 /-- The common kernel `{x | ∀ i, gᵢ(S x) = 0}` of `k` continuous functionals `gᵢ ∘ S` is a
 closed subspace of codimension `≤ k` (kernel of `x ↦ (gᵢ(S x))ᵢ : X → 𝕜ᵏ`). Used by the
 oracles in `SNumbers.MaxDifference`. -/
@@ -358,7 +351,7 @@ theorem gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert
             mul_le_mul_of_nonneg_left hnormx (by positivity)
         _ = ‖S (∑ i, g i • e i)‖ := by field_simp
   have hble : gainOnSubspace S M ≤ bernsteinNumber S n :=
-    le_csSup (bSet_bddAbove' S n) ⟨M, hrankM, rfl⟩
+    le_csSup (bddAbove_bernsteinSet S n) ⟨M, hrankM, rfl⟩
   have hfin : γ / Real.sqrt ((n : ℝ) + 1) ≤ bernsteinNumber S n := le_trans hgain hble
   rw [div_le_iff₀ hfacs] at hfin
   nlinarith [hγ1, hfin]

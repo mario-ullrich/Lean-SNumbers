@@ -54,14 +54,23 @@ variable [NormedAddCommGroup Z] [NormedSpace 𝕜 Z]
 noncomputable def deviationFromRestriction (S : X →L[𝕜] Y) (M : Submodule 𝕜 X) : ℝ :=
   ‖S.comp M.subtypeL‖
 
+/-- The set of admissible deviations at stage `n`: the numbers `‖S|_M‖` for
+closed subspaces `M ⊆ X` of codimension at most `n`. The `n`-th Gelfand
+number is its infimum. -/
+def gelfandSet (S : X →L[𝕜] Y) (n : ℕ) : Set ℝ :=
+  {r | ∃ M : Submodule 𝕜 X,
+      IsClosed (M : Set X) ∧
+      Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) ∧
+      r = deviationFromRestriction S M}
+
 /-- The `n`-th **Gelfand number** of a continuous linear map.
 
 `c_n S = inf_{M ⊆ X closed, codim M ≤ n} ‖S|_M‖`. -/
 noncomputable def gelfandNumber (S : X →L[𝕜] Y) (n : ℕ) : ℝ :=
-  sInf {r | ∃ M : Submodule 𝕜 X,
-      IsClosed (M : Set X) ∧
-      Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) ∧
-      r = deviationFromRestriction S M}
+  sInf (gelfandSet S n)
+
+lemma gelfandNumber_def (S : X →L[𝕜] Y) (n : ℕ) :
+    gelfandNumber S n = sInf (gelfandSet S n) := rfl
 
 /-! ### Basic facts about `deviationFromRestriction` -/
 
@@ -78,13 +87,12 @@ lemma deviationFromRestriction_le_norm (S : X →L[𝕜] Y) (M : Submodule 𝕜 
         mul_le_mul_of_nonneg_left M.norm_subtypeL_le (norm_nonneg _)
     _ = ‖S‖ := mul_one _
 
-/-! ### Helpers for the infimum set defining `gelfandNumber` -/
+/-! ### Basic facts about `gelfandSet` -/
 
-private lemma gSet_nonempty (S : X →L[𝕜] Y) (n : ℕ) :
-    {r : ℝ | ∃ M : Submodule 𝕜 X,
-        IsClosed (M : Set X) ∧
-        Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) ∧
-        r = deviationFromRestriction S M}.Nonempty := by
+/-- The set of admissible deviations is non-empty: the whole space `⊤` is
+closed of codimension `0 ≤ n`, so it is admissible at every stage. -/
+lemma gelfandSet_nonempty (S : X →L[𝕜] Y) (n : ℕ) :
+    (gelfandSet S n).Nonempty := by
   refine ⟨_, ⊤, ?_, ?_, rfl⟩
   · -- `(⊤ : Submodule 𝕜 X) : Set X` is `Set.univ`, which is closed.
     rw [Submodule.top_coe]; exact isClosed_univ
@@ -93,18 +101,16 @@ private lemma gSet_nonempty (S : X →L[𝕜] Y) (n : ℕ) :
       rank_zero_iff.mpr inferInstance
     rw [h0]; exact bot_le
 
-private lemma gSet_bddBelow (S : X →L[𝕜] Y) (n : ℕ) :
-    BddBelow {r : ℝ | ∃ M : Submodule 𝕜 X,
-        IsClosed (M : Set X) ∧
-        Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) ∧
-        r = deviationFromRestriction S M} :=
+/-- The set of admissible deviations is bounded below by `0`. -/
+lemma bddBelow_gelfandSet (S : X →L[𝕜] Y) (n : ℕ) :
+    BddBelow (gelfandSet S n) :=
   ⟨0, by rintro _ ⟨M, _, _, rfl⟩; exact deviationFromRestriction_nonneg S M⟩
 
 lemma gelfandNumber_le_deviation {S : X →L[𝕜] Y} {n : ℕ} {M : Submodule 𝕜 X}
     (hM_closed : IsClosed (M : Set X))
     (hM_rank : Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal)) :
     gelfandNumber S n ≤ deviationFromRestriction S M :=
-  csInf_le (gSet_bddBelow S n) ⟨M, hM_closed, hM_rank, rfl⟩
+  csInf_le (bddBelow_gelfandSet S n) ⟨M, hM_closed, hM_rank, rfl⟩
 
 /-- Lower bound for the Gelfand number: if `f` is a lower bound for the restriction
 deviation over every admissible (closed, codimension `≤ n`) subspace, then `f ≤ c_n(S)`. -/
@@ -112,7 +118,7 @@ lemma le_gelfandNumber {S : X →L[𝕜] Y} {n : ℕ} {f : ℝ}
     (h : ∀ M : Submodule 𝕜 X, IsClosed (M : Set X) →
         Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) → f ≤ deviationFromRestriction S M) :
     f ≤ gelfandNumber S n :=
-  le_csInf (gSet_nonempty S n) <| by
+  le_csInf (gelfandSet_nonempty S n) <| by
     rintro _ ⟨M, hM_closed, hM_rank, rfl⟩; exact h M hM_closed hM_rank
 
 /-! ## (S1c) Non-negativity -/
@@ -124,11 +130,22 @@ lemma gelfandNumber_nonneg (S : X →L[𝕜] Y) (n : ℕ) :
 
 /-! ## (S1b) Antitone in `n` -/
 
-lemma gelfandNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
-    gelfandNumber S (n + 1) ≤ gelfandNumber S n := by
-  refine csInf_le_csInf (gSet_bddBelow S (n + 1)) (gSet_nonempty S n) ?_
+/-- Raising `n` allows subspaces of larger codimension, hence more deviations
+become admissible. -/
+lemma gelfandSet_subset (S : X →L[𝕜] Y) {n m : ℕ} (h : n ≤ m) :
+    gelfandSet S n ⊆ gelfandSet S m := by
   rintro _ ⟨M, hM_closed, hM_rank, rfl⟩
-  exact ⟨M, hM_closed, hM_rank.trans (by exact_mod_cast Nat.le_succ n), rfl⟩
+  exact ⟨M, hM_closed, hM_rank.trans (by exact_mod_cast h), rfl⟩
+
+/-- If `n ≤ m`, then `c_m S ≤ c_n S`. -/
+lemma gelfandNumber_antitone' (S : X →L[𝕜] Y) {n m : ℕ} (h : n ≤ m) :
+    gelfandNumber S m ≤ gelfandNumber S n :=
+  csInf_le_csInf (bddBelow_gelfandSet S m) (gelfandSet_nonempty S n)
+    (gelfandSet_subset S h)
+
+lemma gelfandNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
+    gelfandNumber S (n + 1) ≤ gelfandNumber S n :=
+  gelfandNumber_antitone' S (Nat.le_succ n)
 
 /-! ## (S1a) Value at `n = 0`: `gelfandNumber S 0 = ‖S‖`
 
@@ -169,7 +186,7 @@ lemma gelfandNumber_zero_eq_norm (S : X →L[𝕜] Y) :
       rw [Submodule.top_coe]; exact isClosed_univ
     exact (gelfandNumber_le_deviation h_closed h_rank).trans_eq
       (deviationFromRestriction_top S)
-  · refine le_csInf (gSet_nonempty S 0) ?_
+  · refine le_csInf (gelfandSet_nonempty S 0) ?_
     rintro _ ⟨M, _, hM_rank, rfl⟩
     -- `rank (X ⧸ M) ≤ 0` ⇒ `X ⧸ M` subsingleton ⇒ `M = ⊤`.
     have h_rank_zero : Module.rank 𝕜 (X ⧸ M) = 0 :=
@@ -190,7 +207,7 @@ lemma gelfandNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
 lemma gelfandNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
     gelfandNumber (S + T) n ≤ gelfandNumber S n + ‖T‖ := by
   rw [← sub_le_iff_le_add]
-  refine le_csInf (gSet_nonempty S n) ?_
+  refine le_csInf (gelfandSet_nonempty S n) ?_
   rintro _ ⟨M, hM_closed, hM_rank, rfl⟩
   -- `(S+T).comp ι_M = S.comp ι_M + T.comp ι_M`. Triangle:
   -- `‖(S+T).comp ι_M‖ ≤ ‖S.comp ι_M‖ + ‖T.comp ι_M‖ ≤ deviation S M + ‖T‖`.
@@ -289,7 +306,7 @@ lemma gelfandNumber_comp_comp_le
             Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) ∧
             r = deviationFromRestriction S M}
     rw [← Real.sInf_smul_of_nonneg (mul_nonneg (norm_nonneg _) (norm_nonneg _))]
-    refine le_csInf ((gSet_nonempty S n).image _) ?_
+    refine le_csInf ((gelfandSet_nonempty S n).image _) ?_
     rintro _ ⟨_, ⟨M, hM_closed, hM_rank, rfl⟩, rfl⟩
     exact hkey M hM_closed hM_rank
   exact h_inf.trans_eq (by ring)
@@ -359,7 +376,7 @@ lemma gelfandNumber_strict {X : Type u} [NormedAddCommGroup X]
       _ = 1 := norm_id
   · -- `≥ 1`: every admissible `M` is non-trivial, so
     -- `‖I.comp M.subtypeL‖ = ‖M.subtypeL‖ = 1`.
-    refine le_csInf (gSet_nonempty I n) ?_
+    refine le_csInf (gelfandSet_nonempty I n) ?_
     rintro _ ⟨M, _, hM_rank, rfl⟩
     -- Show `Nontrivial M` from `codim M ≤ n < finrank X`.
     have hM_finrank_quot_le : Module.finrank 𝕜 (X ⧸ M) ≤ n :=
