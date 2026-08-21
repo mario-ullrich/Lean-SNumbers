@@ -288,10 +288,7 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
         RCLike.re_ofReal_mul, inner_self_eq_norm_sq]
     have hsqle : c ^ 2 * ‖E x‖ ^ 2 ≤ ‖S (E x)‖ ^ 2 := by
       have h := hkey_a; rw [hexpand] at h; linarith
-    calc c * ‖E x‖ = Real.sqrt ((c * ‖E x‖) ^ 2) :=
-          (Real.sqrt_sq (mul_nonneg hc0 (norm_nonneg _))).symm
-      _ ≤ Real.sqrt (‖S (E x)‖ ^ 2) := Real.sqrt_le_sqrt (by rw [mul_pow]; exact hsqle)
-      _ = ‖S (E x)‖ := Real.sqrt_sq (norm_nonneg _)
+    exact le_of_sq_le_sq (by rw [mul_pow]; exact hsqle) (norm_nonneg _)
   · -- bound (b): `‖S ∘ (1 - E)‖ ≤ c`.
     refine ContinuousLinearMap.opNorm_le_bound _ hc0 fun y => ?_
     rw [ContinuousLinearMap.comp_apply]
@@ -315,9 +312,7 @@ theorem exists_spectral_projection_complex [Nontrivial H₁]
         ((RCLike.continuous_re.tendsto _).comp (((P.continuous.tendsto _).comp hu).inner hu)) hpern
     have hsq : ‖S ((1 - E) y)‖ ^ 2 ≤ (c * ‖y‖) ^ 2 := by
       rw [hSnorm ((1 - E) y), mul_pow]; exact hlim
-    calc ‖S ((1 - E) y)‖ = Real.sqrt (‖S ((1 - E) y)‖ ^ 2) := (Real.sqrt_sq (norm_nonneg _)).symm
-      _ ≤ Real.sqrt ((c * ‖y‖) ^ 2) := Real.sqrt_le_sqrt hsq
-      _ = c * ‖y‖ := Real.sqrt_sq (mul_nonneg hc0 (norm_nonneg _))
+    exact le_of_sq_le_sq hsq (mul_nonneg hc0 (norm_nonneg _))
   · -- commutation: `E` commutes with any `ℝ`-linear `J` commuting with `P = S*S`.
     intro J hJ x
     have hcomm : ∀ n, J (T n x) = T n (J x) := fun n =>

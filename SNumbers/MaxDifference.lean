@@ -238,17 +238,15 @@ private lemma growth_ratio_pos (k : ℕ) :
     (0 : ℝ) < (k : ℝ) ^ k / ((k : ℝ) + 1) ^ (k + 1) :=
   div_pos (pow_self_pos k) (pow_pos (by positivity) _)
 
-/-- Two-term Cauchy–Schwarz: for `λ² + μ² = 1` and `a, b ≥ 0`,
-`λ·a + μ·b ≤ √(a² + b²)`. -/
+/-- Two-term Cauchy–Schwarz: for `λ² + μ² = 1` and `c ≥ 0` with `a² + b² = c²`,
+`λ·a + μ·b ≤ c`. No sign assumption on `λ, μ, a, b` is needed: expanding
+`(λa + μb)² + (λb − μa)² = (λ² + μ²)(a² + b²)` already gives `(λa + μb)² ≤ c²`. -/
 private lemma lam_mul_add_mu_mul_le {lam mu a b c : ℝ}
-    (hlam : 0 ≤ lam) (hmu : 0 ≤ mu) (hlm : lam ^ 2 + mu ^ 2 = 1)
-    (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c) (hsq : a ^ 2 + b ^ 2 = c ^ 2) :
+    (hlm : lam ^ 2 + mu ^ 2 = 1) (hc : 0 ≤ c) (hsq : a ^ 2 + b ^ 2 = c ^ 2) :
     lam * a + mu * b ≤ c := by
-  have h1 : (lam * a + mu * b) ^ 2 ≤ c ^ 2 := by nlinarith [sq_nonneg (lam * b - mu * a)]
-  have h2 : 0 ≤ lam * a + mu * b := by positivity
-  calc lam * a + mu * b = Real.sqrt ((lam * a + mu * b) ^ 2) := (Real.sqrt_sq h2).symm
-    _ ≤ Real.sqrt (c ^ 2) := Real.sqrt_le_sqrt h1
-    _ = c := Real.sqrt_sq hc
+  have h1 : (lam * a + mu * b) ^ 2 ≤ c ^ 2 := by
+    nlinarith [sq_nonneg (lam * b - mu * a)]
+  exact le_of_sq_le_sq h1 hc
 
 /-- `(n+1)^{n+1}/nⁿ = (n+1)·(1+1/n)ⁿ ≤ e·(n+1)`, from `1 + x ≤ eˣ` at
 `x = 1/n` raised to the `n`-th power. -/
@@ -556,8 +554,7 @@ private lemma norm_borderDom_le (hA : ‖A‖ ≤ 1) (hx : ‖x‖ ≤ 1)
     rw [norm_smul, norm_mul, RCLike.norm_ofReal, abs_of_nonneg hmu, mul_assoc]
     exact mul_le_mul_of_nonneg_left (mul_le_of_le_one_right (norm_nonneg _) hx) hmu
   refine (norm_add_le _ _).trans ((add_le_add h1 h2).trans ?_)
-  exact lam_mul_add_mu_mul_le hlam hmu hlm (norm_nonneg _) (norm_nonneg _)
-    (norm_nonneg v) (norm_sq_projFin_add_last v)
+  exact lam_mul_add_mu_mul_le hlm (norm_nonneg v) (norm_sq_projFin_add_last v)
 
 /-- The bordered codomain map is a contraction. -/
 private lemma norm_borderCod_le (hB : ‖B‖ ≤ 1) (hb : ‖b‖ ≤ 1)
@@ -593,10 +590,7 @@ private lemma norm_borderCod_le (hB : ‖B‖ ≤ 1) (hb : ‖b‖ ≤ 1)
       have := mul_self_le_mul_self (norm_nonneg (b y)) hby
       nlinarith [sq_nonneg mu]
     nlinarith [e1, e2]
-  calc ‖borderCod B b lam mu y‖ = Real.sqrt (‖borderCod B b lam mu y‖ ^ 2) :=
-        (Real.sqrt_sq (norm_nonneg _)).symm
-    _ ≤ Real.sqrt (‖y‖ ^ 2) := Real.sqrt_le_sqrt hsq2
-    _ = ‖y‖ := Real.sqrt_sq (norm_nonneg _)
+  exact le_of_sq_le_sq hsq2 (norm_nonneg _)
 
 end Border
 

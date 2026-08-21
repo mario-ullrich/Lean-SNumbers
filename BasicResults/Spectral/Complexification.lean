@@ -279,8 +279,7 @@ lemma conj_smul (c : ℂ) (u : Complexification H) :
   have h2 := norm_sq_eq u
   simp only [conj_fst, conj_snd, norm_neg] at h1
   have hsq : ‖conj u‖ ^ 2 = ‖u‖ ^ 2 := by rw [h1, h2]
-  have := congrArg Real.sqrt hsq
-  rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)] at this
+  exact (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).mp hsq
 
 /-- Conjugation as a real-linear isometry. -/
 def conjLi : Complexification H →ₗᵢ[ℝ] Complexification H where
@@ -331,21 +330,10 @@ def complexifyₗ (S : H₁ →L[ℝ] H₂) : Complexification H₁ →ₗ[ℂ] 
 
 lemma norm_complexifyₗ_le (S : H₁ →L[ℝ] H₂) (u : Complexification H₁) :
     ‖complexifyₗ S u‖ ≤ ‖S‖ * ‖u‖ := by
-  rw [← Real.sqrt_sq (norm_nonneg (complexifyₗ S u)),
-    ← Real.sqrt_sq (mul_nonneg (norm_nonneg S) (norm_nonneg u))]
-  apply Real.sqrt_le_sqrt
-  rw [norm_sq_eq]
-  simp only [complexifyₗ_fst, complexifyₗ_snd]
-  have hu := norm_sq_eq u
-  have e1 : ‖S u.1‖ ≤ ‖S‖ * ‖u.1‖ := S.le_opNorm u.1
-  have e2 : ‖S u.2‖ ≤ ‖S‖ * ‖u.2‖ := S.le_opNorm u.2
-  have f1 : ‖S u.1‖ ^ 2 ≤ ‖S‖ ^ 2 * ‖u.1‖ ^ 2 := by
-    nlinarith [e1, norm_nonneg (S u.1), mul_nonneg (norm_nonneg S) (norm_nonneg u.1)]
-  have f2 : ‖S u.2‖ ^ 2 ≤ ‖S‖ ^ 2 * ‖u.2‖ ^ 2 := by
-    nlinarith [e2, norm_nonneg (S u.2), mul_nonneg (norm_nonneg S) (norm_nonneg u.2)]
-  have key : (‖S‖ * ‖u‖) ^ 2 = ‖S‖ ^ 2 * ‖u.1‖ ^ 2 + ‖S‖ ^ 2 * ‖u.2‖ ^ 2 := by
-    rw [mul_pow, hu]; ring
-  rw [key]; linarith [f1, f2]
+  refine le_of_sq_le_sq ?_ (mul_nonneg (norm_nonneg S) (norm_nonneg u))
+  rw [norm_sq_eq (complexifyₗ S u), mul_pow, norm_sq_eq u, mul_add]
+  simp only [complexifyₗ_fst, complexifyₗ_snd, ← mul_pow]
+  gcongr <;> exact S.le_opNorm _
 
 /-- The complexification of a real bounded operator `S`, as a `ℂ`-linear bounded
 operator `(x, y) ↦ (S x, S y)`. -/

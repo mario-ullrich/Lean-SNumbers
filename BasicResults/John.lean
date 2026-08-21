@@ -579,10 +579,7 @@ lemma norm_add_smul_le_of_inner_le
   have h3 : (0 : ℝ) ≤ 1 - t * δ / 4 := by linarith
   have h4 : ‖u + ((t : ℝ) : 𝕜) • H u‖ ^ 2 ≤ (1 - t * δ / 4) ^ 2 := by
     nlinarith [hnorm, sq_nonneg (t * δ)]
-  calc ‖u + ((t : ℝ) : 𝕜) • H u‖
-      = Real.sqrt (‖u + ((t : ℝ) : 𝕜) • H u‖ ^ 2) := (Real.sqrt_sq (norm_nonneg _)).symm
-    _ ≤ Real.sqrt ((1 - t * δ / 4) ^ 2) := Real.sqrt_le_sqrt h4
-    _ = 1 - t * δ / 4 := Real.sqrt_sq h3
+  exact le_of_sq_le_sq h4 h3
 
 /-- **Second-order determinant bound for a trace-zero perturbation.** For a
 self-adjoint `H` with `tr H = 0` and `0 < t` with `t‖H‖ ≤ 1/2`,
