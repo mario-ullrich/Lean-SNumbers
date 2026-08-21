@@ -12,7 +12,8 @@ import Mathlib.Analysis.Complex.Exponential
 import Mathlib.Analysis.InnerProductSpace.Adjoint
 import Mathlib.Analysis.InnerProductSpace.Dual
 import Mathlib.Analysis.InnerProductSpace.Trace
-import Mathlib.Analysis.RCLike.Extend
+import Mathlib.Analysis.LocallyConvex.HahnBanach
+import Mathlib.Analysis.Normed.Module.Span
 import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
 import Mathlib.LinearAlgebra.Basis.Defs
@@ -186,7 +187,7 @@ section SeminormHahnBanach
 open RCLike
 
 variable {𝕜 E : Type*} [RCLike 𝕜] [NormedAddCommGroup E] [InnerProductSpace 𝕜 E]
-variable [FiniteDimensional 𝕜 E] [Module ℝ E] [IsScalarTower ℝ 𝕜 E]
+variable [FiniteDimensional 𝕜 E]
 
 /-- **Hahn–Banach dominated by a seminorm**, inner-product form. For every continuous
 seminorm `q` on a finite-dimensional inner product space over `RCLike 𝕜` and every point
@@ -194,50 +195,41 @@ seminorm `q` on a finite-dimensional inner product space over `RCLike 𝕜` and 
 by `q` everywhere and attains the value `q u` at `u`.
 
 Mathematically: the convex body `{q ≤ 1}` has a supporting hyperplane at each boundary
-point. The proof extends the real functional `t • u ↦ t · q u` on the real line through
-`u` by the sublinear Hahn–Banach theorem (`exists_extension_of_le_sublinear`), passes to a
-`𝕜`-linear functional with the same real part (`Module.Dual.extendRCLike`), and represents
-it by a vector via the Riesz isomorphism (`InnerProductSpace.toDual`). -/
+point. On the `𝕜`-span of `u` the functional `c • u ↦ c · q u` satisfies `‖f z‖ = q z`
+outright, so Mathlib's seminorm Hahn–Banach
+(`Module.Dual.exists_extension_of_le_seminorm`) extends it to all of `E` keeping that
+bound; the Riesz isomorphism (`InnerProductSpace.toDual`) then represents the extension
+by a vector. -/
 theorem Seminorm.exists_inner_le_of_apply (q : Seminorm 𝕜 E) (u : E) :
     ∃ v : E, (∀ x, re ⟪x, v⟫_𝕜 ≤ q x) ∧ re ⟪u, v⟫_𝕜 = q u := by
   have : CompleteSpace E := FiniteDimensional.complete 𝕜 E
   rcases eq_or_ne u 0 with rfl | hu
   · exact ⟨0, fun x => by simp, by simp⟩
-  -- the partial functional `t • u ↦ t * q u` on the real span of `u` is dominated by `q`
-  have hdom : ∀ z : (LinearPMap.mkSpanSingleton (σ := RingHom.id ℝ) u (q u) hu).domain,
-      LinearPMap.mkSpanSingleton (σ := RingHom.id ℝ) u (q u) hu z ≤ q z := by
-    rintro ⟨z, hz⟩
-    obtain ⟨t, rfl⟩ := Submodule.mem_span_singleton.mp hz
-    rw [LinearPMap.mkSpanSingleton'_apply]
-    simp only [RingHom.id_apply, smul_eq_mul]
-    rcases le_or_gt 0 t with ht | ht
-    · have hq : q (t • u) = t * q u := by
-        rw [RCLike.real_smul_eq_coe_smul (K := 𝕜), map_smul_eq_mul, RCLike.norm_ofReal,
-          abs_of_nonneg ht]
-      exact le_of_eq hq.symm
-    · exact le_trans (by nlinarith [apply_nonneg q u]) (apply_nonneg q _)
-  -- extend to a real functional on all of `E`, still dominated by `q`
-  obtain ⟨g, hg_eq, hg_le⟩ := exists_extension_of_le_sublinear
-    (LinearPMap.mkSpanSingleton (σ := RingHom.id ℝ) u (q u) hu) q
-    (fun c hc x => by
-      rw [RCLike.real_smul_eq_coe_smul (K := 𝕜), map_smul_eq_mul, RCLike.norm_ofReal,
-        abs_of_pos hc])
-    (fun x y => map_add_le_add q x y) hdom
-  have hgu : g u = q u := by
-    have h := hg_eq ⟨u, Submodule.mem_span_singleton_self u⟩
-    exact h.trans (LinearPMap.mkSpanSingleton_apply ℝ ℝ hu (q u))
-  -- pass to a `𝕜`-linear functional with real part `g`, and represent it by a vector
-  set F : E →L[𝕜] 𝕜 :=
-    LinearMap.toContinuousLinearMap (Module.Dual.extendRCLike (𝕜 := 𝕜) g) with hF
-  have hFre : ∀ x, re (F x) = g x := fun x => by
-    rw [hF]
-    exact Module.Dual.re_extendRCLike_apply (𝕜 := 𝕜) g x
-  set v : E := (InnerProductSpace.toDual 𝕜 E).symm F with hv
-  have hvx : ∀ x, ⟪v, x⟫_𝕜 = F x := fun x => by
-    rw [hv]; exact InnerProductSpace.toDual_symm_apply
-  have hre : ∀ x, re ⟪x, v⟫_𝕜 = g x := fun x => by
-    rw [← inner_conj_symm x v, RCLike.conj_re, hvx x, hFre x]
-  exact ⟨v, fun x => (hre x).le.trans (hg_le x), by rw [hre u, hgu]⟩
+  -- `f : c • u ↦ c * q u` on the span of `u`; at `z = c • u` both sides are `‖c‖ * q u`
+  set f : Module.Dual 𝕜 (𝕜 ∙ u) :=
+    (q u : 𝕜) • (ContinuousLinearEquiv.coord 𝕜 u hu).toLinearMap with hf
+  have hcoord : ∀ z : (𝕜 ∙ u), (ContinuousLinearEquiv.coord 𝕜 u hu z) • u = (z : E) :=
+    fun z => LinearEquiv.toSpanNonzeroSingleton_symm_apply_smul 𝕜 E u hu z
+  have hdom : ∀ z : (𝕜 ∙ u), ‖f z‖ ≤ q z := by
+    intro z
+    have hq : q (z : E) = ‖ContinuousLinearEquiv.coord 𝕜 u hu z‖ * q u := by
+      rw [← hcoord z, map_smul_eq_mul]
+    rw [hf]
+    simp only [LinearMap.smul_apply, smul_eq_mul, norm_mul, RCLike.norm_ofReal,
+      abs_of_nonneg (apply_nonneg q u), hq]
+    exact le_of_eq (mul_comm _ _)
+  -- extend to all of `E`, still dominated by `q`
+  obtain ⟨g, hg_eq, hg_le⟩ := Module.Dual.exists_extension_of_le_seminorm (𝕜 ∙ u) f hdom
+  have hgu : g u = (q u : 𝕜) := by
+    rw [hg_eq ⟨u, Submodule.mem_span_singleton_self u⟩, hf]
+    simp [RCLike.real_smul_eq_coe_mul]
+  -- represent the extension by a vector via Riesz
+  set v : E := (InnerProductSpace.toDual 𝕜 E).symm (LinearMap.toContinuousLinearMap g) with hv
+  have hre : ∀ x, re ⟪x, v⟫_𝕜 = re (g x) := fun x => by
+    rw [← inner_conj_symm x v, RCLike.conj_re, hv, InnerProductSpace.toDual_symm_apply]
+    rfl
+  exact ⟨v, fun x => (hre x).le.trans ((re_le_norm (g x)).trans (hg_le x)),
+    by rw [hre u, hgu, RCLike.ofReal_re]⟩
 
 end SeminormHahnBanach
 
