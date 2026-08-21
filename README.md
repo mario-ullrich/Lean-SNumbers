@@ -230,21 +230,20 @@ main declarations:
   (`ContinuousLinearMap.opNorm_le_of_unit_closedBall`). Mathlib has the
   supremum identity `sSup_unitClosedBall_eq_norm` but not the bound form.
 * **John's ellipsoid** (`BasicResults/John.lean`, `JohnAux.lean`): the theorem
-  itself (`John.exists_maxVolume`, `john_decomposition`) with the two
-  projection theorems it yields — Kadets–Snobar `‖P‖ ≤ √n`
-  (`exists_projection`) and Garling–Gordon (`exists_projection_ker`). Its
-  general-purpose ingredients: compactness of the convex hull of a compact set
-  in finite dimension (`IsCompact.convexHull`) — Mathlib's
-  `TotallyBounded.convexHull` gives total boundedness of the hull, hence
-  compactness only of its *closure*, and closing that gap is the Carathéodory
-  argument; the supporting-vector
-  form of Hahn–Banach dominated by a *seminorm*, which represents the functional
-  by a vector via Riesz (`Seminorm.exists_inner_le_of_apply`, on top of Mathlib's
-  `Module.Dual.exists_extension_of_le_seminorm`); trace duality
+  itself (`John.exists_maxVolume`, `john_decomposition`) with the two projection
+  theorems it yields — Kadets–Snobar `‖P‖ ≤ √n` (`exists_projection`) and
+  Garling–Gordon (`exists_projection_ker`). Its general-purpose ingredients:
+  compactness of the convex hull of a compact set in finite dimension
+  (`IsCompact.convexHull`), the supporting-vector form of Hahn–Banach dominated
+  by a *seminorm* (`Seminorm.exists_inner_le_of_apply`), trace duality
   (`ContinuousLinearMap.exists_trace_repr`, `ContinuousLinearMap.trace_adjoint`),
-  and the product
-  bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²` (`one_sub_two_mul_sum_sq_le_prod_one_add`,
-  `Real.exp_sub_two_mul_sq_le`).
+  and the product bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²`
+  (`one_sub_two_mul_sum_sq_le_prod_one_add`, `Real.exp_sub_two_mul_sq_le`).
+  Mathlib comes close on two of these: `TotallyBounded.convexHull` gives total
+  boundedness of the hull, hence compactness only of its closure, and the
+  Carathéodory argument supplies the missing closedness; and
+  `Module.Dual.exists_extension_of_le_seminorm` gives the extension, on top of
+  which Riesz produces the representing vector.
 * **Auerbach's lemma** (`BasicResults/Auerbach.lean`): every finite-dimensional
   real normed space has a basis with `‖eᵢ‖ = ‖eᵢ*‖ = 1`
   (`exists_isAuerbachBasis`).
@@ -281,18 +280,20 @@ main declarations:
   need them: `‖x‖_p ≤ ‖x‖_q` for `q ≤ p`
   (`piLp_norm_le_of_exponent_ge`, `SNumbers/Examples/DiagonalMatrices.lean`) and
   `‖x‖_p ≤ m^{1/p−1/q}‖x‖_q` (`piLp_norm_le_card_rpow_mul`,
-  `SNumbers/Examples/Identity.lean`). Both belong in `PiLp.lean`; the second is
-  the `PiLp` reading of Mathlib's
-  `eLpNorm_le_eLpNorm_mul_rpow_measure_univ` for the counting measure.
+  `SNumbers/Examples/Identity.lean`). Both belong in `PiLp.lean`; the second is the
+  `PiLp` reading of Mathlib's `eLpNorm_le_eLpNorm_mul_rpow_measure_univ` for the
+  counting measure.
 * **Sign averaging and little Grothendieck**
   (`BasicResults/LittleGrothendieck.lean`): the Rademacher identity that the
   average of `‖∑ εⱼwⱼ‖²` over all sign patterns is `∑ ‖wⱼ‖²`
   (`sum_powerset_norm_signedSum_sq`), and the resulting bounds
   `∑ ‖Beⱼ‖² ≤ ‖B‖²` for `B : ℓ_∞ → H` and `∑ ‖rowⱼ‖² ≤ ‖A‖²` for `A : H → ℓ₁`.
-* **The `ℓ₁` quotient** (`SNumbers/KolmogorovLifting.lean`): that the canonical
-  summation map `Q_X : ℓ¹(B_X) ↠ X` is *surjective*, realising every Banach space
-  as a quotient of an `ℓ₁` space, and the lifting of operators through it. The map
-  itself is Mathlib's `lp.tsumCLM`, which carries no surjectivity statement.
+* **The `ℓ₁` quotient** (`SNumbers/KolmogorovLifting.lean`): the summation map
+  `Q_X : ℓ¹(B_X) →L[𝕜] X`, `α ↦ ∑' x, α x • x`, with `‖Q_X‖ ≤ 1`, the
+  basis-vector identity `Q_single`, the norm identity `‖B ∘ Q_X‖ = ‖B‖`
+  (`norm_le_norm_comp_Q`), and the lifting `liftA` / `Q_comp_liftA`. Mathlib
+  has only the vector-valued `lp.tsumCLM` and `lp.mapCLM`, which `Q_X` factors
+  through.
 * **Coordinate pigeonhole and flatness**
   (`SNumbers/Examples/ExHelpers.lean`): a subspace of `𝕜^m` of dimension
   `> |A|` contains a nonzero vector vanishing on `A`
@@ -401,7 +402,7 @@ main declarations:
 │   │                              `exists_projection` (‖P‖ ≤ √dim) + Garling–Gordon
 │   │                              `exists_projection_ker` (‖P‖ ≤ √dim + ε); all proved
 │   ├── JohnAux.lean            ← general ingredients (Mathlib candidates): compact
-│   │                              convex hulls, seminorm Hahn–Banach, trace duality,
+│   │                              convex hulls, supporting-vector Hahn–Banach, trace duality,
 │   │                              ∏(1+aᵢ) ≥ 1−2∑aᵢ²
 │   ├── LittleGrothendieck.lean ← sign averaging (∑‖wⱼ‖² ≤ M² if all signed sums
 │   │                              have norm ≤ M) ⇒ ∑‖Beⱼ‖² ≤ ‖B‖² for B : ℓ_∞ → H
