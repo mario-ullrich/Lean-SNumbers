@@ -91,6 +91,22 @@ lemma OrthonormalOrZero.inner_eq {H : Type*} [NormedAddCommGroup H]
   · subst hij; exact inner_self_eq_norm_sq_to_K (u i)
   · exact h.2 hij
 
+/-- **Restricting away the zeros.** An `OrthonormalOrZero` family, reindexed along
+an injective map that only hits unit vectors, is `Orthonormal`. This is how a
+finite subfamily of an SVD family — the indices with non-zero singular value — is
+recognised as an orthonormal basis of its span. -/
+lemma OrthonormalOrZero.orthonormal_comp {H : Type*} [NormedAddCommGroup H]
+    [InnerProductSpace 𝕜 H] {ι κ : Type*} [DecidableEq ι] [DecidableEq κ] {u : ι → H}
+    (h : OrthonormalOrZero 𝕜 u) {g : κ → ι} (hg : Function.Injective g)
+    (hn : ∀ k, ‖u (g k)‖ = 1) :
+    Orthonormal 𝕜 (fun k => u (g k)) := by
+  rw [orthonormal_iff_ite]
+  intro i j
+  rw [h.inner_eq (g i) (g j)]
+  by_cases hij : i = j
+  · subst hij; simp [hn i]
+  · simp [hg.ne hij, hij]
+
 /-- Finite Pythagoras for an orthonormal-or-zero family:
 `‖∑ cₖ • uₖ‖² = ∑ ‖cₖ‖² ‖uₖ‖²` (zero vectors drop out). -/
 lemma OrthonormalOrZero.norm_sum_smul_sq {H : Type*} [NormedAddCommGroup H]
@@ -1031,9 +1047,7 @@ private lemma svd_truncation_residual_le {S : H₁ →L[𝕜] H₂} {σ : ℕ �
         _ ≤ σ m ^ 2 * ‖x‖ ^ 2 :=
             mul_le_mul_of_nonneg_left (hu.sum_inner_products_le x w) (sq_nonneg _)
         _ = (σ m * ‖x‖) ^ 2 := by rw [mul_pow]
-    have hnn : 0 ≤ σ m * ‖x‖ := mul_nonneg (hσ0 m) (norm_nonneg _)
-    have hsqrt := Real.sqrt_le_sqrt hsq
-    rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq hnn] at hsqrt
+    exact le_of_sq_le_sq hsq (mul_nonneg (hσ0 m) (norm_nonneg _))
   have htend0 : Tendsto
       (fun t : Finset ℕ => ∑ k ∈ t, (((σ k : 𝕜) * inner 𝕜 (u k) x) • v k))
       atTop (𝓝 (S x)) := hsum x
@@ -1123,10 +1137,8 @@ lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ
             mul_comm (‖a i‖ ^ 2)]
           exact mul_le_mul_of_nonneg_right
             (pow_le_pow_left₀ (hσ0 m) (hσanti (Fin.is_le i)) 2) (sq_nonneg _)
-        have hnn : 0 ≤ σ m * ‖x‖ := mul_nonneg (hσ0 m) (norm_nonneg _)
         have hkey2 : (σ m * ‖x‖) ^ 2 ≤ ‖S x‖ ^ 2 := by rw [mul_pow]; exact hkey
-        have hsqrt := Real.sqrt_le_sqrt hkey2
-        rwa [Real.sqrt_sq hnn, Real.sqrt_sq (norm_nonneg _)] at hsqrt
+        exact le_of_sq_le_sq hkey2 (norm_nonneg _)
       have hbern : σ m ≤ SNumbers.bernsteinNumber S m := by
         refine hgain.trans ?_
         unfold SNumbers.bernsteinNumber
@@ -1225,8 +1237,7 @@ theorem IsCompactOperator.diagonalFactorisation
       · rw [hk0, norm_zero]
         have h0 : ‖x k‖ ^ 2 * (0 : ℝ) ^ 2 = 0 := by ring
         rw [h0]; exact sq_nonneg _
-    have hsqrt := Real.sqrt_le_sqrt hsq
-    rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)] at hsqrt
+    exact le_of_sq_le_sq hsq (norm_nonneg _)
   · -- `‖B‖ ≤ 1`: Bessel's inequality.
     refine ContinuousLinearMap.opNorm_le_bound _ zero_le_one fun y => ?_
     rw [one_mul]
@@ -1244,8 +1255,7 @@ theorem IsCompactOperator.diagonalFactorisation
       rw [h1]
       exact (hv.comp (f := (Fin.val : Fin (n + 1) → ℕ)) Fin.val_injective).sum_inner_products_le
         y Finset.univ
-    have hsqrt := Real.sqrt_le_sqrt hsq
-    rwa [Real.sqrt_sq (norm_nonneg _), Real.sqrt_sq (norm_nonneg _)] at hsqrt
+    exact le_of_sq_le_sq hsq (norm_nonneg _)
   · -- Diagonalisation: `B (S (A eₖ)) = B (σₖ vₖ) = σₖ eₖ = aₖ eₖ`.
     intro k
     have hAk : A (EuclideanSpace.single k (1 : 𝕜)) = u k := by

@@ -124,30 +124,26 @@ private theorem norm_maximizer_eq_one {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
 -- § 4. The dual coordinate functionals
 -- ============================================================================
 
-/-- The `i`-th coordinate functional: `v ↦ det(e₁,…,v,…,eₙ) / det(e)`. -/
-def coordFunOfDet {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
-    (e : Fin n → V) (_h_det : b₀.det e ≠ 0) (i : Fin n) : V →L[ℝ] ℝ := by
-  refine ContinuousLinearMap.mk
-    { toFun := fun v => b₀.det (Function.update e i v) / b₀.det e
-      map_add' := fun x y => by
-        have h : b₀.det (Function.update e i (x + y)) =
-            b₀.det (Function.update e i x) + b₀.det (Function.update e i y) :=
-          b₀.det.toMultilinearMap.map_update_add' e i x y
-        change b₀.det (Function.update e i (x + y)) / _ = _
-        rw [h, add_div]
-      map_smul' := fun c x => by
-        have h : b₀.det (Function.update e i (c • x)) =
-            c * b₀.det (Function.update e i x) := by
-          have := b₀.det.toMultilinearMap.map_update_smul' e i c x
-          rwa [smul_eq_mul] at this
-        change b₀.det (Function.update e i (c • x)) / _ = _
-        rw [h, RingHom.id_apply, smul_eq_mul, mul_div_assoc] } ?_
-  exact LinearMap.continuous_of_finiteDimensional _
+/-- The `i`-th coordinate functional: `v ↦ det(e₁,…,v,…,eₙ) / det(e)`.
+
+Linearity is Mathlib's: fixing all but the `i`-th argument of the multilinear
+`b₀.det` gives a linear map (`MultilinearMap.toLinearMap`), which is then scaled
+by `(det e)⁻¹` and continuous because `V` is finite-dimensional. -/
+noncomputable def coordFunOfDet {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
+    (e : Fin n → V) (_h_det : b₀.det e ≠ 0) (i : Fin n) : V →L[ℝ] ℝ :=
+  LinearMap.toContinuousLinearMap
+    ((b₀.det e)⁻¹ • b₀.det.toMultilinearMap.toLinearMap e i)
+
+/-- The defining value of `coordFunOfDet`, in the `div` form of the definition. -/
+theorem coordFunOfDet_apply_eq {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
+    (e : Fin n → V) (h_det : b₀.det e ≠ 0) (i : Fin n) (v : V) :
+    coordFunOfDet b₀ e h_det i v = b₀.det (Function.update e i v) / b₀.det e := by
+  simp [coordFunOfDet, div_eq_inv_mul]
 
 theorem coordFunOfDet_apply {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
     (e : Fin n → V) (h_det : b₀.det e ≠ 0) (i j : Fin n) :
     coordFunOfDet b₀ e h_det i (e j) = if i = j then 1 else 0 := by
-  simp only [coordFunOfDet, ContinuousLinearMap.coe_mk', LinearMap.coe_mk, AddHom.coe_mk]
+  rw [coordFunOfDet_apply_eq]
   split_ifs with h
   · subst h; rw [Function.update_eq_self, div_self h_det]
   · rw [div_eq_zero_iff]; left
@@ -166,9 +162,7 @@ private theorem norm_coordFunOfDet_le_one {n : ℕ} (b₀ : Basis (Fin n) ℝ V)
     ‖coordFunOfDet b₀ e h_det i‖ ≤ 1 := by
   have hbound : ∀ v : V, ‖coordFunOfDet b₀ e h_det i v‖ ≤ 1 * ‖v‖ := by
     intro v; rw [one_mul]
-    have hval : coordFunOfDet b₀ e h_det i v =
-        b₀.det (Function.update e i v) / b₀.det e := rfl
-    rw [hval, Real.norm_eq_abs, abs_div]
+    rw [coordFunOfDet_apply_eq, Real.norm_eq_abs, abs_div]
     rcases eq_or_ne v 0 with rfl | hv
     · simp
     · rw [div_le_iff₀ (abs_pos.mpr h_det)]

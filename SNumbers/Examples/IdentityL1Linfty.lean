@@ -203,14 +203,12 @@ Cauchy–Schwarz bounds relating the `ℓ₁`/`ℓ₂` and `ℓ₂`/`ℓ_∞` no
 vector, both with the factor `√m`. -/
 
 open scoped Finset in
-/-- `∑ᵢ ‖vᵢ‖ ≤ √m · ‖v‖₂` on `ℓ₂ᵐ` (Cauchy–Schwarz against the all-ones vector). -/
+/-- `∑ᵢ ‖vᵢ‖ ≤ √m · ‖v‖₂` on `ℓ₂ᵐ`: the `EuclideanSpace` reading of
+`SNumbers.sum_le_sqrt_card_mul_sqrt_sum_sq`. -/
 lemma sum_norm_le_sqrt_mul_norm {m : ℕ} (v : EuclideanSpace 𝕜 (Fin m)) :
     ∑ i, ‖v i‖ ≤ Real.sqrt m * ‖v‖ := by
-  have h := Real.sum_mul_le_sqrt_mul_sqrt Finset.univ (fun i : Fin m => ‖v i‖) (fun _ => (1 : ℝ))
-  simp only [mul_one, one_pow, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
-    nsmul_eq_mul, mul_one] at h
-  rw [EuclideanSpace.norm_eq, mul_comm]
-  exact h
+  refine (SNumbers.sum_le_sqrt_card_mul_sqrt_sum_sq fun i => ‖v i‖).trans ?_
+  rw [EuclideanSpace.norm_eq, Fintype.card_fin]
 
 /-! ### The factorization `id_{ℓ₂ᵐ} = proj∞ ∘ I ∘ emb1`
 
@@ -277,11 +275,7 @@ lemma norm_projinf_apply_le (m : ℕ) (y : Linf 𝕜) :
   have key : ‖(projinf m : Linf 𝕜 →L[𝕜] EuclideanSpace 𝕜 (Fin m)) y‖ ^ 2
       ≤ (Real.sqrt m * ‖y‖) ^ 2 := by
     rw [mul_pow, Real.sq_sqrt (by positivity : (0 : ℝ) ≤ (m : ℝ)), hsq]; exact hle
-  calc ‖(projinf m : Linf 𝕜 →L[𝕜] EuclideanSpace 𝕜 (Fin m)) y‖
-      = Real.sqrt (‖(projinf m : Linf 𝕜 →L[𝕜] EuclideanSpace 𝕜 (Fin m)) y‖ ^ 2) :=
-        (Real.sqrt_sq hnn).symm
-    _ ≤ Real.sqrt ((Real.sqrt m * ‖y‖) ^ 2) := Real.sqrt_le_sqrt key
-    _ = Real.sqrt m * ‖y‖ := Real.sqrt_sq (by positivity)
+  exact le_of_sq_le_sq key (by positivity)
 
 lemma norm_projinf_le (m : ℕ) :
     ‖(projinf m : Linf 𝕜 →L[𝕜] EuclideanSpace 𝕜 (Fin m))‖ ≤ Real.sqrt m :=

@@ -320,21 +320,11 @@ theorem gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert
           refine Finset.sum_congr rfl (fun i _ => ?_)
           rw [inner_smul_left, hgj g i, RCLike.conj_mul]
         exact_mod_cast hK
-      have hCS : (∑ j, ‖g j‖) ^ 2 ≤ ((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖ ^ 2 := by
-        have h1 := Finset.sum_mul_sq_le_sq_mul_sq Finset.univ
-          (fun j : Fin (n + 1) => ‖g j‖) (fun _ => (1 : ℝ))
-        simp only [mul_one, one_pow] at h1
-        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, mul_one] at h1
-        rw [hpars] at h1
-        push_cast at h1
-        nlinarith [h1]
       have hsum_abs : ∑ j, ‖g j‖ ≤ Real.sqrt ((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖ := by
-        rw [← Real.sqrt_sq (Finset.sum_nonneg fun j _ => norm_nonneg (g j))]
-        have hrw : Real.sqrt ((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖
-            = Real.sqrt (((n : ℝ) + 1) * ‖S (∑ i, g i • e i)‖ ^ 2) := by
-          rw [Real.sqrt_mul (by positivity), Real.sqrt_sq (norm_nonneg _)]
-        rw [hrw]
-        exact Real.sqrt_le_sqrt hCS
+        refine (SNumbers.sum_le_sqrt_card_mul_sqrt_sum_sq fun j => ‖g j‖).trans ?_
+        rw [hpars, Real.sqrt_sq (norm_nonneg _), Fintype.card_fin]
+        push_cast
+        rfl
       have hnormx : ‖∑ i, g i • e i‖ ≤ Real.sqrt ((n : ℝ) + 1) / γ * ‖S (∑ i, g i • e i)‖ := by
         calc ‖∑ i, g i • e i‖
             ≤ ∑ i, ‖g i • e i‖ := norm_sum_le _ _

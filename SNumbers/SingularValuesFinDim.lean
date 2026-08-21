@@ -126,13 +126,8 @@ private lemma svd_sigma_eq_zero_of_finrank_le {σ : ℕ → ℝ} {u : ℕ → H�
     rcases hu.1 ↑i with h1 | h0
     · exact h1
     · exact absurd h0 (hut ↑i (ne_of_gt (hpos i)))
-  have horth : Orthonormal 𝕜 (fun i : Fin (k + 1) => u ↑i) := by
-    rw [orthonormal_iff_ite]
-    intro i j
-    rw [hu.inner_eq ↑i ↑j]
-    by_cases hij : i = j
-    · subst hij; simp [hni i]
-    · rw [if_neg (fun e => hij (Fin.ext e)), if_neg hij]
+  have horth : Orthonormal 𝕜 (fun i : Fin (k + 1) => u ↑i) :=
+    hu.orthonormal_comp (fun _ _ e => Fin.ext e) hni
   have hcard := horth.linearIndependent.fintype_card_le_finrank
   simp only [Fintype.card_fin] at hcard
   omega
@@ -210,16 +205,8 @@ private lemma card_le_finrank_eigenspace_pos {S : H₁ →L[𝕜] H₂} {σ : �
     · exact absurd h0 (hut ↑i hσ)
   -- `b`: the matching family, orthonormal.
   set b : {i // i ∈ K} → H₁ := fun i => u ↑(i : Fin m) with hbdef
-  have hborth : Orthonormal 𝕜 b := by
-    rw [orthonormal_iff_ite]
-    rintro ⟨i, hi⟩ ⟨j, hj⟩
-    show (inner 𝕜 (u ↑i) (u ↑j) : 𝕜) = if (⟨i, hi⟩ : {i // i ∈ K}) = ⟨j, hj⟩ then 1 else 0
-    rw [hu.inner_eq ↑i ↑j]
-    by_cases hij : (⟨i, hi⟩ : {i // i ∈ K}) = ⟨j, hj⟩
-    · have : i = j := congrArg (·.1) hij
-      subst this; simp [hnorm i hi]
-    · have hne : (↑i : ℕ) ≠ ↑j := fun e => hij (Subtype.ext (Fin.ext e))
-      rw [if_neg hne, if_neg hij]
+  have hborth : Orthonormal 𝕜 b :=
+    hu.orthonormal_comp (fun i j e => Subtype.ext (Fin.ext e)) fun i => hnorm i i.2
   -- Each `b i` is an eigenvector for the eigenvalue `ν`.
   have hmem : Submodule.span 𝕜 (Set.range b) ≤ Module.End.eigenspace T (ν : 𝕜) := by
     rw [Submodule.span_le, Set.range_subset_iff]
@@ -401,7 +388,7 @@ theorem project_singularValues_eq (S : H₁ →L[𝕜] H₂) (n : ℕ) :
   · -- `n < finrank`: `σₙ² = eigenvalues n`, and both sides are `≥ 0`.
     have h2 : (S : H₁ →ₗ[𝕜] H₂).singularValues n ^ 2 = (σ n) ^ 2 := by
       rw [(S : H₁ →ₗ[𝕜] H₂).sq_singularValues_of_lt rfl hn, hmatch ⟨n, hn⟩]
-    rw [← Real.sqrt_sq ((S : H₁ →ₗ[𝕜] H₂).singularValues_nonneg n), h2, Real.sqrt_sq (hσ0 n)]
+    exact (sq_eq_sq₀ ((S : H₁ →ₗ[𝕜] H₂).singularValues_nonneg n) (hσ0 n)).mp h2
   · -- `n ≥ finrank`: both sides vanish.
     rw [(S : H₁ →ₗ[𝕜] H₂).singularValues_of_finrank_le hn]
     exact (svd_sigma_eq_zero_of_finrank_le hσ0 hσanti hu hut hn).symm

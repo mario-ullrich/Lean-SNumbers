@@ -130,15 +130,6 @@ private lemma exists_fin_net_of_totallyBounded {s : Set Y} (hs : TotallyBounded 
   simp only [Equiv.symm_apply_apply]
   exact le_of_lt (by rwa [← dist_eq_norm])
 
-/-- Extraction of a single index from a null sequence of non-negative reals. -/
-private lemma exists_lt_of_tendsto_zero {u : ℕ → ℝ} (hu : ∀ n, 0 ≤ u n)
-    (h : Tendsto u atTop (𝓝 0)) {ε : ℝ} (hε : 0 < ε) :
-    ∃ n, u n < ε := by
-  obtain ⟨n, hn⟩ := (Metric.tendsto_atTop.mp h) ε hε
-  refine ⟨n, ?_⟩
-  have hlt := hn n le_rfl
-  rwa [Real.dist_eq, sub_zero, abs_of_nonneg (hu n)] at hlt
-
 end TotallyBounded
 
 /-! ### The Kolmogorov numbers -/
@@ -179,7 +170,7 @@ theorem totallyBounded_of_tendsto_kolmogorovNumber {S : X →L[𝕜] Y}
     TotallyBounded (⇑S '' Metric.closedBall 0 1) := by
   refine Metric.totallyBounded_iff.mpr fun η hη => ?_
   have hε : 0 < η / 3 := by positivity
-  obtain ⟨n, hn⟩ := exists_lt_of_tendsto_zero (kolmogorovNumber_nonneg S) hS hε
+  obtain ⟨n, hn⟩ := (hS.eventually_lt_const hε).exists
   obtain ⟨-, ⟨V, hV_rank, rfl⟩, hV_lt⟩ :=
     exists_lt_of_csInf_lt (kolmogorovSet_nonempty S n) hn
   have : FiniteDimensional 𝕜 V :=
@@ -313,7 +304,7 @@ theorem totallyBounded_of_tendsto_gelfandNumber {S : X →L[𝕜] Y}
           mul_le_mul_of_nonneg_left h1 hpos.le
       _ = η / 2 := by field_simp
   -- A closed subspace of finite codimension on which `S` is small.
-  obtain ⟨n, hn⟩ := exists_lt_of_tendsto_zero (gelfandNumber_nonneg S) hS hε
+  obtain ⟨n, hn⟩ := (hS.eventually_lt_const hε).exists
   obtain ⟨-, ⟨M, hM_closed, hM_rank, rfl⟩, hM_lt⟩ :=
     exists_lt_of_csInf_lt (gelfandSet_nonempty S n) hn
   have : IsClosed (M : Set X) := hM_closed

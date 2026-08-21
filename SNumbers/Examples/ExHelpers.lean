@@ -76,15 +76,9 @@ lemma exists_mem_ker_coords {V : Submodule 𝕜 (Fin m → 𝕜)}
   classical
   set r : V →ₗ[𝕜] (A → 𝕜) :=
     LinearMap.pi (fun i : A => (LinearMap.proj (i : Fin m)).comp V.subtype) with hr
-  have hrange : Module.finrank 𝕜 (LinearMap.range r) ≤ A.card := by
-    calc Module.finrank 𝕜 (LinearMap.range r)
-        ≤ Module.finrank 𝕜 (A → 𝕜) := Submodule.finrank_le _
-      _ = A.card := by rw [Module.finrank_pi, Fintype.card_coe]
-  have hker : 0 < Module.finrank 𝕜 (LinearMap.ker r) := by
-    have hrn := r.finrank_range_add_finrank_ker
-    omega
-  have hne : LinearMap.ker r ≠ ⊥ := by
-    intro h; rw [h, finrank_bot] at hker; exact lt_irrefl 0 hker
+  have hne : LinearMap.ker r ≠ ⊥ :=
+    LinearMap.ker_ne_bot_of_finrank_lt
+      (by rwa [Module.finrank_pi, Fintype.card_coe])
   obtain ⟨z, hzmem, hz0⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hne
   refine ⟨(z : Fin m → 𝕜), z.2, fun h => hz0 (Submodule.coe_eq_zero.mp h), fun i hi => ?_⟩
   have hz : r z = 0 := LinearMap.mem_ker.mp hzmem

@@ -151,7 +151,15 @@ theorem exists_tendsto_of_antitone_isPositive {T : ℕ → (H →L[ℂ] H)}
 open Filter Topology in
 /-- **The strong limit as a bounded operator.** A pointwise-antitone sequence of
 positive operators has a continuous-linear strong limit `E`: `T n x → E x` for
-every `x`, with `‖E‖ ≤ ‖T 0‖`. -/
+every `x`, with `‖E‖ ≤ ‖T 0‖`.
+
+The continuity of the limit is established here by hand, via the uniform bound
+`‖T k‖ ≤ ‖T 0‖` and `LinearMap.mkContinuous`. Mathlib's
+`continuousLinearMapOfTendsto` proves the same thing in general — a pointwise
+limit of continuous linear maps along a countably generated filter is again
+continuous — but it rests on Banach–Steinhaus, so using it would pull
+`Mathlib.Analysis.LocallyConvex.Barrelled` into this file. Since the uniform
+bound is available for free here, the elementary route is kept. -/
 theorem exists_continuousLinearMap_tendsto {T : ℕ → (H →L[ℂ] H)}
     (hpos : ∀ n, (T n).IsPositive) (hanti : Antitone T) :
     ∃ E : H →L[ℂ] H, ∀ x, Tendsto (fun n => T n x) atTop (𝓝 (E x)) := by

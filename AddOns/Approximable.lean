@@ -215,10 +215,8 @@ theorem IsApproximable.add {S T : X →L[𝕜] Y}
                     (S - L (n / 2)) + (T - K (n - n / 2)) := by abel
       rw [h_eq]; exact norm_add_le _ _
     -- Both subsequences `n/2` and `n - n/2` diverge to ∞.
-    have h_div : Tendsto (fun n : ℕ => n / 2) atTop atTop := by
-      refine Filter.tendsto_atTop_atTop.mpr fun N => ⟨2 * N, fun n hn => ?_⟩
-      calc N = 2 * N / 2 := by omega
-        _ ≤ n / 2 := Nat.div_le_div_right hn
+    have h_div : Tendsto (fun n : ℕ => n / 2) atTop atTop :=
+      Nat.tendsto_div_const_atTop (by norm_num)
     have h_sub : Tendsto (fun n : ℕ => n - n / 2) atTop atTop := by
       have h_dom : ∀ n : ℕ, n / 2 ≤ n - n / 2 := fun n => by omega
       exact tendsto_atTop_mono h_dom h_div
