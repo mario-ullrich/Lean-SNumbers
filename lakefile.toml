@@ -22,3 +22,16 @@ name = "BasicResults"
 
 [[lean_lib]]
 name = "AddOns"
+
+# Submission surfaces for the Palomar registry. Kept out of `defaultTargets`
+# on purpose: a plain `lake build` then behaves exactly as before and never
+# compiles the Challenge modules, whose `sorry` placeholders are required by
+# the submission format. Build them explicitly with `lake build Palomar`.
+#
+# The glob makes every module under `Palomar/` its own root. A Challenge and
+# its Solution must not meet in one environment — the Challenge repeats the
+# definitions that the Solution gets from `SNumbers`, so importing both would
+# declare them twice. Comparator likewise compiles the two separately.
+[[lean_lib]]
+name = "Palomar"
+globs = ["Palomar.+"]

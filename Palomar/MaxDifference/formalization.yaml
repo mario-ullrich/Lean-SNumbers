@@ -1,0 +1,243 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+# formalization.yaml v0.4
+version: "v0.4"
+
+project:
+  name: "The maximal difference theorem for s-numbers"
+  description: >-
+    A bound between the two extremes of the Pietsch scale of s-numbers. The
+    approximation numbers a_n are the largest s-number sequence and the Hilbert
+    numbers h_n the smallest, so that h_n(S) <= s_n(S) <= a_n(S) holds for every
+    s-number sequence s and every bounded linear operator S between Banach
+    spaces. The formalized result bounds how far apart the two extremes can be:
+    a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S) <= e * (n+1) * h_n(S), for every
+    bounded linear operator between normed spaces over the reals or the complex
+    numbers. Since h_n is the smallest s-number sequence, the same factor bounds
+    the gap between any two s-number sequences. The linear growth in n is
+    order-optimal.
+  authors:
+    - "Mario Ullrich"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Mario Ullrich"
+
+classification:
+  arxiv: ["math.FA", "math.OA"]
+  msc2020: ["47B06", "47L20", "46B06", "41A46"]
+
+sources:
+  - title: "On bounds between all s-numbers and widths of convex sets"
+    authors:
+      - "Mario Ullrich"
+    id: "arXiv:2608.05024"
+    type: "preprint"
+    location: "https://arxiv.org/abs/2608.05024"
+    relationship: "formalizes"
+    note: >-
+      The source proves a_n(S) <= e (n+1) s_n(S) for every s-number sequence s.
+      The advertised statement is the instance s = h, the Hilbert numbers, which
+      is the sharpest case and implies the general one because h_n is the
+      smallest s-number sequence; the general form is proved in the repository as
+      SNumbers.approximationNumber_le_e_mul_sn. The source also establishes the
+      sharp form of the constant, (n+1)^(n+1)/n^n, which is advertised here as
+      well, and extends the bound to widths of convex sets, which is not
+      formalized.
+    author_endorsement: "participated"
+  - title: "Inequalities between s-numbers"
+    authors:
+      - "Mario Ullrich"
+    id: "arXiv:2405.05509"
+    type: "article"
+    location: "https://doi.org/10.1007/s43036-024-00386-x"
+    relationship: "background"
+    note: >-
+      Advances in Operator Theory (2024). The earlier paper in the same line,
+      with an elementary proof of a bound between the smallest and the largest
+      s-number.
+  - title: "s-numbers of operators in Banach spaces"
+    authors:
+      - "Albrecht Pietsch"
+    type: "article"
+    location: "Studia Mathematica 51 (1974), 201-223"
+    relationship: "background"
+    note: >-
+      The axioms (S1)-(S5) defining an s-number sequence, which fix the meaning
+      of every notion used in the advertised statement.
+  - title: "Eigenvalues and s-numbers"
+    authors:
+      - "Albrecht Pietsch"
+    type: "book"
+    location: "Cambridge Studies in Advanced Mathematics 13, Cambridge University Press, 1987"
+    relationship: "background"
+    note: >-
+      Sections 2.3.4 and 2.6.3 establish that the Hilbert numbers are the
+      smallest and the approximation numbers the largest s-number sequence, which
+      is what makes the advertised bound a statement about the whole scale.
+  - title: "Operator ideals"
+    authors:
+      - "Albrecht Pietsch"
+    type: "book"
+    location: "North-Holland Mathematical Library 20, Elsevier, 1980"
+    relationship: "background"
+    note: >-
+      Section 11.12.3 proves max(c_n, d_n) <= (n+1)^2 b_n; section 11.12.4
+      restates the conjecture that the factor n+1 suffices.
+  - title: "Some contributions to the theory of s-numbers"
+    authors:
+      - "Bernd Carl"
+      - "Albrecht Pietsch"
+    type: "article"
+    location: "Commentationes Mathematicae (Prace Matematyczne) 21 (1978), 65-76"
+    relationship: "background"
+    note: >-
+      Where the stronger conjecture is made. Carl and Pietsch conjectured the
+      factor n+1 between the extremes of the scale. What is proved and formalized
+      here is that factor up to the constant e, in the sharp form
+      (n+1)^(n+1)/n^n; the conjectured bound with constant 1 is not established.
+  - title: "Hilbert-Zahlen von Operatoren in Banachraeumen"
+    authors:
+      - "Wolfgang Bauhardt"
+    type: "article"
+    location: "Mathematische Nachrichten 79 (1977), 181-187"
+    relationship: "background"
+    note: >-
+      States the corresponding bound and conjecture with the Hilbert numbers h_n
+      in place of the Bernstein numbers, that is, in exactly the form advertised
+      here.
+  - title: "Inequalities between n-diameters"
+    authors:
+      - "Boris S. Mityagin"
+      - "Gennadi M. Henkin"
+    type: "article"
+    location: "Proceedings of the Seminar on Functional Analysis 7, Voronezh, 1963, 97-103"
+    relationship: "background"
+    note: >-
+      The 1963 origin of the question, with the factor (n+1)^2 between the
+      Gelfand and Kolmogorov numbers and the Bernstein numbers.
+  - title: "Long-standing open problems of Banach space theory: My personal top ten"
+    authors:
+      - "Albrecht Pietsch"
+    type: "article"
+    location: "Quaestiones Mathematicae 32:3 (2009), 321-337"
+    relationship: "background"
+    note: "Problem 5 is the conjecture discussed above."
+
+related_formalizations: []
+
+status:
+  scope: >-
+    Formalized and advertised: a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S) and the
+    weakening a_n(S) <= e * (n+1) * h_n(S), for every bounded linear operator S
+    between normed spaces over a field with RCLike (that is, the reals or the
+    complex numbers), and every n in the natural numbers, with 0-based indexing.
+    No completeness of the spaces is assumed.
+
+    Proved in the repository but not advertised here: that a_n and h_n satisfy
+    the Pietsch axioms; the general form a_n(S) <= e (n+1) s_n(S) for every
+    s-number sequence s (SNumbers.approximationNumber_le_e_mul_sn); the resulting
+    bound max(c_n, d_n) <= e (n+1) b_n for the Gelfand, Kolmogorov and Bernstein
+    numbers, which is the conjecture of Mityagin and Henkin up to the constant e;
+    and the order-optimality of the factor n+1, via h_n(I) = 1/(n+1) for the
+    inclusion of l_1 into l_infinity.
+
+    Not formalized: the extension to widths of convex sets from the source paper,
+    and the conjectured bound with constant 1 in place of e. What Carl and
+    Pietsch conjectured is the factor n+1; the theorem here gives that factor up
+    to e, in the sharp form (n+1)^(n+1)/n^n.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+
+automation:
+  methods:
+    - method: "agent"
+      models:
+        - "Claude Opus 4.6 to 5 (Anthropic)"
+        - "Claude Fable 5 (Anthropic)"
+      framework: "Claude Code"
+      tool_setup: >-
+        VS Code with the Lean 4 extension, and Claude Code driving an agentic
+        loop that edits Lean files and runs `lake build` until the affected files
+        compile. No proof search beyond the tactics of Lean and Mathlib.
+      cost:
+        wall_time: "not tracked"
+        spend_usd: "subscription-based"
+        hardware: "local machine"
+      prompting_notes: >-
+        Standing instructions were kept in a CLAUDE.md file held alongside the
+        project, outside this repository, and applied to every session: split the
+        work into small, self-contained, reusable lemmas rather than long proofs;
+        search Mathlib first and prefer existing lemmas and canonical spellings
+        over ad-hoc constructions; rebuild the affected files after every change
+        and never leave a `sorry` unannounced; ask before large restructuring;
+        and give every declaration a docstring stating what it says
+        mathematically.
+  spend_usd: "subscription-based"
+  notes: >-
+    The project started out written by hand; as it grew, AI assistance was used
+    more and more, and by now most of the Lean proofs were produced that way.
+    Throughout, the author designed the structure of the development and checked
+    and revised the statements of all definitions and results. The proofs
+    themselves are guaranteed by the Lean kernel.
+
+fidelity:
+  divergences: >-
+    The advertised statement is the Hilbert-number instance of the source
+    paper's theorem, which is stated there for an arbitrary s-number sequence.
+    The two are equivalent given that the Hilbert numbers are the smallest
+    s-number sequence, and the general form is proved in the repository as
+    SNumbers.approximationNumber_le_e_mul_sn; only the instance is advertised
+    here, so that the Challenge module needs no formalization of the s-number
+    axioms themselves. The extension to widths of convex sets in the source is
+    not formalized. No other divergences known.
+
+review:
+  status: "self-assessed"
+  reviewers:
+    - "none"
+  notes: >-
+    The statements of all definitions and results were checked and revised by the
+    author; the proof scripts were largely produced with AI assistance and rest
+    on the Lean kernel.
+
+    One disclosure on provenance. The deepest classical ingredient anywhere in
+    the repository is the John decomposition of the identity
+    (John.john_decomposition in BasicResults/John.lean): in John position,
+    id = sum_i c_i <u_i, .> u_i over contact points u_i with c_i >= 0 and
+    sum_i c_i = k. Its Lean proof was produced with substantial AI assistance and
+    has not been reviewed line by line by the author; what guarantees it is the
+    kernel check. The argument it follows is the classical variational one. The
+    John development sits in the import closure of the Solution module, reached
+    through SNumbers.Inequalities, which uses the Kadets-Snobar and
+    Garling-Gordon projection theorems for a different bound. Whether the
+    advertised theorems invoke any of it in their proof terms has not been
+    established.
+
+alignment:
+  namespace: "Palomar.MaxDifference"
+  statements:
+    - source: "On bounds between all s-numbers and widths of convex sets, main theorem, sharp form of the constant"
+      lean: "Palomar.MaxDifference.approximationNumber_le_mul_hilbertNumber"
+      module: "Palomar.MaxDifference.Solution"
+      status: "proved"
+      note: >-
+        a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S). At n = 0 the constant is 1, in
+        agreement with a_0(S) = ||S|| = h_0(S). Proved in the repository as
+        SNumbers.approximationNumber_le_mul_hilbertNumber in
+        SNumbers/MaxDifference.lean.
+    - source: "On bounds between all s-numbers and widths of convex sets, main theorem"
+      lean: "Palomar.MaxDifference.approximationNumber_le_e_mul_hilbertNumber"
+      module: "Palomar.MaxDifference.Solution"
+      status: "proved"
+      note: >-
+        a_n(S) <= e * (n+1) * h_n(S), the previous bound weakened by
+        (n+1)^(n+1)/n^n <= e (n+1). The source states the theorem for an
+        arbitrary s-number sequence in place of h; see fidelity.divergences.
+        Proved in the repository as
+        SNumbers.approximationNumber_le_e_mul_hilbertNumber.
+
+acknowledgements: >-
+  Built on Mathlib. The Challenge module reproduces the definitions of the
+  approximation and Hilbert numbers from the development in SNumbers/Basic.lean,
+  SNumbers/Approximation.lean and SNumbers/Hilbert.lean, so that the advertised
+  statements can be read against Mathlib alone.

@@ -1,0 +1,18 @@
+{
+  "challenge_module": "Palomar.MaxDifference.Challenge",
+  "solution_module": "Palomar.MaxDifference.Solution",
+  "theorem_names": [
+    "Palomar.MaxDifference.approximationNumber_le_mul_hilbertNumber",
+    "Palomar.MaxDifference.approximationNumber_le_e_mul_hilbertNumber"
+  ],
+  "definition_names": [
+    "ContinuousLinearMap.rank",
+    "SNumbers.approximationSet",
+    "SNumbers.approximationNumber",
+    "SNumbers.L2",
+    "SNumbers.hilbertSet",
+    "SNumbers.hilbertNumber"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
+}
