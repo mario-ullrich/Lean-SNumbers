@@ -2,8 +2,8 @@
   "challenge_module": "Palomar.MaxDifference.Challenge",
   "solution_module": "Palomar.MaxDifference.Solution",
   "theorem_names": [
-    "Palomar.MaxDifference.approximationNumber_le_mul_hilbertNumber",
-    "Palomar.MaxDifference.approximationNumber_le_e_mul_hilbertNumber"
+    "SNumbers.approximationNumber_le_mul_hilbertNumber",
+    "SNumbers.approximationNumber_le_e_mul_hilbertNumber"
   ],
   "definition_names": [
     "ContinuousLinearMap.rank",

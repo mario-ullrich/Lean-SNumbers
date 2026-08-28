@@ -31,7 +31,9 @@ This library is deliberately absent from `defaultTargets`, so a plain
 
 ## Registered results
 
-* `Palomar.MaxDifference` — the maximal difference theorem
+* `Palomar/MaxDifference/` — the maximal difference theorem
   `aₙ(S) ≤ ((n+1)^{n+1}/nⁿ) · hₙ(S) ≤ e · (n+1) · hₙ(S)` between the largest
-  and the smallest s-number sequence.
+  and the smallest s-number sequence, advertising
+  `SNumbers.approximationNumber_le_mul_hilbertNumber` and
+  `SNumbers.approximationNumber_le_e_mul_hilbertNumber`.
 -/

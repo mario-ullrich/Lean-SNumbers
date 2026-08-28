@@ -214,27 +214,25 @@ review:
     established.
 
 alignment:
-  namespace: "Palomar.MaxDifference"
+  namespace: "SNumbers"
   statements:
     - source: "On bounds between all s-numbers and widths of convex sets, main theorem, sharp form of the constant"
-      lean: "Palomar.MaxDifference.approximationNumber_le_mul_hilbertNumber"
-      module: "Palomar.MaxDifference.Solution"
+      lean: "SNumbers.approximationNumber_le_mul_hilbertNumber"
+      module: "SNumbers.MaxDifference"
       status: "proved"
       note: >-
         a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S). At n = 0 the constant is 1, in
-        agreement with a_0(S) = ||S|| = h_0(S). Proved in the repository as
-        SNumbers.approximationNumber_le_mul_hilbertNumber in
-        SNumbers/MaxDifference.lean.
+        agreement with a_0(S) = ||S|| = h_0(S). The advertised declaration is the
+        development's own, reached by the Solution module through its import of
+        SNumbers.MaxDifference; the Challenge module restates its statement.
     - source: "On bounds between all s-numbers and widths of convex sets, main theorem"
-      lean: "Palomar.MaxDifference.approximationNumber_le_e_mul_hilbertNumber"
-      module: "Palomar.MaxDifference.Solution"
+      lean: "SNumbers.approximationNumber_le_e_mul_hilbertNumber"
+      module: "SNumbers.MaxDifference"
       status: "proved"
       note: >-
         a_n(S) <= e * (n+1) * h_n(S), the previous bound weakened by
         (n+1)^(n+1)/n^n <= e (n+1). The source states the theorem for an
         arbitrary s-number sequence in place of h; see fidelity.divergences.
-        Proved in the repository as
-        SNumbers.approximationNumber_le_e_mul_hilbertNumber.
 
 acknowledgements: >-
   Built on Mathlib. The Challenge module reproduces the definitions of the

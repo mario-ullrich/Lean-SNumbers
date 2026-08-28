@@ -44,8 +44,11 @@ sequences by the same factor. The factor `n+1` is order-optimal.
 * `SNumbers.L2`, `SNumbers.hilbertSet`, `SNumbers.hilbertNumber` — the Hilbert
   numbers `hₙ`.
 
-Each is reproduced verbatim from the development, so that Comparator can match
-it against its counterpart there.
+Each is reproduced verbatim from the development, under the same name, so that
+Comparator can match it against its counterpart there. The two theorems below
+likewise carry the names they have in the development
+(`SNumbers/MaxDifference.lean`), so the names Palomar records are the ones a
+reader will find in the proof files.
 
 ## Index convention
 
@@ -126,9 +129,7 @@ noncomputable def hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) : ℝ :=
 
 end Hilbert
 
-end SNumbers
-
-namespace Palomar.MaxDifference
+section MaxDifference
 
 variable {𝕜 : Type u} [RCLike 𝕜]
 variable {X Y : Type u}
@@ -147,8 +148,8 @@ Hilbert numbers `hₙ` the smallest, so this bounds the gap between the two
 extremes of the Pietsch scale — and hence between any two s-number sequences.
 At `n = 0` the constant is `1`, matching `a₀(S) = ‖S‖ = h₀(S)`. -/
 theorem approximationNumber_le_mul_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) :
-    SNumbers.approximationNumber S n
-      ≤ ((n : ℝ) + 1) ^ (n + 1) / (n : ℝ) ^ n * SNumbers.hilbertNumber S n :=
+    approximationNumber S n
+      ≤ ((n : ℝ) + 1) ^ (n + 1) / (n : ℝ) ^ n * hilbertNumber S n :=
   sorry
 
 /-- **Maximal difference theorem.**
@@ -160,8 +161,10 @@ for every bounded linear operator `S : X →L[𝕜] Y` between normed spaces ove
 `(n+1)^{n+1}/nⁿ ≤ e · (n+1)`: the largest s-numbers exceed the smallest ones by
 at most a factor linear in `n`. The linear growth is order-optimal. -/
 theorem approximationNumber_le_e_mul_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) :
-    SNumbers.approximationNumber S n
-      ≤ Real.exp 1 * ((n : ℝ) + 1) * SNumbers.hilbertNumber S n :=
+    approximationNumber S n
+      ≤ Real.exp 1 * ((n : ℝ) + 1) * hilbertNumber S n :=
   sorry
 
-end Palomar.MaxDifference
+end MaxDifference
+
+end SNumbers
