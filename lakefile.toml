@@ -28,10 +28,15 @@ name = "AddOns"
 # compiles the Challenge modules, whose `sorry` placeholders are required by
 # the submission format. Build them explicitly with `lake build Palomar`.
 #
-# The glob makes every module under `Palomar/` its own root. A Challenge and
+# The globs make every module under `Palomar/` its own root. A Challenge and
 # its Solution must not meet in one environment — the Challenge repeats the
 # definitions that the Solution gets from `SNumbers`, so importing both would
 # declare them twice. Comparator likewise compiles the two separately.
+#
+# `Palomar` is listed alongside `Palomar.+` on purpose: the `.+` form builds the
+# submodules only, and `leanblueprint checkdecls` imports the *root* module of
+# every `lean_lib`, so a missing `Palomar.olean` breaks it. The root imports
+# nothing, so importing it alongside the other libraries stays harmless.
 [[lean_lib]]
 name = "Palomar"
-globs = ["Palomar.+"]
+globs = ["Palomar", "Palomar.+"]
