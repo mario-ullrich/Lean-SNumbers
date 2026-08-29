@@ -9,12 +9,11 @@ project:
     approximation numbers a_n are the largest s-number sequence and the Hilbert
     numbers h_n the smallest, so that h_n(S) <= s_n(S) <= a_n(S) holds for every
     s-number sequence s and every bounded linear operator S between Banach
-    spaces. The formalized result bounds how far apart the two extremes can be:
+    spaces. The formalized result gives a bound in the reverse direction: 
     a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S) <= e * (n+1) * h_n(S), for every
     bounded linear operator between normed spaces over the reals or the complex
-    numbers. Since h_n is the smallest s-number sequence, the same factor bounds
-    the gap between any two s-number sequences. The linear growth in n is
-    order-optimal.
+    numbers. Hence, the same factor bounds the gap between any two s-number 
+    sequences. The linear growth in n is order-optimal.
   authors:
     - "Mario Ullrich"
   license: "Apache-2.0"
@@ -37,11 +36,8 @@ sources:
       The source proves a_n(S) <= e (n+1) s_n(S) for every s-number sequence s.
       The advertised statement is the instance s = h, the Hilbert numbers, which
       is the sharpest case and implies the general one because h_n is the
-      smallest s-number sequence; the general form is proved in the repository as
-      SNumbers.approximationNumber_le_e_mul_sn. The source also establishes the
-      sharp form of the constant, (n+1)^(n+1)/n^n, which is advertised here as
-      well, and extends the bound to widths of convex sets, which is not
-      formalized.
+      smallest s-number sequence. The source also extends the bound to widths 
+      of convex sets, which is not formalized.
     author_endorsement: "participated"
   - title: "Inequalities between s-numbers"
     authors:
@@ -51,9 +47,7 @@ sources:
     location: "https://doi.org/10.1007/s43036-024-00386-x"
     relationship: "background"
     note: >-
-      Advances in Operator Theory (2024). The earlier paper in the same line,
-      with an elementary proof of a bound between the smallest and the largest
-      s-number.
+      Advances in Operator Theory (2024). An earlier paper in the same line.
   - title: "s-numbers of operators in Banach spaces"
     authors:
       - "Albrecht Pietsch"
@@ -92,8 +86,8 @@ sources:
     note: >-
       Where the stronger conjecture is made. Carl and Pietsch conjectured the
       factor n+1 between the extremes of the scale. What is proved and formalized
-      here is that factor up to the constant e, in the sharp form
-      (n+1)^(n+1)/n^n; the conjectured bound with constant 1 is not established.
+      here is that factor up to the constant e. The conjectured bound with 
+      constant 1 is not established.
   - title: "Hilbert-Zahlen von Operatoren in Banachraeumen"
     authors:
       - "Wolfgang Bauhardt"
@@ -102,8 +96,7 @@ sources:
     relationship: "background"
     note: >-
       States the corresponding bound and conjecture with the Hilbert numbers h_n
-      in place of the Bernstein numbers, that is, in exactly the form advertised
-      here.
+      in place of the Bernstein numbers, that is, in the form advertised here.
   - title: "Inequalities between n-diameters"
     authors:
       - "Boris S. Mityagin"
@@ -141,9 +134,7 @@ status:
     inclusion of l_1 into l_infinity.
 
     Not formalized: the extension to widths of convex sets from the source paper,
-    and the conjectured bound with constant 1 in place of e. What Carl and
-    Pietsch conjectured is the factor n+1; the theorem here gives that factor up
-    to e, in the sharp form (n+1)^(n+1)/n^n.
+    and the conjectured bound with constant 1 in place of e. 
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []
@@ -186,8 +177,7 @@ fidelity:
     s-number sequence, and the general form is proved in the repository as
     SNumbers.approximationNumber_le_e_mul_sn; only the instance is advertised
     here, so that the Challenge module needs no formalization of the s-number
-    axioms themselves. The extension to widths of convex sets in the source is
-    not formalized. No other divergences known.
+    axioms themselves. 
 
 review:
   status: "self-assessed"
@@ -198,32 +188,18 @@ review:
     author; the proof scripts were largely produced with AI assistance and rest
     on the Lean kernel.
 
-    One disclosure on provenance. The deepest classical ingredient anywhere in
-    the repository is the John decomposition of the identity
-    (John.john_decomposition in BasicResults/John.lean): in John position,
-    id = sum_i c_i <u_i, .> u_i over contact points u_i with c_i >= 0 and
-    sum_i c_i = k. Its Lean proof was produced with substantial AI assistance and
-    has not been reviewed line by line by the author; what guarantees it is the
-    kernel check. The argument it follows is the classical variational one. The
-    John development sits in the import closure of the Solution module, reached
-    through SNumbers.Inequalities, which uses the Kadets-Snobar and
-    Garling-Gordon projection theorems for a different bound. Whether the
-    advertised theorems invoke any of it in their proof terms has not been
-    established.
-
 alignment:
   namespace: "SNumbers"
   statements:
-    - source: "On bounds between all s-numbers and widths of convex sets, main theorem, sharp form of the constant"
+    - source: "On bounds between all s-numbers and widths of convex sets, sharp theorem"
       lean: "SNumbers.approximationNumber_le_mul_hilbertNumber"
       module: "SNumbers.MaxDifference"
       status: "proved"
       note: >-
-        a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S). At n = 0 the constant is 1, in
-        agreement with a_0(S) = ||S|| = h_0(S). The advertised declaration is the
-        development's own, reached by the Solution module through its import of
+        a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S). The advertised declaration is 
+        reached by the Solution module through its import of 
         SNumbers.MaxDifference; the Challenge module restates its statement.
-    - source: "On bounds between all s-numbers and widths of convex sets, main theorem"
+    - source: "On bounds between all s-numbers and widths of convex sets, nice theorem"
       lean: "SNumbers.approximationNumber_le_e_mul_hilbertNumber"
       module: "SNumbers.MaxDifference"
       status: "proved"
