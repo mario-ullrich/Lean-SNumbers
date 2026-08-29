@@ -164,14 +164,12 @@ automation:
         spend_usd: "subscription-based"
         hardware: "local machine"
       prompting_notes: >-
-        Standing instructions were kept in a CLAUDE.md file held alongside the
-        project, outside this repository, and applied to every session: split the
-        work into small, self-contained, reusable lemmas rather than long proofs;
-        search Mathlib first and prefer existing lemmas and canonical spellings
-        over ad-hoc constructions; rebuild the affected files after every change
-        and never leave a `sorry` unannounced; ask before large restructuring;
-        and give every declaration a docstring stating what it says
-        mathematically.
+        Standing instructions for this s-numbers formalization project, kept in a
+        CLAUDE.md file alongside the project and outside this repository, and
+        applied to every session: prefer many small, self-contained, reusable
+        lemmas over long proofs; search Mathlib first and reuse existing lemmas
+        and canonical spellings; rebuild the affected files after every change
+        and never leave a `sorry` unannounced.
   spend_usd: "subscription-based"
   notes: >-
     The project started out written by hand; as it grew, AI assistance was used

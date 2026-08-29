@@ -189,6 +189,15 @@ sequence.
 The whole project builds **`sorry`-free**, so every result marked ✅ above is
 verified by the Lean kernel.
 
+`Palomar/` holds the submission surfaces for the
+[Palomar registry](https://palomar-registry.org), one directory per registered
+result, each with a `Challenge` module stating the advertised theorems and a
+`Solution` module supplying their proofs from the development above. The
+placeholder `sorry`s in the `Challenge` modules are required by that format —
+a Challenge advertises statements and imports only Mathlib, so a reader can
+audit what is claimed without reading the development. This library sits outside
+`defaultTargets`; build it with `lake build Palomar`.
+
 One note on provenance. The deepest classical ingredient is the **John
 decomposition of identity** `John.john_decomposition` in `BasicResults/John.lean`:
 in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points `uᵢ`, with
@@ -426,6 +435,13 @@ main declarations:
 │   └── Compact.lean            ← compactness measured by s-numbers: compact ⇔
 │                                  cₙ → 0 ⇔ dₙ → 0 on any Banach space; on
 │                                  Hilbert spaces every s-number sequence works
+├── Palomar.lean                ← Palomar submission surfaces, entry point
+├── Palomar/
+│   └── MaxDifference/          ← one directory per registered result
+│       ├── Challenge.lean      ← the advertised statements, Mathlib imports only
+│       ├── Solution.lean       ← their proofs, from SNumbers/MaxDifference.lean
+│       ├── comparator.json     ← the declarations Comparator must match
+│       └── formalization.yaml  ← metadata and provenance for the registry
 ├── LICENSE                     ← Apache 2.0
 ├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
 ├── .github/workflows/          ← CI: builds the project and the blueprint,
