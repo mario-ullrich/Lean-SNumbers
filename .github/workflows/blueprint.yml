@@ -164,6 +164,7 @@ jobs:
       pages: write
       id-token: write
       contents: read
+      actions: read
     concurrency:
       group: pages
       cancel-in-progress: false
