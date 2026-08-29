@@ -5,15 +5,17 @@ version: "v0.4"
 project:
   name: "The maximal difference theorem for s-numbers"
   description: >-
-    A bound between the two extremes of the Pietsch scale of s-numbers. The
-    approximation numbers a_n are the largest s-number sequence and the Hilbert
-    numbers h_n the smallest, so that h_n(S) <= s_n(S) <= a_n(S) holds for every
-    s-number sequence s and every bounded linear operator S between Banach
-    spaces. The formalized result gives a bound in the reverse direction: 
+    A bound between all s-numbers (in the sense of Pietsch). The approximation 
+    numbers a_n are the largest s-number sequence and the Hilbert numbers h_n 
+    the smallest, so that h_n(S) <= s_n(S) <= a_n(S) holds for every s-number 
+    sequence (s_n) and every bounded linear operator S between Banach spaces. 
+    The formalized result gives a bound in the reverse direction: 
     a_n(S) <= ((n+1)^(n+1)/n^n) * h_n(S) <= e * (n+1) * h_n(S), for every
     bounded linear operator between normed spaces over the reals or the complex
     numbers. Hence, the same factor bounds the gap between any two s-number 
-    sequences. The linear growth in n is order-optimal.
+    sequences. The linear growth in n is order-optimal. 
+    This is the main result of arXiv:2608.05024 and solves a problem of 
+    Mityagin, Henkin (1963) and Carl, Pietsch (1978), up to a constant. 
   authors:
     - "Mario Ullrich"
   license: "Apache-2.0"
