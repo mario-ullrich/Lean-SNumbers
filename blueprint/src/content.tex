@@ -139,9 +139,6 @@ over $\mathbb{K}$. Then the Bernstein numbers $b = (b_n)_n$ form a
 \emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
 strengthening (S5$'$).
 \end{theorem}
-
-The argument needs only a non-trivially normed scalar field~$\mathbb{K}$ ---
-no completeness, and no Riesz lemma.
 \begin{proof}
 \leanok
 Write $\gamma(S, M) := \inf_{0 \ne x \in M} \|Sx\|/\|x\|$ for the gain of
@@ -162,6 +159,9 @@ rank--nullity, forcing the gain to zero. Finally (S5$'$): the identity has
 gain $1$ on every nontrivial subspace, and $\dim X > n$ guarantees an
 $(n+1)$-dimensional subspace exists.
 \end{proof}
+
+The argument needs only a non-trivially normed scalar field~$\mathbb{K}$ ---
+no completeness, and no Riesz lemma.
 
 \section{Gelfand numbers $c_n$}
 \label{sec:gelf}
@@ -188,13 +188,10 @@ over $\mathbb{K}$. Then the Gelfand numbers $c = (c_n)_n$ form a
 \emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
 strengthening (S5$'$).
 \end{theorem}
-
-The argument needs only a non-trivially normed scalar field~$\mathbb{K}$;
-unlike its Kolmogorov dual it requires neither completeness of
-$\mathbb{K}$ nor Riesz's lemma.
 \begin{proof}
 \leanok
-The development is dual to the Kolmogorov one under the
+The development is dual to the Kolmogorov one
+(Theorem~\ref{thm:kolmogorov-is-snumber}) under the
 domain~$\leftrightarrow$~codomain swap: where the Kolmogorov numbers push
 $S$ down a quotient projection $\pi_V : Y \to Y/V$ for a small
 $V \subseteq Y$, the Gelfand numbers restrict $S$ along the inclusion
@@ -212,6 +209,10 @@ so the identity restricted to any nontrivial $M$ has norm $1$, and
 $\operatorname{codim} M \le n < \dim X$ forces $M \neq \{0\}$. Formalised
 in \texttt{Gelfand.lean}.
 \end{proof}
+
+The argument needs only a non-trivially normed scalar field~$\mathbb{K}$;
+unlike its Kolmogorov dual (Theorem~\ref{thm:kolmogorov-is-snumber}) it
+requires neither completeness of $\mathbb{K}$ nor Riesz's lemma.
 
 \section{Kolmogorov numbers $d_n$}
 \label{sec:kol}
@@ -237,10 +238,6 @@ over $\mathbb{K}$. Then the Kolmogorov numbers $d = (d_n)_n$ form a
 \emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
 strengthening (S5$'$).
 \end{theorem}
-
-The (S5$'$) step additionally needs $\mathbb{K}$ \emph{complete} (to close
-finite-dimensional subspaces via Riesz's lemma); it requires neither a
-densely normed $\mathbb{K}$ nor completeness of $X$.
 \begin{proof}
 \leanok
 The proof works with the operator-norm-on-quotient identity
@@ -253,6 +250,10 @@ subspace $V$ of dimension $\le n < \dim X$, its closure is proper and
 Riesz's lemma produces unit vectors almost at distance $1$ from $V$, so
 $\|\pi_V\| = 1$ and $d_n(\mathrm{id}_X) = 1$.
 \end{proof}
+
+The (S5$'$) step additionally needs $\mathbb{K}$ \emph{complete} (to close
+finite-dimensional subspaces via Riesz's lemma); it requires neither a
+densely normed $\mathbb{K}$ nor completeness of $X$.
 
 \subsection{Alternative: Pietsch's lifting identity}
 \label{subsec:kol-lifting}
@@ -278,9 +279,8 @@ $B_X$, given by
 \leanok
 \uses{def:kolmogorov-number, def:approximation-number}
 For every Banach space $X$ and every $S \in \mathcal{L}(X, Y)$,
-$d_n(S) = a_n(S \circ Q_X)$, and the Kolmogorov-number axioms
-(S1)--(S5) and (S5$'$) follow from the corresponding axioms for the
-approximation numbers.
+$d_n(S) = a_n(S \circ Q_X)$, and $d = (d_n)_n$ so defined is a \emph{strict}
+$s$-number sequence: it satisfies (S1)--(S5) and (S5$'$).
 \end{theorem}
 \begin{proof}
 \leanok
@@ -295,15 +295,17 @@ vector $\delta_w$ to $c \cdot \delta_{c^{-1} A w}$ for a scalar $c$ with
 $\|A\| < |c|$, so that $\|T\| \le |c|$; letting $|c| \searrow \|A\|$,
 using that the norm values of $\mathbb{K}$ are dense, yields the bound
 $\|B\| \, d_n(S) \, \|A\|$. The identification of this $d_n$ with the
-canonical Kolmogorov number of the previous section is Pietsch's identity
-(Theorem~\ref{thm:pietsch-identity}).
+canonical Kolmogorov number of Definition~\ref{def:kolmogorov-number} is
+Pietsch's identity (Theorem~\ref{thm:pietsch-identity}).
 \end{proof}
 
 The lifting development assumes that $\mathbb{K}$ is a densely normed field
-(for the scaling above) and that the source spaces $X$, $W$ are complete
+(for the rescaling $|c| \searrow \|A\|$ in the ideal property (S3)) and that
+the source spaces $X$, $W$ are complete
 (so that $Q_X(\alpha)$ converges as a series in $X$), in addition to
 completeness of $\mathbb{K}$ for (S5$'$). On Banach spaces the two
-formalisations agree, by Pietsch's identity below.
+formalisations agree, by Pietsch's identity
+(Theorem~\ref{thm:pietsch-identity}).
 
 \begin{theorem}[Pietsch's identity]
 \label{thm:pietsch-identity}
@@ -422,7 +424,7 @@ decomposition of compact operators (Chapter~\ref{ch:svd}), determinant
 identities and the bordered-determinant formula, John's ellipsoid with the
 Kadets--Snobar and Garling--Gordon projection theorems
 (Section~\ref{sec:john-ellipsoid}), the little Grothendieck bounds
-(Section~\ref{sec:l1-linf-grothendieck}), and the spectral projection
+(Section~\ref{sec:l1-linf-ingredients}), and the spectral projection
 underlying the Hilbert-space uniqueness theorem.
 
 \begin{theorem}[Auerbach's lemma]
@@ -566,8 +568,6 @@ the $n$-th residual has norm $\sigma_n$. Eckart--Young
 For every approximable $S \in \mathcal{L}(H_1, H_2)$ and every
 $n \in \mathbb{N}_0$ there exists $L \in \mathcal{L}(H_1, H_2)$ with
 $\operatorname{rank}(L) \le n$ and $\|S - L\| = a_n(S)$.
-Concretely, $L = \sum_{k < n} a_k(S) \langle u_k, \cdot \rangle v_k$ is
-the truncated SVD.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -647,16 +647,18 @@ every bounded operator.
 \label{thm:compact-implies-approximable}
 \lean{SVD.IsCompactOperator.isApproximable}
 \leanok
-\uses{def:approximable, thm:schmidt-representation}
+\uses{def:approximable, thm:schmidt-representation, thm:eckart-young}
 Every compact $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces is
 approximable.
 \end{theorem}
 \begin{proof}
 \leanok
-The singular value decomposition gives singular values $\sigma_n \to 0$ which, by
-Eckart--Young, equal the approximation numbers $a_n(S)$; hence $a_n(S) \to 0$.
-Equivalently, the SVD truncations are finite-rank operators converging to $S$ in
-operator norm.
+\uses{thm:schmidt-representation, thm:eckart-young}
+The Schmidt representation (Theorem~\ref{thm:schmidt-representation}) gives
+singular values $\sigma_n \to 0$ which, by Eckart--Young
+(Theorem~\ref{thm:eckart-young}), equal the approximation numbers $a_n(S)$;
+hence $a_n(S) \to 0$. Equivalently, the SVD truncations are finite-rank
+operators converging to $S$ in operator norm.
 \end{proof}
 
 \begin{theorem}
@@ -733,10 +735,12 @@ $\mathbb{K}$:
         $a_n(S) \le e\,(n+1)\, h_n(S)$ --- the maximal possible difference
         between the largest $s$-numbers, the approximation numbers, and the
         smallest ones, the Hilbert numbers, is a factor linear in $n$
-        \cite{U26}. Its consequences for two arbitrary $s$-number sequences
-        \cite{CP78} and for the Gelfand, Kolmogorov and Bernstein numbers
-        \cite{MH} are collected in
-        Corollary~\ref{cor:gelfand-kolmogorov}, both up to the constant $e$.
+        (Ullrich \cite{U26}). Its consequence for two arbitrary $s$-number
+        sequences is Corollary~\ref{cor:all-snumbers-bound}, the conjecture of
+        Carl and Pietsch \cite{CP78}; specialising to the Gelfand, Kolmogorov
+        and Bernstein numbers gives Corollary~\ref{cor:mityagin-henkin}, the
+        conjecture of Mityagin and Henkin \cite{MH} --- both up to the
+        constant $e$.
 \end{itemize}
 
 Everything in this chapter is proved in \texttt{Inequalities.lean}
@@ -750,12 +754,17 @@ analytic core is the John decomposition of identity
 \section{John's ellipsoid and the projection theorems}
 \label{sec:john-ellipsoid}
 
-The sharp constant $\sqrt{n}$ in both classical projection theorems below rests
+The sharp constant $\sqrt{n}$ in both classical projection theorems
+(Theorems~\ref{thm:kadets-snobar} and~\ref{thm:garling-gordon}) rests
 on \emph{John's ellipsoid theorem} \cite{John48}, which is absent from Mathlib. It is developed
 in \texttt{John.lean} over $\mathbb{K} \in \{\mathbb{R},
 \mathbb{C}\}$ at once, modelling an inscribed ellipsoid as the image $T(B_2)$
 of the Euclidean unit ball under a linear map and maximising its volume
-$|\det T|$. The general-purpose ingredients of the analytic core
+$|\det T|$. Here a \emph{body seminorm} on $\mathbb{K}^k$ is a continuous
+seminorm $p$, thought of as the gauge of a convex body; the hypothesis that it
+is \emph{equivalent to the Euclidean norm} means
+$c\,\|x\| \le p(x) \le C\,\|x\|$ for constants $0 < c \le C$.
+The general-purpose ingredients of the analytic core
 (closedness of convex hulls of compact sets in finite dimension, the
 supporting-vector form of Hahn--Banach dominated by a seminorm, trace duality,
 and a Weierstrass-type product bound) are collected separately, as candidates
@@ -820,9 +829,10 @@ $\operatorname{range} P = V$ and $\|P\| \le \sqrt{n}$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:john-decomposition}
-A classical result \cite{KS71}, see also \cite[1.5.5]{Pietsch87}. Put $V$ in John position
-via the maximal-volume ellipsoid: the decomposition of identity
+\uses{thm:john-decomposition, thm:john-maxvolume}
+A classical result \cite{KS71}, see also \cite[1.5.5]{Pietsch87}. Put $V$ in
+John position via the maximal-volume ellipsoid
+(Theorem~\ref{thm:john-maxvolume}): the decomposition of identity
 (Theorem~\ref{thm:john-decomposition}) gives contact points $u_i$, unit vectors
 $v_i = M u_i \in V$, and functionals $\varphi_i = \langle u_i, M^{-1}\cdot\rangle$
 of norm $\le 1$, which Hahn--Banach extends to $g_i \in Y^*$ without increasing
@@ -844,9 +854,11 @@ $\|P\| \le \sqrt{n} + \varepsilon$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:john-decomposition}
-The dual of Kadets--Snobar \cite{GG71}, see also \cite[1.7.17]{Pietsch87}. Run the John
-development on the finite-dimensional dual $(X/M)^*$: the contact points are
+\uses{thm:john-decomposition, thm:john-maxvolume}
+The dual of Kadets--Snobar (Theorem~\ref{thm:kadets-snobar}) \cite{GG71}, see
+also \cite[1.7.17]{Pietsch87}. Run the John development
+(Theorems~\ref{thm:john-maxvolume} and~\ref{thm:john-decomposition})
+on the finite-dimensional dual $(X/M)^*$: the contact points are
 represented by vectors $w_i \in X/M$ with $\|w_i\| \le 1$ (obtained by solving
 the single-dual equation $\Phi^{\mathrm{flip}} w_i = \operatorname{toDual} u_i$,
 avoiding the topological double dual), each lifted to $x_i \in X$ with
@@ -895,7 +907,8 @@ $a_n(S) \le (1 + \sqrt{n})\,d_n(S)$.
 \begin{proof}
 \leanok
 \uses{thm:kadets-snobar}
-Dual to the Gelfand half. Fix $V \subseteq Y$ of dimension $\le n$ with
+Dual to the Gelfand half (Theorem~\ref{thm:approx-le-gelfand}). Fix
+$V \subseteq Y$ of dimension $\le n$ with
 $\|\pi_V \circ S\|$ near $d_n(S)$; by Kadets--Snobar
 (Theorem~\ref{thm:kadets-snobar}) choose a projection $P$ onto $V$ with
 $\|P\| \le \sqrt n$. Then $L := P \circ S$ has rank $\le n$, and
@@ -928,30 +941,33 @@ $d_n(S)$ is the smaller.
 
 The maximal difference theorem $a_n \le e\,(n+1)\, h_n$ --- a bound between the
 largest and the smallest $s$-number sequence, and hence between any two --- is
-driven by the \emph{determinant quantities}
-\[
-  \Delta_k(S) \;:=\; \sup\bigl\{\, |\det(B \circ S \circ A)| \,\bigr\},
-\]
-where the supremum ranges over all contractions $A : \ell_2^k \to X$ and
-$B : Y \to \ell_2^k$. They are formalised, together with the theorems
-themselves, in \texttt{MaxDifference.lean} (the bordered-determinant lemma,
-a pure matrix fact, in \texttt{Determinant.lean}). The $\Delta_k$ are
-squeezed between the two quantities of interest: they do not decay faster than
-the approximation numbers allow (the growth lemma below, via the explicit
-rank-$k$ approximant $L = SA(BSA)^{-1}BS$), and consecutive ratios are bounded
-by the Hilbert numbers (the upper bound below, via contractive compressions).
+driven by the \emph{determinant quantities} $\Delta_k$ of
+Definition~\ref{def:det-quantity}. They are
+formalised, together with the theorems themselves, in
+\texttt{MaxDifference.lean} (the bordered-determinant lemma, a pure matrix
+fact, in \texttt{Determinant.lean}). The $\Delta_k$ are squeezed between the
+two quantities of interest: they do not decay faster than the approximation
+numbers allow (Lemma~\ref{lem:det-growth}, via the explicit rank-$k$
+approximant $L = SA(BSA)^{-1}BS$), and consecutive ratios are bounded by the
+Hilbert numbers (Lemma~\ref{lem:det-upper}, via contractive compressions).
 
 \begin{definition}[Determinant quantities]
 \label{def:det-quantity}
 \lean{SNumbers.detNumber}
 \leanok
-For $S \in \mathcal{L}(X, Y)$ and $k \in \mathbb{N}_0$, $\Delta_k(S)$ is the
-supremum above; here $B \circ S \circ A$ is an endomorphism of the
-$k$-dimensional Hilbert space $\ell_2^k$, so its determinant is a scalar.
+Call a pair $(A, B)$ \emph{admissible} for $S \in \mathcal{L}(X, Y)$ and
+$k \in \mathbb{N}_0$ if $A : \ell_2^k \to X$ and $B : Y \to \ell_2^k$ are
+contractions. For such a pair $B \circ S \circ A$ is an endomorphism of the
+$k$-dimensional Hilbert space $\ell_2^k$, so its determinant is a scalar, and
+\[
+  \Delta_k(S) \;:=\; \sup\bigl\{\, |\det(B \circ S \circ A)| :
+    (A, B) \text{ admissible} \,\bigr\} .
+\]
+\end{definition}
+
 One has $\Delta_0(S) = 1$ (the determinant on the trivial space is $1$) and
 $\Delta_k(S) \le \|S\|^k$, via $\prod_i a_i(T) = |\det T|$
 (Lemma~\ref{lem:prod-approx-eq-det}) and $a_i(T) \le \|T\| \le \|S\|$.
-\end{definition}
 
 \begin{lemma}
 \label{lem:prod-approx-eq-det}
@@ -971,14 +987,17 @@ $|\det T|^2 = \det(T^* T) = \prod_k \lambda_k(T^* T) = \prod_k
 \sigma_k(T)^2$.
 \end{proof}
 
+The bordered-determinant identity is the elementary column-operation form of
+the Schur determinant formula; it needs no invertibility of the top-left block.
+
 \begin{lemma}[Bordered determinant]
 \label{lem:det-bordered}
 \lean{Matrix.det_eq_corner_mul_det_submatrix}
 \leanok
-Let $M$ be a $(k+1) \times (k+1)$ matrix and $w \in \mathbb{K}^k$ such that,
-above the corner, the last column of $M$ is the combination of the first $k$
-columns with coefficients $w$, i.e.\ $M_{i,\mathrm{last}} = \sum_j M_{ij} w_j$
-for $i < k$. Then
+Let $R$ be a commutative ring, $M$ a $(k+1) \times (k+1)$ matrix over $R$ and
+$w \in R^k$ such that, above the corner, the last column of $M$ is the
+combination of the first $k$ columns with coefficients $w$, i.e.\
+$M_{i,\mathrm{last}} = \sum_j M_{ij} w_j$ for $i < k$. Then
 \[
   \det M \;=\;
   \Bigl( M_{\mathrm{last},\mathrm{last}}
@@ -986,9 +1005,6 @@ for $i < k$. Then
   \cdot \det M' ,
 \]
 where $M'$ is the top-left $k \times k$ block of $M$.
-No invertibility of the top-left block is required, and the statement holds
-over any commutative ring; this is the elementary column-operation form of
-the Schur determinant formula.
 \end{lemma}
 \begin{proof}
 \leanok
@@ -1006,8 +1022,6 @@ For every $S \in \mathcal{L}(X, Y)$ and $k \in \mathbb{N}_0$,
 \[
   \frac{k^k}{(k+1)^{k+1}}\; a_k(S)\; \Delta_k(S) \;\le\; \Delta_{k+1}(S).
 \]
-In particular, if $a_n(S) > 0$ then $\Delta_k(S) > 0$ for all $k \le n+1$, by
-induction from $\Delta_0(S) = 1$ and $a_k(S) \ge a_n(S)$.
 \end{lemma}
 \begin{proof}
 \leanok
@@ -1035,6 +1049,9 @@ the supremum over $(A, B)$ finishes. Note that no near-maximiser has to be
 selected --- \emph{every} admissible pair is improved.
 \end{proof}
 
+In particular, if $a_n(S) > 0$ then $\Delta_k(S) > 0$ for all $k \le n+1$, by
+induction from $\Delta_0(S) = 1$ and $a_k(S) \ge a_n(S)$.
+
 \begin{lemma}
 \label{lem:det-upper}
 \lean{SNumbers.detNumber_succ_le_hilbertNumber_mul}
@@ -1057,7 +1074,7 @@ admissible pair is bounded, so the bound passes to the supremum
 $\Delta_{n+1}(S)$.
 \end{proof}
 
-\begin{theorem}[Maximal difference theorem]
+\begin{theorem}[Maximal difference theorem, Ullrich {\cite{U26}}]
 \label{thm:maximal-difference}
 \lean{SNumbers.approximationNumber_le_mul_hilbertNumber,
       SNumbers.approximationNumber_le_e_mul_hilbertNumber}
@@ -1073,48 +1090,59 @@ For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
 \leanok
 \uses{lem:det-growth, lem:det-upper}
 If $a_n(S) = 0$ there is nothing to prove. Otherwise chain the growth lemma
-at $k = n$ with the upper bound:
+(Lemma~\ref{lem:det-growth}) at $k = n$ with the upper bound
+(Lemma~\ref{lem:det-upper}):
 $\frac{n^n}{(n+1)^{n+1}}\, a_n(S)\, \Delta_n(S) \le \Delta_{n+1}(S) \le
 h_n(S)\, \Delta_n(S)$, and cancel $\Delta_n(S) > 0$. Finally
 $(n+1)^{n+1}/n^n = (n+1)(1 + 1/n)^n \le e\,(n+1)$ from $1 + x \le e^x$ at
 $x = 1/n$.
 \end{proof}
 
-\begin{corollary}[Carl--Pietsch and Mityagin--Henkin]
-\label{cor:gelfand-kolmogorov}
-\lean{SNumbers.sn_le_e_mul_tn,
-      SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_sn}
+Since the Hilbert numbers are the smallest and the approximation numbers the
+largest $s$-number sequence, the theorem bounds \emph{any} $s$-number sequence
+by any other: the maximal possible difference between two $s$-number sequences
+is a factor linear in $n$. This is the conjecture of Carl and Pietsch
+\cite{CP78}, proved up to the constant $e$ in \cite{U26}.
+
+\begin{corollary}
+\label{cor:all-snumbers-bound}
+\lean{SNumbers.sn_le_e_mul_tn}
 \leanok
-\uses{thm:maximal-difference, thm:sandwich, def:gelfand-number,
-  def:kolmogorov-number, def:bernstein-number}
-Let $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$.
-\begin{enumerate}
-  \item For \emph{any two} $s$-number sequences $s, t$,
-    \[
-      s_n(S) \;\le\; e\,(n+1)\, t_n(S) :
-    \]
-    the maximal possible difference between two $s$-number sequences is a factor
-    linear in $n$. This is the conjecture of Carl and Pietsch \cite{CP78}, up to
-    the constant $e$.
-  \item In particular, for every $s$-number sequence $s$,
-    \[
-      \max\bigl(c_n(S), d_n(S)\bigr) \;\le\; e\,(n+1)\, s_n(S) ,
-    \]
-    and taking $s = h$ resp.\ $s = b$ gives
-    $\max(c_n, d_n) \le e\,(n+1)\, h_n$ and
-    $\max(c_n, d_n) \le e\,(n+1)\, b_n$, the latter being the
-    \emph{Mityagin--Henkin conjecture} up to the constant $e$.
-\end{enumerate}
+\uses{thm:maximal-difference, thm:sandwich}
+For all $s$-number sequences $s, t$, every $S \in \mathcal{L}(X, Y)$ and every
+$n \in \mathbb{N}_0$,
+\[
+  s_n(S) \;\le\; e\,(n+1)\, t_n(S) .
+\]
 \end{corollary}
 \begin{proof}
 \leanok
 \uses{thm:maximal-difference, thm:sandwich}
-By the sandwich theorem the Hilbert numbers are the smallest and the
-approximation numbers the largest $s$-number sequence, so
+By the sandwich theorem (Theorem~\ref{thm:sandwich}) the Hilbert numbers are
+the smallest and the approximation numbers the largest $s$-number sequence, so
 Theorem~\ref{thm:maximal-difference} gives
-$s_n(S) \le a_n(S) \le e\,(n+1)\, h_n(S) \le e\,(n+1)\, t_n(S)$, which is (1).
-For (2) apply (1) with $s := c$ and $s := d$ --- both are $s$-number sequences ---
-and take the maximum.
+$s_n(S) \le a_n(S) \le e\,(n+1)\, h_n(S) \le e\,(n+1)\, t_n(S)$.
+\end{proof}
+
+Taking $t = b$ and $s = c$ resp.\ $s = d$ gives the \emph{Mityagin--Henkin
+conjecture} \cite{MH}, again up to the constant $e$.
+
+\begin{corollary}[Mityagin--Henkin]
+\label{cor:mityagin-henkin}
+\lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
+\leanok
+\uses{cor:all-snumbers-bound, def:gelfand-number, def:kolmogorov-number,
+  def:bernstein-number}
+For every $S \in \mathcal{L}(X, Y)$ and every $n \in \mathbb{N}_0$,
+\[
+  \max\bigl(c_n(S), d_n(S)\bigr) \;\le\; e\,(n+1)\, b_n(S) .
+\]
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{cor:all-snumbers-bound}
+Apply Corollary~\ref{cor:all-snumbers-bound} with $t := b$ and $s := c$ resp.\
+$s := d$ --- both are $s$-number sequences --- and take the maximum.
 \end{proof}
 
 The factor $n+1$ is order-optimal: the inclusion $I \colon \ell_1 \to
@@ -1167,8 +1195,6 @@ For $1 \le p \le q < \infty$ and $n < m$,
   a_n\bigl( \mathrm{id} : \ell_q^m \to \ell_p^m \bigr)
   \;=\; (m - n)^{\,1/p - 1/q}.
 \]
-By the sandwich theorem, every $s$-number sequence obeys
-$s_n(\mathrm{id}) \le (m-n)^{1/p-1/q}$.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -1182,6 +1208,9 @@ the kernel with $\|x\|_p \ge (m-n)^{1/p-1/q} \|x\|_q$; on such an $x$ the
 error $\mathrm{id} - L$ acts as the identity, so
 $\|\mathrm{id} - L\| \ge (m-n)^{1/p-1/q}$.
 \end{proof}
+
+By the sandwich theorem (Theorem~\ref{thm:sandwich}), every $s$-number
+sequence obeys $s_n(\mathrm{id}) \le (m-n)^{1/p-1/q}$.
 
 \begin{proposition}
 \label{prop:sn-id-p}
@@ -1220,8 +1249,6 @@ $s$-number sequence $s$ (in particular for $a_n$, $b_n$, $c_n$, $d_n$),
 \[
   s_n(D_\sigma) \;=\; |\sigma_n| .
 \]
-The Hilbert numbers satisfy $h_n(D_\sigma) \le |\sigma_n|$; equality can
-fail for $p \neq 2$.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -1241,6 +1268,9 @@ $\le |\sigma_n|^{-1}$; then (S3) and the strict normalisation
 $1 = s_n(\mathrm{id}) \le |\sigma_n|^{-1} s_n(D_\sigma)$.
 \end{proof}
 
+The Hilbert numbers are not strict, and satisfy only
+$h_n(D_\sigma) \le |\sigma_n|$; equality can fail for $p \neq 2$.
+
 \begin{theorem}[Mixed exponents $p < q$]
 \label{thm:diag-mixed}
 \lean{SNumbers.norm_DiagCLMpq_eq,
@@ -1255,9 +1285,6 @@ $\tfrac1r = \tfrac1p - \tfrac1q$. For $D_\sigma : \ell_q^m \to \ell_p^m$,
   \qquad\text{in particular}\qquad
   \|D_\sigma\| = \|\sigma\|_{\ell_r} .
 \]
-The upper bound $s_n(D_\sigma) \le \bigl(\sum_{k \ge n}
-|\sigma_k|^r\bigr)^{1/r}$ holds for every $s$-number sequence and needs
-no ordering of the diagonal.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -1272,6 +1299,10 @@ Theorem~\ref{thm:sn-id-pq}) produces a kernel vector on which
 $\mathrm{id} - L$ retains the full tail $\ell_r$-norm. The case $n = 0$,
 $L = 0$ yields the operator norm.
 \end{proof}
+
+By the sandwich theorem (Theorem~\ref{thm:sandwich}) the upper bound
+$s_n(D_\sigma) \le \bigl(\sum_{k \ge n} |\sigma_k|^r\bigr)^{1/r}$ holds for
+every $s$-number sequence, and it needs no ordering of the diagonal.
 
 \begin{theorem}[Reverse regime $q \le p$]
 \label{thm:diag-reverse}
@@ -1314,7 +1345,7 @@ a contraction which is \emph{not} compact. Everything here is formalised in
 Hilbert-space result, in \texttt{SVD.lean}.
 
 \subsection{Ingredients}
-\label{sec:l1-linf-grothendieck}
+\label{sec:l1-linf-ingredients}
 
 Two inputs are needed for the Hilbert numbers of $I$. The first pair of
 lemmas bounds a Hilbert--Schmidt-type sum by an operator norm; the second is
@@ -1534,7 +1565,8 @@ $h_n(I) = (n+1)^{-1}$ for all $n$.
 \begin{proof}
 \leanok
 \uses{thm:l1-linf-hilbert-upper, prop:l1-linf-hilbert-lower}
-Combine the two bounds.
+Combine Proposition~\ref{prop:l1-linf-hilbert-lower} and
+Theorem~\ref{thm:l1-linf-hilbert-upper}.
 \end{proof}
 
 \subsection{Order-optimality of the factor \texorpdfstring{$n+1$}{n+1}}
@@ -1659,7 +1691,8 @@ The entropy numbers quantify the compactness of an operator directly: they
 measure how many balls of a given radius are needed to cover the image of
 the unit ball. They are \emph{not} $s$-numbers --- the rank axiom (S4) and
 the normalisation (S5) both fail --- but they satisfy the remaining
-properties, in the strong additive and multiplicative form below; such
+properties, in the strong additive and multiplicative form of
+Theorems~\ref{thm:entropy-additive} and~\ref{thm:entropy-multiplicative}; such
 sequences are called \emph{pseudo-$s$-number} sequences
 \cite[12.1.1]{Pietsch-ideals}. Everything in this chapter is formalised
 in \texttt{Entropy.lean}, over a non-trivially normed field
@@ -1706,8 +1739,6 @@ For all $S, T \in \mathcal{L}(X, Y)$ and $n, m \in \mathbb{N}_0$,
 \[
   e_{n+m}(S + T) \;\le\; e_n(S) + e_m(T) .
 \]
-In particular, taking $m = 0$ and using $e_0(T) \le \|T\|$ recovers the
-$s$-number axiom (S2): $e_n(S + T) \le e_n(S) + \|T\|$.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -1717,6 +1748,10 @@ $y_i$ and $T(B_X)$ by $2^m$ balls of radius $\delta$ with centres $z_j$,
 then the $2^{n+m}$ balls of radius $\varepsilon + \delta$ centred at the
 sums $y_i + z_j$ cover $(S+T)(B_X)$.
 \end{proof}
+
+Taking $m = 0$ and using $e_0(T) \le \|T\|$
+(Proposition~\ref{prop:entropy-basic}) recovers the $s$-number axiom (S2):
+$e_n(S + T) \le e_n(S) + \|T\|$.
 
 \begin{theorem}
 \label{thm:entropy-multiplicative}
@@ -1729,8 +1764,6 @@ $B \in \mathcal{L}(Y, Z)$ and $n, m \in \mathbb{N}_0$,
 \[
   e_{n+m}(B \circ S) \;\le\; e_n(B)\, e_m(S) .
 \]
-In particular the $s$-number axiom (S3) holds:
-$e_n(B \circ S \circ A) \le \|B\| \, e_n(S) \, \|A\|$.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -1742,13 +1775,15 @@ $\|w\| \le 1$ and $|c|$ close to $\delta$ --- this is where density of
 the norm values enters. Covering $B(B_Y)$ by $2^n$ balls of radius
 $\varepsilon$ then covers each $B(u)$ by $2^n$ balls of radius
 $|c|\,\varepsilon$, and combining the two covers yields $2^{n+m}$ balls
-of radius close to $\varepsilon\delta$ around $B(S(B_X))$. The corollary
-takes one index to be $0$ and uses $e_0 \le \|\cdot\|$ twice.
+of radius close to $\varepsilon\delta$ around $B(S(B_X))$.
 \end{proof}
+
+Taking one index to be $0$ and using $e_0 \le \|\cdot\|$ twice
+(Proposition~\ref{prop:entropy-basic}) gives the $s$-number axiom (S3):
+$e_n(B \circ S \circ A) \le \|B\| \, e_n(S) \, \|A\|$.
 
 \begin{remark}[Entropy numbers are not $s$-numbers]
 \label{rem:entropy-not-snumber}
-\uses{def:entropy-number, def:s-number-sequence}
 Two of Pietsch's axioms fail, and one is not formalised:
 \begin{itemize}
   \item (S4) fails: if $e_n(S) = 0$ then $S(B_X)$ is covered by $2^n$
@@ -1761,7 +1796,7 @@ Two of Pietsch's axioms fail, and one is not formalised:
   \item (S1a), the equality $e_0(S) = \|S\|$, holds over $\mathbb{R}$ and
     $\mathbb{C}$ by symmetry of $S(B_X)$, but fails over general normed
     fields; only the inequality $e_0(S) \le \|S\|$ is formalised, which is
-    all the results above need.
+    all that is used anywhere in this blueprint.
 \end{itemize}
 \end{remark}
 
@@ -1798,8 +1833,8 @@ property is not a limit of finite-rank operators (Enflo) --- so the
 equivalence $a_n(S) \to 0 \iff S$ compact is available only on Hilbert
 spaces, where all $s$-numbers agree with $a_n$.
 
-The route goes through the entropy numbers of the previous chapter, in both
-directions: upper bounds for $c_n, d_n$ in terms of $e_n$ give
+The route goes through the entropy numbers of Chapter~\ref{ch:entropy}, in
+both directions: upper bounds for $c_n, d_n$ in terms of $e_n$ give
 ``compact $\Rightarrow$ decay'', and a lower bound for $e_n$ gives the sharp
 comparison. The comparisons are formalised in \texttt{EntropyBounds.lean},
 the compactness criteria in \texttt{AddOns/Compact.lean}, both over
@@ -1900,7 +1935,8 @@ $\|m\| \le 2 + \delta$, a bound \emph{independent of the codimension}. Hence
 \]
 which is small for suitable $\varepsilon$ and $\delta$. (Splitting $x$ by a
 projection with kernel $M$ instead would cost the factor $1 + \sqrt{n}$ of
-Garling--Gordon, and $\sqrt{n}\, c_n(S)$ need not tend to $0$.)
+Garling--Gordon (Theorem~\ref{thm:garling-gordon}), and $\sqrt{n}\, c_n(S)$
+need not tend to $0$.)
 \end{proof}
 
 \begin{theorem}[Hilbert spaces: every $s$-number sequence]
@@ -1913,8 +1949,10 @@ $S \in \mathcal{L}(H_1, H_2)$ is compact if and only if $s_n(S) \to 0$.
 \end{theorem}
 \begin{proof}
 \leanok
-On Hilbert spaces $s_n(S) = a_n(S)$, and $a_n(S) \to 0$ is equivalent to
-compactness by the Schmidt representation.
+\uses{thm:all-eq-on-hilbert, thm:compact-iff-approximable}
+On Hilbert spaces $s_n(S) = a_n(S)$ by the coincidence theorem
+(Theorem~\ref{thm:all-eq-on-hilbert}), and $a_n(S) \to 0$ is equivalent to
+compactness by Theorem~\ref{thm:compact-iff-approximable}.
 \end{proof}
 
 \section{The sharp bound}
@@ -1951,14 +1989,18 @@ $\rho_j(S x_j) = \gamma$ and $\rho_i(S x_j) = 0$ for $i < j$.
 \begin{proof}
 \leanok
 Both are built one vector at a time. For $d_n$, take $V_j$ to be the span of
-the images already chosen --- of dimension at most $n$ --- and apply the
-point selection below $d_n$. For $c_n$, apply the point selection below
-$c_n$ on the common kernel of the functionals already chosen, and rescale
-the resulting unit-image vector by $\gamma$ to land in $B_X$.
+the images already chosen --- of dimension at most $n$ --- and pick
+$x_j \in B_X$ with $\|S x_j + w\| > \gamma$ for all $w \in V_j$, which is
+possible because $\gamma < d_n(S)$ and $\dim V_j \le n$
+(Definition~\ref{def:kolmogorov-number}). For $c_n$, make the same selection
+below $c_n(S)$ --- using $\gamma < c_n(S)$ and
+Definition~\ref{def:gelfand-number} --- on the common kernel of the
+functionals already chosen, a closed subspace of codimension at most $n$, and
+rescale the resulting unit-image vector by $\gamma$ to land in $B_X$.
 \end{proof}
 
 \begin{theorem}[Pietsch, {\cite[12.3.2]{Pietsch-ideals}}]
-\label{thm:entropy-bound}
+\label{thm:gelfand-kolmogorov-le-entropy}
 \lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber}
 \leanok
 \uses{prop:entropy-lower-bound, thm:triangular-flags}
@@ -2025,7 +2067,8 @@ For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
 \begin{proof}
 \leanok
 First let $T$ be an operator between Hilbert spaces and $\gamma < a_n(T)$.
-The scalar factorisation provides contractions $A, B$ with
+The scalar factorisation (Theorem~\ref{thm:scalar-factorisation}) provides
+contractions $A, B$ with
 $B \circ T \circ A = \gamma \cdot \mathrm{id}$ on $\ell_2^{n+1}$; replacing
 $B$ by $\gamma^{-1} B$ makes the composition the identity, so
 \[
