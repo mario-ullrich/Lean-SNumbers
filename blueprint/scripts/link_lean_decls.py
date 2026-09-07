@@ -17,7 +17,7 @@ which is better than a link that 404s.
 
 Usage::
 
-    python scripts/link_lean_decls.py --repo owner/name --rev <sha> \\
+    python blueprint/scripts/link_lean_decls.py --repo owner/name --rev <sha> \\
         [--web blueprint/web] [--expect 208]
 
 Exits non-zero if no link was found at all, if any declaration could not be
