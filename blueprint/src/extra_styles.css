@@ -1,3 +1,13 @@
+/* Show the per-result buttons -- permalink, jump-to-proof, "Uses", Lean
+   declarations -- at all times. The theme reveals them only while the pointer
+   rests on the heading (theme-white.css: div.thm_header_hidden_extras is
+   display:none, undone by div[class$=_thmheading]:hover), which leaves them
+   unreachable on a touch screen. This file is the last stylesheet the pages
+   load, so the rule wins. */
+div.thm_header_hidden_extras {
+	display: inline-block;
+}
+
 /* Vertical-line markers for theorem statements and proofs. */
 
 div.theorem_thmcontent {
