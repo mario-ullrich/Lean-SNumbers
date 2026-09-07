@@ -124,6 +124,20 @@ jobs:
         run: |
           sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\(digraph[^{]*{\)/\1 rankdir="LR";/' blueprint/web/dep_graph_document.html
 
+      # Point the `\lean{...}` links at this repository. leanblueprint builds
+      # them as `{dochome}/find/#doc/Decl` and, with no `\dochome` set, falls
+      # back to Mathlib's documentation site, where none of this project's
+      # declarations exist. That URL shape is fixed inside the plugin, so the
+      # links are rewritten here into permalinks at the commit being built.
+      # The script fails the build if a cited declaration cannot be located, or
+      # if it finds no links at all -- which is how an upstream template change
+      # would show up.
+      - name: Link Lean declarations to their sources
+        run: |
+          python blueprint/scripts/link_lean_decls.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --rev "$GITHUB_SHA"
+
       - name: Verify Lean declaration references
         run: leanblueprint checkdecls
         continue-on-error: true   # Reported, but not treated as a build failure.
