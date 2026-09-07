@@ -66,6 +66,20 @@
 % margin; long typewriter identifiers and inline formulas make this necessary.
 \emergencystretch=3em
 
+% --- references ------------------------------------------------------------
+% `report`'s thebibliography opens with \chapter*{\bibname}, so the heading is
+% already there; it just needs a name and a line in the table of contents. The
+% \clearpage runs first so that the recorded page is the one the bibliography
+% starts on, and thebibliography's own \clearpage is then a no-op.
+% \phantomsection sets a hyperref anchor on that page; without it the entry
+% would link to whatever anchor came last, i.e. the final theorem.
+% The web build defines \bpbibheading differently -- see web.tex.
+\renewcommand{\bibname}{References}
+\newcommand{\bpbibheading}{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{References}}
+
 % --- theorem environments -------------------------------------------------
 \newtheorem{theorem}{Theorem}[chapter]
 \newtheorem{proposition}[theorem]{Proposition}

@@ -23,6 +23,16 @@
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{example}[theorem]{Example}
 
+% plasTeX renders thebibliography as a plain list with no heading, which leaves
+% the references glued to the end of the last section. A chapter of their own
+% gives them a heading, their own page (split-level 2) and an entry in the table
+% of contents. It carries no \label: plasTeX binds a label to the last
+% *numbered* node (Context.label via refstepcounter), so a label here would
+% attach to the final theorem instead. The page is therefore named
+% sect0001.html rather than after a label.
+% The PDF build defines this differently -- see print.tex.
+\newcommand{\bpbibheading}{\chapter*{References}}
+
 \title{Blueprint:\\ s-Numbers of Bounded Linear Operators\\
        between Banach Spaces}
 \author{Mario Ullrich}
