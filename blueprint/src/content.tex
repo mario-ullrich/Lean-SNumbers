@@ -735,7 +735,7 @@ $\mathbb{K}$:
         $a_n(S) \le e\,(n+1)\, h_n(S)$ --- the maximal possible difference
         between the largest $s$-numbers, the approximation numbers, and the
         smallest ones, the Hilbert numbers, is a factor linear in $n$
-        (Ullrich \cite{U26}). Its consequence for two arbitrary $s$-number
+        \cite{U26}. Its consequence for two arbitrary $s$-number
         sequences is Corollary~\ref{cor:all-snumbers-bound}, the conjecture of
         Carl and Pietsch \cite{CP78}; specialising to the Gelfand, Kolmogorov
         and Bernstein numbers gives Corollary~\ref{cor:mityagin-henkin}, the
@@ -744,7 +744,8 @@ $\mathbb{K}$:
 \end{itemize}
 
 Everything in this chapter is proved in \texttt{Inequalities.lean}
-and \texttt{MaxDifference.lean}. The two classical projection theorems
+and \texttt{MaxDifference.lean} (the bordered-determinant lemma, a pure matrix
+fact, in \texttt{Determinant.lean}). The two classical projection theorems
 that drive the forward bound (Garling--Gordon and Kadets--Snobar) are proved,
 for $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$ at once, by the
 John's-ellipsoid development of Section~\ref{sec:john-ellipsoid}, whose
@@ -939,17 +940,13 @@ $d_n(S)$ is the smaller.
 \section{The maximal difference theorem}
 \label{sec:ineq-maxdiff}
 
-The maximal difference theorem $a_n \le e\,(n+1)\, h_n$ --- a bound between the
-largest and the smallest $s$-number sequence, and hence between any two --- is
-driven by the \emph{determinant quantities} $\Delta_k$ of
-Definition~\ref{def:det-quantity}. They are
-formalised, together with the theorems themselves, in
-\texttt{MaxDifference.lean} (the bordered-determinant lemma, a pure matrix
-fact, in \texttt{Determinant.lean}). The $\Delta_k$ are squeezed between the
-two quantities of interest: they do not decay faster than the approximation
-numbers allow (Lemma~\ref{lem:det-growth}, via the explicit rank-$k$
-approximant $L = SA(BSA)^{-1}BS$), and consecutive ratios are bounded by the
-Hilbert numbers (Lemma~\ref{lem:det-upper}, via contractive compressions).
+The maximal difference theorem $a_n \le e\,(n+1)\, h_n$ is due to Ullrich
+\cite{U26}. It is driven by the \emph{determinant quantities} of
+Definition~\ref{def:det-quantity}, which are squeezed between the two
+quantities of interest: they do not decay faster than the approximation numbers
+allow (Lemma~\ref{lem:det-growth}, via the explicit rank-$k$ approximant
+$L = SA(BSA)^{-1}BS$), and consecutive ratios are bounded by the Hilbert
+numbers (Lemma~\ref{lem:det-upper}, via contractive compressions).
 
 \begin{definition}[Determinant quantities]
 \label{def:det-quantity}
@@ -1074,7 +1071,7 @@ admissible pair is bounded, so the bound passes to the supremum
 $\Delta_{n+1}(S)$.
 \end{proof}
 
-\begin{theorem}[Maximal difference theorem, Ullrich {\cite{U26}}]
+\begin{theorem}[Maximal difference theorem]
 \label{thm:maximal-difference}
 \lean{SNumbers.approximationNumber_le_mul_hilbertNumber,
       SNumbers.approximationNumber_le_e_mul_hilbertNumber}
