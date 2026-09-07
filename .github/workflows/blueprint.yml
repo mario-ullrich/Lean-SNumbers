@@ -73,12 +73,15 @@ jobs:
         run: lake build
 
       # The Palomar submission surfaces sit outside `defaultTargets`, so build
-      # them explicitly. This is what catches a Challenge module broken by a
-      # later Mathlib bump, which would otherwise surface only at submission
+      # them explicitly. They ride along in this workflow because the step above
+      # already builds the whole project for `checkdecls`, with elan installed
+      # and the Mathlib cache warm; a separate workflow would repeat that setup
+      # for a thirty-second build. This is what catches a Challenge module broken
+      # by a later Mathlib bump, which would otherwise surface only at submission
       # time. The two `sorry` warnings from the Challenge module are required by
       # the submission format and do not fail the build.
       - name: Build the Palomar submission surfaces
-        run: lake build Palomar
+        run: lake build PalomarChallenges PalomarSolutions
 
       # ----- Blueprint side: TeX, graphviz, leanblueprint
       - name: Set up Python

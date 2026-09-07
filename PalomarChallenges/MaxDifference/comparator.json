@@ -1,6 +1,6 @@
 {
-  "challenge_module": "Palomar.MaxDifference.Challenge",
-  "solution_module": "Palomar.MaxDifference.Solution",
+  "challenge_module": "PalomarChallenges.MaxDifference",
+  "solution_module": "PalomarSolutions.MaxDifference",
   "theorem_names": [
     "SNumbers.approximationNumber_le_mul_hilbertNumber",
     "SNumbers.approximationNumber_le_e_mul_hilbertNumber"
