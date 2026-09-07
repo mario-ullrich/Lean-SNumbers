@@ -54,6 +54,19 @@ div.proof_content {
 	font-size: 0.9rem;
 }
 
+/* Room to scroll past the end of both panes. They are the two overflow:auto
+   containers, and the theme drops div.content's bottom margin from 1024px up,
+   so the last line of a page and the last entry of the table of contents end up
+   flush against the window edge and can be clipped. Padding on the scroll
+   container extends the scrollable area; a margin on its last child would not. */
+div.content {
+	padding-bottom: 4rem;
+}
+
+nav.toc {
+	padding-bottom: 4rem;
+}
+
 /* Center the GitHub repository URL, which \github renders as a bare,
    left-aligned paragraph immediately below the (centered) title block. The
    adjacent-sibling selector touches only that one paragraph on the home page. */
