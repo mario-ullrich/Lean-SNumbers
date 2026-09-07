@@ -340,6 +340,7 @@ $L_2 := \ell_2(\mathbb{N}; \mathbb{R})$.
 \label{def:hilbert-number}
 \lean{SNumbers.hilbertNumber}
 \leanok
+\uses{def:approximation-number}
 For $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
 \[
 h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
@@ -1845,6 +1846,7 @@ $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$.
 \lean{SNumbers.kolmogorovNumber_le_of_fin_net,
       SNumbers.gelfandNumber_le_two_mul_of_fin_net}
 \leanok
+\uses{def:kolmogorov-number, def:gelfand-number}
 Let $S \in \mathcal{L}(X, Y)$ and suppose every $x \in B_X$ satisfies
 $\|Sx - y_i\| \le \varepsilon$ for some member of a family
 $y_1, \dots, y_k \in Y$. Then
@@ -1976,6 +1978,7 @@ $2^n$, contradicting admissibility.
 \label{thm:triangular-flags}
 \lean{SNumbers.exists_kolmogorov_flag, SNumbers.exists_gelfand_flag}
 \leanok
+\uses{def:kolmogorov-number, def:gelfand-number}
 Let $\gamma < d_n(S)$. Then there are $x_0, \dots, x_n \in B_X$ and subspaces
 $V_0, \dots, V_n \subseteq Y$ with $S x_k \in V_j$ for $k < j$ and
 $\|S x_j + w\| > \gamma$ for all $w \in V_j$. Dually, for
