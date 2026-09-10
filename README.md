@@ -219,6 +219,20 @@ what John's ellipsoid provides (projections exist more cheaply, e.g. from an
 Auerbach basis, but with a weaker constant). Nothing else in the project depends
 on it.
 
+## Registered result
+
+The maximal difference theorem is registered in the [Palomar
+registry](https://palomar-registry.org), which re-ran the proof itself at a
+pinned commit of this repository and recorded what it had checked.
+
+* **Entry**: [PALOMAR-2026-09-07-000008, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-09-07-000008&version=1), registered 7 September 2026
+* **Title**: *The maximal difference theorem for s-numbers*
+* **Verified statements**: `SNumbers.approximationNumber_le_mul_hilbertNumber`
+  and `SNumbers.approximationNumber_le_e_mul_hilbertNumber`
+* **Commit**: [`085b299`](https://github.com/mario-ullrich/Lean-SNumbers/tree/085b29905f46bc4e61e19be642699153bdb99c2d), against Lean `v4.33.0` and Mathlib `db584cd`
+* **Axioms used**: `propext`, `Quot.sound`, `Classical.choice`, the three
+  Mathlib relies on throughout
+
 ## Candidates for Mathlib
 
 Much of the project is general functional analysis that Mathlib currently
@@ -501,4 +515,4 @@ Apache 2.0 — same as Mathlib. See [LICENSE](LICENSE).
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
   mathematics 13, Cambridge University Press, 1987.
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9** (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
-* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*, preprint, 2026 (the maximal difference theorem `aₙ ≤ e·(n+1)·hₙ`).
+* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*, preprint, 2026. <https://arxiv.org/abs/2608.05024> (arXiv:2608.05024; the maximal difference theorem `aₙ ≤ e·(n+1)·hₙ`).
