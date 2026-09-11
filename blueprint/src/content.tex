@@ -1821,8 +1821,8 @@ complete, its closure is compact, which is the definition of a compact
 operator.
 \end{proof}
 
-\chapter{Compactness and the Gelfand/Kolmogorov numbers}
-\label{ch:compactness}
+\chapter{Entropy numbers versus \texorpdfstring{$s$}{s}-numbers}
+\label{ch:entropy-bounds}
 
 Among the $s$-number sequences, exactly two detect compactness on every
 Banach space: the Gelfand and the Kolmogorov numbers. The approximation
@@ -1831,8 +1831,9 @@ property is not a limit of finite-rank operators (Enflo) --- so the
 equivalence $a_n(S) \to 0 \iff S$ compact is available only on Hilbert
 spaces, where all $s$-numbers agree with $a_n$.
 
-The route goes through the entropy numbers of Chapter~\ref{ch:entropy}, in
-both directions: upper bounds for $c_n, d_n$ in terms of $e_n$ give
+This chapter compares $c_n$, $d_n$ and $h_n$ with the entropy numbers of
+Chapter~\ref{ch:entropy}, in both directions: upper bounds for $c_n, d_n$ in
+terms of $e_n$ give
 ``compact $\Rightarrow$ decay'', and a lower bound for $e_n$ gives the sharp
 comparison. The comparisons are formalised in \texttt{EntropyBounds.lean},
 the compactness criteria in \texttt{AddOns/Compact.lean}, both over
@@ -1891,7 +1892,7 @@ $2^n$ points, so Theorem~\ref{thm:covering-estimates} applies with
 $k \le 2^n$; both sequences are antitone in the index.
 \end{proof}
 
-\section{The compactness criteria}
+\section{Compactness criteria}
 \label{sec:compactness-criteria}
 
 \begin{theorem}
@@ -1954,7 +1955,7 @@ On Hilbert spaces $s_n(S) = a_n(S)$ by the coincidence theorem
 compactness by Theorem~\ref{thm:compact-iff-approximable}.
 \end{proof}
 
-\section{The sharp bound}
+\section{Entropy bound by Gelfand and Kolmogorov numbers}
 \label{sec:entropy-sharp}
 
 \begin{proposition}[Separation bounds $e_n$ from below]
@@ -2031,7 +2032,7 @@ For $c_n$ the same computation is read off by the functional $\rho_j$ at the
 while $\sigma_k = \tau_k$ kills the terms with $k < j$.
 \end{proof}
 
-\section{The Hilbert numbers}
+\section{Entropy bound by Hilbert numbers}
 \label{sec:hilbert-entropy}
 
 \begin{proposition}[Entropy of the identity]
