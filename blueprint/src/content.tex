@@ -27,10 +27,10 @@ dimension of its range,
 \]
 \end{definition}
 
-\chapter{Axioms of an $s$-number sequence}
+\chapter{Axioms of an s-number sequence}
 \label{ch:axioms}
 
-\begin{definition}[$s$-number sequence; Pietsch axioms]
+\begin{definition}[s-number sequence; Pietsch axioms]
 \label{def:s-number-sequence}
 \lean{SNumbers.IsSNumberSequence}
 \leanok
@@ -41,7 +41,7 @@ s \;=\; (s_n)_{n \in \mathbb{N}_0}, \qquad
 s_n : \mathcal{L}(X, Y) \longrightarrow [0, \infty),
 \]
 defined for all pairs of Banach spaces $(X, Y)$ over $\mathbb{K}$ is called an
-\emph{$s$-number sequence} if:
+\emph{\textup{s}-number sequence} if:
 \begin{description}
   \item[(S1)]\label{ax:S1} $\|S\| = s_0(S) \ge s_1(S) \ge \dots \ge 0$
         for every $S$.
@@ -53,12 +53,12 @@ defined for all pairs of Banach spaces $(X, Y)$ over $\mathbb{K}$ is called an
 \end{description}
 \end{definition}
 
-\begin{definition}[Strict $s$-number sequence]
+\begin{definition}[Strict s-number sequence]
 \label{def:strict-s-number-sequence}
 \lean{SNumbers.IsStrictSNumberSequence}
 \leanok
 \uses{def:s-number-sequence}
-An $s$-number sequence is \emph{strict} if it additionally satisfies the
+An s-number sequence is \emph{strict} if it additionally satisfies the
 strengthening
 \begin{description}
   \item[(S5$'$)] $s_n(\mathrm{id}_X) = 1$ for every Banach space $X$ with
@@ -69,7 +69,7 @@ strengthening
 \chapter{The five canonical examples}
 \label{ch:examples}
 
-We construct the five classical $s$-number sequences and verify the
+We construct the five classical s-number sequences and verify the
 axioms (S1)--(S5) --- and, where it holds, the strengthening (S5$'$) ---
 for each of them.
 
@@ -94,7 +94,7 @@ a_n(S) := \inf \bigl\{ \|S - A\| : A \in \mathcal{L}(X, Y),
 \leanok
 \uses{def:approximation-number, def:strict-s-number-sequence}
 Let $X, Y$ be Banach spaces over $\mathbb{K}$. Then the approximation
-numbers $a = (a_n)_n$ form a \emph{strict} $s$-number sequence: they
+numbers $a = (a_n)_n$ form a \emph{strict} s-number sequence: they
 satisfy the axioms (S1)--(S5) and the strengthening (S5$'$).
 \end{theorem}
 \begin{proof}
@@ -136,7 +136,7 @@ b_n(S) := \sup_{\dim M = n+1}
 \uses{def:bernstein-number, def:strict-s-number-sequence}
 Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
 over $\mathbb{K}$. Then the Bernstein numbers $b = (b_n)_n$ form a
-\emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
+\emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
 strengthening (S5$'$).
 \end{theorem}
 \begin{proof}
@@ -185,7 +185,7 @@ c_n(S) := \inf \bigl\{ \|S \restriction_M\| :
 \uses{def:gelfand-number, def:strict-s-number-sequence}
 Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
 over $\mathbb{K}$. Then the Gelfand numbers $c = (c_n)_n$ form a
-\emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
+\emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
 strengthening (S5$'$).
 \end{theorem}
 \begin{proof}
@@ -235,7 +235,7 @@ d_n(S) := \inf_{\substack{V \subseteq Y \\ \dim V \le n}}
 \uses{def:kolmogorov-number, def:strict-s-number-sequence}
 Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
 over $\mathbb{K}$. Then the Kolmogorov numbers $d = (d_n)_n$ form a
-\emph{strict} $s$-number sequence: they satisfy (S1)--(S5) and the
+\emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
 strengthening (S5$'$).
 \end{theorem}
 \begin{proof}
@@ -280,7 +280,7 @@ $B_X$, given by
 \uses{def:kolmogorov-number, def:approximation-number}
 For every Banach space $X$ and every $S \in \mathcal{L}(X, Y)$,
 $d_n(S) = a_n(S \circ Q_X)$, and $d = (d_n)_n$ so defined is a \emph{strict}
-$s$-number sequence: it satisfies (S1)--(S5) and (S5$'$).
+s-number sequence: it satisfies (S1)--(S5) and (S5$'$).
 \end{theorem}
 \begin{proof}
 \leanok
@@ -355,7 +355,7 @@ h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
 \leanok
 \uses{def:hilbert-number, def:approximation-number, def:s-number-sequence}
 Let $X, Y$ be Banach spaces. Then the Hilbert numbers $h = (h_n)_n$ form an
-$s$-number sequence: they satisfy the axioms (S1)--(S5). The sequence $h$ is
+s-number sequence: they satisfy the axioms (S1)--(S5). The sequence $h$ is
 not strict: (S5$'$) fails in general.
 \end{proposition}
 \begin{proof}
@@ -370,7 +370,7 @@ $h_n(\mathrm{id}_{\ell_2^{n+1}}) = 1$ (S5) tests the supremum with the
 canonical embedding and projection between $\ell_2^{n+1}$ and $L_2$.
 \end{proof}
 
-\chapter{The smallest and the largest $s$-numbers}
+\chapter{The smallest and the largest s-numbers}
 \label{ch:sandwich}
 
 \begin{theorem}
@@ -378,7 +378,7 @@ canonical embedding and projection between $\ell_2^{n+1}$ and $L_2$.
 \lean{SNumbers.allSNumbers_eq_on_HilbertSpace}
 \leanok
 \uses{def:s-number-sequence, def:approximation-number, thm:scalar-factorisation}
-On a Hilbert space, every $s$-number sequence agrees with the
+On a Hilbert space, every s-number sequence agrees with the
 approximation numbers: $s_n(S) = a_n(S)$ for every continuous linear map
 $S$ between Hilbert spaces.
 \end{theorem}
@@ -397,7 +397,7 @@ yields $c \le s_n(S)$. Letting $c \to a_n(S)$ gives $a_n(S) \le s_n(S)$.
 \lean{SNumbers.hilbertNumber_le_sn_le_approximationNumber}
 \leanok
 \uses{thm:approx-is-snumber, prop:hilbert-is-snumber, thm:all-eq-on-hilbert}
-For every $s$-number sequence $s$ and every operator $S$,
+For every s-number sequence $s$ and every operator $S$,
 \[
 h_n(S) \;\le\; s_n(S) \;\le\; a_n(S).
 \]
@@ -420,7 +420,7 @@ supremum.
 
 The companion library \texttt{BasicResults} (sibling of \texttt{SNumbers})
 collects generic functional-analysis results that are independent of the
-$s$-numbers framework: Auerbach's lemma (this chapter), the singular value
+s-numbers framework: Auerbach's lemma (this chapter), the singular value
 decomposition of compact operators (Chapter~\ref{ch:svd}), determinant
 identities and the bordered-determinant formula, John's ellipsoid with the
 Kadets--Snobar and Garling--Gordon projection theorems
@@ -677,14 +677,14 @@ Theorem~\ref{thm:approximable-implies-compact}, and compact $\Rightarrow$
 approximable is Theorem~\ref{thm:compact-implies-approximable}.
 \end{proof}
 
-\section{All $s$-numbers equal the singular values in finite dimension}
+\section{All s-numbers equal the singular values in finite dimension}
 \label{sec:svd-findim}
 
 Mathlib defines the \emph{singular values} of a linear map $S$ between
 finite-dimensional Hilbert spaces as
 $\sigma_n(S) := \sqrt{\lambda_n(S^* S)}$, where $\lambda_0 \ge \lambda_1
 \ge \dots$ are the eigenvalues of $S^* S$ in non-increasing order. The
-following theorem identifies them with \emph{every} $s$-number sequence at
+following theorem identifies them with \emph{every} s-number sequence at
 once.
 
 \begin{theorem}
@@ -695,7 +695,7 @@ once.
 \uses{def:s-number-sequence, thm:all-eq-on-hilbert, thm:schmidt-representation,
   thm:eckart-young}
 Let $H_1, H_2$ be finite-dimensional Hilbert spaces over
-$\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$. For every $s$-number sequence
+$\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$. For every s-number sequence
 $s$, every $S \in \mathcal{L}(H_1, H_2)$ and every $n \in \mathbb{N}_0$,
 we have
 \[
@@ -718,7 +718,7 @@ coincides with the $n$-th Schmidt singular value; for
 $n \ge \dim H_1$ both sides vanish.
 \end{proof}
 
-\chapter{Inequalities between \texorpdfstring{$s$}{s}-numbers}
+\chapter{Inequalities between s-numbers}
 \label{ch:inequalities}
 
 Beyond the qualitative sandwich $h_n(S) \le s_n(S) \le a_n(S)$
@@ -729,14 +729,14 @@ $\mathbb{K}$:
 
 \begin{itemize}
   \item the \emph{forward} bound $a_n(S) \le (1+\sqrt{n})\min(c_n(S), d_n(S))$
-        --- the largest $s$-number exceeds the Gelfand and Kolmogorov numbers by
+        --- the largest s-number exceeds the Gelfand and Kolmogorov numbers by
         at most a factor $1+\sqrt{n}$ (classical; see \cite{Pietsch-s} and
         \cite[\S 2.10]{Pietsch87});
   \item the \emph{reverse} bound, the \emph{maximal difference theorem}
         $a_n(S) \le e\,(n+1)\, h_n(S)$ --- the maximal possible difference
-        between the largest $s$-numbers, the approximation numbers, and the
+        between the largest s-numbers, the approximation numbers, and the
         smallest ones, the Hilbert numbers, is a factor linear in $n$
-        \cite{U26}. Its consequence for two arbitrary $s$-number
+        \cite{U26}. Its consequence for two arbitrary s-number
         sequences is Corollary~\ref{cor:all-snumbers-bound}, the conjecture of
         Carl and Pietsch \cite{CP78}; specialising to the Gelfand, Kolmogorov
         and Bernstein numbers gives Corollary~\ref{cor:mityagin-henkin}, the
@@ -1097,8 +1097,8 @@ $x = 1/n$.
 \end{proof}
 
 Since the Hilbert numbers are the smallest and the approximation numbers the
-largest $s$-number sequence, the theorem bounds \emph{any} $s$-number sequence
-by any other: the maximal possible difference between two $s$-number sequences
+largest s-number sequence, the theorem bounds \emph{any} s-number sequence
+by any other: the maximal possible difference between two s-number sequences
 is a factor linear in $n$. This is the conjecture of Carl and Pietsch
 \cite{CP78}, proved up to the constant $e$ in \cite{U26}.
 
@@ -1107,7 +1107,7 @@ is a factor linear in $n$. This is the conjecture of Carl and Pietsch
 \lean{SNumbers.sn_le_e_mul_tn}
 \leanok
 \uses{thm:maximal-difference, thm:sandwich}
-For all $s$-number sequences $s, t$, every $S \in \mathcal{L}(X, Y)$ and every
+For all s-number sequences $s, t$, every $S \in \mathcal{L}(X, Y)$ and every
 $n \in \mathbb{N}_0$,
 \[
   s_n(S) \;\le\; e\,(n+1)\, t_n(S) .
@@ -1117,7 +1117,7 @@ $n \in \mathbb{N}_0$,
 \leanok
 \uses{thm:maximal-difference, thm:sandwich}
 By the sandwich theorem (Theorem~\ref{thm:sandwich}) the Hilbert numbers are
-the smallest and the approximation numbers the largest $s$-number sequence, so
+the smallest and the approximation numbers the largest s-number sequence, so
 Theorem~\ref{thm:maximal-difference} gives
 $s_n(S) \le a_n(S) \le e\,(n+1)\, h_n(S) \le e\,(n+1)\, t_n(S)$.
 \end{proof}
@@ -1140,7 +1140,7 @@ For every $S \in \mathcal{L}(X, Y)$ and every $n \in \mathbb{N}_0$,
 \leanok
 \uses{cor:all-snumbers-bound}
 Apply Corollary~\ref{cor:all-snumbers-bound} with $t := b$ and $s := c$ resp.\
-$s := d$ --- both are $s$-number sequences --- and take the maximum.
+$s := d$ --- both are s-number sequences --- and take the maximum.
 \end{proof}
 
 The factor $n+1$ is order-optimal: the inclusion $I \colon \ell_1 \to
@@ -1151,7 +1151,7 @@ $\varphi(n) = o(n)$ (Corollary~\ref{cor:l1-linf-order-optimal}).
 \chapter{Examples}
 \label{ch:op-examples}
 
-This chapter computes the $s$-numbers of three concrete families of
+This chapter computes the s-numbers of three concrete families of
 operators. The finite-dimensional examples --- the identity between
 $\ell_p$-spaces and the diagonal operators --- are the standard test cases
 of the theory; the inclusion $\ell_1 \to \ell_\infty$ shows that the linear
@@ -1207,7 +1207,7 @@ error $\mathrm{id} - L$ acts as the identity, so
 $\|\mathrm{id} - L\| \ge (m-n)^{1/p-1/q}$.
 \end{proof}
 
-By the sandwich theorem (Theorem~\ref{thm:sandwich}), every $s$-number
+By the sandwich theorem (Theorem~\ref{thm:sandwich}), every s-number
 sequence obeys $s_n(\mathrm{id}) \le (m-n)^{1/p-1/q}$.
 
 \begin{proposition}
@@ -1215,7 +1215,7 @@ sequence obeys $s_n(\mathrm{id}) \le (m-n)^{1/p-1/q}$.
 \lean{SNumbers.sn_id_piLp}
 \leanok
 \uses{def:strict-s-number-sequence}
-For every strict $s$-number sequence $s$, every $1 \le p \le \infty$ and
+For every strict s-number sequence $s$, every $1 \le p \le \infty$ and
 $n < m$, we have $s_n(\mathrm{id}_{\ell_p^m}) = 1$.
 \end{proposition}
 \begin{proof}
@@ -1243,7 +1243,7 @@ $n < m$.
 \uses{def:strict-s-number-sequence, thm:sandwich, prop:sn-id-p}
 Let $1 \le p \le \infty$ and $D_\sigma : \ell_p^m \to \ell_p^m$. Then
 $\|D_\sigma\| = \max_i |\sigma_i|$, and for every \emph{strict}
-$s$-number sequence $s$ (in particular for $a_n$, $b_n$, $c_n$, $d_n$),
+s-number sequence $s$ (in particular for $a_n$, $b_n$, $c_n$, $d_n$),
 \[
   s_n(D_\sigma) \;=\; |\sigma_n| .
 \]
@@ -1256,7 +1256,7 @@ The norm is attained at the coordinate carrying $\max_i |\sigma_i| =
 gives a rank-$\le n$ approximant whose residual is the diagonal operator
 with entries $(\sigma_k)_{k \ge n}$, of norm $|\sigma_n|$; hence
 $s_n(D_\sigma) \le a_n(D_\sigma) \le |\sigma_n|$ for \emph{every}
-$s$-number sequence. Lower bound for strict $s$: since
+s-number sequence. Lower bound for strict $s$: since
 $|\sigma_k| \ge |\sigma_n|$ for $k \le n$, the identity of
 $\ell_p^{n+1}$ factors as $\mathrm{id} = B \circ D_\sigma \circ A$ with the
 coordinate embedding $A$ (a contraction) and $B$ the coordinate projection
@@ -1300,7 +1300,7 @@ $L = 0$ yields the operator norm.
 
 By the sandwich theorem (Theorem~\ref{thm:sandwich}) the upper bound
 $s_n(D_\sigma) \le \bigl(\sum_{k \ge n} |\sigma_k|^r\bigr)^{1/r}$ holds for
-every $s$-number sequence, and it needs no ordering of the diagonal.
+every s-number sequence, and it needs no ordering of the diagonal.
 
 \begin{theorem}[Reverse regime $q \le p$]
 \label{thm:diag-reverse}
@@ -1313,7 +1313,7 @@ $D_\sigma : \ell_q^m \to \ell_p^m$,
   \|D_\sigma\| = \max_i |\sigma_i| ,
   \qquad
   s_n(D_\sigma) \le |\sigma_n|
-  \quad\text{for every $s$-number sequence $s$.}
+  \quad\text{for every s-number sequence $s$.}
 \]
 \end{theorem}
 \begin{proof}
@@ -1589,10 +1589,10 @@ By Corollary~\ref{cor:l1-linf-hilbert-eq}, $\tfrac{n+1}{2}\, h_n(I) = \tfrac12$,
 which is at most $c_n(I)$ by Proposition~\ref{prop:l1-linf-gelfand}.
 \end{proof}
 
-\chapter{Injective and surjective \texorpdfstring{$s$}{s}-numbers}
+\chapter{Injective and surjective s-numbers}
 \label{ch:injectivity}
 
-Two further structural properties of an $s$-number sequence, from Pietsch's
+Two further structural properties of an s-number sequence, from Pietsch's
 theory, single out the Gelfand and Kolmogorov numbers. They concern the
 behaviour of $s_n$ under composition with two distinguished classes of maps.
 Everything in this chapter is fully formalised in
@@ -1636,12 +1636,12 @@ $\|w\| \approx \|x\|$ gives $\|Tx\| = \|(T\circ Q)w\| \le \|T\circ Q\|\,\|w\|$,
 and letting the slack tend to $0$ yields $\|T\| \le \|T \circ Q\|$.
 \end{proof}
 
-\begin{definition}[Injective / surjective $s$-number sequence]
+\begin{definition}[Injective / surjective s-number sequence]
 \label{def:injective-surjective}
 \lean{SNumbers.Injective, SNumbers.Surjective}
 \leanok
 \uses{def:s-number-sequence, def:metric-injection, def:metric-surjection}
-An $s$-number sequence $s$ is \emph{injective} if post-composition with any
+An s-number sequence $s$ is \emph{injective} if post-composition with any
 metric injection leaves it unchanged, $s_n(J \circ S) = s_n(S)$; it is
 \emph{surjective} if pre-composition with any metric surjection leaves it
 unchanged, $s_n(S \circ Q) = s_n(S)$.
@@ -1652,7 +1652,7 @@ unchanged, $s_n(S \circ Q) = s_n(S)$.
 \lean{SNumbers.injective_gelfandNumber}
 \leanok
 \uses{def:injective-surjective, def:gelfand-number, lem:metric-norm-comp}
-The Gelfand numbers $c_n$ form an injective $s$-number sequence:
+The Gelfand numbers $c_n$ form an injective s-number sequence:
 $c_n(J \circ S) = c_n(S)$ for every metric injection $J$.
 \end{theorem}
 \begin{proof}
@@ -1669,7 +1669,7 @@ term by term, so the Gelfand numbers agree.
 \lean{SNumbers.surjective_kolmogorovNumber}
 \leanok
 \uses{def:injective-surjective, def:kolmogorov-number, lem:metric-norm-comp}
-The Kolmogorov numbers $d_n$ form a surjective $s$-number sequence:
+The Kolmogorov numbers $d_n$ form a surjective s-number sequence:
 $d_n(S \circ Q) = d_n(S)$ for every metric surjection $Q$.
 \end{theorem}
 \begin{proof}
@@ -1687,11 +1687,11 @@ term, so the Kolmogorov numbers agree.
 
 The entropy numbers quantify the compactness of an operator directly: they
 measure how many balls of a given radius are needed to cover the image of
-the unit ball. They are \emph{not} $s$-numbers --- the rank axiom (S4) and
+the unit ball. They are \emph{not} s-numbers --- the rank axiom (S4) and
 the normalisation (S5) both fail --- but they satisfy the remaining
 properties, in the strong additive and multiplicative form of
 Theorems~\ref{thm:entropy-additive} and~\ref{thm:entropy-multiplicative}; such
-sequences are called \emph{pseudo-$s$-number} sequences
+sequences are called \emph{pseudo-\textup{s}-number} sequences
 \cite[12.1.1]{Pietsch-ideals}. Everything in this chapter is formalised
 in \texttt{Entropy.lean}, over a non-trivially normed field
 $\mathbb{K}$ unless stated otherwise.
@@ -1748,7 +1748,7 @@ sums $y_i + z_j$ cover $(S+T)(B_X)$.
 \end{proof}
 
 Taking $m = 0$ and using $e_0(T) \le \|T\|$
-(Proposition~\ref{prop:entropy-basic}) recovers the $s$-number axiom (S2):
+(Proposition~\ref{prop:entropy-basic}) recovers the s-number axiom (S2):
 $e_n(S + T) \le e_n(S) + \|T\|$.
 
 \begin{theorem}
@@ -1777,10 +1777,10 @@ of radius close to $\varepsilon\delta$ around $B(S(B_X))$.
 \end{proof}
 
 Taking one index to be $0$ and using $e_0 \le \|\cdot\|$ twice
-(Proposition~\ref{prop:entropy-basic}) gives the $s$-number axiom (S3):
+(Proposition~\ref{prop:entropy-basic}) gives the s-number axiom (S3):
 $e_n(B \circ S \circ A) \le \|B\| \, e_n(S) \, \|A\|$.
 
-\begin{remark}[Entropy numbers are not $s$-numbers]
+\begin{remark}[Entropy numbers are not s-numbers]
 \label{rem:entropy-not-snumber}
 Two of Pietsch's axioms fail, and one is not formalised:
 \begin{itemize}
@@ -1821,15 +1821,15 @@ complete, its closure is compact, which is the definition of a compact
 operator.
 \end{proof}
 
-\chapter{Entropy numbers versus \texorpdfstring{$s$}{s}-numbers}
+\chapter{Entropy numbers versus s-numbers}
 \label{ch:entropy-bounds}
 
-Among the $s$-number sequences, exactly two detect compactness on every
+Among the s-number sequences, exactly two detect compactness on every
 Banach space: the Gelfand and the Kolmogorov numbers. The approximation
 numbers do not --- a compact operator into a space without the approximation
 property is not a limit of finite-rank operators (Enflo) --- so the
 equivalence $a_n(S) \to 0 \iff S$ compact is available only on Hilbert
-spaces, where all $s$-numbers agree with $a_n$.
+spaces, where all s-numbers agree with $a_n$.
 
 This chapter compares $c_n$, $d_n$ and $h_n$ with the entropy numbers of
 Chapter~\ref{ch:entropy}, in both directions: upper bounds for $c_n, d_n$ in
@@ -1939,12 +1939,12 @@ Garling--Gordon (Theorem~\ref{thm:garling-gordon}), and $\sqrt{n}\, c_n(S)$
 need not tend to $0$.)
 \end{proof}
 
-\begin{theorem}[Hilbert spaces: every $s$-number sequence]
+\begin{theorem}[Hilbert spaces: every s-number sequence]
 \label{thm:compact-iff-sn-hilbert}
 \lean{SVD.isCompactOperator_iff_tendsto_sn}
 \leanok
 \uses{thm:all-eq-on-hilbert, thm:compact-iff-approximable}
-Let $H_1, H_2$ be Hilbert spaces and $s$ any $s$-number sequence. Then
+Let $H_1, H_2$ be Hilbert spaces and $s$ any s-number sequence. Then
 $S \in \mathcal{L}(H_1, H_2)$ is compact if and only if $s_n(S) \to 0$.
 \end{theorem}
 \begin{proof}
