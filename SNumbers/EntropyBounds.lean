@@ -73,8 +73,12 @@ Nets are passed as functions `Fin k → Y` rather than as the `Finset` of
 
 ## References
 
-* A. Pietsch, *Operator ideals*, North-Holland, 1980, 12.3 (`[Pie80]`).
-* A. Pietsch, *Eigenvalues and s-numbers*, 2.4 (`[Pie87]`).
+* A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20,
+  North-Holland, 1980, [doi](<https://doi.org/10.1016/S0924-6509(09)X7001-7>),
+  12.3 ([Pie80]).
+* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Studies in Advanced
+  Mathematics 13, Cambridge University Press, 1987,
+  [link](https://zbmath.org/3996455), 2.4 ([Pie87]).
 -/
 
 universe u

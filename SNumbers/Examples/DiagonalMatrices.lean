@@ -66,7 +66,9 @@ maps `projFin` / `padFin` in `SNumbers.PiLpCoordinates`.
 
 ## References
 
-* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Univ. Press, 1987.
+* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Studies in Advanced
+  Mathematics 13, Cambridge University Press, 1987,
+  [link](https://zbmath.org/3996455).
 -/
 
 universe u

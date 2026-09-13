@@ -143,17 +143,25 @@ Apache 2.0, the same as Mathlib. See [LICENSE](LICENSE).
 
 ## References
 
-* A. Pietsch, *s-Numbers of operators in Banach spaces*, Studia Math. 51
-  (1974), 201–223.
+* D. Krieg, E. Novak, M. Ullrich, *On the power of adaption and randomization*,
+  Forum of Mathematics, Sigma **13** (2025), e152,
+  [doi](https://doi.org/10.1017/fms.2025.10101),
+  [arxiv](https://arxiv.org/abs/2406.07108). Source of the Bernstein–Gelfand
+  bound `cₙ ≤ √(n+1) · bₙ`.
+* A. Pietsch, *s-Numbers of operators in Banach spaces*, Studia Math. **51**
+  (1974), 201–223, [doi](https://doi.org/10.4064/sm-51-3-201-223).
 * A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20,
-  North-Holland, 1980.
+  North-Holland, 1980,
+  [doi](<https://doi.org/10.1016/S0924-6509(09)X7001-7>).
 * A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Studies in Advanced
-  Mathematics 13, Cambridge University Press, 1987.
+  Mathematics 13, Cambridge University Press, 1987,
+  [link](https://zbmath.org/3996455).
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9**
-  (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x>
-  (preprint: arXiv:2405.05509). A simple proof and a slight improvement of
-  Pietsch's bound `max(cₙ, dₙ) ≤ (n+1) · (h₀ ⋯ hₙ)^{1/(n+1)}`, which the maximal
-  difference theorem sharpens.
+  (2024), no. 4, article no. 82,
+  [doi](https://doi.org/10.1007/s43036-024-00386-x),
+  [arxiv](https://arxiv.org/abs/2405.05509). A simple proof and a slight
+  improvement of Pietsch's bound `max(cₙ, dₙ) ≤ (n+1) · (h₀ ⋯ hₙ)^{1/(n+1)}`,
+  which the maximal difference theorem sharpens.
 * M. Ullrich, *On bounds between all s-numbers and widths of convex sets*,
-  preprint, 2026. <https://arxiv.org/abs/2608.05024>. Source of the maximal
-  difference theorem `aₙ ≤ e · (n+1) · hₙ`.
+  preprint, 2026, [arxiv](https://arxiv.org/abs/2608.05024). Source of the
+  maximal difference theorem `aₙ ≤ e · (n+1) · hₙ`.

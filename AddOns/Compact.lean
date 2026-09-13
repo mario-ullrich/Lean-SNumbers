@@ -69,8 +69,12 @@ operators. On Hilbert spaces the Schmidt representation repairs this, and then
 
 ## References
 
-* A. Pietsch, *Eigenvalues and s-numbers*, §2.11.
-* A. Pietsch, *Operator ideals*, 12.3.
+* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Studies in Advanced
+  Mathematics 13, Cambridge University Press, 1987,
+  [link](https://zbmath.org/3996455), §2.11.
+* A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20,
+  North-Holland, 1980, [doi](<https://doi.org/10.1016/S0924-6509(09)X7001-7>),
+  12.3.
 -/
 
 universe u

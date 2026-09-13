@@ -112,8 +112,9 @@ Hilbert space is **not** formalised here.
 
 ## References
 
-* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*
-  (preprint, 2026), Theorem 1 (general case).
+* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*,
+  preprint, 2026, [arxiv](https://arxiv.org/abs/2608.05024), Theorem 1
+  (general case).
 -/
 
 universe u

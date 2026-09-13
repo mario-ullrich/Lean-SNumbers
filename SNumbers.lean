@@ -149,15 +149,22 @@ operators, and which `s`-number sequences detect compactness.
 
 ## References
 
-* A. Pietsch, *s-Numbers of operators in Banach spaces*, Studia Math. 51
-  (1974), 201–223.
+* D. Krieg, E. Novak, M. Ullrich, *On the power of adaption and randomization*,
+  Forum of Mathematics, Sigma **13** (2025), e152,
+  [doi](https://doi.org/10.1017/fms.2025.10101),
+  [arxiv](https://arxiv.org/abs/2406.07108).
+* A. Pietsch, *s-Numbers of operators in Banach spaces*, Studia Math. **51**
+  (1974), 201–223, [doi](https://doi.org/10.4064/sm-51-3-201-223).
 * A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20,
-  North-Holland, 1980.
-* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
-  mathematics 13, Cambridge University Press, 1987.
+  North-Holland, 1980, [doi](<https://doi.org/10.1016/S0924-6509(09)X7001-7>).
+* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Studies in Advanced
+  Mathematics 13, Cambridge University Press, 1987,
+  [link](https://zbmath.org/3996455).
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator
-  Theory **9** (2024), no. 4, article no. 82.
-  <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
+  Theory **9** (2024), no. 4, article no. 82,
+  [doi](https://doi.org/10.1007/s43036-024-00386-x),
+  [arxiv](https://arxiv.org/abs/2405.05509).
 * M. Ullrich, *On bounds between all s-numbers and widths of convex sets*,
-  preprint, 2026 (the maximal difference theorem).
+  preprint, 2026, [arxiv](https://arxiv.org/abs/2608.05024) (the maximal
+  difference theorem).
 -/

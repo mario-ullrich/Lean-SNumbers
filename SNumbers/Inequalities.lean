@@ -88,13 +88,20 @@ admissible `(A, B)` yields `hₙ(S) ≤ sₙ(S)`.
 
 ## References
 
+* D. Krieg, E. Novak, M. Ullrich, *On the power of adaption and randomization*,
+  Forum of Mathematics, Sigma **13** (2025), e152,
+  [doi](https://doi.org/10.1017/fms.2025.10101),
+  [arxiv](https://arxiv.org/abs/2406.07108) ([KNU25]); the
+  `cₙ ≤ √(n+1)·bₙ` bound is Theorem 8 there.
+* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Studies in Advanced
+  Mathematics 13, Cambridge University Press, 1987,
+  [link](https://zbmath.org/3996455) ([Pie87]); the projection theorems are
+  1.7.17 (Garling–Gordon) and 1.5.5 (Kadets–Snobar).
 * M. Ullrich, *Inequalities between s-numbers*, Advances in Operator
-  Theory **9** (2024), no. 4, art. 82.
-  <https://doi.org/10.1007/s43036-024-00386-x> (preprint:
-  arXiv:2405.05509). The `aₙ ≤ (1+√n)·min(cₙ,dₙ)` bound is from here.
-* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Univ. Press, 1987
-  ([Pie87]); the projection theorems are 1.7.17 (Garling–Gordon) and
-  1.5.5 (Kadets–Snobar).
+  Theory **9** (2024), no. 4, article no. 82,
+  [doi](https://doi.org/10.1007/s43036-024-00386-x),
+  [arxiv](https://arxiv.org/abs/2405.05509). The `aₙ ≤ (1+√n)·min(cₙ,dₙ)`
+  bound is from here.
 -/
 
 universe u
@@ -146,7 +153,7 @@ theorem bernsteinNumber_le_gelfandNumber (S : X →L[𝕜] Y) (n : ℕ) :
 /-! ## Reverse bound (Hilbert codomain): `cₙ ≤ √(n+1)·bₙ`
 
 The reverse of `bₙ ≤ cₙ`, when the codomain is a Hilbert space:
-`cₙ(S) ≤ √(n+1)·bₙ(S)` (Theorem 8 of arXiv:2406.07108). From
+`cₙ(S) ≤ √(n+1)·bₙ(S)` (Theorem 8 of [KNU25]). From
 `γ < cₙ(S)`, every closed subspace of codimension `≤ n` carries a unit vector
 that `S` stretches by more than `γ`; assembling `n+1` of these in nested kernels
 makes their images orthonormal, so `S` is bounded below on their span. -/
@@ -260,7 +267,7 @@ lemma exists_triangular_system_hilbert (S : X →L[𝕜] H) {n : ℕ}
 
 /-- **Reverse bound, Hilbert codomain.** If `H` is a Hilbert space then
 `cₙ(S) ≤ √(n+1)·bₙ(S)` — sharp polynomial, product-free, pointwise (Theorem 8 of
-arXiv:2406.07108). Orthonormal images give `‖S x‖² = ∑ ‖gⱼ‖²` (Parseval) and
+[KNU25]). Orthonormal images give `‖S x‖² = ∑ ‖gⱼ‖²` (Parseval) and
 `∑‖gⱼ‖ ≤ √(n+1)·‖S x‖` (Cauchy–Schwarz). -/
 theorem gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert
     (S : X →L[𝕜] H) (n : ℕ) :
