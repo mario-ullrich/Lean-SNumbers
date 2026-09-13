@@ -107,7 +107,7 @@ only, and a Solution proves them from the development. Both sit outside
 
 Requires [`elan`](https://github.com/leanprover/elan). The Lean version is pinned
 in `lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone builds against
-Lean / Mathlib `v4.33.0`:
+Lean / Mathlib `v4.33.1`:
 
 ```bash
 lake exe cache get   # downloads the prebuilt Mathlib oleans
