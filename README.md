@@ -1,35 +1,34 @@
-# s-Numbers — Lean 4 / Mathlib formalisation
+# s-Numbers in Lean 4 / Mathlib
 
-A Lean 4 / Mathlib formalisation of the **Pietsch axiomatic theory of
-s-numbers** for bounded linear operators between Banach spaces.
+A Lean 4 / Mathlib formalisation of the **Pietsch axiomatic theory of s-numbers**
+for bounded linear operators between Banach spaces: the five classical s-number
+sequences, the inequalities between them, the singular value decomposition of
+compact operators on Hilbert spaces, John's ellipsoid, and entropy numbers. The
+project builds without `sorry`, and every theorem uses only the three axioms
+Mathlib relies on throughout (`propext`, `Classical.choice`, `Quot.sound`).
 
-**Repository**: <https://github.com/mario-ullrich/Lean-SNumbers>
-
-**Blueprint**: a human-readable account of the mathematics with links into the
-Lean code and a dependency graph, built from `blueprint/` by GitHub Actions on
-every push:
-
-* **Web**: <https://mario-ullrich.github.io/Lean-SNumbers/>
-* **PDF**: <https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf>
-* Also available as a downloadable artifact under *Actions → latest run →
-  blueprint-YYYYMMDD*, which contains the PDF and the web pages.
-
-**AI assistance.** This project started out written by hand, and as it grew I
-used AI assistance more and more. By now, most of the Lean proofs were produced
-this way. What I did throughout: design the structure of the development, and
-check and revise the statements of all definitions and results. The proofs
-themselves are guaranteed by the Lean kernel.
+* **Blueprint** (the mathematics, with the Lean name at every statement):
+  <https://mario-ullrich.github.io/Lean-SNumbers/>
+* **Blueprint as PDF**: <https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf>
+* **Dependency graph**:
+  <https://mario-ullrich.github.io/Lean-SNumbers/dep_graph_document.html>
+* **Palomar registry**: the maximal difference theorem is registered as
+  [PALOMAR-2026-09-07-000008](https://palomar-registry.org/entry?id=PALOMAR-2026-09-07-000008&version=1).
+  The registry re-ran the proof at commit
+  [`085b299`](https://github.com/mario-ullrich/Lean-SNumbers/tree/085b29905f46bc4e61e19be642699153bdb99c2d)
+  against Lean `v4.33.0` and Mathlib `db584cd`, and verified the declarations
+  `SNumbers.approximationNumber_le_mul_hilbertNumber` and
+  `SNumbers.approximationNumber_le_e_mul_hilbertNumber`.
 
 ## What are s-numbers?
 
-**s-numbers are a generalisation of singular values** to bounded
-linear operators `T : X → Y` between arbitrary Banach (or normed)
-spaces, while singular values are only defined for operators
-between Hilbert spaces.
+**s-numbers are a generalisation of singular values** to bounded linear operators
+`T : X → Y` between arbitrary Banach (or normed) spaces, while singular values are
+only defined for operators between Hilbert spaces.
 
-Following Pietsch's axiomatic approach, an **s-number sequence** is a rule `s` assigning to each operator `T` a
-non-increasing sequence of non-negative reals `s₀(T) ≥ s₁(T) ≥ ⋯ ≥ 0`
-(indexing starts at `0`) satisfying
+Following Pietsch's axiomatic approach, an **s-number sequence** is a rule `s`
+assigning to each operator `T` a non-increasing sequence of non-negative reals
+`s₀(T) ≥ s₁(T) ≥ ⋯ ≥ 0` (indexing starts at `0`) satisfying
 
 * **(S1) norm + monotonicity:** `s₀(T) = ‖T‖` and `s₀(T) ≥ s₁(T) ≥ ⋯ ≥ 0`;
 * **(S2) subadditivity:** `sₙ(S + T) ≤ sₙ(S) + ‖T‖`;
@@ -37,482 +36,124 @@ non-increasing sequence of non-negative reals `s₀(T) ≥ s₁(T) ≥ ⋯ ≥ 0
 * **(S4) rank:** `sₙ(T) = 0` whenever `rank T ≤ n`;
 * **(S5) norming:** `sₙ(id : ℓ₂ⁿ⁺¹ → ℓ₂ⁿ⁺¹) = 1`.
 
-A *strict* s-number sequence strengthens (S5) to **(S5')**
-`sₙ(id_X) = 1` for every space `X` with `dim X > n`, not just `ℓ₂ⁿ⁺¹`.
-The classical examples are the **approximation** `aₙ`, **Gelfand** `cₙ`,
-**Kolmogorov** `dₙ`, **Bernstein** `bₙ`, and **Hilbert** `hₙ` numbers.
+A *strict* s-number sequence strengthens (S5) to **(S5')** `sₙ(id_X) = 1` for
+every space `X` with `dim X > n`, not just `ℓ₂ⁿ⁺¹`. The classical examples are
+the **approximation** `aₙ`, **Gelfand** `cₙ`, **Kolmogorov** `dₙ`, **Bernstein**
+`bₙ`, and **Hilbert** `hₙ` numbers. In Lean, `SNumbers.IsSNumberSequence` and
+`SNumbers.IsStrictSNumberSequence` state the axioms, and each classical example
+is proved to satisfy them.
 
-The whole theory is held together by a few inequalities relating these
-examples, which are the central targets of this formalisation:
+## Main results
 
-* **on Hilbert spaces all s-numbers coincide**, `sₙ(T) = aₙ(T)`, and equal
-  the classical singular values `σₙ(T)`;
-* `aₙ` is the **largest** and `hₙ` the **smallest** s-number, giving the
-  sandwich `hₙ(T) ≤ sₙ(T) ≤ aₙ(T)` for every s-number sequence `s`;
-* `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))` (Gelfand and Kolmogorov numbers
-  are within a factor `1+√n` of the approximation numbers);
-* the **maximal difference theorem**
-  `aₙ(T) ≤ e · (n+1) · hₙ(T)` (sharp constant `(n+1)^{n+1}/nⁿ`) — hence
-  `sₙ(T) ≤ e·(n+1)·tₙ(T)` for any two s-number sequences, in particular the
-  **Mityagin–Henkin conjecture** `max(cₙ,dₙ) ≤ e·(n+1)·bₙ` up to the
-  constant `e`.
+Throughout, `T : X → Y` is a bounded operator between normed spaces over `ℝ` or
+`ℂ`, and `s`, `t` are s-number sequences.
 
-## What is formalised
+* **Sandwich theorem.** `hₙ(T) ≤ sₙ(T) ≤ aₙ(T)`: the Hilbert numbers are the
+  smallest and the approximation numbers the largest s-numbers
+  (`SNumbers.hilbertNumber_le_sn_le_approximationNumber`).
+* **Uniqueness on Hilbert spaces.** If `X` and `Y` are Hilbert spaces, then
+  `sₙ(T) = aₙ(T)` for every s-number sequence `s` and every bounded `T`
+  (`SNumbers.allSNumbers_eq_on_HilbertSpace`). In finite dimension these are
+  Mathlib's singular values, `sₙ(T) = σₙ(T)`
+  (`SNumbers.sn_eq_singularValues_of_finiteDimensional`).
+* **Gelfand and Kolmogorov numbers against approximation numbers.** The classical
+  bound `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))`, via the Kadets–Snobar and
+  Garling–Gordon projection theorems
+  (`SNumbers.approximationNumber_le_sqrt_mul_min`).
+* **Maximal difference theorem.**
+  `aₙ(T) ≤ ((n+1)^{n+1} / nⁿ) · hₙ(T) ≤ e · (n+1) · hₙ(T)`
+  (`SNumbers.approximationNumber_le_mul_hilbertNumber`,
+  `SNumbers.approximationNumber_le_e_mul_hilbertNumber`). Hence
+  `sₙ(T) ≤ e · (n+1) · tₙ(T)` for any two s-number sequences `s`, `t`
+  (`SNumbers.sn_le_e_mul_tn`), which solves the Mityagin–Henkin conjecture up to
+  the constant `e`, i.e., `dₙ(T) ≤ e · (n+1) · bₙ(T)`
+  (`SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber`).
+* **The factor `n+1` is order-optimal.** For the inclusion `I : ℓ₁ → ℓ_∞`,
+  `hₙ(I) = 1/(n+1)` and `((n+1)/2) · hₙ(I) ≤ cₙ(I)`
+  (`SNumbers.L1Linf.hilbertNumber_eq_one_div`,
+  `SNumbers.L1Linf.mul_hilbertNumber_le_gelfandNumber`).
+* **Schmidt representation.** A compact operator `S : H₁ → H₂` between Hilbert
+  spaces is `S = ∑ₖ σₖ · ⟨uₖ, ·⟩ vₖ` with `σₖ = aₖ(S)` decreasing to `0` and
+  orthonormal systems `(uₖ)`, `(vₖ)` (`SVD.IsCompactOperator.SVD`).
+* **John's ellipsoid.** In John position, `id = ∑ᵢ cᵢ · ⟨uᵢ, ·⟩ uᵢ` over contact
+  points `uᵢ` with `cᵢ ≥ 0` and `∑ᵢ cᵢ = dim` (`John.john_decomposition`). Hence
+  the Kadets–Snobar theorem: every `n`-dimensional subspace of a normed space is
+  the range of a projection `P` with `‖P‖ ≤ √n` (`John.exists_projection`).
+* **Entropy numbers.** `max(cₙ(S), dₙ(S)) ≤ (n+1) · eₙ(S)`
+  (`SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber`), and
+  for complete `Y` the operator `S` is compact if and only if `eₙ(S) → 0`
+  (`SNumbers.isCompactOperator_iff_tendsto_entropyNumber`).
 
-A green check means the entry is in the code: definitions are defined, results
-are proved (no `sorry`). Each row says which.
+Everything else, including the s-numbers of diagonal operators between `ℓ^p_m`
+spaces and the characterisations of compactness by `cₙ`, `dₙ` and, on Hilbert
+spaces, by every s-number sequence, is in the blueprint with its Lean name at
+every statement.
 
-### Axioms and framework
+## Organisation
 
-| Axiom / Object                            | Status              |
-|-------------------------------------------|---------------------|
-| `IsSNumberSequence` (S1–S5)               | ✅ defined          |
-| `IsStrictSNumberSequence` (adds S5')      | ✅ defined          |
-| `rank` of `X →L[𝕜] Y`                     | ✅ defined          |
-| Metric injection / surjection classes     | ✅ defined          |
-| Homogeneity `sₙ(c•T) = ‖c‖·sₙ(T)`         | ✅ proved           |
-| Norm bound `sₙ(T) ≤ ‖T‖` (`IsSNumberSequence.le_norm`) | ✅ proved  |
-| Auerbach's lemma                          | ✅ proved (ℝ)       |
-| Garling–Gordon projection (`‖P‖ ≤ √n + ε`, ker `P` = `M`) | ✅ proved |
-| Kadets–Snobar projection (`‖P‖ ≤ √n`, range `P` = `V`) | ✅ proved |
-| John's ellipsoid: max-volume position (`exists_maxVolume`) | ✅ proved |
-| Kadets–Snobar via John (`John.exists_projection`, `‖P‖ ≤ √dim`) | ✅ proved |
-| John decomposition of identity (`john_decomposition`) | ✅ proved |
+Three libraries. `SNumbers` holds the theory: the axioms, the five classical
+sequences, the inequalities between them, entropy numbers, and the examples.
+`BasicResults` holds general functional analysis the theory consumes and Mathlib
+lacks: the SVD of compact operators, determinant identities, John's ellipsoid,
+Auerbach's lemma, and a spectral toolkit; [MathlibCandidates.md](MathlibCandidates.md)
+lists what could be upstreamed. `AddOns` measures compactness by s-numbers.
 
-### The classical s-numbers
-
-| Object                                    | Status              |
-|-------------------------------------------|---------------------|
-| Approximation number `aₙ`                 | ✅ proved (S1–S5'); strict |
-| Bernstein number `bₙ`                     | ✅ proved (S1–S5'); strict |
-| Gelfand number `cₙ`                       | ✅ proved (S1–S5'); strict + injective |
-| Kolmogorov number `dₙ`                    | ✅ proved (S1–S5'); strict + surjective |
-|       ↳ Pietsch identity `dₙ S = aₙ(S∘Q_X)` (canonical dₙ = lifting form) | ✅ proved (for Banach spaces) |
-| Hilbert number `hₙ`                       | ✅ proved (S1)–(S5) |
-
-### Inequalities between s-numbers
-
-| Inequality                                | Status              |
-|-------------------------------------------|---------------------|
-| Sandwich theorem `hₙ ≤ sₙ ≤ aₙ`         | ✅ proved |
-| `bₙ ≤ cₙ` via `bₙ` = smallest injective strict s-number | ✅ proved |
-| Hilbert-space uniqueness: `sₙ = aₙ` for all bounded `S` on Hilbert spaces | ✅ proved |
-| `aₙ ≤ (1+√n)·min(cₙ,dₙ)`                  | ✅ proved |
-| `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ ≤ e·(n+1)·hₙ` (maximal difference theorem; Carl–Pietsch up to `e`) | ✅ proved |
-| `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences | ✅ proved |
-| `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`, in particular `≤ e·(n+1)·bₙ` (Mityagin–Henkin up to `e`) — corollaries | ✅ proved |
-| `aₙ ≤ √(e·(n+1))·hₙ` when `X` or `Y` is a Hilbert space | ⏳ not started |
-| factor `n+1` is order-optimal (via example `I : ℓ₁ → ℓ_∞`, see Examples) | ✅ proved |
-| Determinant quantities `Δₖ(S)`: growth lemmas + `Δₙ₊₁ ≤ hₙ·Δₙ` | ✅ proved |
-| `Δₖ₊₁ ≥ (kᵏ/(k+1)^{k+1})·aₖ·Δₖ` via `L = SA(BSA)⁻¹BS` (bordered determinant) | ✅ proved |
-| `aₙ(B∘S∘A) ≤ ‖B‖‖A‖·hₙ(S)` | ✅ proved |
-
-### Singular values, SVD and determinants
-
-| Result                                    | Status              |
-|-------------------------------------------|---------------------|
-| `sₙ(S) = σₙ(S)` (fin-dim: all s-numbers = Mathlib singular numbers) | ✅ proved |
-| Singular-value uniqueness `project σ = Mathlib σ` (`project_singularValues_eq`) | ✅ proved |
-| `SVD.IsCompactOperator.norm_isSingularValue` (compact attains norm) | ✅ proved |
-| Compact SVD `SVD.IsCompactOperator.SVD` `S = Σ aₖ⟨uₖ,·⟩vₖ` | ✅ proved |
-| Eckart–Young `‖S - Sₙ‖ = aₙ(S)`           | ✅ proved |
-| Diagonal factorisation `B∘S∘A = diag(aₖ)` (top `n+1` pairs) | ✅ proved |
-| `(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for compact `T₂T₁` (Pietsch 2.11.23) | ✅ proved |
-| Scalar factorisation `B∘S∘A = c·id` (`c < aₙ`, general `S`) | ✅ proved |
-| `det T* = conj(det T)` | ✅ proved |
-| `‖det T‖ = ∏ₖ σₖ(T)` (singular values) | ✅ proved |
-| `∏ aₖ(T) = ‖det T‖` (fin-dim) | ✅ proved |
-| Bordered determinant (column-operation Schur formula, any commutative ring) | ✅ proved |
-
-### Examples
-
-| Result                                    | Status              |
-|-------------------------------------------|---------------------|
-| Diagonal operator `D_σ : ℓ^p_m → ℓ^p_m` and its norm `‖D_σ‖ = ⨆ᵢ‖σᵢ‖` | ✅ proved |
-| `sₙ(D_σ) = ‖σ_n‖` for every **strict** s-number (`aₙ, cₙ, dₙ, bₙ`) | ✅ proved |
-| Hilbert numbers `hₙ(D_σ) ≤ ‖σ_n‖` (equality fails for `p ≠ 2`) | ✅ proved |
-| Unit diagonal = identity, `sₙ(id_{ℓ^p_m}) = 1` for `n < m` | ✅ proved |
-| Identity embedding `id : ℓ^q_m → ℓ^p_m` (`p ≤ q < ∞`), `‖id‖ = m^{1/p-1/q}` | ✅ proved |
-| `aₙ(id : ℓ^q_m → ℓ^p_m) ≤ (m-n)^{1/p-1/q}` (all s-numbers, `p ≤ q < ∞`) | ✅ proved |
-| `aₙ(id : ℓ^q_m → ℓ^p_m) = (m-n)^{1/p-1/q}` (`p ≤ q < ∞`, `n < m`) | ✅ proved |
-| Mixed-exponent diagonal `D_σ : ℓ^q_m → ℓ^p_m` (`p < q < ∞`), `‖D_σ‖ = ‖σ‖_{ℓ^r}` (`1/r = 1/p-1/q`) | ✅ proved |
-| `aₙ(D_σ : ℓ^q_m → ℓ^p_m) = (∑_{k≥n}‖σ_k‖^r)^{1/r}` (`p < q < ∞`, `σ` antitone, `n < m`) | ✅ proved |
-| `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ (∑_{k≥n}‖σ_k‖^r)^{1/r}` (all s-numbers, `p < q < ∞`) | ✅ proved |
-| Reverse regime `q ≤ p` (incl. `p = ∞`): `‖D_σ : ℓ^q_m → ℓ^p_m‖ = maxᵢ‖σᵢ‖` | ✅ proved |
-| `sₙ(D_σ : ℓ^q_m → ℓ^p_m) ≤ ‖σ_n‖` (all s-numbers, `q ≤ p`, `σ` antitone) | ✅ proved |
-| Inclusion `I : ℓ₁ → ℓ_∞`: `½ ≤ cₙ(I) ≤ 1` | ✅ proved |
-| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≥ 1/(n+1)` | ✅ proved |
-| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) ≤ 1/(n+1)` (little Grothendieck / Hilbert–Schmidt) | ✅ proved |
-| Inclusion `I : ℓ₁ → ℓ_∞`: `hₙ(I) = 1/(n+1)` and `((n+1)/2)·hₙ(I) ≤ cₙ(I)` (order-optimality) | ✅ proved |
-
-### Entropy numbers (not s-numbers)
-
-`eₙ(S) = inf{ε > 0 : S(B_X) is covered by 2ⁿ balls of radius ε}`. These are not
-s-numbers: the rank axiom (S4) fails, since `eₙ(S) = 0` would force `S(B_X)` to
-have at most `2ⁿ` points, which it never has for `S ≠ 0`.
-The norming axiom (S5) also fails.
-A sequence keeping the remaining properties is called a *pseudo-s-number*
-sequence.
-
-| Result                                    | Status              |
-|-------------------------------------------|---------------------|
-| Entropy numbers `eₙ` (`entropyNumber`)    | ✅ defined          |
-| Monotonicity, non-negativity, `eₙ(S) ≤ ‖S‖` | ✅ proved (S1b, S1c) |
-| Additivity `e_{n+m}(S+T) ≤ eₙ(S) + e_m(T)`, hence `eₙ(S+T) ≤ eₙ(S) + ‖T‖` | ✅ proved (S2) |
-| `eₙ(B∘S) ≤ ‖B‖·eₙ(S)` (Lipschitz half of the ideal property) | ✅ proved |
-| Multiplicativity `e_{n+m}(B∘S) ≤ eₙ(B)·e_m(S)`, hence `eₙ(B∘S∘A) ≤ ‖B‖·eₙ(S)·‖A‖` (densely normed field, e.g. `ℝ`, `ℂ`) | ✅ proved (S3) |
-| `eₙ(S) → 0` ⇔ `S(B_X)` totally bounded    | ✅ proved           |
-| Compact ⇔ `eₙ(S) → 0` (`isCompactOperator_iff_tendsto_entropyNumber`, complete target space; "⇒" needs no completeness) | ✅ proved |
-| Covering estimates: a `k`-point `ε`-net of `S(B_X)` gives `d_k(S) ≤ ε` and `c_k(S) ≤ 2ε` | ✅ proved |
-| `d_{2ⁿ}(S) ≤ eₙ(S)` and `c_{2ⁿ}(S) ≤ 2·eₙ(S)` | ✅ proved |
-| `eₙ(S) ≥ δ/2` from more than `2ⁿ` points of `S(B_X)` that are `δ`-separated | ✅ proved |
-| Triangular flags below `dₙ` / `cₙ` (`exists_kolmogorov_flag`, `exists_gelfand_flag`) | ✅ proved |
-| `max(cₙ(S), dₙ(S)) ≤ (n+1)·eₙ(S)` (Pietsch 12.3.2) | ✅ proved |
-| `eₙ(id_X) ≥ 1/2` when `dim X > n` (volume comparison) | ✅ proved |
-| `aₙ(S) ≤ 2·eₙ(S)` on Hilbert spaces, hence `hₙ(S) ≤ 2·eₙ(S)` in general | ✅ proved |
-
-### Add ons
-
-| Result                                    | Status              |
-|-------------------------------------------|---------------------|
-| Approximable operators (`SVD.IsApproximable`) | ✅ defined; closure properties proved |
-| Compact ⇔ approximable on Hilbert         | ✅ proved           |
-| Finite rank ⇒ compact (`SVD.isCompactOperator_of_rank_le`) | ✅ proved |
-| Compact ⇔ `S(B_X)` totally bounded (`isCompactOperator_iff_totallyBounded_image_closedBall`) | ✅ proved |
-| Compact ⇔ `dₙ(S) → 0` (`isCompactOperator_iff_tendsto_kolmogorovNumber`) | ✅ proved |
-| Compact ⇔ `cₙ(S) → 0` (`isCompactOperator_iff_tendsto_gelfandNumber`) | ✅ proved |
-| `dₙ(S) → 0` ⇔ `S(B_X)` totally bounded, same for `cₙ` (no completeness needed) | ✅ proved |
-| On Hilbert spaces: compact ⇔ `sₙ(S) → 0` for *every* s-number sequence (`SVD.isCompactOperator_iff_tendsto_sn`) | ✅ proved |
-
-## Completeness
-
-The whole project builds **`sorry`-free**, so every result marked ✅ above is
-verified by the Lean kernel.
-
-`PalomarChallenges/` and `PalomarSolutions/` hold the submission surfaces for the
-[Palomar registry](https://palomar-registry.org), one module per registered
-result in each: a Challenge stating the advertised theorems, and a Solution
-supplying their proofs from the development above. The placeholder `sorry`s in
-the Challenge modules are required by that format — a Challenge advertises
-statements and imports only Mathlib, so a reader can audit what is claimed
-without reading the development. The two are separate libraries with distinct
-root components because Comparator compiles them against separate environments.
-Both sit outside `defaultTargets`; build them with
-`lake build PalomarChallenges PalomarSolutions`.
-
-One note on provenance. The deepest classical ingredient is the **John
-decomposition of identity** `John.john_decomposition` in `BasicResults/John.lean`:
-in John position, `id = ∑ᵢ cᵢ · ⟨uᵢ,·⟩ uᵢ` over contact points `uᵢ`, with
-`cᵢ ≥ 0` and `∑ᵢ cᵢ = k`. Its Lean proof was produced with substantial AI
-assistance and I have not reviewed the proof script line by line; what
-guarantees it is the kernel check. The argument it follows
-is the classical variational one (Hahn–Banach separation of `k⁻¹·id` from the
-compact convex hull of the contact projections, trace duality, the first-order
-perturbation `(1−ρ)⁻¹·(id + tH)` against maximality of the determinant, and
-Carathéodory).
-
-The John development (`BasicResults/John.lean`, `BasicResults/JohnAux.lean`) is a
-self-contained subtree. It yields the Kadets–Snobar and Garling–Gordon projection
-theorems (`John.exists_projection`, `John.exists_projection_ker`), and its sole
-consumer is the sharp forward bound `aₙ ≤ (1+√n)·min(cₙ,dₙ)` — the `√n` is exactly
-what John's ellipsoid provides (projections exist more cheaply, e.g. from an
-Auerbach basis, but with a weaker constant). Nothing else in the project depends
-on it.
-
-## Registered result
-
-The maximal difference theorem is registered in the [Palomar
-registry](https://palomar-registry.org), which re-ran the proof itself at a
-pinned commit of this repository and recorded what it had checked.
-
-* **Entry**: [PALOMAR-2026-09-07-000008, version 1](https://palomar-registry.org/entry?id=PALOMAR-2026-09-07-000008&version=1), registered 7 September 2026
-* **Title**: *The maximal difference theorem for s-numbers*
-* **Verified statements**: `SNumbers.approximationNumber_le_mul_hilbertNumber`
-  and `SNumbers.approximationNumber_le_e_mul_hilbertNumber`
-* **Commit**: [`085b299`](https://github.com/mario-ullrich/Lean-SNumbers/tree/085b29905f46bc4e61e19be642699153bdb99c2d), against Lean `v4.33.0` and Mathlib `db584cd`
-* **Axioms used**: `propext`, `Quot.sound`, `Classical.choice`, the three
-  Mathlib relies on throughout
-
-## Candidates for Mathlib
-
-Much of the project is general functional analysis that Mathlib currently
-lacks, kept here only because the s-numbers need it. Grouped by topic, with the
-main declarations:
-
-* **Determinants** (`BasicResults/Determinant.lean`, entirely in Mathlib
-  namespaces): `det T* = conj (det T)` (`LinearMap.det_adjoint`),
-  `det T = ∏ᵢ μᵢ` for an eigenbasis (`LinearMap.det_eq_prod_of_apply_eq_smul`),
-  and the bordered determinant over any commutative ring — the elementary
-  column-operation form of the Schur formula
-  (`Matrix.det_eq_corner_mul_det_submatrix`).
-* **Quotient operator norms** (`SNumbers/Helpers.lean`): Mathlib has
-  `Submodule.mkQL` and `liftQL` but no norm bounds for them —
-  `Submodule.norm_mkQL_le`, `norm_mkQL_apply_le`, `norm_liftQL_le`,
-  `liftQL_mkQL`. Plus the rank API for continuous maps
-  (`ContinuousLinearMap.rank`, `rank_comp_comp_le`).
-* **Operator norm from the unit ball** (`SNumbers/Helpers.lean`): over a densely
-  normed field, a bound on the closed unit ball bounds the operator norm
-  (`ContinuousLinearMap.opNorm_le_of_unit_closedBall`). Mathlib has the
-  supremum identity `sSup_unitClosedBall_eq_norm` but not the bound form.
-* **John's ellipsoid** (`BasicResults/John.lean`, `JohnAux.lean`): the theorem
-  itself (`John.exists_maxVolume`, `john_decomposition`) with the two projection
-  theorems it yields — Kadets–Snobar `‖P‖ ≤ √n` (`exists_projection`) and
-  Garling–Gordon (`exists_projection_ker`). Its general-purpose ingredients:
-  compactness of the convex hull of a compact set in finite dimension
-  (`IsCompact.convexHull`), the supporting-vector form of Hahn–Banach dominated
-  by a *seminorm* (`Seminorm.exists_inner_le_of_apply`), trace duality
-  (`ContinuousLinearMap.exists_trace_repr`, `ContinuousLinearMap.trace_adjoint`),
-  and the product bound `∏(1+aᵢ) ≥ 1 − 2∑aᵢ²`
-  (`one_sub_two_mul_sum_sq_le_prod_one_add`, `Real.exp_sub_two_mul_sq_le`).
-  Mathlib comes close on two of these: `TotallyBounded.convexHull` gives total
-  boundedness of the hull, hence compactness only of its closure, and the
-  Carathéodory argument supplies the missing closedness; and
-  `Module.Dual.exists_extension_of_le_seminorm` gives the extension, on top of
-  which Riesz produces the representing vector.
-* **Auerbach's lemma** (`BasicResults/Auerbach.lean`): every finite-dimensional
-  real normed space has a basis with `‖eᵢ‖ = ‖eᵢ*‖ = 1`
-  (`exists_isAuerbachBasis`).
-* **SVD of a compact operator** (`BasicResults/SVD.lean`, `AddOns/`): the
-  Schmidt representation (`SVD.IsCompactOperator.SVD`), norm attainment
-  (`SVD.IsCompactOperator.norm_isSingularValue`), Eckart–Young, and
-  compact ⇔ approximable on
-  Hilbert spaces (`SVD.isApproximable_iff_isCompactOperator`). Mathlib's
-  `LinearMap.singularValues` is finite-dimensional and carries no decomposition;
-  its own file lists as a goal the generalisation to *approximation numbers* of a
-  `ContinuousLinearMap` in possibly infinite dimension — which is what this
-  project builds — so `Analysis/InnerProductSpace/SingularValues.lean` is the
-  natural home.
-* **Complexification** (`BasicResults/Spectral/Complexification.lean`): Mathlib
-  has base change of modules, but not the complexification of a real *inner
-  product* space — the space, its Hermitian inner product, conjugation, and the
-  norm-preserving complexification of operators (`Complexification.complexify`).
-* **Multiplication operators on `L²`**
-  (`BasicResults/Spectral/MultiplicationOperator.lean`, already in the
-  `MeasureTheory` namespace): `Mf : L² → L²` for essentially bounded `f`, with
-  multiplicativity and self-adjointness for real `f`. The norm bound
-  `‖Mf‖ ≤ ‖f‖_∞` follows from Mathlib's `ContinuousLinearMap.holderL` at the
-  Hölder triple `(∞, 2, 2)`.
-* **Spectral toolkit** (`BasicResults/Spectral/`): monotone convergence for
-  positive operators (`exists_tendsto_of_antitone_isPositive`), the Cauchy
-  estimate `‖Ax‖² ≤ ‖A‖·re⟨Ax,x⟩`, commutation with the continuous functional
-  calculus (`cfc_comm_of_comm`), and the spectral projection of `S*S`
-  (`exists_spectral_projection`, over any `RCLike` field).
-* **`PiLp` coordinates** (`SNumbers/PiLpCoordinates.lean`, flagged as
-  upstreamable in its own header): the projection/embedding contractions
-  `projFin`/`padFin`, `finrank_piLp`, coordinatewise norm monotonicity
-  (`piLp_norm_mono`).
-* **`PiLp` norm comparisons across exponents**, developed with the examples that
-  need them: `‖x‖_p ≤ ‖x‖_q` for `q ≤ p`
-  (`piLp_norm_le_of_exponent_ge`, `SNumbers/Examples/DiagonalMatrices.lean`) and
-  `‖x‖_p ≤ m^{1/p−1/q}‖x‖_q` (`piLp_norm_le_card_rpow_mul`,
-  `SNumbers/Examples/Identity.lean`). Both belong in `PiLp.lean`; the second is the
-  `PiLp` reading of Mathlib's `eLpNorm_le_eLpNorm_mul_rpow_measure_univ` for the
-  counting measure.
-* **Sign averaging and little Grothendieck**
-  (`BasicResults/LittleGrothendieck.lean`): the Rademacher identity that the
-  average of `‖∑ εⱼwⱼ‖²` over all sign patterns is `∑ ‖wⱼ‖²`
-  (`sum_powerset_norm_signedSum_sq`), and the resulting bounds
-  `∑ ‖Beⱼ‖² ≤ ‖B‖²` for `B : ℓ_∞ → H` and `∑ ‖rowⱼ‖² ≤ ‖A‖²` for `A : H → ℓ₁`.
-* **The `ℓ₁` quotient** (`SNumbers/KolmogorovLifting.lean`): the summation map
-  `Q_X : ℓ¹(B_X) →L[𝕜] X`, `α ↦ ∑' x, α x • x`, with `‖Q_X‖ ≤ 1`, the
-  basis-vector identity `Q_single`, the norm identity `‖B ∘ Q_X‖ = ‖B‖`
-  (`norm_le_norm_comp_Q`), and the lifting `liftA` / `Q_comp_liftA`. Mathlib
-  has only the vector-valued `lp.tsumCLM` and `lp.mapCLM`, which `Q_X` factors
-  through.
-* **Coordinate pigeonhole and flatness**
-  (`SNumbers/Examples/ExHelpers.lean`): a subspace of `𝕜^m` of dimension
-  `> |A|` contains a nonzero vector vanishing on `A`
-  (`exists_mem_ker_coords`), and the (weighted) flatness lemma
-  (`exists_flat_vector_weighted`).
-
-## Layout
-
-```
-.
-├── lakefile.toml               ← Lake configuration; depends on Mathlib
-├── lean-toolchain              ← Lean 4 version
-├── lake-manifest.json          ← the pinned Mathlib revision
-├── SNumbers.lean               ← s-numbers library entry point
-├── SNumbers/
-│   ├── Basic.lean              ← rank API + Pietsch axioms (S1)–(S5)
-│   │                              + IsSNumberSequence / IsStrictSNumberSequence
-│   │                              + homogeneity sₙ(c•T)=‖c‖·sₙ(T) (norm_smul_sn)
-│   ├── Helpers.lean            ← shared rank facts + norm bounds for the
-│   │                              Mathlib quotient CLMs Submodule.mkQL/liftQL
-│   │                              + finrank (EuclideanSpace 𝕜 (Fin n)) = n
-│   ├── PiLpCoordinates.lean    ← generic ℓ^p facts: norm monotonicity, dim ℓ^p_k = k,
-│   │                              and the coordinate projection/embedding
-│   │                              contractions projFin / padFin (ℓ^p_n ↔ ℓ^p_m)
-│   ├── Approximation.lean      ← approximationNumber + (S1)–(S5')
-│   │                              + sₙ ≤ aₙ (aₙ is the largest s-number)
-│   ├── Bernstein.lean          ← bernsteinNumber  + (S1)–(S5')
-│   │                              + bₙ = smallest injective strict s-number
-│   ├── Gelfand.lean            ← gelfandNumber    + (S1)–(S5')
-│   ├── Kolmogorov.lean         ← kolmogorovNumber + (S1)–(S5')
-│   ├── KolmogorovLifting.lean  ← Pietsch identity dₙ S = aₙ(S∘Q_X)
-│   │                              (Banach-only variant; SNumbers.Lifting)
-│   │                              + kolmogorovNumber_eq_approx: the identity
-│   │                              itself, dₙ = aₙ(S∘Q) for the canonical dₙ
-│   ├── Hilbert.lean            ← hilbertNumber + (S1)–(S5)
-│   ├── Uniqueness.lean         ← sₙ = aₙ on Hilbert spaces (Pietsch 2.11.9),
-│   │                              for all bounded operators (ℝ and ℂ), proved
-│   ├── Inequalities.lean       ← general-space comparison: hₙ ≤ sₙ,
-│   │                              sandwich hₙ ≤ sₙ ≤ aₙ, aₙ ≤ (1+√n)·min(cₙ,dₙ)
-│   │                              via Garling–Gordon / Kadets–Snobar (both
-│   │                              through John), and the determinant
-│   │                              ingredients ∏aₖ(T)=‖det T‖ + point selection
-│   ├── MaxDifference.lean      ← the maximal difference theorem
-│   │                              aₙ ≤ e·(n+1)·hₙ (proved), hence
-│   │                              sₙ ≤ e·(n+1)·tₙ for any two s-number
-│   │                              sequences (Carl–Pietsch up to `e`); via the
-│   │                              determinant quantities Δₖ(S), the rank-n
-│   │                              approximant L = SA(BSA)⁻¹BS and a bordered
-│   │                              determinant; corollaries:
-│   │                              max(cₙ,dₙ) ≤ e·(n+1)·sₙ for every s-number
-│   │                              sequence, hence ≤ e·(n+1)·hₙ and
-│   │                              Mityagin–Henkin up to `e`
-│   ├── SingularValuesFinDim.lean ← fin-dim: Mathlib's σₙ coincide with every
-│   │                              s-number (sₙ = σₙ) via uniqueness +
-│   │                              Eckart–Young (proved)
-│   ├── Injectivity.lean        ← injective / surjective s-numbers:
-│   │                              cₙ injective, dₙ surjective (full proofs)
-│   ├── Entropy.lean            ← entropy numbers eₙ (not s-numbers): additivity
-│   │                              + multiplicativity (densely normed field),
-│   │                              hence (S2)/(S3);
-│   │                              compact ⇔ eₙ → 0 on any Banach space
-│   ├── EntropyBounds.lean      ← cₙ, dₙ, hₙ against eₙ: covering estimates and
-│   │                              the dyadic bounds d_{2ⁿ} ≤ eₙ, c_{2ⁿ} ≤ 2eₙ;
-│   │                              triangular flags and signed averages give
-│   │                              max(cₙ,dₙ) ≤ (n+1)eₙ; a volume comparison
-│   │                              (eₙ(id) ≥ ½) gives hₙ ≤ 2eₙ
-│   └── Examples/
-│       ├── ExHelpers.lean       ← ingredients shared by the examples: coordinate
-│       │                          pigeonhole + (weighted) flatness lemmas behind
-│       │                          the Gelfand-width lower bounds, rank of id_{ℓ^p_k}
-│       ├── Identity.lean        ← identity id : ℓ^q_m → ℓ^p_m (p ≤ q < ∞):
-│       │                          ‖id‖ = m^{1/p-1/q}, aₙ = (m-n)^{1/p-1/q}
-│       │                          (the unit-diagonal case, self-contained)
-│       ├── DiagonalMatrices.lean ← example: s-numbers of the diagonal
-│       │                          operators, all pairs of exponents.
-│       │                          Same exponent D_σ : ℓ^p_m → ℓ^p_m: sₙ = ‖σ_n‖.
-│       │                          Mixed p < q < ∞: aₙ = (∑_{k≥n}‖σ_k‖^r)^{1/r}
-│       │                          (1/r = 1/p - 1/q); q ≤ p (incl p = ∞):
-│       │                          ‖D_σ‖ = maxᵢ‖σᵢ‖ and sₙ ≤ ‖σ_n‖
-│       └── IdentityL1Linfty.lean ← inclusion I : ℓ₁ → ℓ_∞: ½ ≤ cₙ(I) ≤ 1 and
-│                                  hₙ(I) = 1/(n+1), so ((n+1)/2)·hₙ(I) ≤ cₙ(I):
-│                                  the factor n+1 in the max-difference theorem
-│                                  is order-optimal
-├── BasicResults.lean           ← library entry point
-├── BasicResults/
-│   ├── Auerbach.lean           ← Auerbach's lemma (full proof, ℝ-only)
-│   ├── SVD.lean                ← compact SVD via singular-value iteration:
-│   │                              norm_isSingularValue, `SVD` (Schmidt decomp.),
-│   │                              Eckart–Young, diagonal factorisation, the
-│   │                              scalar factorisation `B∘S∘A = c·id` (input to
-│   │                              uniqueness), and for a compact product T₂T₁
-│   │                              (n+1)·aₙ ≤ ‖T₁‖_HS·‖T₂‖_HS — all proved
-│   ├── Determinant.lean        ← det facts: det T* = conj det T, ‖det T‖ = ∏ₖ σₖ
-│   │                              (singular values), det of a diagonal
-│   │                              endomorphism = ∏ diagonal entries, and the
-│   │                              bordered determinant (column-operation Schur
-│   │                              formula, no invertibility); ingredients of
-│   │                              the maximal difference theorem
-│   ├── GarlingGordon.lean      ← Garling–Gordon projection (‖P‖ ≤ √n + ε, ker = M),
-│   │                              reduced to `John.exists_projection_ker`
-│   ├── KadetsSnobar.lean       ← Kadets–Snobar projection (‖P‖ ≤ √n, range = V),
-│   │                              reduced to `John.exists_projection`
-│   ├── John.lean               ← John's ellipsoid over any RCLike 𝕜: max-volume
-│   │                              position + decomposition of identity
-│   │                              `john_decomposition` + Kadets–Snobar
-│   │                              `exists_projection` (‖P‖ ≤ √dim) + Garling–Gordon
-│   │                              `exists_projection_ker` (‖P‖ ≤ √dim + ε); all proved
-│   ├── JohnAux.lean            ← general ingredients (Mathlib candidates): compact
-│   │                              convex hulls, supporting-vector Hahn–Banach, trace duality,
-│   │                              ∏(1+aᵢ) ≥ 1−2∑aᵢ²
-│   ├── LittleGrothendieck.lean ← sign averaging (∑‖wⱼ‖² ≤ M² if all signed sums
-│   │                              have norm ≤ M) ⇒ ∑‖Beⱼ‖² ≤ ‖B‖² for B : ℓ_∞ → H
-│   │                              and ∑‖rowⱼ‖² ≤ ‖A‖² for A : H → ℓ₁
-│   └── Spectral/               ← spectral projection of S*S for any RCLike 𝕜
-│       │                          (cfc over ℂ + complexification for ℝ); the
-│       │                          input to s-number uniqueness for bounded ops
-│       ├── Complexification.lean ← complexification of a real inner product
-│       │                          space, and of operators on it
-│       ├── MonotoneConvergence.lean ← antitone sequences of positive operators
-│       │                          converge; the Cauchy estimate ‖Ax‖² ≤ ‖A‖·re⟪Ax,x⟫
-│       ├── Projection.lean      ← spectral projection over ℂ via the cfc
-│       ├── RealProjection.lean  ← the real case, via complexification
-│       ├── Representation.lean  ← exists_spectral_projection for S*S, any RCLike
-│       └── MultiplicationOperator.lean ← M_f : L² → L² for f ∈ L^∞; an
-│                                  independent building block, unused elsewhere
-├── AddOns.lean                 ← auxiliary library entry point
-├── AddOns/
-│   ├── Approximable.lean       ← `IsApproximable` (aₙ→0); approximable ⇒ compact,
-│   │                              hence finite rank ⇒ compact
-│   └── Compact.lean            ← compactness measured by s-numbers: compact ⇔
-│                                  cₙ → 0 ⇔ dₙ → 0 on any Banach space; on
-│                                  Hilbert spaces every s-number sequence works
-├── PalomarChallenges.lean      ← Palomar audited statements, entry point
-├── PalomarChallenges/
-│   ├── MaxDifference.lean      ← the advertised statements, Mathlib imports only
-│   └── MaxDifference/          ← that submission's registry metadata
-│       ├── comparator.json     ← the declarations Comparator must match
-│       └── formalization.yaml  ← metadata and provenance for the registry
-├── PalomarSolutions.lean       ← Palomar proofs, entry point
-├── PalomarSolutions/
-│   └── MaxDifference.lean      ← the proofs, from SNumbers/MaxDifference.lean
-├── LICENSE                     ← Apache 2.0
-├── SETUP.md                    ← notes on the GitHub Actions blueprint workflow
-├── .github/workflows/          ← CI: builds the project and the blueprint,
-│                                  deploys the blueprint to GitHub Pages
-└── blueprint/
-    └── src/
-        ├── plastex.cfg         ← plastex / leanblueprint configuration
-        ├── extra_styles.css    ← CSS tweaks for the rendered web blueprint
-        ├── print.tex           ← pdflatex master (leanblueprint pdf)
-        ├── web.tex             ← plastex master (leanblueprint web)
-        ├── latexmkrc           ← latexmk configuration for the PDF build
-        └── content.tex         ← actual content with \lean / \uses tags
-```
+`PalomarChallenges` and `PalomarSolutions` are the submission surfaces for the
+Palomar registry: a Challenge states the registered theorems with Mathlib imports
+only, and a Solution proves them from the development. Both sit outside
+`defaultTargets`; build them with `lake build PalomarChallenges PalomarSolutions`.
 
 ## Building
 
-Requires [`elan`](https://github.com/leanprover/elan); the Lean version is
-pinned in `lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone
-builds against Lean / Mathlib v4.33.0:
+Requires [`elan`](https://github.com/leanprover/elan). The Lean version is pinned
+in `lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone builds against
+Lean / Mathlib `v4.33.0`:
 
 ```bash
 lake exe cache get   # downloads the prebuilt Mathlib oleans
 lake build           # builds the project
 ```
 
-## Building the blueprint
-
-The blueprint follows the [leanblueprint](https://github.com/PatrickMassot/leanblueprint)
-convention. With `leanblueprint` installed:
+The blueprint follows the
+[leanblueprint](https://github.com/PatrickMassot/leanblueprint) convention. With
+`leanblueprint` installed:
 
 ```bash
-leanblueprint pdf      # produces blueprint/print/print.pdf
-leanblueprint web      # produces blueprint/web/index.html
+leanblueprint pdf          # blueprint/print/print.pdf
+leanblueprint web          # blueprint/web/index.html and the dependency graph
 leanblueprint checkdecls   # checks that every \lean{Decl} resolves
 ```
 
-The workflow at `.github/workflows/blueprint.yml` builds the blueprint on every
-push to `main`, deploys it to GitHub Pages
-(<https://mario-ullrich.github.io/Lean-SNumbers/>, PDF at
-[`blueprint.pdf`](https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf)),
-and uploads `blueprint-YYYYMMDD` as a downloadable run artifact, containing the
-PDF and the web pages.
+GitHub Actions builds the project and the blueprint on every push to `main` and
+deploys the blueprint to GitHub Pages.
+
+## AI assistance
+
+This project started out written by hand, and as it grew I used AI assistance
+more and more. By now, most of the Lean proofs were produced this way. What I did
+throughout: design the structure of the development, and check and revise the
+statements of all definitions and results. The proofs themselves are guaranteed
+by the Lean kernel. The proof script of the John decomposition
+(`John.john_decomposition`) I have not reviewed line by line; it follows the
+classical variational argument and is checked by the kernel like everything else.
 
 ## License
 
-Apache 2.0 — same as Mathlib. See [LICENSE](LICENSE).
+Apache 2.0, the same as Mathlib. See [LICENSE](LICENSE).
 
 ## References
 
 * A. Pietsch, *s-Numbers of operators in Banach spaces*, Studia Math. 51
   (1974), 201–223.
-* A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20, North-Holland, 1980.
-* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge studies in advanced
-  mathematics 13, Cambridge University Press, 1987.
-* M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9** (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x> (preprint: arXiv:2405.05509).
-* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*, preprint, 2026. <https://arxiv.org/abs/2608.05024> (arXiv:2608.05024; the maximal difference theorem `aₙ ≤ e·(n+1)·hₙ`).
+* A. Pietsch, *Operator ideals*, North-Holland Mathematical Library 20,
+  North-Holland, 1980.
+* A. Pietsch, *Eigenvalues and s-numbers*, Cambridge Studies in Advanced
+  Mathematics 13, Cambridge University Press, 1987.
+* M. Ullrich, *Inequalities between s-numbers*, Advances in Operator Theory **9**
+  (2024), no. 4, article no. 82. <https://doi.org/10.1007/s43036-024-00386-x>
+  (preprint: arXiv:2405.05509). A simple proof and a slight improvement of
+  Pietsch's bound `max(cₙ, dₙ) ≤ (n+1) · (h₀ ⋯ hₙ)^{1/(n+1)}`, which the maximal
+  difference theorem sharpens.
+* M. Ullrich, *On bounds between all s-numbers and widths of convex sets*,
+  preprint, 2026. <https://arxiv.org/abs/2608.05024>. Source of the maximal
+  difference theorem `aₙ ≤ e · (n+1) · hₙ`.
