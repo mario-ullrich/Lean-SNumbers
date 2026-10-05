@@ -124,6 +124,13 @@ jobs:
         run: |
           sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\(digraph[^{]*{\)/\1 rankdir="LR";/' blueprint/web/dep_graph_document.html
 
+      # Zoom the graph, not the page: d3's zoom ignores ctrl+wheel, which is how
+      # a touchpad pinch arrives, so the browser zoomed the whole page and with
+      # it the statement that opens on a click. The script also lets the graph
+      # zoom in further than d3-graphviz's default of ten times the fitted size.
+      - name: Let the dependency graph take pinch and ctrl+wheel zoom
+        run: python blueprint/scripts/dep_graph_zoom.py
+
       # Point the `\lean{...}` links at this repository. leanblueprint builds
       # them as `{dochome}/find/#doc/Decl` and, with no `\dochome` set, falls
       # back to Mathlib's documentation site, where none of this project's

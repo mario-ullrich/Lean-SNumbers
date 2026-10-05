@@ -73,3 +73,13 @@ nav.toc {
 div.titlepage + p {
 	text-align: center;
 }
+
+/* The statement that opens on a click in the dependency graph fits the window:
+   dep_graph.css gives it a fixed width but no height limit, so a long statement
+   ran below the window edge and could only be read after zooming out. Now it
+   is at most as tall as the window below the header and scrolls inside. */
+div.dep-modal-content {
+	max-height: calc(100vh - 6rem);
+	overflow: auto;
+	box-sizing: border-box;
+}
