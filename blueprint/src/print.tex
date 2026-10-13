@@ -99,7 +99,19 @@
 \AtEndEnvironment{lemma}{\bp@leanflush}
 \AtEndEnvironment{corollary}{\bp@leanflush}
 \AtEndEnvironment{definition}{\bp@leanflush}
+\AtEndEnvironment{remark}{\bp@leanflush}
 \makeatother
+
+% Room after every statement and more after every proof, so that what follows starts
+% clearly apart.
+\AfterEndEnvironment{theorem}{\medskip}
+\AfterEndEnvironment{proposition}{\medskip}
+\AfterEndEnvironment{lemma}{\medskip}
+\AfterEndEnvironment{corollary}{\medskip}
+\AfterEndEnvironment{definition}{\medskip}
+\AfterEndEnvironment{remark}{\medskip}
+\AfterEndEnvironment{example}{\medskip}
+\AfterEndEnvironment{proof}{\bigskip}
 
 % --- title ----------------------------------------------------------------
 \title{Blueprint:\\ s-Numbers of Bounded Linear Operators\\

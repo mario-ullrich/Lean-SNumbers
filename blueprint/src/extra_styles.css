@@ -67,11 +67,25 @@ nav.toc {
 	padding-bottom: 4rem;
 }
 
-/* Center the GitHub repository URL, which \github renders as a bare,
-   left-aligned paragraph immediately below the (centered) title block. The
-   adjacent-sibling selector touches only that one paragraph on the home page. */
-div.titlepage + p {
-	text-align: center;
+/* Room after every statement and more after every proof, so that what follows starts
+   clearly apart. */
+div[class*="_thmwrapper"] {
+	margin-bottom: 1rem;
+}
+
+div.proof_wrapper {
+	margin-bottom: 2.5rem;
+}
+
+/* The repository line on the title page, added below the author by the
+   workflow: close to the author, with room before the page goes on. */
+div.titlepage p.authors {
+	margin-bottom: 0.15rem;
+}
+
+div.titlepage p.repo-link {
+	margin-top: 0.15rem;
+	margin-bottom: 2rem;
 }
 
 /* The statement that opens on a click in the dependency graph fits the window:

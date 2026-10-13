@@ -1,11 +1,12 @@
 # Builds the Lean project and the leanblueprint, then publishes the result
 # two ways:
 #
-#   * GitHub Pages (public repository): the rendered blueprint is deployed to
+#   * GitHub Pages: the rendered blueprint is deployed to
 #     https://mario-ullrich.github.io/Lean-SNumbers/ with the PDF at
-#     https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf.
-#     While the repository is private, the deploy job is skipped (Pages is
-#     unavailable on the free plan for private repositories).
+#     https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf. The deploy
+#     job runs for the public repository; its condition keeps a private fork
+#     from deploying (Pages is unavailable on the free plan for private
+#     repositories).
 #
 #   * Workflow artifact (always): `blueprint-YYYYMMDD` is downloadable from
 #     every run summary under the Actions tab. It contains the PDF and the
@@ -108,6 +109,13 @@ jobs:
       - name: Build blueprint web
         run: leanblueprint web
 
+      # plastexdepgraph writes the nodes and edges of the dependency graph in an
+      # order that changes from run to run, and Graphviz then draws the same
+      # blueprint differently in some builds. The script sorts them, so that
+      # the layout below gives the same picture in every build.
+      - name: Sort the dependency graph
+        run: python blueprint/scripts/sort_dep_graph.py
+
       # Tidy the dependency graph. plastexdepgraph exposes no options for
       # this, so we post-process the generated page:
       #   * Recolor the "ready to formalize" nodes from blue (#A3D6FF) to white,
@@ -117,12 +125,16 @@ jobs:
       #     "Blue border" (every statement is formalized, so no node has either)
       #     and "Blue background" (now recolored white; the green-border row
       #     already explains a stated-but-unproved node).
+      #   * Draw every edge solid. plastexdepgraph dashes the edges that come
+      #     from a `\uses` inside a statement; here these say only that a
+      #     statement uses a definition, so one kind of arrow suffices.
+      #   * Head the page with the project title, "s-Numbers: Dependencies".
       #   * Reorient the graph left-to-right (rankdir=LR): base results on the
       #     left, derived results on the right. plastexdepgraph sets no rankdir,
       #     so we inject one right after the "digraph ... {" opening brace.
-      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows, lay out left-to-right)
+      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows, draw all edges solid, title the page, lay out left-to-right)
         run: |
-          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\(digraph[^{]*{\)/\1 rankdir="LR";/' blueprint/web/dep_graph_document.html
+          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\[style=dashed\]//g; s/<h1 id="doc_title">Dependencies<\/h1>/<h1 id="doc_title">s-Numbers: Dependencies<\/h1>/; s/\(digraph[^{]*{\)/\1 rankdir="LR";/' blueprint/web/dep_graph_document.html
 
       # Zoom the graph, not the page: d3's zoom ignores ctrl+wheel, which is how
       # a touchpad pinch arrives, so the browser zoomed the whole page and with
@@ -130,6 +142,18 @@ jobs:
       # zoom in further than d3-graphviz's default of ten times the fitted size.
       - name: Let the dependency graph take pinch and ctrl+wheel zoom
         run: python blueprint/scripts/dep_graph_zoom.py
+
+      # Make the title page reachable from every page and the repository from
+      # the title page. The menu of each chapter page gains a first entry
+      # "Home" that leads to index.html, as the dependency graph page already
+      # has, followed by the entry for the dependency graph, which
+      # leanblueprint puts at the end; the title page gains a link to the
+      # GitHub repository below the author. plasTeX renders neither: `\home`
+      # and `\github` in web.tex only feed other templates.
+      - name: Link the title page from every page and the repository from it
+        run: |
+          sed -i '/^<li ><a href="dep_graph_document.html">Dependency graph<\/a><\/li>$/d; s#<ul class="sub-toc-0">#&\n<li ><a href="index.html">Home</a></li>\n<li ><a href="dep_graph_document.html">Dependency graph</a></li>#' blueprint/web/*.html
+          sed -i 's#<span class="author">Mario Ullrich</span>#&</p>\n<p class="repo-link">GitHub: <a href="https://github.com/mario-ullrich/Lean-SNumbers">Lean-SNumbers</a>#' blueprint/web/index.html
 
       # Point the `\lean{...}` links at this repository. leanblueprint builds
       # them as `{dochome}/find/#doc/Decl` and, with no `\dochome` set, falls
@@ -167,7 +191,7 @@ jobs:
         run: echo "name=blueprint-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
 
       - name: Upload blueprint (HTML site with blueprint.pdf)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.stamp.outputs.name }}
           path: blueprint/web/
@@ -176,14 +200,14 @@ jobs:
       # Same directory again, packaged in the special format deploy-pages
       # expects (upload-artifact ZIPs are not compatible with Pages).
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: blueprint/web
 
-  # ----- Deploy the rendered blueprint to GitHub Pages. Skipped while the
-  # repository is private; once it is public, the next push to main (or a
-  # manual workflow_dispatch run) deploys. configure-pages enables Pages
-  # with source "GitHub Actions" automatically on the first run.
+  # ----- Deploy the rendered blueprint to GitHub Pages on every push to main
+  # (or a manual workflow_dispatch run); the condition keeps a private fork
+  # from deploying. configure-pages enables Pages with source "GitHub
+  # Actions" automatically on the first run.
   deploy:
     needs: build
     if: github.ref == 'refs/heads/main' && !github.event.repository.private
@@ -201,10 +225,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Enable and configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
