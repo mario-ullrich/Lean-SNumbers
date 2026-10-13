@@ -132,7 +132,15 @@ python blueprint/scripts/check_lean_decls.py   # checks that every \lean{Decl} r
 ```
 
 GitHub Actions builds the project and the blueprint on every push to `main`, and deploys
-the blueprint to GitHub Pages. Neither output is committed.
+the blueprint to GitHub Pages. Neither output is committed. To read a local build, or the
+workflow artifact `blueprint-YYYYMMDD` of a run, serve its folder (for instance with
+`python -m http.server` inside it) rather than opening `index.html` from disk: the
+dependency graph is drawn in the browser, and its files do not load under `file://`.
+
+At a Mathlib version bump, check that every Lean name in backticks in this README, in
+`MathlibCandidates.md` and in the doc comments still exists, since the compiler never
+resolves them, and re-read `MathlibCandidates.md`: a claim that Mathlib lacks a result
+cannot fail a build once the result is upstreamed.
 
 ## AI assistance
 
