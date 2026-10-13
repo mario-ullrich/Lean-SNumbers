@@ -98,10 +98,13 @@ lacks: the SVD of compact operators, determinant identities, John's ellipsoid,
 Auerbach's lemma, and a spectral toolkit; [MathlibCandidates.md](MathlibCandidates.md)
 lists what could be upstreamed. `AddOns` measures compactness by s-numbers.
 
-`PalomarChallenges` and `PalomarSolutions` are the submission surfaces for the
-Palomar registry: a Challenge states the registered theorems with Mathlib imports
-only, and a Solution proves them from the development. Both sit outside
-`defaultTargets`; build them with `lake build PalomarChallenges PalomarSolutions`.
+`Palomar/` holds the submission surfaces for the
+[Palomar registry](https://palomar-registry.org), one directory per registered result,
+each with a `Challenge` module stating the advertised theorems and a `Solution` module
+supplying their proofs from the development. The placeholder `sorry`s in the `Challenge`
+modules are required by that format: a Challenge advertises statements and imports only
+Mathlib, so a reader can audit what is claimed without reading the development. This
+library sits outside `defaultTargets`; build it with `lake build Palomar`.
 
 ## Building
 

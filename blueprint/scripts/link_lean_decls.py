@@ -34,7 +34,7 @@ from pathlib import Path
 # Directories that must not contribute declarations: dependencies, and the
 # Palomar submission surfaces, which restate the same names with `sorry` and
 # would otherwise shadow the real definitions.
-SKIP_DIRS = {".lake", "Palomar", "PalomarChallenges", "PalomarSolutions"}
+SKIP_DIRS = {".lake", "Palomar"}
 
 DECL_RE = re.compile(
     r"^\s*(?:@\[[^\]]*\]\s*)?"
@@ -55,7 +55,10 @@ def declaration_table(root: Path) -> dict[str, tuple[str, int]]:
     table: dict[str, tuple[str, int]] = {}
     for path in sorted(root.rglob("*.lean")):
         rel = path.relative_to(root).as_posix()
-        if rel.split("/")[0] in SKIP_DIRS:
+        # A skipped name covers the directory and the root module beside it,
+        # e.g. `Palomar/` and `Palomar.lean`.
+        head = rel.split("/")[0]
+        if head in SKIP_DIRS or head.removesuffix(".lean") in SKIP_DIRS:
             continue
         stack: list[str] = []
         with path.open(encoding="utf-8", errors="replace") as handle:

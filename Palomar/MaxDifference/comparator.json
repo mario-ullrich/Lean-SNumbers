@@ -1,0 +1,11 @@
+{
+  "challenge_module": "Palomar.MaxDifference.Challenge",
+  "solution_module": "Palomar.MaxDifference.Solution",
+  "theorem_names": [
+    "SNumbers.approximationNumber_le_mul_hilbertNumber",
+    "SNumbers.approximationNumber_le_e_mul_hilbertNumber"
+  ],
+  "definition_names": [],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
+}

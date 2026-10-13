@@ -13,8 +13,10 @@ public import SNumbers.MaxDifference
 This module is the *Solution* of a Palomar submission. Comparator checks that
 every declaration named in `comparator.json` has, in this module's environment,
 exactly the same name and type as its counterpart in
-`PalomarChallenges.MaxDifference`, and that it uses no axioms beyond `propext`,
-`Classical.choice` and `Quot.sound`.
+`Palomar.MaxDifference.Challenge`, and that it uses no axioms beyond `propext`,
+`Classical.choice` and `Quot.sound`. The definitions the statements use are not
+holes: Comparator checks that each is the same declaration, body included, in both
+modules.
 
 Nothing is declared here. The advertised statements
 

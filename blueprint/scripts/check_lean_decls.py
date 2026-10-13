@@ -30,7 +30,7 @@ from pathlib import Path
 
 CONTENT = Path("blueprint/src/content.tex")
 # The root module of every `lean_lib` in `lakefile.toml`, as `checkdecls` imports them.
-ROOTS = ["SNumbers", "BasicResults", "AddOns", "PalomarChallenges", "PalomarSolutions"]
+ROOTS = ["SNumbers", "BasicResults", "AddOns", "Palomar"]
 CHECK_FILE = Path(".lake/check_lean_decls.lean")
 
 LEAN_TAG = re.compile(r"\\lean\{([^}]*)\}")
