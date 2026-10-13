@@ -219,7 +219,7 @@ theorem approximationNumber_idEmbed_le {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact
 /-! ## Stage 3: the lower bound `(m-n)^{1/p-1/q} ≤ aₙ(id)`
 
 For any rank-`≤ n` operator `L`, its kernel has dimension `≥ m - n`, and
-`(id - L)` agrees with `id` there. The crux is a **classical geometric fact**
+`(id - L)` agrees with `id` there. The geometric input is a classical fact
 (Pietsch, *Eigenvalues and s-numbers*, §11.11; the Gelfand-width lower bound):
 every subspace of dimension `≥ m - n` contains a vector whose `p`-norm is at
 least `(m-n)^{1/p-1/q}` times its `q`-norm. It comes from the flatness lemma

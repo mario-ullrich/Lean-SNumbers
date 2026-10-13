@@ -109,7 +109,7 @@ its entropy numbers tend to `0`.
   numbers coincide with every s-number sequence
   (`sn_eq_singularValues_of_finiteDimensional`, `sₙ = σₙ`), via uniqueness
   and Eckart–Young (`aₙ = σₙ`). The bridge to Mathlib's eigenvalue-defined
-  `σ` (`project_singularValues_eq`) is fully proved: the `uₖ` diagonalise
+  `σ` is `project_singularValues_eq`: the `uₖ` diagonalise
   `S* ∘ S` with eigenvalues `σₖ²`, and matching eigenvalue multiplicities
   (`card_filter_eigenvalues_eq`) identifies them with Mathlib's. The whole
   file rests only on the SVD existence theorem in `BasicResults.SVD`.

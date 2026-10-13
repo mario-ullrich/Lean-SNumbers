@@ -383,7 +383,7 @@ theorem project_singularValues_eq (S : H₁ →L[𝕜] H₂) (n : ℕ) :
   -- `svd_sigma_eq_approx` gives `aₙ = σ n`; it remains to identify `σ n` with
   -- Mathlib's eigenvalue-`σₙ`.
   rw [← SVD.svd_sigma_eq_approx hσ0 hσanti hu hv hut hvt hsum n]
-  -- **The crux**: the eigenvalues of `S* ∘ S` are exactly `i ↦ σᵢ²`. Everything
+  -- The main step: the eigenvalues of `S* ∘ S` are exactly `i ↦ σᵢ²`. Everything
   -- else (`√(σₙ²) = σₙ`, and `σₙ = 0` past `finrank`) is bookkeeping.
   have hmatch : ∀ i : Fin (Module.finrank 𝕜 H₁),
       (S : H₁ →ₗ[𝕜] H₂).isSymmetric_adjoint_comp_self.eigenvalues rfl i = (σ ↑i) ^ 2 :=

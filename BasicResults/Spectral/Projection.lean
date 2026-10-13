@@ -101,11 +101,12 @@ variable {H₁ H₂ : Type*}
 variable [NormedAddCommGroup H₁] [InnerProductSpace ℂ H₁] [CompleteSpace H₁]
 variable [NormedAddCommGroup H₂] [InnerProductSpace ℂ H₂] [CompleteSpace H₂]
 
-/-- **Commutation engine.** A continuous `ℝ`-linear map `J` of `H₁` that commutes with a
-self-adjoint `P` commutes with `cfcHom hP f` for *every* continuous symbol `f`. Proved by the
-Stone–Weierstrass induction on `f` (constants, `id`, sums, products, and a closure step), exactly
-as Mathlib's `Commute.cfcHom`, but here `J` is an *external* map (it may even be conjugate-linear
-over `ℂ`, only `ℝ`-linearity is used), which is why we cannot use the algebra-internal version. -/
+/-- **Commutation with the functional calculus.** A continuous `ℝ`-linear map `J` of `H₁`
+that commutes with a self-adjoint `P` commutes with `cfcHom hP f` for *every* continuous
+symbol `f`. Proved by the Stone–Weierstrass induction on `f` (constants, `id`, sums, products,
+and a closure step), exactly as Mathlib's `Commute.cfcHom`, but here `J` is an *external* map
+(it may even be conjugate-linear over `ℂ`, only `ℝ`-linearity is used), which is why we cannot
+use the algebra-internal version. -/
 lemma cfcHom_comm_of_comm {P : H₁ →L[ℂ] H₁} (hP : IsSelfAdjoint P)
     (J : H₁ →L[ℝ] H₁) (hJP : ∀ x, J (P x) = P (J x)) (f : C(spectrum ℝ P, ℝ)) :
     ∀ x, J (cfcHom hP f x) = cfcHom hP f (J x) := by
