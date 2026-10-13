@@ -117,9 +117,13 @@ lake exe cache get   # downloads the prebuilt Mathlib oleans
 lake build           # builds the project
 ```
 
+Run `lake` from inside this folder, since `elan` reads `lean-toolchain` from the
+working directory, and do not run `lake update`: it re-resolves the dependencies and
+makes the build non-reproducible.
+
 The blueprint follows the
-[leanblueprint](https://github.com/PatrickMassot/leanblueprint) convention. With
-`leanblueprint` installed:
+[leanblueprint](https://github.com/PatrickMassot/leanblueprint) convention and needs a
+TeX installation, `graphviz` for the dependency graph, and the `leanblueprint` package:
 
 ```bash
 leanblueprint pdf          # blueprint/print/print.pdf
@@ -127,8 +131,8 @@ leanblueprint web          # blueprint/web/index.html and the dependency graph
 python blueprint/scripts/check_lean_decls.py   # checks that every \lean{Decl} resolves
 ```
 
-GitHub Actions builds the project and the blueprint on every push to `main` and
-deploys the blueprint to GitHub Pages.
+GitHub Actions builds the project and the blueprint on every push to `main`, and deploys
+the blueprint to GitHub Pages. Neither output is committed.
 
 ## AI assistance
 
