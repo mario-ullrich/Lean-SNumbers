@@ -26,17 +26,17 @@ General-purpose results needed by the proof of the John decomposition of identit
 candidate for upstreaming to Mathlib. The compactness of the convex hull of a compact set,
 which the proof also needs, is in `BasicResults/CompactConvexHull.lean`.
 
-* `Real.exp_sub_two_mul_sq_le` and `one_sub_two_mul_sum_sq_le_prod_one_add` — a
+* `Real.exp_sub_two_mul_sq_le` and `one_sub_two_mul_sum_sq_le_prod_one_add`: a
   quantitative Weierstrass-type product bound: if `∑ aᵢ = 0` and `|aᵢ| ≤ 1/2`, then
   `∏ (1 + aᵢ) ≥ 1 - 2 ∑ aᵢ²`. This is why a trace-zero perturbation `1 + tH` of the
   identity loses determinant only to *second* order in `t`.
-* `Seminorm.exists_inner_le_of_apply` — the supporting-vector form of Hahn–Banach
+* `Seminorm.exists_inner_le_of_apply`: the supporting-vector form of Hahn–Banach
   dominated by a *seminorm* on an inner product space over `RCLike 𝕜`: every point
   admits a supporting functional `x ↦ re ⟪x, v⟫` of the seminorm attaining its value
   at the point. The extension itself is Mathlib's
   `Module.Dual.exists_extension_of_le_seminorm`; what is added is the representing
   vector `v`.
-* `ContinuousLinearMap.exists_trace_repr` — trace duality: every linear functional on
+* `ContinuousLinearMap.exists_trace_repr`, trace duality: every linear functional on
   the endomorphisms of a finite-dimensional inner product space is `A ↦ tr (A ∘ G)`
   for some endomorphism `G`.
 -/
@@ -162,8 +162,8 @@ lemma ContinuousLinearMap.trace_adjoint (G : E →L[𝕜] E) :
 a finite-dimensional inner product space is of the form `A ↦ tr (A ∘ G)` for some
 endomorphism `G`.
 
-The pairing `(G, A) ↦ tr (A ∘ G)` is nondegenerate — testing against `A = G*` gives
-`tr (G* ∘ G) = ∑ᵢ ‖G eᵢ‖² ` — so `G ↦ tr (· ∘ G)` is an injective linear map into the
+The pairing `(G, A) ↦ tr (A ∘ G)` is nondegenerate: testing against `A = G*` gives
+`tr (G* ∘ G) = ∑ᵢ ‖G eᵢ‖²`. So `G ↦ tr (· ∘ G)` is an injective linear map into the
 dual, hence surjective by equality of dimensions. -/
 theorem ContinuousLinearMap.exists_trace_repr (f : (E →L[𝕜] E) →ₗ[𝕜] 𝕜) :
     ∃ G : E →L[𝕜] E, ∀ A : E →L[𝕜] E,

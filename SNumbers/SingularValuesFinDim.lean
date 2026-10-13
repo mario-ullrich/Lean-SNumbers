@@ -31,7 +31,7 @@ s S n  =  aₙ(S)            (Pietsch uniqueness on Hilbert spaces)
 ```
 
 * **Uniqueness** (`allSNumbers_eq_on_HilbertSpace`) gives the first step for
-  *every* `s` at once — this is why it suffices to treat `aₙ`.
+  *every* `s` at once; this is why it suffices to treat `aₙ`.
 * **Eckart–Young** (`SVD.svd_sigma_eq_approx`) gives the second step. It
   depends on the SVD `IsCompactOperator.SVD` which works in finite dimension.
 * The third step `σ^{proj} = σ` (the **project's singular values equal
@@ -42,7 +42,7 @@ s S n  =  aₙ(S)            (Pietsch uniqueness on Hilbert spaces)
 
 ## Main result
 
-* `sn_eq_singularValues_of_finiteDimensional` — `sₙ = σₙ` for every `s`-number
+* `sn_eq_singularValues_of_finiteDimensional`: `sₙ = σₙ` for every `s`-number
   sequence. This is general: specialising `s` to the approximation numbers
   gives `aₙ = σₙ`, so no separate statement is needed.
 -/
@@ -118,7 +118,7 @@ private lemma svd_adjoint_comp_self_apply {S : H₁ →L[𝕜] H₂} {σ : ℕ �
 omit [Nontrivial H₁] in
 /-- **At most `finrank H₁` singular values are nonzero.** If `σ k ≠ 0` with
 `k ≥ finrank H₁`, then `σ 0, …, σ k` are all `> 0` (antitone), so `u 0, …, u k`
-is an orthonormal family of `k + 1 > finrank H₁` vectors — impossible. -/
+is an orthonormal family of `k + 1 > finrank H₁` vectors, which is impossible. -/
 private lemma svd_sigma_eq_zero_of_finrank_le {σ : ℕ → ℝ} {u : ℕ → H₁}
     (hσ0 : ∀ k, 0 ≤ σ k) (hσanti : _root_.Antitone σ) (hu : SVD.OrthonormalOrZero 𝕜 u)
     (hut : ∀ k, σ k ≠ 0 → u k ≠ 0) {k : ℕ} (hk : Module.finrank 𝕜 H₁ ≤ k) : σ k = 0 := by

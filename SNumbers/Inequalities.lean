@@ -29,19 +29,19 @@ for operators between **arbitrary** `𝕜`-Banach spaces.
 
 ## Main results
 
-* `hilbertNumber_le_sn` — lower bound `hₙ(S) ≤ sₙ(S)`.
-* `hilbertNumber_le_sn_le_approximationNumber` — the sandwich theorem
+* `hilbertNumber_le_sn`: lower bound `hₙ(S) ≤ sₙ(S)`.
+* `hilbertNumber_le_sn_le_approximationNumber`: the sandwich theorem
   `hₙ(S) ≤ sₙ(S) ≤ aₙ(S)`.
-* `bernsteinNumber_le_gelfandNumber` — the direct bound `bₙ(S) ≤ cₙ(S)`
+* `bernsteinNumber_le_gelfandNumber`: the direct bound `bₙ(S) ≤ cₙ(S)`
   (constant `1`), via the extremality of the Bernstein numbers among
   injective strict `s`-number sequences.
-* `gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert` — the reverse bound
+* `gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert`: the reverse bound
   `cₙ(S) ≤ √(n+1)·bₙ(S)` for a Hilbert codomain.
-* `approximationNumber_le_sqrt_mul_gelfandNumber` —
+* `approximationNumber_le_sqrt_mul_gelfandNumber`:
   `aₙ(S) ≤ (1 + √n)·cₙ(S)`.
-* `approximationNumber_le_sqrt_mul_kolmogorovNumber` —
+* `approximationNumber_le_sqrt_mul_kolmogorovNumber`:
   `aₙ(S) ≤ (1 + √n)·dₙ(S)`.
-* `approximationNumber_le_sqrt_mul_min` — the combined bound
+* `approximationNumber_le_sqrt_mul_min`: the combined bound
   `aₙ(S) ≤ (1 + √n)·min(cₙ(S), dₙ(S))` (Pietsch [Pie87, 2.10.2]).
 * Ingredients for the **maximal difference theorem**
   `aₙ(S) ≤ e·(n+1)·hₙ(S)` (proved in `SNumbers.MaxDifference` via the
@@ -281,7 +281,7 @@ lemma exists_triangular_system_hilbert (S : X →L[𝕜] H) {n : ℕ}
         simpa using hk0
 
 /-- **Reverse bound, Hilbert codomain.** If `H` is a Hilbert space then
-`cₙ(S) ≤ √(n+1)·bₙ(S)` — sharp polynomial, product-free, pointwise (Theorem 8 of
+`cₙ(S) ≤ √(n+1)·bₙ(S)`, sharp polynomial, product-free and pointwise (Theorem 8 of
 [KNU25]). Orthonormal images give `‖S x‖² = ∑ ‖gⱼ‖²` (Parseval) and
 `∑‖gⱼ‖ ≤ √(n+1)·‖S x‖` (Cauchy–Schwarz). -/
 theorem gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert
@@ -591,12 +591,12 @@ theory developed here:
 
 * `approximationNumber_comp_comp_le_mul_hilbertNumber` and its
   finite-dimensional form
-  `approximationNumber_eucl_comp_comp_le_mul_hilbertNumber` — the (S3)-type
+  `approximationNumber_eucl_comp_comp_le_mul_hilbertNumber`: the (S3)-type
   bound `aₖ(B∘S∘A) ≤ ‖B‖·‖A‖·hₖ(S)` for factors through `ℓ₂` resp. `ℓ₂ⁿ⁺¹`;
-* `prod_approximationNumber_eq_norm_det` — `∏ aₖ(T) = ‖det T‖` for an
+* `prod_approximationNumber_eq_norm_det`: `∏ aₖ(T) = ‖det T‖` for an
   endomorphism of a finite-dimensional Hilbert space;
 * `exists_mem_norm_gt_of_lt_gelfandNumber` /
-  `exists_norm_mkQL_gt_of_lt_kolmogorovNumber` — point selection below the
+  `exists_norm_mkQL_gt_of_lt_kolmogorovNumber`: point selection below the
   Gelfand / Kolmogorov numbers. -/
 
 omit [CompleteSpace X] [CompleteSpace Y] in

@@ -24,14 +24,14 @@ this file.)
 
 This file develops the case `1 ≤ p ≤ q < ∞`:
 
-* `piLp_norm_restrict_le` / `piLp_norm_le_card_rpow_mul` — the cross-exponent
+* `piLp_norm_restrict_le` / `piLp_norm_le_card_rpow_mul`: the cross-exponent
   norm comparison `‖f‖_p ≤ (card s)^{1/p-1/q} · ‖f‖_q` (via the
   power-mean inequality `Real.rpow_sum_le_const_mul_sum_rpow_of_nonneg`);
-* `idEmbed` and `norm_idEmbed` — the embedding and its operator norm
+* `idEmbed` and `norm_idEmbed`: the embedding and its operator norm
   `‖id‖ = m^{1/p-1/q}` (sharp, attained at the all-ones vector);
-* `approximationNumber_idEmbed_le` — the upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}`
+* `approximationNumber_idEmbed_le`: the upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}`
   (hence `sₙ(id) ≤ (m-n)^{1/p-1/q}` for every s-number, via `sₙ ≤ aₙ`);
-* `approximationNumber_idEmbed_eq` — the exact value `aₙ(id) = (m-n)^{1/p-1/q}`,
+* `approximationNumber_idEmbed_eq`: the exact value `aₙ(id) = (m-n)^{1/p-1/q}`,
   via the geometric input `exists_norm_ratio_ge_idEmbed` (the classical
   Gelfand-width lower bound, Pietsch §11.11): every subspace of dimension `≥ m-n`
   contains a vector with `p`/`q`-norm ratio `≥ (m-n)^{1/p-1/q}`, proved from the
@@ -117,7 +117,7 @@ lemma piLp_norm_const_one {p : ℝ≥0∞} [Fact (1 ≤ p)] (hp : p ≠ ∞) :
       = (m : ℝ) := by simp [Real.one_rpow]
   rw [hsum]
 
-/-! ## Stage 1 — the identity embedding and its operator norm -/
+/-! ## Stage 1: the identity embedding and its operator norm -/
 
 /-- The **identity embedding** `id : ℓ^q_m → ℓ^p_m`: the same underlying vector,
 re-measured in the `p`-norm. -/
@@ -148,7 +148,7 @@ theorem norm_idEmbed [NeZero m] {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact (1 ≤
     rw [Real.rpow_sub hm, div_le_iff₀ (by positivity)]
     exact hb
 
-/-! ## Stage 2 — the upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}` for every s-number
+/-! ## Stage 2: the upper bound `aₙ(id) ≤ (m-n)^{1/p-1/q}` for every s-number
 
 Truncating to the first `n` coordinates gives a rank-`≤ n` approximant; the
 residual is the embedding on the remaining `m-n` coordinates, of norm
@@ -216,7 +216,7 @@ theorem approximationNumber_idEmbed_le {p q : ℝ≥0∞} [Fact (1 ≤ p)] [Fact
       _ ≤ ((m - n : ℕ) : ℝ) ^ (1 / p.toReal - 1 / q.toReal) * ‖x‖ := by gcongr
   exact (approximationNumber_le_norm_sub hLrank).trans hbound
 
-/-! ## Stage 3 — the lower bound `(m-n)^{1/p-1/q} ≤ aₙ(id)`
+/-! ## Stage 3: the lower bound `(m-n)^{1/p-1/q} ≤ aₙ(id)`
 
 For any rank-`≤ n` operator `L`, its kernel has dimension `≥ m - n`, and
 `(id - L)` agrees with `id` there. The crux is a **classical geometric fact**

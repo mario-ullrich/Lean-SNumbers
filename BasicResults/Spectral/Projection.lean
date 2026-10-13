@@ -20,7 +20,7 @@ The complex-Hilbert-space operator algebra `H →L[ℂ] H` is a C⋆-algebra, so
 functional calculus applies to `P = S*S`. The projection `E = E_{[c²,∞)}(P)` is built as the
 strong-operator limit of `cfc gₙ P`, where `gₙ` is a continuous approximation decreasing to the
 indicator `𝟙_{[c²,∞)}`. This file also proves `cfc_comm_of_comm`: anything commuting with `P`
-commutes with `E` — the ingredient that makes the projection conjugation/scalar invariant (used
+commutes with `E`, the ingredient that makes the projection conjugation/scalar invariant (used
 by `RealProjection` and `Representation`).
 
 ## The approximating family `stepDown`
@@ -104,7 +104,7 @@ variable [NormedAddCommGroup H₂] [InnerProductSpace ℂ H₂] [CompleteSpace H
 /-- **Commutation engine.** A continuous `ℝ`-linear map `J` of `H₁` that commutes with a
 self-adjoint `P` commutes with `cfcHom hP f` for *every* continuous symbol `f`. Proved by the
 Stone–Weierstrass induction on `f` (constants, `id`, sums, products, and a closure step), exactly
-as Mathlib's `Commute.cfcHom` — but here `J` is an *external* map (it may even be conjugate-linear
+as Mathlib's `Commute.cfcHom`, but here `J` is an *external* map (it may even be conjugate-linear
 over `ℂ`, only `ℝ`-linearity is used), which is why we cannot use the algebra-internal version. -/
 lemma cfcHom_comm_of_comm {P : H₁ →L[ℂ] H₁} (hP : IsSelfAdjoint P)
     (J : H₁ →L[ℝ] H₁) (hJP : ∀ x, J (P x) = P (J x)) (f : C(spectrum ℝ P, ℝ)) :

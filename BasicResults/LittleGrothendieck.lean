@@ -34,13 +34,13 @@ parallelogram law, and the resulting inequality is
 
 ## The two consequences
 
-* `sum_norm_sq_apply_single_le` — for `B : ℓ_∞ → H` with `H` a Hilbert space,
+* `sum_norm_sq_apply_single_le`: for `B : ℓ_∞ → H` with `H` a Hilbert space,
   `∑_j ‖B e_j‖² ≤ ‖B‖²`. This is the **little Grothendieck inequality** in the
   form needed here (with constant `1`): only the `±1`-vectors of `ℓ_∞`, which
   all have norm `1`, enter the sign-averaging argument. In Hilbert–Schmidt
   language: `B` restricted to the unit vectors is Hilbert–Schmidt with
   `‖B‖_HS ≤ ‖B‖`.
-* `sum_norm_sq_row_le` — dually, for `A : H → ℓ₁` with *rows* `w j`, i.e.
+* `sum_norm_sq_row_le`: dually, for `A : H → ℓ₁` with *rows* `w j`, i.e.
   `⟪w j, x⟫ = (A x) j`, one has `∑_j ‖w_j‖² ≤ ‖A‖²`. Here the signed sums are
   bounded using `∑_{j ∈ J} |y_j| ≤ ‖y‖₁`; this is the little Grothendieck bound
   for the adjoint `A' : ℓ_∞ = ℓ₁' → H`, but stated without ever forming the

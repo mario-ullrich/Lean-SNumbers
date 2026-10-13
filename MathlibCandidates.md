@@ -7,11 +7,11 @@ main declarations:
 * **Determinants** (`BasicResults/Determinant.lean`, entirely in Mathlib
   namespaces): `det T* = conj (det T)` (`LinearMap.det_adjoint`),
   `det T = ∏ᵢ μᵢ` for an eigenbasis (`LinearMap.det_eq_prod_of_apply_eq_smul`),
-  and the bordered determinant over any commutative ring — the elementary
+  and the bordered determinant over any commutative ring, the elementary
   column-operation form of the Schur formula
   (`Matrix.det_eq_corner_mul_det_submatrix`).
 * **Quotient operator norms** (`SNumbers/QuotientMapNorms.lean`): Mathlib has
-  `Submodule.mkQL` and `liftQL` but no norm bounds for them —
+  `Submodule.mkQL` and `liftQL` but no norm bounds for them:
   `Submodule.norm_mkQL_le`, `norm_mkQL_apply_le`, `norm_liftQL_le`,
   `liftQL_mkQL`. Plus the rank API for continuous maps
   (`ContinuousLinearMap.rank`, `rank_comp_comp_le`, in `SNumbers/Basic.lean` and
@@ -23,7 +23,7 @@ main declarations:
 * **John's ellipsoid** (`BasicResults/John.lean`, `CompactConvexHull.lean`,
   `JohnIngredients.lean`): the theorem
   itself (`John.exists_maxVolume`, `john_decomposition`) with the two projection
-  theorems it yields — Kadets–Snobar `‖P‖ ≤ √n` (`exists_projection`) and
+  theorems it yields, Kadets–Snobar `‖P‖ ≤ √n` (`exists_projection`) and
   Garling–Gordon (`exists_projection_ker`). Its general-purpose ingredients:
   compactness of the convex hull of a compact set in finite dimension
   (`IsCompact.convexHull`), the supporting-vector form of Hahn–Banach dominated
@@ -46,12 +46,12 @@ main declarations:
   Hilbert spaces (`SVD.isApproximable_iff_isCompactOperator`). Mathlib's
   `LinearMap.singularValues` is finite-dimensional and carries no decomposition;
   its own file lists as a goal the generalisation to *approximation numbers* of a
-  `ContinuousLinearMap` in possibly infinite dimension — which is what this
-  project builds — so `Analysis/InnerProductSpace/SingularValues.lean` is the
+  `ContinuousLinearMap` in possibly infinite dimension, which is what this
+  project builds, so `Analysis/InnerProductSpace/SingularValues.lean` is the
   natural home.
 * **Complexification** (`BasicResults/Spectral/Complexification.lean`): Mathlib
   has base change of modules, but not the complexification of a real *inner
-  product* space — the space, its Hermitian inner product, conjugation, and the
+  product* space: the space, its Hermitian inner product, conjugation, and the
   norm-preserving complexification of operators (`Complexification.complexify`).
 * **Multiplication operators on `L²`**
   (`BasicResults/Spectral/MultiplicationOperator.lean`, already in the

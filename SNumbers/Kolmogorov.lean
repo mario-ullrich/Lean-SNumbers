@@ -158,7 +158,7 @@ lemma kolmogorovNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
 
 The bound `‖V.mkQL ∘ S‖ ≤ ‖S‖` holds in general (since `‖V.mkQL‖ ≤ 1`),
 but the matching lower bound `‖S‖ ≤ ‖(⊥).mkQL ∘ S‖` requires that
-`Y ⧸ ⊥` is isometric to `Y` — i.e. `‖[y]‖ = ‖y‖` for the trivial
+`Y ⧸ ⊥` is isometric to `Y`, i.e. `‖[y]‖ = ‖y‖` for the trivial
 subspace. We get this from `Submodule.Quotient.norm_mk_lt`: a
 representative `y'` of `[y]` with `‖y'‖ < ‖[y]‖ + ε` must satisfy
 `y' - y ∈ ⊥`, i.e. `y' = y`. -/

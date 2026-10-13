@@ -24,12 +24,12 @@ where `ℓ₂ = L2 𝕜` is `lp (fun _ : ℕ => 𝕜) 2`.
 
 ## Main results
 
-* `SNumbers.hilbertNumber` — the `n`-th Hilbert number.
+* `SNumbers.hilbertNumber`: the `n`-th Hilbert number.
 * `SNumbers.hilbertNumber_nonneg`, `hilbertNumber_zero_eq_norm`,
   `hilbertNumber_le_norm`, `hilbertNumber_antitone`, `hilbertNumber_add_le`,
-  `hilbertNumber_comp_comp_le`, `hilbertNumber_eq_zero_of_rank_le` — the
+  `hilbertNumber_comp_comp_le`, `hilbertNumber_eq_zero_of_rank_le`: the
   axioms (S1)–(S4).
-* `SNumbers.isSNumberSequence_hilbertNumber` — the Hilbert numbers form an
+* `SNumbers.isSNumberSequence_hilbertNumber`: the Hilbert numbers form an
   s-number sequence (S1)–(S5).
 
 The two non-trivial halves are:
@@ -60,8 +60,8 @@ variable [NormedAddCommGroup W] [NormedSpace 𝕜 W]
 variable [NormedAddCommGroup Z] [NormedSpace 𝕜 Z]
 
 /-- A model of `ℓ₂` over `𝕜`: the space `lp` with exponent `2` over `ℕ`.
-For `RCLike 𝕜` this is a Hilbert space, and—crucially—it lives in the same
-universe as `X` and `Y`. -/
+For `RCLike 𝕜` this is a Hilbert space, and it lives in the same universe as `X`
+and `Y`, which the definitions below need. -/
 abbrev L2 (𝕜 : Type*) [RCLike 𝕜] : Type _ := lp (fun _ : ℕ => 𝕜) 2
 
 /-! ### Definition -/
@@ -219,7 +219,7 @@ lemma hilbertNumber_eq_zero_of_rank_le {S : X →L[𝕜] Y} {n : ℕ}
   rintro r ⟨A, B, _, _, rfl⟩
   rw [hkey A B, zero_div]
 
-/-! ### (S1a, hard half) and (S5) — the two non-trivial halves -/
+/-! ### (S1a, hard half) and (S5): the two non-trivial halves -/
 
 /-- (S1a, hard half) `‖S‖ ≤ h₀ S`.
 

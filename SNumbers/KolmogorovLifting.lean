@@ -12,7 +12,7 @@ public import Mathlib.Analysis.Normed.Module.RieszLemma
 public import Mathlib.Analysis.Normed.Module.FiniteDimension
 
 /-!
-# Kolmogorov numbers `d_n` — Pietsch's lifting identity
+# Kolmogorov numbers `d_n`: Pietsch's lifting identity
 
 This file develops the Kolmogorov numbers via Pietsch's identity
 
@@ -40,7 +40,7 @@ not Banach (the natural codomain becomes the completion `X̂`).
 
 The main file `SNumbers.Kolmogorov` (the classical inf/sup definition)
 does **not** require `[CompleteSpace X]`, since it never references `Q`
-directly — use that file when you need the Kolmogorov numbers on
+directly; use that file when you need the Kolmogorov numbers on
 non-Banach spaces.
 
 ## Naming convention
@@ -108,7 +108,7 @@ namespace Lifting
 abbrev Ball (X : Type u) [NormedAddCommGroup X] : Type u :=
   {x : X // ‖x‖ ≤ 1}
 
-/-- `ℓ¹(B_X, 𝕜)` — the scalar `ℓ¹` space indexed by the closed unit ball
+/-- `ℓ¹(B_X, 𝕜)`, the scalar `ℓ¹` space indexed by the closed unit ball
 of `X`. -/
 abbrev BallLp (𝕜 : Type u) [NontriviallyNormedField 𝕜] (X : Type u)
     [NormedAddCommGroup X] [NormedSpace 𝕜 X] : Type u :=
@@ -294,7 +294,7 @@ lemma kolmogorovNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
       (mul_le_mul_of_nonneg_left norm_Q_le (norm_nonneg _)).trans (mul_one _).le
   linarith [approximationNumber_add_le (S.comp Q) (T.comp Q) n]
 
-/-! ## (S3) Ideal property — via the lift `T_{A,c}`
+/-! ## (S3) Ideal property via the lift `T_{A,c}`
 
 For `A : W →L[𝕜] X` and `c ∈ 𝕜` with `‖A‖ ≤ ‖c‖` and `c ≠ 0`, the lift
 `T_{A,c}(α) := ∑' w, α(w) • lp.single 1 ⟨c⁻¹ • A w, _⟩ c` satisfies
@@ -545,16 +545,16 @@ end S5b
 The canonical Kolmogorov number `SNumbers.kolmogorovNumber` (quotient/inf-sup
 form, developed in `SNumbers.Kolmogorov` for *any* normed space) coincides on
 Banach domains with the lifting form `aₙ(S ∘ Q)` defined in this file. This is
-**Pietsch's identity**. Combined with `[CompleteSpace X]` — needed only so that
-`Q` exists as a continuous map into `X` — it shows the two developments compute
+**Pietsch's identity**. Combined with `[CompleteSpace X]` (needed only so that
+`Q` exists as a continuous map into `X`), it shows the two developments compute
 the same numbers.
 
 The proof splits into two inequalities:
 
-* `(≤)` — for any rank-`≤ n` approximant `L` of `S ∘ Q`, the subspace
+* `(≤)`: for any rank-`≤ n` approximant `L` of `S ∘ Q`, the subspace
   `V := range L` is admissible, and `‖π_V ∘ S‖ ≤ ‖S∘Q − L‖` because every unit
   vector `x` equals `Q δ_x` (`norm_le_norm_comp_Q`) and `π_V ∘ L = 0`.
-* `(≥)` — for any admissible `V` and `ε > 0`, choose for each `x ∈ B_X` a point
+* `(≥)`: for any admissible `V` and `ε > 0`, choose for each `x ∈ B_X` a point
   `w_x ∈ V` with `‖S x − w_x‖ < ‖π_V ∘ S‖ + ε` (quotient-norm approximation),
   and lift these to `L α := ∑' x, α x • w_x`. Then `range L ⊆ V` (so
   `rank L ≤ n`) and `‖S∘Q − L‖ ≤ ‖π_V ∘ S‖ + ε`. -/
@@ -742,7 +742,7 @@ end Pietsch
 The `Family 𝕜` type in `SNumbers.Basic` quantifies over all Banach
 spaces `X` without a `[CompleteSpace X]` hypothesis. Our `Q`-based
 definition needs `[CompleteSpace X]`, so `Lifting.kolmogorovNumber` is
-**not** a `Family 𝕜` — it's only defined for complete `X`. The main
+**not** a `Family 𝕜`: it is only defined for complete `X`. The main
 file `SNumbers.Kolmogorov` (the inf/sup definition) avoids the
 completeness restriction and exports `IsStrictSNumberSequence` directly.
 The two definitions agree on the standard examples; Pietsch's identity

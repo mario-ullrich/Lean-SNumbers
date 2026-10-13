@@ -28,28 +28,28 @@ where `σ : Fin m → 𝕜` is the diagonal and the spaces are the finite-dimens
 sequence spaces `ℓ^p_m = PiLp p (fun _ : Fin m => 𝕜)`. It covers **all pairs of
 exponents**, in two parts.
 
-## Part I — the same exponent, `D_σ : ℓ^p_m → ℓ^p_m`
+## Part I: the same exponent, `D_σ : ℓ^p_m → ℓ^p_m`
 
-* `DiagCLM p σ` — the diagonal operator as a continuous linear map, with operator
+* `DiagCLM p σ`: the diagonal operator as a continuous linear map, with operator
   norm `norm_DiagCLM : ‖D_σ‖ = ⨆ i, ‖σ i‖`.
-* `sn_DiagCLM_eq` — the main result: for every **strict** s-number sequence `s`,
+* `sn_DiagCLM_eq`, the main result: for every **strict** s-number sequence `s`,
   `sₙ(D_σ) = ‖σ_n‖` (the `(n+1)`-th largest entry) when the diagonal is
   non-increasing in modulus and `n < m`. Specialised to the named examples:
   `approximationNumber_DiagCLM_eq`, `gelfandNumber_DiagCLM_eq`,
   `kolmogorovNumber_DiagCLM_eq`, `bernsteinNumber_DiagCLM_eq`.
-* `hilbertNumber_DiagCLM_le` — for the Hilbert numbers only the bound
+* `hilbertNumber_DiagCLM_le`: for the Hilbert numbers only the bound
   `hₙ(D_σ) ≤ ‖σ_n‖` holds (equality can fail for `p ≠ 2`).
-* `sn_id_piLp` — the unit diagonal `σ ≡ 1` is the identity, with `sₙ(id) = 1`
+* `sn_id_piLp`: the unit diagonal `σ ≡ 1` is the identity, with `sₙ(id) = 1`
   for `n < m` directly from (S5').
 
-## Part II — mixed exponents, `D_σ : ℓ^q_m → ℓ^p_m`
+## Part II: mixed exponents, `D_σ : ℓ^q_m → ℓ^p_m`
 
-* `DiagCLMpq p q σ` — the operator, with `DiagCLMpq_self` / `DiagCLMpq_one`
+* `DiagCLMpq p q σ`: the operator, with `DiagCLMpq_self` / `DiagCLMpq_one`
   identifying it with `DiagCLM` (when `q = p`) and with the identity embedding
   `idEmbed` (when `σ ≡ 1`).
-* `diagExp p q` — the conjugate exponent `r`, `1/r = 1/p − 1/q`.
-* `norm_DiagCLMpq_eq` — the operator norm `‖D_σ‖ = ‖σ‖_{ℓ^r}` (the `n = 0` case).
-* `approximationNumber_DiagCLMpq_eq` — for `1 ≤ p < q < ∞` the main result
+* `diagExp p q`: the conjugate exponent `r`, `1/r = 1/p − 1/q`.
+* `norm_DiagCLMpq_eq`: the operator norm `‖D_σ‖ = ‖σ‖_{ℓ^r}` (the `n = 0` case).
+* `approximationNumber_DiagCLMpq_eq`: for `1 ≤ p < q < ∞` the main result
   `aₙ(D_σ) = (∑_{k≥n} ‖σ_k‖^r)^{1/r}`, the `ℓ^r`-norm of the tail (the `m − n`
   smallest entries); `sn_DiagCLMpq_le` is the universal upper bound for every
   s-number sequence. Unlike the same-exponent case, for `p < q` the various
@@ -84,7 +84,7 @@ namespace SNumbers
 
 variable {𝕜 : Type u} [RCLike 𝕜] {m : ℕ} {p : ℝ≥0∞} [Fact (1 ≤ p)]
 
-/-! ## Stage 0 — the diagonal operator and its norm -/
+/-! ## Stage 0: the diagonal operator and its norm -/
 
 /-- The **diagonal operator** `D_σ : ℓ^p_m → ℓ^p_m`, `x ↦ (σ_i · x_i)`, as a
 continuous linear map. The domain is finite-dimensional, so continuity is
@@ -133,7 +133,7 @@ theorem norm_DiagCLM [Nonempty (Fin m)] (σ : Fin m → 𝕜) :
     rw [hDe, PiLp.norm_single, he, mul_one] at hbound
     exact hbound
 
-/-! ## Stage 2 — the upper bound `aₙ(D_σ) ≤ σ_{n+1}` for every s-number
+/-! ## Stage 2: the upper bound `aₙ(D_σ) ≤ σ_{n+1}` for every s-number
 
 We assume the diagonal is arranged in non-increasing order of modulus
 (`Antitone fun i => ‖σ i‖`), so the `(n+1)`-th largest entry is `‖σ_n‖`.
@@ -184,7 +184,7 @@ theorem approximationNumber_DiagCLM_le {σ : Fin m → 𝕜}
     _ = ⨆ i, ‖ρ i‖ := norm_DiagCLM ρ
     _ = ‖σ ⟨n, hn⟩‖ := hsup
 
-/-! ## Stage 3 — the lower bound `σ_{n+1} ≤ sₙ(D_σ)` for strict s-numbers
+/-! ## Stage 3: the lower bound `σ_{n+1} ≤ sₙ(D_σ)` for strict s-numbers
 
 For the lower bound we factor the identity on `ℓ^p_{n+1}` (whose dimension
 `n+1 > n` forces `sₙ(id) = 1` by the strict normalisation (S5')) through `D_σ`:
@@ -195,7 +195,7 @@ with `A = padFin` the isometric embedding of the top `n+1` coordinates
 (`‖A‖ ≤ 1`) and `B` the projection followed by division by the diagonal entries
 (`‖B‖ ≤ ‖σ_n‖⁻¹`). The (S3) ideal property then gives
 `1 = sₙ(id) ≤ ‖B‖ · sₙ(D_σ) · ‖A‖ ≤ ‖σ_n‖⁻¹ · sₙ(D_σ)`, i.e. `‖σ_n‖ ≤ sₙ(D_σ)`.
-This needs (S5'), so it holds for every **strict** s-number sequence — the
+This needs (S5'), so it holds for every **strict** s-number sequence: the
 approximation, Bernstein, Gelfand, and Kolmogorov numbers. -/
 
 /-- **Lower bound.** For every *strict* s-number sequence `s` and a diagonal
@@ -256,7 +256,7 @@ theorem le_sn_DiagCLM {s : Family 𝕜} (hs : IsStrictSNumberSequence s)
   have hfinal := mul_le_mul_of_nonneg_left hchain (norm_nonneg (σ ⟨n, hn⟩))
   rwa [mul_one, ← mul_assoc, mul_inv_cancel₀ (ne_of_gt hpos), one_mul] at hfinal
 
-/-! ## Stage 4 — the s-numbers of a diagonal operator
+/-! ## Stage 4: the s-numbers of a diagonal operator
 
 Combining the upper bound (Stage 2, valid for every s-number) with the lower
 bound (Stage 3, valid for every *strict* s-number) gives the exact value
@@ -328,7 +328,7 @@ theorem sn_id_piLp {s : Family 𝕜} (hs : IsStrictSNumberSequence s) {n : ℕ} 
   hs.strictly_normalised_at_id n (by rw [finrank_piLp]; exact hn)
 
 
-/-! # Part II — mixed exponents: `D_σ : ℓ^q_m → ℓ^p_m`
+/-! # Part II: mixed exponents, `D_σ : ℓ^q_m → ℓ^p_m`
 
 Everything above keeps the *same* exponent on both sides. We now allow the
 domain and codomain exponents to differ, which is where the theory becomes
@@ -559,7 +559,7 @@ theorem approximationNumber_DiagCLMpq_le (hpq : p < q) (hq : q ≠ ∞) (σ : Fi
     _ ≤ (∑ i, ‖ρ i‖ ^ diagExp p q) ^ (1 / diagExp p q) := norm_DiagCLMpq_le hpq hq ρ
     _ = diagTail p q σ n := by rw [diagTail, hsum]
 
-/-! ## Lower bound — the weighted flat vector
+/-! ## Lower bound: the weighted flat vector
 
 For any rank-`≤ n` operator `L`, its kernel has dimension `≥ m − n`, and
 `(D_σ − L)` agrees with `D_σ` there. We must produce, in any subspace of
@@ -569,7 +569,7 @@ argument is the classical Gelfand-width construction adapted to the weight
 `exists_flat_vector_weighted` of `SNumbers.Examples.FlatnessLemmas` (an extreme-point
 argument, built on a coordinate pigeonhole). -/
 
-/-! ## Lower bound — the weighted ratio inequality
+/-! ## Lower bound: the weighted ratio inequality
 
 For the weight `w_i = ‖σ_i‖^{r/q}`, a vector `x` bounded by `w` and saturating
 it on a set `S` has `‖D_σ x‖_p ≥ (∑_{i∈S} ‖σ_i‖^r)^{1/r} · ‖x‖_q`. With
@@ -665,7 +665,7 @@ private lemma norm_ratio_of_flat_weighted (hpq : p < q) (hq : q ≠ ∞) (σ x :
             Real.zero_rpow (one_div_ne_zero hP.ne'), mul_zero]
         · rw [← Real.rpow_add hTpos, diagExp_inv_add hpq hq]
 
-/-! ## Lower bound — minimality of the tail
+/-! ## Lower bound: minimality of the tail
 
 Because `‖σ_i‖^r` is antitone in `i`, the tail `{i : n ≤ i}` carries the `m − n`
 smallest values, so any coordinate set `S` of size `≥ m − n` has a larger
@@ -739,7 +739,7 @@ private lemma tail_sum_le_sum_of_card_ge (hpq : p < q) (hq : q ≠ ∞) (σ : Fi
   rw [htails, hSs]
   linarith [key]
 
-/-! ## Lower bound — the geometric input -/
+/-! ## Lower bound: the geometric input -/
 
 /-- **Geometric input.** Every subspace `V ⊆ ℓ^q_m` of dimension `≥ m − n`
 contains a nonzero `x` with `diagTail · ‖x‖ ≤ ‖D_σ x‖`. When the tail vanishes
@@ -1051,7 +1051,7 @@ theorem sn_DiagCLMpq_le_of_exponent_ge {s : Family 𝕜} (hs : IsSNumberSequence
 For `p > q` the tail-maximum upper bound `aₙ(D_σ) ≤ ‖σ_n‖` above need not be
 sharp: the exact approximation numbers have no elementary closed form and belong
 to the harder theory of Gelfand and Kolmogorov widths. Only the two clean results
-of this section — the operator norm and the universal upper bound — are recorded
+of this section, the operator norm and the universal upper bound, are recorded
 here. -/
 
 end MixedExponent

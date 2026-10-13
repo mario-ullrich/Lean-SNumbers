@@ -74,8 +74,8 @@ while `S(B_X) = p·ℤ_p` is a single ball of radius `p^{-1}`, so
 
 ## Main definitions
 
-* `SNumbers.entropySet S n` — the set of admissible radii at stage `n`.
-* `SNumbers.entropyNumber S n` — the `n`-th entropy number `e_n S`.
+* `SNumbers.entropySet S n`: the set of admissible radii at stage `n`.
+* `SNumbers.entropyNumber S n`: the `n`-th entropy number `e_n S`.
 
 ## Main results
 

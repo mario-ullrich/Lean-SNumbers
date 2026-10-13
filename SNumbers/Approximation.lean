@@ -19,7 +19,7 @@ They are defined as
 
 In this file we prove that the approximation numbers satisfy all five
 Pietsch axioms (S1)–(S5). In fact we prove the stronger normalisation
-(S5') — `a_n (id_X) = 1` for every Banach space `X` with `dim X > n` —
+(S5'), `a_n (id_X) = 1` for every Banach space `X` with `dim X > n`,
 via Riesz's lemma; (S5) on `ℓ₂^{n+1}` is the corresponding specialisation.
 The argument requires `[CompleteSpace 𝕜]` (so that finite-dimensional
 subspaces are closed) but is otherwise elementary.
@@ -30,7 +30,7 @@ s-number sequence `s`).
 
 ## Main definitions
 
-* `SNumbers.approximationNumber S n` — the `n`-th approximation number of `S`.
+* `SNumbers.approximationNumber S n`: the `n`-th approximation number of `S`.
 
 ## Main results
 
@@ -49,7 +49,7 @@ s-number sequence `s`).
 * `SNumbers.isStrictSNumberSequence_approximationNumber` :
     the approximation numbers form a *strict* s-number sequence.
 * `SNumbers.sn_le_approximationNumber` : `s_n S ≤ a_n S` for every s-number
-    sequence `s` — the approximation numbers are the largest.
+    sequence `s`: the approximation numbers are the largest.
 -/
 
 @[expose] public section
@@ -173,7 +173,7 @@ lemma approximationNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
 /-! ### (S3) Ideal property -/
 
 /--
-**(S3) Ideal property** — `a_n (B ∘ S ∘ A) ≤ ‖B‖ * a_n S * ‖A‖`.
+**(S3) Ideal property.** `a_n (B ∘ S ∘ A) ≤ ‖B‖ * a_n S * ‖A‖`.
 
 Proof outline (cf. Pietsch, *Eigenvalues and s-numbers*, Section 2.3):
 

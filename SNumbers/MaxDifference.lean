@@ -22,7 +22,7 @@ approximation numbers are bounded by the Hilbert numbers,
 (`approximationNumber_le_e_mul_hilbertNumber`; the proof gives the slightly
 sharper constant `(n+1)^{n+1}/nⁿ ≤ e·(n+1)`). Since `aₙ` is the largest and
 `hₙ` the smallest s-number sequence, this bounds *any* s-number sequence by
-*any* other, `sₙ(S) ≤ e·(n+1)·tₙ(S)` (`sn_le_e_mul_tn`) — the maximal
+*any* other, `sₙ(S) ≤ e·(n+1)·tₙ(S)` (`sn_le_e_mul_tn`): the maximal
 possible difference between two s-number sequences is a factor linear in `n`.
 It proves the conjecture of Carl and Pietsch up to the constant `e`. The
 factor `n+1` is optimal, e.g. for the identity `ℓ₁ → ℓ∞`.
@@ -36,17 +36,17 @@ numbers, `max (cₙ(S), dₙ(S)) ≤ e·(n+1)·sₙ(S)` for every s-number seque
 
 The two theorems and, below them, their consequences.
 
-* `approximationNumber_le_mul_hilbertNumber` — `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ`, the
+* `approximationNumber_le_mul_hilbertNumber`: `aₙ ≤ ((n+1)^{n+1}/nⁿ)·hₙ`, the
   sharp constant this proof produces.
-* `approximationNumber_le_e_mul_hilbertNumber` — the same in the readable form
+* `approximationNumber_le_e_mul_hilbertNumber`: the same in the readable form
   `aₙ ≤ e·(n+1)·hₙ` (via `ratio_le_exp_mul`).
-* `approximationNumber_le_e_mul_sn` — `hₙ` replaced by an arbitrary s-number
+* `approximationNumber_le_e_mul_sn`: `hₙ` replaced by an arbitrary s-number
   sequence, since `hₙ` is the smallest one (`hilbertNumber_le_sn`).
-* `sn_le_e_mul_tn` — `sₙ ≤ e·(n+1)·tₙ` for *any two* s-number sequences, since
+* `sn_le_e_mul_tn`: `sₙ ≤ e·(n+1)·tₙ` for *any two* s-number sequences, since
   `aₙ` is the largest one (`sn_le_approximationNumber`). Carl–Pietsch up to `e`.
-* `gelfandNumber_le_approximationNumber`, `kolmogorovNumber_le_approximationNumber`
-  — `cₙ, dₙ ≤ aₙ`, the inputs for the classical numbers.
-* `max_gelfandNumber_kolmogorovNumber_le_e_mul_sn` — `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`
+* `gelfandNumber_le_approximationNumber`, `kolmogorovNumber_le_approximationNumber`:
+  `cₙ, dₙ ≤ aₙ`, the inputs for the classical numbers.
+* `max_gelfandNumber_kolmogorovNumber_le_e_mul_sn`: `max(cₙ,dₙ) ≤ e·(n+1)·sₙ`
   for every s-number sequence `s`, with the two named instances
   `max_gelfandNumber_kolmogorovNumber_le_e_mul_hilbertNumber` (`s = hₙ`) and
   `max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber` (`s = bₙ`, the
@@ -67,11 +67,11 @@ The `Δₖ` are squeezed between the two quantities of interest:
 * **Upper bound** `Δₙ₊₁(S) ≤ hₙ(S)·Δₙ(S)`
   (`detNumber_succ_le_hilbertNumber_mul`): for any admissible pair for `Δₙ₊₁`
   and `T := B∘S∘A`, split `|det T| = ∏_{k≤n} aₖ(T)`
-  (`prod_approximationNumber_eq_norm_det`) into the top `n` factors — at most
-  `Δₙ(S)`, because the diagonal factorisation
+  (`prod_approximationNumber_eq_norm_det`) into the top `n` factors, whose product is
+  at most `Δₙ(S)` because the diagonal factorisation
   `B₁∘T∘A₁ = diag(a₀,…,aₙ)` (`SVD.IsCompactOperator.diagonalFactorisation`),
   compressed to the first `n` coordinates, is admissible for `Δₙ`
-  (`prod_approximationNumber_le_detNumber`) — and the last factor
+  (`prod_approximationNumber_le_detNumber`), and the last factor
   `aₙ(T) ≤ hₙ(S)`.
 * **Lower bound (growth lemma)** `Δₖ₊₁(S) ≥ (kᵏ/(k+1)^{k+1})·aₖ(S)·Δₖ(S)`
   (`approximationNumber_mul_detNumber_le_detNumber_succ`): given an admissible
@@ -842,7 +842,7 @@ lemma approximationNumber_mul_detNumber_le_detNumber_succ (S : X →L[𝕜] Y) (
 
 /-! ### Positivity of the determinant quantities -/
 
-/-- **Positivity.** If `aₙ(S) > 0` — equivalently, if `S` has rank `> n` — then
+/-- **Positivity.** If `aₙ(S) > 0` (equivalently, if `S` has rank `> n`), then
 `Δₖ(S) > 0` for all `k ≤ n+1`. Induction from `Δ₀(S) = 1` using the growth
 lemma, whose factor `aₖ(S) ≥ aₙ(S)` is positive for `k ≤ n` by antitonicity. -/
 lemma detNumber_pos_of_approximationNumber_pos (S : X →L[𝕜] Y) {n : ℕ}
@@ -895,8 +895,8 @@ theorem approximationNumber_le_mul_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) 
     _ = ((n : ℝ) + 1) ^ (n + 1) * hilbertNumber S n := mul_comm _ _
 
 /-- **Maximal difference theorem.** `aₙ(S) ≤ e·(n+1)·hₙ(S)`: the
-approximation numbers — the largest s-numbers — exceed the Hilbert numbers —
-the smallest ones — by at most a factor linear in `n`. -/
+approximation numbers, the largest s-numbers, exceed the Hilbert numbers, the
+smallest ones, by at most a factor linear in `n`. -/
 theorem approximationNumber_le_e_mul_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) :
     approximationNumber S n ≤ Real.exp 1 * ((n : ℝ) + 1) * hilbertNumber S n :=
   (approximationNumber_le_mul_hilbertNumber S n).trans

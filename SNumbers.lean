@@ -88,7 +88,7 @@ its entropy numbers tend to `0`.
 * `SNumbers.Uniqueness`: on Hilbert spaces every s-number sequence coincides
   with the approximation numbers, `sₙ(S) = aₙ(S)` (Pietsch 2.11.9), via the
   scalar factorisation `SVD.exists_scalar_factorisation` in `BasicResults.SVD`.
-* `SNumbers.Inequalities`: the general-space comparison results — the lower
+* `SNumbers.Inequalities`: the general-space comparison results, namely the lower
   bound `hₙ ≤ sₙ`, the sandwich theorem `hₙ ≤ sₙ ≤ aₙ`, the bound
   `aₙ ≤ (1+√n)·min(cₙ,dₙ)`, the two Bernstein comparisons `bₙ ≤ cₙ` and
   `cₙ ≤ √(n+1)·bₙ` (the latter for a Hilbert codomain), the determinant
@@ -97,7 +97,7 @@ its entropy numbers tend to `0`.
   Kolmogorov numbers.
 * `SNumbers.MaxDifference`: the **maximal difference theorem**
   `aₙ ≤ e·(n+1)·hₙ` (sharp constant `(n+1)^{n+1}/nⁿ`), hence
-  `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences — the conjecture of Carl
+  `sₙ ≤ e·(n+1)·tₙ` for any two s-number sequences, the conjecture of Carl
   and Pietsch up to the constant `e`. Proved via the determinant quantities
   `Δₖ(S) = sup{|det(B∘S∘A)| : ‖A‖, ‖B‖ ≤ 1}`, whose decay is bounded below
   through the explicit rank-`n` approximant `L = SA(BSA)⁻¹BS` and a bordered
@@ -121,7 +121,7 @@ its entropy numbers tend to `0`.
   inequalities that govern them: additivity `e_{n+m}(S+T) ≤ eₙ(S) + e_m(T)` and,
   over a densely normed scalar field, multiplicativity
   `e_{n+m}(B∘S) ≤ eₙ(B)·e_m(S)`; the axioms (S2) and (S3) are corollaries of
-  these. They are *not* s-numbers — the rank axiom (S4) fails, since
+  these. They are *not* s-numbers: the rank axiom (S4) fails, since
   `eₙ(S) > 0` for every `S ≠ 0`, and the norming axiom (S5) fails from `n = 2`
   on; such a sequence is called a *pseudo-s-number* sequence. What they measure
   is compactness: `S` is a compact operator if and only if `eₙ(S) → 0`
@@ -133,10 +133,10 @@ its entropy numbers tend to `0`.
   bounds `d_{2ⁿ} ≤ eₙ` and `c_{2ⁿ} ≤ 2·eₙ` that drive the compactness criteria
   in `AddOns.Compact`. Lower bounds come from counting separated points, which
   gives the sharp `max(cₙ,dₙ) ≤ (n+1)·eₙ` (Pietsch 12.3.2) via triangular flags
-  and their `2^(n+1)` signed averages, and — using a volume comparison for
-  `eₙ(id) ≥ 1/2` — the Hilbert-entropy bound `hₙ ≤ 2·eₙ`.
+  and their `2^(n+1)` signed averages, and, using a volume comparison for
+  `eₙ(id) ≥ 1/2`, the Hilbert-entropy bound `hₙ ≤ 2·eₙ`.
 * `SNumbers.Examples.FlatnessLemmas`: the geometric and rank ingredients shared by the
-  worked examples — the coordinate pigeonhole and the (weighted) flatness lemmas
+  worked examples: the coordinate pigeonhole and the (weighted) flatness lemmas
   behind the Gelfand-width lower bounds.
 * `SNumbers.Examples.Identity`: the **identity embedding**
   `id : ℓ^q_m → ℓ^p_m` between different exponents (`p ≤ q`): the operator norm

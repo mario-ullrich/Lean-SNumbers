@@ -47,7 +47,7 @@ of the codimension** `n`.
 
 ## The approximation numbers are different
 
-`aₙ(S) → 0` — that is, `SVD.IsApproximable S` — always implies compactness, but
+`aₙ(S) → 0`, that is, `SVD.IsApproximable S`, always implies compactness, but
 the converse fails on a Banach space without the approximation property (Enflo,
 1973): there are compact operators that are not norm limits of finite-rank
 operators. On Hilbert spaces the Schmidt representation repairs this, and then
@@ -56,17 +56,17 @@ operators. On Hilbert spaces the Schmidt representation repairs this, and then
 
 ## Main results
 
-* `SNumbers.isCompactOperator_iff_totallyBounded_image_closedBall` — the bridge
+* `SNumbers.isCompactOperator_iff_totallyBounded_image_closedBall`: the bridge
   between `IsCompactOperator` and total boundedness of `S(B_X)`.
 * `SNumbers.isCompactOperator_iff_tendsto_kolmogorovNumber`,
-  `SNumbers.isCompactOperator_iff_tendsto_gelfandNumber` — the two criteria.
+  `SNumbers.isCompactOperator_iff_tendsto_gelfandNumber`: the two criteria.
 * `SNumbers.tendsto_kolmogorovNumber_iff_totallyBounded`,
-  `SNumbers.tendsto_gelfandNumber_iff_totallyBounded` — the same statements
+  `SNumbers.tendsto_gelfandNumber_iff_totallyBounded`: the same statements
   without any completeness assumption on the target space.
 * `SVD.IsCompactOperator.isApproximable`,
-  `SVD.isApproximable_iff_isCompactOperator` — compact ⟺ approximable on
+  `SVD.isApproximable_iff_isCompactOperator`: compact ⟺ approximable on
   Hilbert spaces.
-* `SVD.isCompactOperator_iff_tendsto_sn` — on Hilbert spaces, compactness is
+* `SVD.isCompactOperator_iff_tendsto_sn`: on Hilbert spaces, compactness is
   equivalent to `sₙ(S) → 0` for *every* `s`-number sequence `s`.
 
 ## References
@@ -291,7 +291,7 @@ Given `η > 0`, choose a closed `M` of finite codimension with `‖S|_M‖ < η/
 The image of `B_X` in the finite-dimensional quotient `X ⧸ M` is bounded, hence
 totally bounded; pick a finite `δ`-net of it *inside the image* and lift the
 centres to `u₁, …, u_N ∈ B_X`. For `‖x‖ ≤ 1` with `‖[x] - [uⱼ]‖ < δ` there is
-`m ∈ M` with `‖(x - uⱼ) - m‖ < δ`, and — this is the crux — `‖m‖ ≤ 2 + δ ≤ 3`
+`m ∈ M` with `‖(x - uⱼ) - m‖ < δ`, and (this is the point) `‖m‖ ≤ 2 + δ ≤ 3`
 independently of the codimension. Hence
 `‖S x - S uⱼ‖ ≤ ‖S m‖ + ‖S‖·δ < 3·(η/6) + η/2 = η`. -/
 theorem totallyBounded_of_tendsto_gelfandNumber {S : X →L[𝕜] Y}

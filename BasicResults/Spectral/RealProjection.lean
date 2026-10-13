@@ -20,7 +20,7 @@ because the continuous functional calculus on `H →L[𝕜] H` is only available
 file transfers it to a **real** Hilbert space `H₁` by complexifying.
 
 Given `S : H₁ →L[ℝ] H₂`, complexify to `Sℂ : Cℂ H₁ →L[ℂ] Cℂ H₂`. The complex projection `Eℂ`
-**commutes with conjugation** — this is the formal content of "a self-adjoint operator has real
+**commutes with conjugation**; this is the formal content of "a self-adjoint operator has real
 spectrum": the strengthened `exists_spectral_projection_complex` returns commutation of `Eℂ` with
 every `ℝ`-linear map commuting with `Sℂ*Sℂ`, and conjugation is such a map (since `Sℂ*Sℂ` is a
 complexification). Hence `Eℂ` maps the real subspace `range ofReal` into itself, and restricts to

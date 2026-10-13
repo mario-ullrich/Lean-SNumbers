@@ -12,12 +12,12 @@ public import Mathlib.LinearAlgebra.Determinant
 /-!
 # Determinant facts: adjoint, singular values, diagonal and bordered matrices
 
-* `LinearMap.det_adjoint` — `det T* = conj (det T)`, for an endomorphism of a
+* `LinearMap.det_adjoint`: `det T* = conj (det T)`, for an endomorphism of a
   finite-dimensional inner product space. In an orthonormal basis the matrix of
   the adjoint is the conjugate transpose, and `det Aᴴ = conj (det A)`.
-* `LinearMap.det_eq_prod_of_apply_eq_smul` — the determinant of an endomorphism
+* `LinearMap.det_eq_prod_of_apply_eq_smul`: the determinant of an endomorphism
   that is diagonal in some basis (`T (b i) = μ i • b i`) is the product `∏ μᵢ`.
-* `Matrix.det_eq_corner_mul_det_submatrix` — the **bordered determinant**: if,
+* `Matrix.det_eq_corner_mul_det_submatrix`, the **bordered determinant**: if,
   above the corner, the last column of a `(k+1)×(k+1)` matrix is a combination
   of the first `k` columns, then `det M` is the corner entry left after that
   column operation times the determinant of the top-left `k×k` block. The

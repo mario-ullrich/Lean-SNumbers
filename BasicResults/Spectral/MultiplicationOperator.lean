@@ -18,7 +18,7 @@ operator on `L²(μ)`, the **multiplication operator** `M_f`. Its operator
 norm is at most the essential supremum `‖f‖∞`.
 
 *Why this file is here:* it is the seed of the **multiplication-operator** route to the spectral
-theorem (Pietsch, *Operator Ideals*, §11.3 — represent `S*S` as `M_f` after a unitary change of
+theorem (Pietsch, *Operator Ideals*, §11.3: represent `S*S` as `M_f` after a unitary change of
 variables, and read off the spectral projection as `M_{𝟙}`). That route is **not** used by the
 current development: the spectral projection is instead built directly via the continuous
 functional calculus (`Projection`) and complexification (`RealProjection`). This file is kept as a
@@ -27,17 +27,17 @@ representation; nothing in the `s`-numbers chain depends on it.
 
 ## Main definitions
 
-* `MeasureTheory.mulL2 f hf` — the multiplication operator
+* `MeasureTheory.mulL2 f hf`: the multiplication operator
   `M_f : L²(μ) →L[𝕜] L²(μ)`, `g ↦ f • g`, for `hf : MemLp f ⊤ μ`.
 
 ## Main results
 
-* `MeasureTheory.mulL2_coeFn` — `⇑(M_f g) =ᵐ[μ] f • ⇑g`, the defining a.e.
+* `MeasureTheory.mulL2_coeFn`: `⇑(M_f g) =ᵐ[μ] f • ⇑g`, the defining a.e.
   identity (the workhorse for all algebraic properties).
-* `MeasureTheory.mulL2_opNorm_le` — `‖M_f‖ ≤ (eLpNorm f ⊤ μ).toReal`.
-* `MeasureTheory.mulL2_mul` — `M_f ∘ M_g = M_{f g}` (multiplicativity).
-* `MeasureTheory.mulL2_one` — `M_1 = id` (unitality).
-* `MeasureTheory.mulL2_isSelfAdjoint` — `M_f` is self-adjoint when `f` is
+* `MeasureTheory.mulL2_opNorm_le`: `‖M_f‖ ≤ (eLpNorm f ⊤ μ).toReal`.
+* `MeasureTheory.mulL2_mul`: `M_f ∘ M_g = M_{f g}` (multiplicativity).
+* `MeasureTheory.mulL2_one`: `M_1 = id` (unitality).
+* `MeasureTheory.mulL2_isSelfAdjoint`: `M_f` is self-adjoint when `f` is
   real-valued; with `mulL2_mul` this makes an indicator multiplier `M_𝟙` an
   orthogonal projection.
 

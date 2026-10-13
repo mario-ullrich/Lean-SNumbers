@@ -18,15 +18,15 @@ here so that each statement is proved once.
 
 ## Main contents
 
-* `rank_id_piLp` — the identity on `ℓ^p_k` has rank `k` (as a `Cardinal`); the
+* `rank_id_piLp`: the identity on `ℓ^p_k` has rank `k` (as a `Cardinal`); the
   standard way to bound the rank of an approximant that factors through `ℓ^p_k`.
-* `exists_mem_ker_coords` — **coordinate pigeonhole**: a subspace of `𝕜^m` whose
+* `exists_mem_ker_coords`, **coordinate pigeonhole**: a subspace of `𝕜^m` whose
   dimension exceeds the size of a coordinate set contains a nonzero vector
   vanishing on that set.
-* `exists_flat_vector_weighted` — **weighted flatness lemma**: a subspace of
+* `exists_flat_vector_weighted`, **weighted flatness lemma**: a subspace of
   dimension `≥ k` contains a vector dominated by a nonnegative weight `w` that
   attains `w` on at least `k` coordinates.
-* `exists_flat_vector` — the unweighted case `w ≡ 1`, with nonvanishing.
+* `exists_flat_vector`: the unweighted case `w ≡ 1`, with nonvanishing.
 
 The flatness lemmas are the geometric heart of the Gelfand-width lower bounds
 (Pietsch, *Eigenvalues and s-numbers*, §11.11): they produce, inside any

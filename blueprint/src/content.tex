@@ -4,7 +4,7 @@
 \label{ch:setting}
 
 Throughout the blueprint, $\mathbb{K}$ denotes a non-trivially normed
-field --- in practice $\mathbb{R}$ or $\mathbb{C}$ --- and $X, Y, Z, W$ are
+field (in practice $\mathbb{R}$ or $\mathbb{C}$), and $X, Y, Z, W$ are
 Banach spaces over $\mathbb{K}$. We write $\mathcal{L}(X, Y)$ for the
 space of bounded linear operators $X \to Y$ with the operator norm, and
 $\mathbb{N}_0 = \{0, 1, 2, \dots\}$; all sequences are indexed starting
@@ -70,7 +70,7 @@ strengthening
 \label{ch:examples}
 
 We construct the five classical s-number sequences and verify the
-axioms (S1)--(S5) --- and, where it holds, the strengthening (S5$'$) ---
+axioms (S1)--(S5), and, where it holds, the strengthening (S5$'$),
 for each of them.
 
 \section{Approximation numbers $a_n$}
@@ -160,7 +160,7 @@ gain $1$ on every nontrivial subspace, and $\dim X > n$ guarantees an
 $(n+1)$-dimensional subspace exists.
 \end{proof}
 
-The argument needs only a non-trivially normed scalar field~$\mathbb{K}$ ---
+The argument needs only a non-trivially normed scalar field~$\mathbb{K}$:
 no completeness, and no Riesz lemma.
 
 \section{Gelfand numbers $c_n$}
@@ -610,8 +610,8 @@ orthonormal. Then $S u_k = a_k(S)\, v_k$ gives
 $(B \circ S \circ A) e_k = a_k(S)\, e_k$ for $0 \le k \le n$.
 \end{proof}
 
-This factorisation needs only the top $n+1$ singular pairs --- a finite
-truncation, a sibling of the full SVD rather than a corollary --- but,
+This factorisation needs only the top $n+1$ singular pairs (a finite
+truncation, a sibling of the full SVD rather than a corollary), but,
 pinning the \emph{exact} values $a_k$, it requires $S$ compact.
 
 \begin{theorem}
@@ -728,19 +728,19 @@ formalises two such comparisons for operators between Banach spaces over
 $\mathbb{K}$:
 
 \begin{itemize}
-  \item the \emph{forward} bound $a_n(S) \le (1+\sqrt{n})\min(c_n(S), d_n(S))$
-        --- the largest s-number exceeds the Gelfand and Kolmogorov numbers by
+  \item the \emph{forward} bound $a_n(S) \le (1+\sqrt{n})\min(c_n(S), d_n(S))$:
+        the largest s-number exceeds the Gelfand and Kolmogorov numbers by
         at most a factor $1+\sqrt{n}$ (classical; see \cite{Pietsch-s} and
         \cite[\S 2.10]{Pietsch87});
   \item the \emph{reverse} bound, the \emph{maximal difference theorem}
-        $a_n(S) \le e\,(n+1)\, h_n(S)$ --- the maximal possible difference
+        $a_n(S) \le e\,(n+1)\, h_n(S)$: the maximal possible difference
         between the largest s-numbers, the approximation numbers, and the
         smallest ones, the Hilbert numbers, is a factor linear in $n$
         \cite{U26}. Its consequence for two arbitrary s-number
         sequences is Corollary~\ref{cor:all-snumbers-bound}, the conjecture of
         Carl and Pietsch \cite{CP78}; specialising to the Gelfand, Kolmogorov
         and Bernstein numbers gives Corollary~\ref{cor:mityagin-henkin}, the
-        conjecture of Mityagin and Henkin \cite{MH} --- both up to the
+        conjecture of Mityagin and Henkin \cite{MH}, both up to the
         constant $e$.
 \end{itemize}
 
@@ -792,8 +792,8 @@ and has nonzero determinant, so the maximiser does too.
 \label{thm:john-decomposition}
 \lean{John.john_decomposition}
 \leanok
-In John position --- the identity is a maximal-volume feasible operator for the
-body seminorm $q$ --- the identity is a positive combination of the rank-one
+In John position, that is, when the identity is a maximal-volume feasible operator
+for the body seminorm $q$, the identity is a positive combination of the rank-one
 projections onto contact points:
 \[
   \sum_i c_i \, \langle u_i, x\rangle \, u_i = x \quad (x \in \mathbb{K}^k),
@@ -806,8 +806,8 @@ where a contact point is a unit vector $u$ with $\operatorname{Re}\langle x, u\r
 \leanok
 The classical core of John's theorem, from first-order optimality of the
 maximal-volume ellipsoid. If $k^{-1}\mathrm{id}$ lay outside the convex hull of the
-contact rank-ones --- a compact convex set of operators, whose compactness uses
-that convex hulls of compact sets are compact in finite dimension --- then
+contact rank-ones (a compact convex set of operators, whose compactness uses
+that convex hulls of compact sets are compact in finite dimension), then
 geometric Hahn--Banach separation, followed by trace duality, would produce a
 self-adjoint trace-zero direction $H$ with $\operatorname{Re}\langle u, Hu\rangle
 < 0$ at every contact point. The perturbation $(1-\rho)^{-1}(\mathrm{id} + tH)$
@@ -864,8 +864,8 @@ on the finite-dimensional dual $(X/M)^*$: the contact points are
 represented by vectors $w_i \in X/M$ with $\|w_i\| \le 1$ (obtained by solving
 the single-dual equation $\Phi^{\mathrm{flip}} w_i = \operatorname{toDual} u_i$,
 avoiding the topological double dual), each lifted to $x_i \in X$ with
-$\|x_i\| < 1 + \varepsilon'$ (the quotient norm is an infimum --- the sole source
-of $\varepsilon$). Then $P y = \sum_i c_i\,(\Phi u_i)(\pi y)\, x_i$ has kernel $M$
+$\|x_i\| < 1 + \varepsilon'$ (the quotient norm is an infimum; this is the sole
+source of $\varepsilon$). Then $P y = \sum_i c_i\,(\Phi u_i)(\pi y)\, x_i$ has kernel $M$
 and $\|P\| \le \sqrt{\operatorname{codim} M} + \varepsilon \le \sqrt{n} +
 \varepsilon$. The exact bound
 $\sqrt{n}$ (removing $\varepsilon$) needs a weak-$*$ limit argument; it is not
@@ -1044,7 +1044,7 @@ $\zeta := T^{-1}B(Sx)$, so Lemma~\ref{lem:det-bordered} gives
 The weights $\lambda^2 = k/(k+1)$, $\mu^2 = 1/(k+1)$ maximise
 $\lambda^{2k}\mu^2$, whose value is then exactly $k^k/(k+1)^{k+1}$; taking
 the supremum over $(A, B)$ finishes. Note that no near-maximiser has to be
-selected --- \emph{every} admissible pair is improved.
+selected: \emph{every} admissible pair is improved.
 \end{proof}
 
 In particular, if $a_n(S) > 0$ then $\Delta_k(S) > 0$ for all $k \le n+1$, by
@@ -1140,7 +1140,7 @@ For every $S \in \mathcal{L}(X, Y)$ and every $n \in \mathbb{N}_0$,
 \leanok
 \uses{cor:all-snumbers-bound}
 Apply Corollary~\ref{cor:all-snumbers-bound} with $t := b$ and $s := c$ resp.\
-$s := d$ --- both are s-number sequences --- and take the maximum.
+$s := d$ (both are s-number sequences) and take the maximum.
 \end{proof}
 
 The factor $n+1$ is order-optimal: the inclusion $I \colon \ell_1 \to
@@ -1152,8 +1152,8 @@ $\varphi(n) = o(n)$ (Corollary~\ref{cor:l1-linf-order-optimal}).
 \label{ch:op-examples}
 
 This chapter computes the s-numbers of three concrete families of
-operators. The finite-dimensional examples --- the identity between
-$\ell_p$-spaces and the diagonal operators --- are the standard test cases
+operators. The finite-dimensional examples, the identity between
+$\ell_p$-spaces and the diagonal operators, are the standard test cases
 of the theory; the inclusion $\ell_1 \to \ell_\infty$ shows that the linear
 factor $n+1$ in the maximal difference theorem
 (Theorem~\ref{thm:maximal-difference}) cannot be improved in order. The
@@ -1687,8 +1687,8 @@ term, so the Kolmogorov numbers agree.
 
 The entropy numbers quantify the compactness of an operator directly: they
 measure how many balls of a given radius are needed to cover the image of
-the unit ball. They are \emph{not} s-numbers --- the rank axiom (S4) and
-the normalisation (S5) both fail --- but they satisfy the remaining
+the unit ball. They are \emph{not} s-numbers (the rank axiom (S4) and
+the normalisation (S5) both fail), but they satisfy the remaining
 properties, in the strong additive and multiplicative form of
 Theorems~\ref{thm:entropy-additive} and~\ref{thm:entropy-multiplicative}; such
 sequences are called \emph{pseudo-\textup{s}-number} sequences
@@ -1769,7 +1769,7 @@ $B \in \mathcal{L}(Y, Z)$ and $n, m \in \mathbb{N}_0$,
 Cover $S(B_X)$ by $2^m$ balls of radius $\delta$ with centres $y_i$. Each
 point of $S(B_X)$ in the ball around $y_i$ differs from $y_i$ by a vector
 $u$ with $\|u\| \le \delta$, which is rescaled as $u = c\,w$ with
-$\|w\| \le 1$ and $|c|$ close to $\delta$ --- this is where density of
+$\|w\| \le 1$ and $|c|$ close to $\delta$; this is where density of
 the norm values enters. Covering $B(B_Y)$ by $2^n$ balls of radius
 $\varepsilon$ then covers each $B(u)$ by $2^n$ balls of radius
 $|c|\,\varepsilon$, and combining the two covers yields $2^{n+m}$ balls
@@ -1785,8 +1785,8 @@ $e_n(B \circ S \circ A) \le \|B\| \, e_n(S) \, \|A\|$.
 Two of Pietsch's axioms fail, and one is not formalised:
 \begin{itemize}
   \item (S4) fails: if $e_n(S) = 0$ then $S(B_X)$ is covered by $2^n$
-    balls of arbitrarily small radius, hence has at most $2^n$ points ---
-    impossible for $S \neq 0$. So $e_n(S) > 0$ even for finite-rank $S$.
+    balls of arbitrarily small radius, hence has at most $2^n$ points,
+    which is impossible for $S \neq 0$. So $e_n(S) > 0$ even for finite-rank $S$.
   \item (S5) fails for $n \ge 2$: covering the Euclidean unit ball of
     $\mathbb{R}^{n+1}$ by balls of radius $< 1$ takes only $n + 2$ of
     them, and $2^n \ge n + 2$ from $n = 2$ on, so
@@ -1826,8 +1826,8 @@ operator.
 
 Among the s-number sequences, exactly two detect compactness on every
 Banach space: the Gelfand and the Kolmogorov numbers. The approximation
-numbers do not --- a compact operator into a space without the approximation
-property is not a limit of finite-rank operators (Enflo) --- so the
+numbers do not: a compact operator into a space without the approximation
+property is not a limit of finite-rank operators (Enflo), so the
 equivalence $a_n(S) \to 0 \iff S$ compact is available only on Hilbert
 spaces, where all s-numbers agree with $a_n$.
 
@@ -1927,7 +1927,7 @@ $\|S|_M\| < \varepsilon$. The image of $B_X$ in the finite-dimensional
 quotient $X / M$ is bounded, hence totally bounded; choose a finite
 $\delta$-net inside that image and lift its centres to $u_1, \dots, u_N \in
 B_X$. If $\|[x] - [u_j]\| < \delta$ there is $m \in M$ with
-$\|(x - u_j) - m\| < \delta$ and --- this is the point ---
+$\|(x - u_j) - m\| < \delta$ and (this is the point)
 $\|m\| \le 2 + \delta$, a bound \emph{independent of the codimension}. Hence
 \[
   \|Sx - Su_j\| \;\le\; \|Sm\| + \|S\|\,\delta
@@ -1971,7 +1971,7 @@ least $\delta$, then $e_n(S) \ge \delta / 2$.
 A ball of radius $\varepsilon$ has diameter at most $2\varepsilon$, so if
 $2\varepsilon < \delta$ then each ball of an admissible cover contains at
 most one of the points. Assigning to every point a covering centre is then
-injective, so there are at least as many centres as points --- more than
+injective, so there are at least as many centres as points, more than
 $2^n$, contradicting admissibility.
 \end{proof}
 
@@ -1990,12 +1990,12 @@ $\rho_j(S x_j) = \gamma$ and $\rho_i(S x_j) = 0$ for $i < j$.
 \begin{proof}
 \leanok
 Both are built one vector at a time. For $d_n$, take $V_j$ to be the span of
-the images already chosen --- of dimension at most $n$ --- and pick
+the images already chosen (of dimension at most $n$) and pick
 $x_j \in B_X$ with $\|S x_j + w\| > \gamma$ for all $w \in V_j$, which is
 possible because $\gamma < d_n(S)$ and $\dim V_j \le n$
 (Definition~\ref{def:kolmogorov-number}). For $c_n$, make the same selection
-below $c_n(S)$ --- using $\gamma < c_n(S)$ and
-Definition~\ref{def:gelfand-number} --- on the common kernel of the
+below $c_n(S)$ (using $\gamma < c_n(S)$ and
+Definition~\ref{def:gelfand-number}) on the common kernel of the
 functionals already chosen, a closed subspace of codimension at most $n$, and
 rescale the resulting unit-image vector by $\gamma$ to land in $B_X$.
 \end{proof}

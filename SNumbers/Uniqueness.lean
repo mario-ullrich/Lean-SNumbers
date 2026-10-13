@@ -54,9 +54,9 @@ input is `SpectralRepresentation.exists_spectral_projection`.
 
 ## Main results
 
-* `SNumbers.le_sn_of_lt_approximationNumber` — `c ≤ sₙ(S)` for `c < aₙ(S)`.
-* `SNumbers.approximationNumber_le_sn` — the lower bound `aₙ(S) ≤ sₙ(S)`.
-* `SNumbers.allSNumbers_eq_on_HilbertSpace` — the coincidence
+* `SNumbers.le_sn_of_lt_approximationNumber`: `c ≤ sₙ(S)` for `c < aₙ(S)`.
+* `SNumbers.approximationNumber_le_sn`: the lower bound `aₙ(S) ≤ sₙ(S)`.
+* `SNumbers.allSNumbers_eq_on_HilbertSpace`: the coincidence
   `sₙ(S) = aₙ(S)`.
 -/
 

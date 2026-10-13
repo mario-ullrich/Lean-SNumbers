@@ -10,7 +10,7 @@ public import Mathlib.Analysis.InnerProductSpace.l2Space
 public import Mathlib.Analysis.SpecialFunctions.Exp
 
 /-!
-# The maximal difference theorem for s-numbers — statement surface
+# The maximal difference theorem for s-numbers: statement surface
 
 This module is the *Challenge* of a Palomar submission: the small, auditable
 surface carrying the advertised statements. It imports nothing beyond Mathlib,
@@ -40,10 +40,10 @@ sequences by the same factor. The factor `n+1` is order-optimal.
 
 ## The definitions restated here
 
-* `ContinuousLinearMap.rank` — the rank of a continuous linear map.
-* `SNumbers.approximationSet`, `SNumbers.approximationNumber` — the
+* `ContinuousLinearMap.rank`: the rank of a continuous linear map.
+* `SNumbers.approximationSet`, `SNumbers.approximationNumber`: the
   approximation numbers `aₙ`.
-* `SNumbers.L2`, `SNumbers.hilbertSet`, `SNumbers.hilbertNumber` — the Hilbert
+* `SNumbers.L2`, `SNumbers.hilbertSet`, `SNumbers.hilbertNumber`: the Hilbert
   numbers `hₙ`.
 
 Each is reproduced verbatim from the development, under the same name, so that
@@ -112,8 +112,8 @@ variable [NormedAddCommGroup W] [NormedSpace 𝕜 W]
 variable [NormedAddCommGroup Z] [NormedSpace 𝕜 Z]
 
 /-- A model of `ℓ₂` over `𝕜`: the space `lp` with exponent `2` over `ℕ`.
-For `RCLike 𝕜` this is a Hilbert space, and—crucially—it lives in the same
-universe as `X` and `Y`. -/
+For `RCLike 𝕜` this is a Hilbert space, and it lives in the same universe as `X`
+and `Y`, which the definitions below need. -/
 abbrev L2 (𝕜 : Type*) [RCLike 𝕜] : Type _ := lp (fun _ : ℕ => 𝕜) 2
 
 /-- The set of ratios `a_n (B ∘ S ∘ A) / (‖B‖ ‖A‖)` over nonzero
@@ -149,7 +149,7 @@ For every bounded linear operator `S : X →L[𝕜] Y` between normed spaces ove
 
 The approximation numbers `aₙ` are the largest s-number sequence and the
 Hilbert numbers `hₙ` the smallest, so this bounds the gap between the two
-extremes of the Pietsch scale — and hence between any two s-number sequences.
+extremes of the Pietsch scale, and hence between any two s-number sequences.
 At `n = 0` the constant is `1`, matching `a₀(S) = ‖S‖ = h₀(S)`. -/
 theorem approximationNumber_le_mul_hilbertNumber (S : X →L[𝕜] Y) (n : ℕ) :
     approximationNumber S n

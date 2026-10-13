@@ -603,7 +603,7 @@ theorem approximationNumber_comp_incl_comp_trunc_le (m n : ℕ) :
 
 The truncation error is handled with the subadditivity of the approximation
 numbers: `aₙ(T) ≤ aₙ(Tₘ) + ‖T - Tₘ‖`, where `‖T - Tₘ‖ ≤ ‖B‖ δ` as soon as
-`‖rowⱼ‖ ≤ δ` for all `j ≥ m` — which holds eventually since `∑ⱼ ‖rowⱼ‖² < ∞`. -/
+`‖rowⱼ‖ ≤ δ` for all `j ≥ m`, which holds eventually since `∑ⱼ ‖rowⱼ‖² < ∞`. -/
 theorem approximationNumber_comp_incl_comp_le (n : ℕ) :
     approximationNumber (B.comp ((incl : L1 𝕜 →L[𝕜] Linf 𝕜).comp A)) n
       ≤ ‖A‖ * ‖B‖ / (n + 1) := by

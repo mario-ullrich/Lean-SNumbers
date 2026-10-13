@@ -22,7 +22,7 @@ public import Mathlib.Analysis.Normed.Module.Seminorm.Basic
 public import Mathlib.Topology.Order.Compact
 
 /-!
-# John's ellipsoid — the maximal-volume position
+# John's ellipsoid: the maximal-volume position
 
 This is the first step towards the Kadets–Snobar and Garling–Gordon projection
 theorems (`BasicResults/KadetsSnobar.lean`, `BasicResults/GarlingGordon.lean`),
@@ -39,14 +39,14 @@ norm (`c‖x‖ ≤ p x ≤ C‖x‖`, `c > 0`). The ellipsoid `T (B₂)` lies i
 
 ## Main results
 
-* `John.exists_maxVolume` — among the feasible operators there is one, `T₀`, of
+* `John.exists_maxVolume`: among the feasible operators there is one, `T₀`, of
   maximal `‖det‖`; it is invertible (`det ≠ 0`). This is the maximal-volume
   inscribed ellipsoid.
-* `John.exists_johnPosition` — the John position along any continuous linear
+* `John.exists_johnPosition`: the John position along any continuous linear
   equivalence `L : 𝕜^k ≃L W`: an equivalence `M` and a body seminorm `q` with
   `q u ≤ ‖u‖`, `‖det S‖ ≤ 1` for every feasible `S`, and `‖M z‖ = q z`. The
   common core of both projection theorems below.
-* `John.john_decomposition` — the **decomposition of identity** in John position,
+* `John.john_decomposition`: the **decomposition of identity** in John position,
   `∑ᵢ cᵢ uᵢ⊗uᵢ = id` over contact points with `∑ᵢ cᵢ = dim`. By the classical
   variational argument: Hahn–Banach separation of `k⁻¹ • id` from the
   compact convex hull of the contact projections, trace duality to produce a
@@ -55,10 +55,10 @@ norm (`c‖x‖ ≤ p x ≤ C‖x‖`, `c > 0`). The ellipsoid `T (B₂)` lies i
   finite combination. The general-purpose ingredients (compactness of convex hulls,
   seminorm Hahn–Banach, trace duality, the product bound `∏(1+aᵢ) ≥ 1-2∑aᵢ²`) live
   in `BasicResults/CompactConvexHull.lean` and `BasicResults/JohnIngredients.lean`.
-* `John.exists_projection` — **Kadets–Snobar**: every finite-dimensional subspace
+* `John.exists_projection`, **Kadets–Snobar**: every finite-dimensional subspace
   of a normed `𝕜`-space is the range of a projection `P` with `‖P‖ ≤ √(dim)`. Its
   analytic core is the weighted Cauchy–Schwarz bound `John.norm_sum_weight_smul_le`.
-* `John.exists_projection_ker` — **Garling–Gordon** (ε-form), dual to
+* `John.exists_projection_ker`, **Garling–Gordon** (ε-form), dual to
   Kadets–Snobar: every closed subspace `M` with finite-dimensional quotient is the
   kernel of a projection `P` with `‖P‖ ≤ √(codim M) + ε`, for every `ε > 0`. Built
   on the dual `(X ⧸ M)*`, representing contact points via `Φ.flip` (avoiding the
@@ -335,16 +335,16 @@ lemma sum_weight_mul_le_sqrt {N : ℕ} (c : Fin N → ℝ) (hc : ∀ i, 0 ≤ c 
 The proof of `john_decomposition` below is the classical variational argument
 (F. John; K. Ball, *An elementary introduction to modern convex geometry*):
 
-1. `mem_contact_of_apply_eq_one` — every unit vector where the body touches the
+1. `mem_contact_of_apply_eq_one`: every unit vector where the body touches the
    Euclidean sphere is a contact point (Hahn–Banach for the seminorm `q`).
-2. `exists_selfAdjoint_of_not_mem_convexHull` — if `k⁻¹ • id` did *not* lie in the
+2. `exists_selfAdjoint_of_not_mem_convexHull`: if `k⁻¹ • id` did *not* lie in the
    convex hull of the contact projections `uᵢ ⊗ uᵢ`, geometric Hahn–Banach separation
    plus trace duality would produce a self-adjoint, trace-zero `H` with
    `re ⟪u, H u⟫ ≤ -δ < 0` at every contact point.
-3. `no_neg_direction_of_maxVolume` — no such `H` exists: for small `t > 0` the operator
+3. `no_neg_direction_of_maxVolume`: no such `H` exists, since for small `t > 0` the operator
    `(1 - ρ)⁻¹ • (id + t H)` would be feasible with `‖det‖ > 1`, because the feasibility
    slack grows linearly in `t` while (trace being zero) the determinant only loses
-   `O(t²)` — contradicting the John-position maximality. Its four ingredients are the
+   `O(t²)`, contradicting the John-position maximality. Its four ingredients are the
    compactness gap `exists_gap_of_lt_one_on_compact`, the norm estimate
    `norm_add_smul_le_of_inner_le`, the rescaling step
    `smul_mem_feasible_of_le_on_sphere`, and the determinant bound
@@ -678,12 +678,12 @@ can satisfy `re ⟪u, H u⟫ ≤ -δ < 0` at every unit vector `u` touching the 
 
 Otherwise `S = (1 - ρ)⁻¹ • (id + t H)` with `ρ = tδ/4` would be feasible for small
 `t > 0`: near the touching set the Euclidean norm of `(id + t H) u` shrinks linearly in
-`t` (`norm_add_smul_le_of_inner_le` — this is where `re ⟪u, H u⟫ ≤ -δ` enters), and
+`t` (`norm_add_smul_le_of_inner_le`; this is where `re ⟪u, H u⟫ ≤ -δ` enters), and
 away from it `q` is uniformly below `1` by compactness
 (`exists_gap_of_lt_one_on_compact`), so `S` is feasible by rescaling
 (`smul_mem_feasible_of_le_on_sphere`). Meanwhile the trace-zero determinant bound
 `one_sub_le_norm_det_one_add_smul` shows the perturbation loses only `O(t²)` of
-determinant — beaten by the first-order gain `(1 - ρ)⁻¹ ≥ 1 + tδ/4`. So `‖det S‖ > 1`,
+determinant, which the first-order gain `(1 - ρ)⁻¹ ≥ 1 + tδ/4` beats. So `‖det S‖ > 1`,
 contradicting maximality. -/
 lemma no_neg_direction_of_maxVolume (hk : 0 < k)
     {q : Seminorm 𝕜 (EuclideanSpace 𝕜 (Fin k))} (hqc : Continuous q)
@@ -822,16 +822,16 @@ lemma no_neg_direction_of_maxVolume (hk : 0 < k)
       _ ≤ (1 - ρ)⁻¹ ^ k * ‖T.det‖ := mul_le_mul_of_nonneg_left hdetT (by positivity)
   exact absurd (hmax _ hSfeas) (not_le.mpr hgt)
 
-/-- **John decomposition of identity** — the classical core of John's ellipsoid
+/-- **John decomposition of identity**, the classical core of John's ellipsoid
 theorem.
 
-In John position — the identity is a maximal-volume feasible operator for the body
-seminorm `q` (`q u ≤ ‖u‖`, and `‖det S‖ ≤ 1` for every feasible `S`) — the
+In John position, that is, when the identity is a maximal-volume feasible operator for
+the body seminorm `q` (`q u ≤ ‖u‖`, and `‖det S‖ ≤ 1` for every feasible `S`), the
 identity is a positive combination of the rank-one projections onto contact
 points, with weights summing to the dimension `k`:
 `∑ᵢ ((cᵢ:𝕜) · ⟪uᵢ, x⟫) • uᵢ = x`, with `uᵢ ∈ Contact q`, `cᵢ ≥ 0`, `∑ᵢ cᵢ = k`.
 
-Proof: `k⁻¹ • id` lies in the convex hull of `{u ⊗ u : u ∈ Contact q}` — otherwise
+Proof: `k⁻¹ • id` lies in the convex hull of `{u ⊗ u : u ∈ Contact q}`; otherwise
 `exists_selfAdjoint_of_not_mem_convexHull` would produce a self-adjoint trace-zero
 improving direction, which `no_neg_direction_of_maxVolume` forbids (all unit vectors
 with `q u = 1` are contact points by `mem_contact_of_apply_eq_one`). Carathéodory
@@ -1198,11 +1198,11 @@ This is the dual of `exists_projection`, run in the finite-dimensional dual
 `D = (X ⧸ M)*` (so no dual of `X` is needed). John position of the unit ball of
 `D` gives contact points `uᵢ` and weights `cᵢ` with `∑ᵢ cᵢ = codim M`; the
 `uᵢ` become unit functionals `fᵢ = Φ uᵢ ∈ D` on the quotient, and the contact
-supports become norm-`≤ 1` functionals on `D`, i.e. — since `X ⧸ M` is
+supports become norm-`≤ 1` functionals on `D`, that is, since `X ⧸ M` is
 finite-dimensional, hence isometrically reflexive
-(`NormedSpace.inclusionInDoubleDualLi`) — vectors `wᵢ ∈ X ⧸ M` with `‖wᵢ‖ ≤ 1`.
+(`NormedSpace.inclusionInDoubleDualLi`), vectors `wᵢ ∈ X ⧸ M` with `‖wᵢ‖ ≤ 1`.
 Lifting each `wᵢ` to a representative `xᵢ ∈ X` with `‖xᵢ‖ < 1 + ε'`
-(`Submodule.Quotient.norm_mk_lt` — the quotient norm is an infimum; this is the
+(`Submodule.Quotient.norm_mk_lt`: the quotient norm is an infimum; this is the
 sole source of the `ε`), the operator `P y = ∑ᵢ cᵢ · fᵢ(π y) · xᵢ` satisfies
 `π ∘ P = π` (via the decomposition of identity and the Riesz representation on
 the Euclidean model), hence is a projection with kernel `M`; Cauchy–Schwarz and
@@ -1251,7 +1251,7 @@ theorem exists_projection_ker {X : Type u} [NormedAddCommGroup X] [NormedSpace �
   -- (`exists_witness_of_contact`, via the single dual `Φ.flip`).
   choose w hweval hwnorm using fun i =>
     exists_witness_of_contact hk.symm Φ hqΦ (u i) (norm_inner_le_of_contact (hcontact i))
-  -- Lift each `w i` to a representative `x i ∈ X` with `‖x i‖ < 1 + ε'` — the
+  -- Lift each `w i` to a representative `x i ∈ X` with `‖x i‖ < 1 + ε'`; this is the
   -- sole source of the `ε`.
   set ε' : ℝ := ε / Real.sqrt k with hε'def
   have hsqrtk : 0 < Real.sqrt k := Real.sqrt_pos.mpr (by exact_mod_cast hkpos)

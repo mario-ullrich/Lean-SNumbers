@@ -15,7 +15,7 @@ public import Mathlib.Tactic.Module
 *Why this file is needed:* the spectral projection is built with the continuous functional
 calculus, which is only available over `ℂ`. To obtain it over `ℝ` (and uniformly over any `RCLike`
 field), `RealProjection`/`Representation` complexify the space, run the `ℂ` construction, and
-restrict back — and this file supplies the complexification with its complex inner product (a
+restrict back; this file supplies the complexification with its complex inner product (a
 piece Mathlib does not yet have).
 
 Given a real inner product space `H`, this file builds its **complexification**
@@ -199,7 +199,7 @@ def ofRealLi : H →ₗᵢ[ℝ] Complexification H where
 The norm `‖(x, y)‖ = √(‖x‖² + ‖y‖²)` controls each component (`‖x‖, ‖y‖ ≤ ‖(x,y)‖`)
 and is in turn controlled by them (`‖(x,y)‖ ≤ ‖x‖ + ‖y‖`). Hence a Cauchy sequence
 in `Complexification H` has Cauchy components, and converges componentwise; so the
-complexification of a *complete* real inner product space is itself complete — a
+complexification of a *complete* real inner product space is itself complete, a
 complex Hilbert space. -/
 
 /-- The squared norm is the sum of the squared component norms. -/
@@ -254,7 +254,7 @@ instance [CompleteSpace H] : CompleteSpace (Complexification H) := by
 
 Complex conjugation `x + i·y ↦ x - i·y` is the canonical conjugate-linear isometric
 involution of the complexification. Its set of fixed points is exactly the image of
-`ofReal`, i.e. the "real" elements — the fact that lets one detect when a complex
+`ofReal`, i.e. the "real" elements. This is what lets one detect when a complex
 object descends to the real space. -/
 
 /-- Complex conjugation on the complexification: `(x, y) ↦ (x, -y)`. -/
@@ -313,7 +313,7 @@ lemma conj_eq_self_iff (u : Complexification H) : conj u = u ↔ ∃ x, u = ofRe
 A real bounded operator `S : H₁ →L[ℝ] H₂` extends to a complex bounded operator
 `Sℂ : Complexification H₁ →L[ℂ] Complexification H₂`, `(x, y) ↦ (S x, S y)`, with the
 same operator norm. It commutes with conjugation and is compatible with the real
-embedding — the precise senses in which `Sℂ` "is" `S` viewed complex-linearly. -/
+embedding: these are the precise senses in which `Sℂ` "is" `S` viewed complex-linearly. -/
 
 section Operator
 

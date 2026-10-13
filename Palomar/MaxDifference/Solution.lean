@@ -8,7 +8,7 @@ module
 public import SNumbers.MaxDifference
 
 /-!
-# The maximal difference theorem for s-numbers — proofs
+# The maximal difference theorem for s-numbers: proofs
 
 This module is the *Solution* of a Palomar submission. Comparator checks that
 every declaration named in `comparator.json` has, in this module's environment,
@@ -20,14 +20,14 @@ modules.
 
 Nothing is declared here. The advertised statements
 
-* `SNumbers.approximationNumber_le_mul_hilbertNumber` —
+* `SNumbers.approximationNumber_le_mul_hilbertNumber`:
   `aₙ(S) ≤ ((n+1)^{n+1}/nⁿ) · hₙ(S)`,
-* `SNumbers.approximationNumber_le_e_mul_hilbertNumber` —
+* `SNumbers.approximationNumber_le_e_mul_hilbertNumber`:
   `aₙ(S) ≤ e · (n+1) · hₙ(S)`,
 
-and the definitions they rest on — `ContinuousLinearMap.rank`,
+and the definitions they rest on (`ContinuousLinearMap.rank`,
 `SNumbers.approximationSet`, `SNumbers.approximationNumber`, `SNumbers.L2`,
-`SNumbers.hilbertSet`, `SNumbers.hilbertNumber` — all arrive through the import
+`SNumbers.hilbertSet`, `SNumbers.hilbertNumber`) all arrive through the import
 above, under their own names in the development: from `SNumbers/Basic.lean`,
 `SNumbers/Approximation.lean`, `SNumbers/Hilbert.lean` and
 `SNumbers/MaxDifference.lean`. The Challenge module restates exactly those,

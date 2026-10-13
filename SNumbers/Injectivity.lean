@@ -23,18 +23,18 @@ theory, alongside the axioms (S1)–(S5):
 
 ## What is in this file
 
-* `SNumbers.IsMetricInjection`, `SNumbers.IsMetricSurjection` — the two
+* `SNumbers.IsMetricInjection`, `SNumbers.IsMetricSurjection`: the two
   classes of maps, plus the key norm facts
   `‖J ∘ T‖ = ‖T‖` and `‖T ∘ Q‖ = ‖T‖`.
-* `SNumbers.Injective`, `SNumbers.Surjective` — the two properties of a
+* `SNumbers.Injective`, `SNumbers.Surjective`: the two properties of a
   `Family`.
-* `sn_comp_metricInjection_le`, `sn_comp_metricSurjection_le` — the "free"
+* `sn_comp_metricInjection_le`, `sn_comp_metricSurjection_le`: the "free"
   inequality `sₙ(J ∘ S) ≤ sₙ(S)` resp. `sₙ(S ∘ Q) ≤ sₙ(S)`, which holds
   for **every** `s`-number sequence (it is just the (S3) ideal property
   with `‖J‖ ≤ 1`, `‖Q‖ ≤ 1`). The reverse inequality is what
   injectivity / surjectivity actually assert.
-* `injective_gelfandNumber` — the **Gelfand numbers** `cₙ` are injective.
-* `surjective_kolmogorovNumber` — the **Kolmogorov numbers** `dₙ` are
+* `injective_gelfandNumber`: the **Gelfand numbers** `cₙ` are injective.
+* `surjective_kolmogorovNumber`: the **Kolmogorov numbers** `dₙ` are
   surjective.
 
 ## The landscape (Pietsch)

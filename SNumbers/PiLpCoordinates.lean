@@ -15,9 +15,9 @@ Elementary facts about the finite-dimensional sequence spaces `ℓ^p_k`, and two
 coordinate maps relating `ℓ^p_m` to the lower-dimensional `ℓ^p_n` along the
 inclusion `Fin.castLE : Fin n → Fin m` (for `n ≤ m`):
 
-* `piLp_norm_mono` — the `L^p` norm is monotone under coordinatewise domination
+* `piLp_norm_mono`: the `L^p` norm is monotone under coordinatewise domination
   of the norms;
-* `finrank_piLp` — the dimension of `ℓ^p_k` is `k`;
+* `finrank_piLp`: the dimension of `ℓ^p_k` is `k`;
 * `projFin` keeps the first `n` coordinates;
 * `padFin` extends a vector by zeros in the remaining coordinates.
 

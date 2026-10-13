@@ -27,21 +27,21 @@ operators.
 
 ## Main results
 
-* `SVD.IsCompactOperator.norm_isSingularValue` — every
+* `SVD.IsCompactOperator.norm_isSingularValue`: every
   compact operator attains its operator norm as a singular value.
-* `SVD.IsCompactOperator.SVD` — the singular value
+* `SVD.IsCompactOperator.SVD`: the singular value
   decomposition / Schmidt representation `S x = Σ aₖ ⟨uₖ,x⟩ vₖ`. Needs the
   *infinite* iteration plus the convergence facts `σₖ → 0`, `HasSum`.
-* `SVD.IsCompactOperator.truncation_residual_eq_approxNumber` — Eckart–Young
+* `SVD.IsCompactOperator.truncation_residual_eq_approxNumber`: Eckart–Young
   `‖S - Sₙ‖ = aₙ(S)`, identifying singular values with approximation
   numbers.
-* `SVD.IsCompactOperator.diagonalFactorisation` — the factorisation
+* `SVD.IsCompactOperator.diagonalFactorisation`: the factorisation
   `B ∘ S ∘ A = diag(a₀, …, aₙ)` through `ℓ₂ⁿ⁺¹`. Needs only the **top
-  `n+1` singular pairs** — a *finite* truncation that
+  `n+1` singular pairs**, a *finite* truncation that
   (pinning the exact `aₖ`) requires `S` compact.
-* `SVD.exists_scalar_factorisation` — `B ∘ S ∘ A = c • id` for `c < aₙ(S)`,
+* `SVD.exists_scalar_factorisation`: `B ∘ S ∘ A = c • id` for `c < aₙ(S)`,
   for an **arbitrary bounded** `S`.
-* `SVD.mul_approximationNumber_le_of_factorization` — for a compact `T = T₂T₁`,
+* `SVD.mul_approximationNumber_le_of_factorization`: for a compact `T = T₂T₁`,
   `(n+1)·aₙ(T) ≤ ‖T₁‖_HS·‖T₂‖_HS` (Pietsch 2.11.23), with the two
   Hilbert–Schmidt norms entering only as hypothesised bounds on
   `∑ₖ ‖T₁ uₖ‖²` and `∑ₖ ‖T₂* vₖ‖²`, so that no Schatten-class theory is needed;
@@ -97,7 +97,7 @@ lemma OrthonormalOrZero.inner_eq {H : Type*} [NormedAddCommGroup H]
 
 /-- **Restricting away the zeros.** An `OrthonormalOrZero` family, reindexed along
 an injective map that only hits unit vectors, is `Orthonormal`. This is how a
-finite subfamily of an SVD family — the indices with non-zero singular value — is
+finite subfamily of an SVD family (the indices with non-zero singular value) is
 recognised as an orthonormal basis of its span. -/
 lemma OrthonormalOrZero.orthonormal_comp {H : Type*} [NormedAddCommGroup H]
     [InnerProductSpace 𝕜 H] {ι κ : Type*} [DecidableEq ι] [DecidableEq κ] {u : ι → H}
@@ -692,7 +692,7 @@ private lemma svd_joint_v [Nontrivial H₁] [Nontrivial H₂]
 
 /-- **`σₙ = ‖Sₙ‖ → 0`.** The antitone sequence converges to `L = ⨅ₙ σₙ ≥ 0`. If `L > 0`, then
 `S uₙ = σₙ vₙ` with the `vₙ` orthonormal, so `‖S uₘ − S uₙ‖² = σₘ² + σₙ² ≥ 2L²` for `m ≠ n`;
-but `(uₙ)` is bounded and `S` compact, so `(S uₙ)` has a Cauchy subsequence — impossible. -/
+but `(uₙ)` is bounded and `S` compact, so `(S uₙ)` has a Cauchy subsequence, a contradiction. -/
 private lemma svd_sigma_tendsto_zero [Nontrivial H₁] [Nontrivial H₂]
     (S : H₁ →L[𝕜] H₂) (hS : IsCompactOperator S) :
     Tendsto (fun n => ‖svdT S hS n‖) atTop (𝓝 0) := by
@@ -1185,7 +1185,7 @@ theorem IsCompactOperator.truncation_residual_eq_approxNumber
 `B ∘ S ∘ A = diag(a₀, …, aₙ)`, with `A : ℓ₂ⁿ⁺¹ → H₁` the isometric inclusion
 `eₖ ↦ uₖ` and `B : H₂ → ℓ₂ⁿ⁺¹` the contraction `y ↦ Σ_{k ≤ n} ⟨vₖ, y⟩ eₖ`.
 
-**This uses only the top `n+1` singular pairs** `(uₖ, vₖ, σₖ)_{k ≤ n}` — a
+**This uses only the top `n+1` singular pairs** `(uₖ, vₖ, σₖ)_{k ≤ n}`, a
 *finite* slice of the SVD obtained by `n+1` iterations of
 `norm_isSingularValue`. It needs neither `σₖ → 0` nor the `HasSum`
 convergence of the full `SVD`. -/
@@ -1292,7 +1292,7 @@ compact, see its note), the **scalar factorisation** asks only for
 `B ∘ S ∘ A = c • id` with `c < aₙ(S)` strict. It therefore holds for an
 **arbitrary** bounded `S`: for `c < aₙ(S)` there is an `(n+1)`-dimensional
 subspace `M ⊆ H₁` on which `‖S x‖ ≥ c ‖x‖` (the variational characterisation
-of `aₙ`, valid even when `aₙ(S)` is *not* attained — e.g. continuous
+of `aₙ`, valid even when `aₙ(S)` is *not* attained, e.g. for continuous
 spectrum); take `A` to embed `ℓ₂ⁿ⁺¹` isometrically onto `M`, and `B` to be
 `c` times a left inverse of the bounded-below `S|_M`.
 

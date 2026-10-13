@@ -14,7 +14,7 @@ public import Mathlib.LinearAlgebra.Dimension.LinearMap
 
 This file collects:
 
-* `ContinuousLinearMap.rank` — a thin wrapper around `LinearMap.rank` providing
+* `ContinuousLinearMap.rank`: a thin wrapper around `LinearMap.rank` providing
   dot notation for continuous linear maps. Auxiliary rank facts live in
   `SNumbers.ContinuousLinearMapRank`.
 * The five Pietsch axioms (S1)–(S5) characterising an *s-number sequence*,
@@ -52,7 +52,7 @@ complexity.
 
 ## Implementation notes
 
-The carrier is a universe-polymorphic family — see `Family` — mirroring
+The carrier is a universe-polymorphic family (see `Family`), mirroring
 Pietsch's class function on `𝓛 = ⋃_{X,Y} 𝓛(X,Y)`. Completeness is **not**
 required at the level of axioms; downstream constructions add
 `[CompleteSpace X]` where needed.

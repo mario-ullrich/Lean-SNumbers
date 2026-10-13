@@ -31,10 +31,10 @@ treated in `AddOns.Compact` via the singular value decomposition.
 
 ## Main definitions / results
 
-* `SVD.IsApproximable S` — `aₙ(S) → 0`.
-* `SVD.isApproximable_iff_existsLimit` — equivalent characterisation as a
+* `SVD.IsApproximable S`: `aₙ(S) → 0`.
+* `SVD.isApproximable_iff_existsLimit`: equivalent characterisation as a
   uniform limit of finite-rank operators.
-* `SVD.IsApproximable.isCompactOperator` — every approximable operator is
+* `SVD.IsApproximable.isCompactOperator`: every approximable operator is
   compact; `SVD.isCompactOperator_of_rank_le` specialises this to operators of
   finite rank.
 -/

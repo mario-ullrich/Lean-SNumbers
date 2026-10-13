@@ -11,14 +11,14 @@ public import BasicResults.Spectral.RealProjection
 /-!
 # The spectral projection of `S*S` and the lower-bound subspace
 
-*Why this file is needed:* it is the capstone of the `BasicResults.Spectral` subpackage — the
+*Why this file is needed:* it is where the `BasicResults.Spectral` subpackage ends, the
 single spectral-theory input that the `s`-number uniqueness theorem consumes for **arbitrary
 bounded** operators. It assembles the per-field constructions into one uniform statement and
 derives the geometric fact the factorisation needs.
 
 ## What it provides
 
-* `SpectralRepresentation.exists_spectral_projection` — for **every** `RCLike` field `𝕜` and a
+* `SpectralRepresentation.exists_spectral_projection`: for **every** `RCLike` field `𝕜` and a
   bounded `S : H₁ →L[𝕜] H₂`, the spectral projection `E = E_{[c²,∞)}(S*S)` with its two
   operator-norm bounds:
   * `c · ‖E x‖ ≤ ‖S (E x)‖` (on `ran E`, `S` is bounded below by `c`);
@@ -26,11 +26,11 @@ derives the geometric fact the factorisation needs.
 
   It is proved **uniformly over `RCLike`** by realification: view `H₁, H₂` as real Hilbert spaces,
   apply the real spectral projection (`exists_spectral_projection_real`, itself built by
-  complexification), and lift the result back to a `𝕜`-linear operator — it *is* `𝕜`-linear
+  complexification), and lift the result back to a `𝕜`-linear operator; it *is* `𝕜`-linear
   because it commutes with scalar multiplication. This avoids any case split on `𝕜 = ℝ`/`ℂ` (which
   Lean cannot do) and any spectral hypothesis on downstream theorems.
 
-* `SpectralRepresentation.exists_lowerBound_subspace` — **(★)**: for `0 ≤ c < aₙ(S)` there is an
+* `SpectralRepresentation.exists_lowerBound_subspace`, **(★)**: for `0 ≤ c < aₙ(S)` there is an
   `(n+1)`-dimensional subspace `M ⊆ H₁` with `‖S x‖ ≥ c ‖x‖` on `M`. The range of `E` has dimension
   `≥ n+1` (else `S∘E` is rank `≤ n` with `‖S - S∘E‖ ≤ c`, contradicting `aₙ(S) > c`), and `S` is
   bounded below by `c` there. This is the geometric heart of `SVD.exists_scalar_factorisation`.

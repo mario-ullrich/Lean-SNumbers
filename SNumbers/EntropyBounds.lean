@@ -13,8 +13,8 @@ public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 /-!
 # Bounding the Gelfand and Kolmogorov numbers by the entropy numbers
 
-The entropy numbers `eₙ` are not an `s`-number sequence — they fail (S4) and
-(S5), see `SNumbers.Entropy` — but they dominate the Gelfand and Kolmogorov
+The entropy numbers `eₙ` are not an `s`-number sequence (they fail (S4) and
+(S5), see `SNumbers.Entropy`), but they dominate the Gelfand and Kolmogorov
 numbers, and that is what ties those two sequences to compactness.
 
 ## Upper bounds: covering estimates
@@ -37,21 +37,21 @@ For the sharp comparison the inequality is needed in the other direction, and
 `eₙ` is bounded from below by *counting*: a ball of radius `ε` has diameter at
 most `2ε`, so it can hold at most one point of a family whose members are more
 than `2ε` apart. A cover of `S(B_X)` by `2 ^ n` such balls therefore admits at
-most `2 ^ n` such points — so exhibiting more of them forces `ε` to be large.
+most `2 ^ n` such points, so exhibiting more of them forces `ε` to be large.
 This is the pigeonhole principle: more objects than boxes means some box holds
 two of them, and here two in one box is a contradiction.
 
 ## Main results
 
 * `SNumbers.kolmogorovNumber_le_of_fin_net`,
-  `SNumbers.gelfandNumber_le_two_mul_of_fin_net` — the two covering estimates.
+  `SNumbers.gelfandNumber_le_two_mul_of_fin_net`: the two covering estimates.
 * `SNumbers.kolmogorovNumber_two_pow_le_entropyNumber` :
     `d_{2ⁿ} S ≤ eₙ S`.
 * `SNumbers.gelfandNumber_two_pow_le_two_mul_entropyNumber` :
     `c_{2ⁿ} S ≤ 2 · eₙ S`.
-* `SNumbers.le_entropyNumber_of_separated` — a *lower* bound for `eₙ` from a
+* `SNumbers.le_entropyNumber_of_separated`: a *lower* bound for `eₙ` from a
   family of well-separated points of `S(B_X)`.
-* `SNumbers.exists_kolmogorov_flag`, `SNumbers.exists_gelfand_flag` — the
+* `SNumbers.exists_kolmogorov_flag`, `SNumbers.exists_gelfand_flag`: the
   triangular systems below `dₙ` resp. `cₙ`.
 * `SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber` :
     `max (cₙ S) (dₙ S) ≤ (n+1) · eₙ S`, the sharp bound of [Pie80, 12.3.2].
@@ -65,8 +65,8 @@ two of them, and here two in one box is a contradiction.
 
 Both kinds of bound are wanted. The dyadic ones transport `eₙ S → 0` to
 `dₙ S → 0` and `cₙ S → 0` (`AddOns.Compact`), since shifting the index by a
-fixed function of `n` survives a limit. The sharp bound does not do that —
-`(n+1)·eₙ` need not tend to `0` when `eₙ` does — but for a fixed `n` it is the
+fixed function of `n` survives a limit. The sharp bound does not do that, since
+`(n+1)·eₙ` need not tend to `0` when `eₙ` does, but for a fixed `n` it is the
 better estimate.
 
 Nets are passed as functions `Fin k → Y` rather than as the `Finset` of
@@ -195,7 +195,7 @@ private lemma exists_fin_net_of_mem_entropySet {S : X →L[𝕜] Y} {n : ℕ} {�
   simpa [dist_eq_norm] using hdist
 
 /-- **`d_{2ⁿ} S ≤ eₙ S`.** A cover of `S(B_X)` by `2 ^ n` balls of radius `ε`
-gives a subspace of dimension at most `2 ^ n` — the span of the centres — from
+gives a subspace of dimension at most `2 ^ n`, the span of the centres, from
 which `S(B_X)` deviates by at most `ε`. -/
 theorem kolmogorovNumber_two_pow_le_entropyNumber (S : X →L[𝕜] Y) (n : ℕ) :
     kolmogorovNumber S (2 ^ n) ≤ entropyNumber S n := by
@@ -396,8 +396,8 @@ lemma exists_gelfand_flag (S : X →L[𝕜] Y) {n : ℕ} {γ : ℝ} (hγ : 0 < �
 
 A flag of `n+1` vectors has `2^(n+1)` signed averages `(n+1)⁻¹ · Σ ±x k`, all in
 the unit ball. Two of them differ by `(n+1)⁻¹ · 2 · (S (x j) + w)`, where `j` is
-the index where the signs first disagree — last for the Kolmogorov flag, first
-for the Gelfand one — and `w` is a combination of the images the flag makes
+the index where the signs first disagree (last for the Kolmogorov flag, first
+for the Gelfand one) and `w` is a combination of the images the flag makes
 `S (x j)` independent of. So the difference exceeds `2γ/(n+1)`: more than `2 ^ n`
 points, pairwise that far apart, and the count does the rest. -/
 
