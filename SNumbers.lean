@@ -3,26 +3,28 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Basic
-import SNumbers.Helpers
-import SNumbers.PiLpCoordinates
-import SNumbers.Approximation
-import SNumbers.Bernstein
-import SNumbers.Gelfand
-import SNumbers.Kolmogorov
-import SNumbers.KolmogorovLifting
-import SNumbers.Hilbert
-import SNumbers.Inequalities
-import SNumbers.MaxDifference
-import SNumbers.Uniqueness
-import SNumbers.SingularValuesFinDim
-import SNumbers.Injectivity
-import SNumbers.Entropy
-import SNumbers.EntropyBounds
-import SNumbers.Examples.ExHelpers
-import SNumbers.Examples.Identity
-import SNumbers.Examples.DiagonalMatrices
-import SNumbers.Examples.IdentityL1Linfty
+module
+
+public import SNumbers.Basic
+public import SNumbers.Helpers
+public import SNumbers.PiLpCoordinates
+public import SNumbers.Approximation
+public import SNumbers.Bernstein
+public import SNumbers.Gelfand
+public import SNumbers.Kolmogorov
+public import SNumbers.KolmogorovLifting
+public import SNumbers.Hilbert
+public import SNumbers.Inequalities
+public import SNumbers.MaxDifference
+public import SNumbers.Uniqueness
+public import SNumbers.SingularValuesFinDim
+public import SNumbers.Injectivity
+public import SNumbers.Entropy
+public import SNumbers.EntropyBounds
+public import SNumbers.Examples.ExHelpers
+public import SNumbers.Examples.Identity
+public import SNumbers.Examples.DiagonalMatrices
+public import SNumbers.Examples.IdentityL1Linfty
 
 /-!
 # s-Numbers of bounded linear operators between Banach spaces

@@ -3,7 +3,9 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.MaxDifference
+module
+
+public import SNumbers.MaxDifference
 
 /-!
 # The maximal difference theorem for s-numbers — proofs
@@ -34,3 +36,5 @@ The mathematics sits in `SNumbers/MaxDifference.lean`, where the bound is
 obtained by chaining the growth lemma for the determinant quantities `Δₖ(S)`
 with the upper bound `Δₙ₊₁(S) ≤ hₙ(S) · Δₙ(S)` and cancelling `Δₙ(S) > 0`.
 -/
+
+@[expose] public section

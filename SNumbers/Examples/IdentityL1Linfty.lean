@@ -3,15 +3,17 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Gelfand
-import SNumbers.Hilbert
-import SNumbers.MaxDifference
-import BasicResults.LittleGrothendieck
-import BasicResults.SVD
-import AddOns.Approximable
-import Mathlib.Analysis.Normed.Lp.lpSpace
-import Mathlib.Analysis.Normed.Module.FiniteDimension
-import Mathlib.Topology.MetricSpace.Sequences
+module
+
+public import SNumbers.Gelfand
+public import SNumbers.Hilbert
+public import SNumbers.MaxDifference
+public import BasicResults.LittleGrothendieck
+public import BasicResults.SVD
+public import AddOns.Approximable
+public import Mathlib.Analysis.Normed.Lp.lpSpace
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
+public import Mathlib.Topology.MetricSpace.Sequences
 
 /-!
 # The identity `ℓ₁ → ℓ_∞` and order-optimality of the maximal difference theorem
@@ -44,6 +46,8 @@ the approximation numbers.
 
 Here `ℓ₁ = lp (fun _ : ℕ => 𝕜) 1` and `ℓ_∞ = lp (fun _ : ℕ => 𝕜) ∞`, and `𝕜` is `RCLike`.
 -/
+
+@[expose] public section
 
 open scoped ENNReal
 

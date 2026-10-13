@@ -3,9 +3,11 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.LinearAlgebra.Dimension.LinearMap
-import Mathlib.Analysis.InnerProductSpace.l2Space
-import Mathlib.Analysis.SpecialFunctions.Exp
+module
+
+public import Mathlib.LinearAlgebra.Dimension.LinearMap
+public import Mathlib.Analysis.InnerProductSpace.l2Space
+public import Mathlib.Analysis.SpecialFunctions.Exp
 
 /-!
 # The maximal difference theorem for s-numbers — statement surface
@@ -56,6 +58,8 @@ Indexing is **0-based**, shifted by one from Pietsch's original convention:
 Pietsch's `s₁(S) = ‖S‖` is our `s₀(S)`. This matches the convention used for
 `n`-widths and in information-based complexity.
 -/
+
+@[expose] public section
 
 universe u
 

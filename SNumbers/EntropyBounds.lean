@@ -3,10 +3,12 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Entropy
-import SNumbers.Inequalities
-import BasicResults.SVD
-import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
+module
+
+public import SNumbers.Entropy
+public import SNumbers.Inequalities
+public import BasicResults.SVD
+public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
 /-!
 # Bounding the Gelfand and Kolmogorov numbers by the entropy numbers
@@ -80,6 +82,8 @@ Nets are passed as functions `Fin k → Y` rather than as the `Finset` of
   Mathematics 13, Cambridge University Press, 1987,
   [link](https://zbmath.org/3996455), 2.4 ([Pie87]).
 -/
+
+@[expose] public section
 
 universe u
 

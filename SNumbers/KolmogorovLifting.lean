@@ -3,11 +3,13 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Approximation
-import SNumbers.Kolmogorov
-import Mathlib.Analysis.Normed.Lp.lpSpace
-import Mathlib.Analysis.Normed.Module.RieszLemma
-import Mathlib.Analysis.Normed.Module.FiniteDimension
+module
+
+public import SNumbers.Approximation
+public import SNumbers.Kolmogorov
+public import Mathlib.Analysis.Normed.Lp.lpSpace
+public import Mathlib.Analysis.Normed.Module.RieszLemma
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
 
 /-!
 # Kolmogorov numbers `d_n` — Pietsch's lifting identity
@@ -89,6 +91,8 @@ with `section` blocks switching to stronger hypotheses when needed:
 * (S5'/S5): Riesz + density-of-norm scaling (extra
   `[DenselyNormedField 𝕜] + [CompleteSpace 𝕜]`).
 -/
+
+@[expose] public section
 
 universe u
 
@@ -311,7 +315,7 @@ variable [NormedAddCommGroup Z] [NormedSpace 𝕜 Z]
 set_option linter.unusedSectionVars false
 
 /-- For `w ∈ B_W`, `c⁻¹ • A w ∈ B_X` (provided `‖A‖ ≤ ‖c‖`, `c ≠ 0`). -/
-private lemma Aw_in_ball {A : W →L[𝕜] X} {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
+lemma Aw_in_ball {A : W →L[𝕜] X} {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
     (w : Ball W) : ‖c⁻¹ • A (w : W)‖ ≤ 1 := by
   have hc_pos : 0 < ‖c‖ := norm_pos_iff.mpr hc_ne
   rw [norm_smul, norm_inv, inv_mul_le_iff₀ hc_pos, mul_one]
@@ -319,8 +323,10 @@ private lemma Aw_in_ball {A : W →L[𝕜] X} {c : 𝕜} (hc : ‖A‖ ≤ ‖c�
   rw [mul_comm]
   exact (mul_le_of_le_one_left (norm_nonneg _) w.2).trans hc
 
-/-- The basis-vector image of the lift. -/
-private noncomputable def liftBasis {A : W →L[𝕜] X} {c : 𝕜}
+/-- The image under the lift of the basis vector `e_w` of `ℓ¹(B_W)`: the multiple `c` of
+the basis vector of `ℓ¹(B_X)` at the point `c⁻¹ • A w` of the unit ball. It is public, like
+`Aw_in_ball`, because the lift `liftA` is built from it and `liftA_apply` names it. -/
+noncomputable def liftBasis {A : W →L[𝕜] X} {c : 𝕜}
     (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0) (w : Ball W) : BallLp 𝕜 X :=
   letI : DecidableEq (Ball X) := Classical.decEq _
   lp.single 1 (⟨c⁻¹ • A (w : W), Aw_in_ball hc hc_ne w⟩ : Ball X) c

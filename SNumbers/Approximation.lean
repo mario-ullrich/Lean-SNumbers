@@ -3,9 +3,11 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Helpers
-import Mathlib.Analysis.Normed.Module.RieszLemma
-import Mathlib.Analysis.Normed.Module.FiniteDimension
+module
+
+public import SNumbers.Helpers
+public import Mathlib.Analysis.Normed.Module.RieszLemma
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
 
 /-!
 # Approximation numbers
@@ -49,6 +51,8 @@ s-number sequence `s`).
 * `SNumbers.sn_le_approximationNumber` : `s_n S ≤ a_n S` for every s-number
     sequence `s` — the approximation numbers are the largest.
 -/
+
+@[expose] public section
 
 universe u
 
@@ -352,8 +356,10 @@ lemma approximationNumber_id_euclidean (n : ℕ) :
 
 /-! ### Summary: approximation numbers form a strict s-number sequence -/
 
-/-- The approximation-numbers family. -/
-private noncomputable def approxFamily : Family 𝕜 :=
+/-- The approximation numbers as a `Family`, the form in which the axioms of an s-number
+sequence take their argument. It is public because the two theorems below name it in their
+statements. -/
+noncomputable def approxFamily : Family 𝕜 :=
   fun {_X _Y} _ _ _ _ S n => approximationNumber S n
 
 /-- The approximation numbers form an s-number sequence in the sense of Pietsch. -/

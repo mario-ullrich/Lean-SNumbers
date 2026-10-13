@@ -3,8 +3,10 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import AddOns.Approximable
-import AddOns.Compact
+module
+
+public import AddOns.Approximable
+public import AddOns.Compact
 
 /-!
 # Add-ons: compactness measured by s-numbers

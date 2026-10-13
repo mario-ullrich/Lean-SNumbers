@@ -3,20 +3,22 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import BasicResults.Auerbach
-import BasicResults.SVD
-import BasicResults.Determinant
-import BasicResults.GarlingGordon
-import BasicResults.KadetsSnobar
-import BasicResults.LittleGrothendieck
-import BasicResults.John
-import BasicResults.JohnAux
-import BasicResults.Spectral.MonotoneConvergence
-import BasicResults.Spectral.Complexification
-import BasicResults.Spectral.Projection
-import BasicResults.Spectral.RealProjection
-import BasicResults.Spectral.Representation
-import BasicResults.Spectral.MultiplicationOperator
+module
+
+public import BasicResults.Auerbach
+public import BasicResults.SVD
+public import BasicResults.Determinant
+public import BasicResults.GarlingGordon
+public import BasicResults.KadetsSnobar
+public import BasicResults.LittleGrothendieck
+public import BasicResults.John
+public import BasicResults.JohnAux
+public import BasicResults.Spectral.MonotoneConvergence
+public import BasicResults.Spectral.Complexification
+public import BasicResults.Spectral.Projection
+public import BasicResults.Spectral.RealProjection
+public import BasicResults.Spectral.Representation
+public import BasicResults.Spectral.MultiplicationOperator
 
 /-!
 # Basic results

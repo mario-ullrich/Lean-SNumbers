@@ -3,16 +3,18 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Approximation
-import SNumbers.Bernstein
-import SNumbers.Gelfand
-import SNumbers.Kolmogorov
-import SNumbers.Hilbert
-import SNumbers.PiLpCoordinates
-import SNumbers.Examples.ExHelpers
-import SNumbers.Examples.Identity
-import Mathlib.Analysis.Normed.Lp.PiLp
-import Mathlib.Analysis.MeanInequalities
+module
+
+public import SNumbers.Approximation
+public import SNumbers.Bernstein
+public import SNumbers.Gelfand
+public import SNumbers.Kolmogorov
+public import SNumbers.Hilbert
+public import SNumbers.PiLpCoordinates
+public import SNumbers.Examples.ExHelpers
+public import SNumbers.Examples.Identity
+public import Mathlib.Analysis.Normed.Lp.PiLp
+public import Mathlib.Analysis.MeanInequalities
 
 /-!
 # Example: s-numbers of diagonal operators
@@ -70,6 +72,8 @@ maps `projFin` / `padFin` in `SNumbers.PiLpCoordinates`.
   Mathematics 13, Cambridge University Press, 1987,
   [link](https://zbmath.org/3996455).
 -/
+
+@[expose] public section
 
 universe u
 

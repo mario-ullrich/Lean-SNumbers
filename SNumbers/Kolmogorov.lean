@@ -3,9 +3,11 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import SNumbers.Helpers
-import Mathlib.Analysis.Normed.Module.RieszLemma
-import Mathlib.Analysis.Normed.Module.FiniteDimension
+module
+
+public import SNumbers.Helpers
+public import Mathlib.Analysis.Normed.Module.RieszLemma
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
 
 /-!
 # Kolmogorov numbers `d_n`
@@ -45,6 +47,8 @@ and is therefore restricted to **Banach spaces**. The two definitions
 agree on Banach spaces.
 
 -/
+
+@[expose] public section
 
 universe u
 
