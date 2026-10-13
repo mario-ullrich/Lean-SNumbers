@@ -309,11 +309,8 @@ variable [NormedAddCommGroup W] [NormedSpace 𝕜 W] [CompleteSpace W]
 variable [NormedAddCommGroup X] [NormedSpace 𝕜 X] [CompleteSpace X]
 variable [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
 variable [NormedAddCommGroup Z] [NormedSpace 𝕜 Z]
--- The four spaces above are needed for the (S3) statement at the end of the
--- section, but each auxiliary lemma on the way uses only some of them. Silencing
--- the linter once here is shorter than an `omit` clause on nearly every lemma.
-set_option linter.unusedSectionVars false
 
+omit [CompleteSpace 𝕜] [CompleteSpace W] [CompleteSpace X] in
 /-- For `w ∈ B_W`, `c⁻¹ • A w ∈ B_X` (provided `‖A‖ ≤ ‖c‖`, `c ≠ 0`). -/
 lemma Aw_in_ball {A : W →L[𝕜] X} {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
     (w : Ball W) : ‖c⁻¹ • A (w : W)‖ ≤ 1 := by
@@ -331,16 +328,19 @@ noncomputable def liftBasis {A : W →L[𝕜] X} {c : 𝕜}
   letI : DecidableEq (Ball X) := Classical.decEq _
   lp.single 1 (⟨c⁻¹ • A (w : W), Aw_in_ball hc hc_ne w⟩ : Ball X) c
 
+omit [CompleteSpace 𝕜] [CompleteSpace W] [CompleteSpace X] in
 private lemma norm_liftBasis {A : W →L[𝕜] X} {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
     (w : Ball W) : ‖liftBasis hc hc_ne w‖ = ‖c‖ := by
   let := Classical.decEq (Ball X)
   exact lp.norm_single (by norm_num : (0 : ℝ≥0∞) < 1) _ _
 
+omit [CompleteSpace 𝕜] [CompleteSpace W] in
 private lemma Q_liftBasis (A : W →L[𝕜] X) {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
     (w : Ball W) : (Q : BallLp 𝕜 X →L[𝕜] X) (liftBasis hc hc_ne w) = A (w : W) := by
   unfold liftBasis
   rw [Q_single _ (Aw_in_ball hc hc_ne w) c, smul_smul, mul_inv_cancel₀ hc_ne, one_smul]
 
+omit [CompleteSpace 𝕜] [CompleteSpace W] [CompleteSpace X] in
 private lemma summable_norm_smul_liftBasis {A : W →L[𝕜] X} {c : 𝕜}
     (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0) (α : BallLp 𝕜 W) :
     Summable (fun w : Ball W => ‖α w • liftBasis hc hc_ne w‖) := by
@@ -349,6 +349,7 @@ private lemma summable_norm_smul_liftBasis {A : W →L[𝕜] X} {c : 𝕜}
   rw [norm_smul]
   exact mul_le_mul_of_nonneg_left (norm_liftBasis hc hc_ne w).le (norm_nonneg _)
 
+omit [CompleteSpace W] [CompleteSpace X] in
 private lemma summable_smul_liftBasis {A : W →L[𝕜] X} {c : 𝕜}
     (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0) (α : BallLp 𝕜 W) :
     Summable (fun w : Ball W => α w • liftBasis hc hc_ne w) :=
@@ -381,10 +382,14 @@ noncomputable def liftA (A : W →L[𝕜] X) {c : 𝕜} (hc : ‖A‖ ≤ ‖c�
       rw [lp.norm_eq_tsum_rpow hp1 α, show (1 : ℝ≥0∞).toReal = 1 from by norm_num]
       simp [Real.rpow_one, mul_comm])
 
+omit [CompleteSpace W] [CompleteSpace X] in
+/-- The lift applied to `α ∈ ℓ¹(B_W)` is the series `∑' w, α w • liftBasis w`. -/
 @[simp] lemma liftA_apply (A : W →L[𝕜] X) {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0)
     (α : BallLp 𝕜 W) :
     liftA A hc hc_ne α = ∑' w : Ball W, α w • liftBasis hc hc_ne w := rfl
 
+omit [CompleteSpace W] [CompleteSpace X] in
+/-- The lift has norm at most `‖c‖`: `‖T_{A,c}‖ ≤ ‖c‖`. -/
 lemma norm_liftA_le (A : W →L[𝕜] X) {c : 𝕜} (hc : ‖A‖ ≤ ‖c‖) (hc_ne : c ≠ 0) :
     ‖liftA A hc hc_ne‖ ≤ ‖c‖ :=
   LinearMap.mkContinuous_norm_le _ (norm_nonneg _) _
