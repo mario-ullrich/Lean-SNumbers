@@ -294,9 +294,9 @@ theorem gelfandNumber_le_sqrt_mul_bernsteinNumber_hilbert
       Finset.sum_eq_single j
         (fun i _ hij => by
           rw [inner_smul_right, (orthonormal_iff_ite (𝕜 := 𝕜)).mp hon j i,
-            if_neg (Ne.symm hij), mul_zero])
+            ite_eq_right (Ne.symm hij), mul_zero])
         (fun hj => absurd (Finset.mem_univ j) hj)]
-    rw [inner_smul_right, (orthonormal_iff_ite (𝕜 := 𝕜)).mp hon j j, if_pos rfl, mul_one]
+    rw [inner_smul_right, (orthonormal_iff_ite (𝕜 := 𝕜)).mp hon j j, ite_eq_left rfl, mul_one]
   have hindep : LinearIndependent 𝕜 e := by
     rw [Fintype.linearIndependent_iff]
     intro g hg j

@@ -118,14 +118,14 @@ lemma OrthonormalOrZero.norm_sum_smul_sq {H : Type*} [NormedAddCommGroup H]
     rw [sum_inner]
     refine Finset.sum_congr rfl fun i hi => ?_
     rw [inner_sum, Finset.sum_eq_single i]
-    · rw [inner_smul_left, inner_smul_right, h.inner_eq i i, if_pos rfl,
+    · rw [inner_smul_left, inner_smul_right, h.inner_eq i i, ite_eq_left rfl,
         show (starRingEnd 𝕜) (c i) * (c i * (‖u i‖ : 𝕜) ^ 2)
             = ((starRingEnd 𝕜) (c i) * c i) * (‖u i‖ : 𝕜) ^ 2 from by ring,
         RCLike.conj_mul]
       push_cast; ring
     · intro j _ hji
       rw [inner_smul_left, inner_smul_right, h.inner_eq i j,
-        if_neg (fun e => hji e.symm), mul_zero, mul_zero]
+        ite_eq_right (fun e => hji e.symm), mul_zero, mul_zero]
     · intro hi'; exact absurd hi hi'
   rw [← @inner_self_eq_norm_sq 𝕜, key, map_sum]
   refine Finset.sum_congr rfl fun i _ => ?_
@@ -536,8 +536,8 @@ private lemma svd_joint [Nontrivial H₁] [Nontrivial H₂]
         by_cases hab : a = b
         · subst hab
           obtain ⟨hu, -, -, -⟩ := svd_spec S hS ↑a
-          rw [if_pos rfl, inner_self_eq_norm_sq_to_K, hu]; norm_num
-        · rw [if_neg hab]
+          rw [ite_eq_left rfl, inner_self_eq_norm_sq_to_K, hu]; norm_num
+        · rw [ite_eq_right hab]
           rcases lt_or_gt_of_ne (fun e => hab (Fin.ext e)) with hlt | hgt
           · exact ihorth ↑a ↑b hlt b.2 (lt_of_lt_of_le hσ (svd_norm_antitone S hS (le_of_lt b.2)))
           · rw [← inner_conj_symm,
@@ -651,8 +651,8 @@ private lemma svd_joint_v [Nontrivial H₁] [Nontrivial H₂]
         by_cases hab : a = b
         · subst hab
           obtain ⟨-, hv, -, -⟩ := svd_spec S hS ↑a
-          rw [if_pos rfl, inner_self_eq_norm_sq_to_K, hv]; norm_num
-        · rw [if_neg hab]
+          rw [ite_eq_left rfl, inner_self_eq_norm_sq_to_K, hv]; norm_num
+        · rw [ite_eq_right hab]
           rcases lt_or_gt_of_ne (fun e => hab (Fin.ext e)) with hlt | hgt
           · exact ihorth ↑a ↑b hlt b.2 (lt_of_lt_of_le hσ (svd_norm_antitone S hS (le_of_lt b.2)))
           · rw [← inner_conj_symm,
@@ -818,13 +818,13 @@ theorem IsCompactOperator.SVD
   have hon_u : OrthonormalOrZero 𝕜 u' := by
     refine ⟨fun i => ?_, fun i j hij => ?_⟩
     · by_cases h : ‖svdT S hS i‖ = 0
-      · right; simp only [hu', if_pos h]
-      · left; simp only [hu', if_neg h]; exact (svd_spec S hS i).1
+      · right; simp only [hu', ite_eq_left h]
+      · left; simp only [hu', ite_eq_right h]; exact (svd_spec S hS i).1
     · by_cases hi : ‖svdT S hS i‖ = 0
-      · simp only [hu', if_pos hi, inner_zero_left]
+      · simp only [hu', ite_eq_left hi, inner_zero_left]
       · by_cases hj : ‖svdT S hS j‖ = 0
-        · simp only [hu', if_pos hj, inner_zero_right]
-        · simp only [hu', if_neg hi, if_neg hj]
+        · simp only [hu', ite_eq_left hj, inner_zero_right]
+        · simp only [hu', ite_eq_right hi, ite_eq_right hj]
           have hjpos : 0 < ‖svdT S hS j‖ := (norm_nonneg _).lt_of_ne (Ne.symm hj)
           have hipos : 0 < ‖svdT S hS i‖ := (norm_nonneg _).lt_of_ne (Ne.symm hi)
           rcases lt_or_gt_of_ne hij with h | h
@@ -834,13 +834,13 @@ theorem IsCompactOperator.SVD
   have hon_v : OrthonormalOrZero 𝕜 v' := by
     refine ⟨fun i => ?_, fun i j hij => ?_⟩
     · by_cases h : ‖svdT S hS i‖ = 0
-      · right; simp only [hv', if_pos h]
-      · left; simp only [hv', if_neg h]; exact (svd_spec S hS i).2.1
+      · right; simp only [hv', ite_eq_left h]
+      · left; simp only [hv', ite_eq_right h]; exact (svd_spec S hS i).2.1
     · by_cases hi : ‖svdT S hS i‖ = 0
-      · simp only [hv', if_pos hi, inner_zero_left]
+      · simp only [hv', ite_eq_left hi, inner_zero_left]
       · by_cases hj : ‖svdT S hS j‖ = 0
-        · simp only [hv', if_pos hj, inner_zero_right]
-        · simp only [hv', if_neg hi, if_neg hj]
+        · simp only [hv', ite_eq_left hj, inner_zero_right]
+        · simp only [hv', ite_eq_right hi, ite_eq_right hj]
           have hjpos : 0 < ‖svdT S hS j‖ := (norm_nonneg _).lt_of_ne (Ne.symm hj)
           have hipos : 0 < ‖svdT S hS i‖ := (norm_nonneg _).lt_of_ne (Ne.symm hi)
           rcases lt_or_gt_of_ne hij with h | h
@@ -851,14 +851,14 @@ theorem IsCompactOperator.SVD
     hon_u, hon_v, ?_, ?_, svd_sigma_tendsto_zero S hS, ?_⟩
   · -- `σₖ ≠ 0 → u'ₖ ≠ 0`.
     intro k hk
-    simp only [hu', if_neg hk]
+    simp only [hu', ite_eq_right hk]
     intro hc
     have h1 := (svd_spec S hS k).1
     rw [hc, norm_zero] at h1
     exact one_ne_zero h1.symm
   · -- `σₖ ≠ 0 → v'ₖ ≠ 0`.
     intro k hk
-    simp only [hv', if_neg hk]
+    simp only [hv', ite_eq_right hk]
     intro hc
     have h1 := (svd_spec S hS k).2.1
     rw [hc, norm_zero] at h1
@@ -910,7 +910,7 @@ theorem IsCompactOperator.SVD
         by_cases h : ‖svdT S hS k‖ = 0
         · have hz : (‖svdT S hS k‖ : 𝕜) = 0 := by simp [h]
           simp only [hc, hz, zero_mul, zero_smul]
-        · simp only [hc, hu', hv', if_neg h]
+        · simp only [hc, hu', hv', ite_eq_right h]
       simp_rw [hLx]
       refine tendsto_iff_norm_sub_tendsto_zero.mpr ?_
       refine squeeze_zero (fun n => norm_nonneg _) (g := fun n => ‖svdT S hS n‖ * ‖x‖) ?_ ?_
@@ -1095,17 +1095,17 @@ lemma svd_sigma_eq_approx {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u : ℕ
         intro i j
         by_cases hij : i = j
         · subst hij
-          rw [if_pos rfl, inner_self_eq_norm_sq_to_K,
+          rw [ite_eq_left rfl, inner_self_eq_norm_sq_to_K,
             (hu.1 (i : ℕ)).resolve_right (hut (i : ℕ) (hσi i))]; norm_num
-        · rw [if_neg hij]; exact hu.2 (Fin.val_injective.ne hij)
+        · rw [ite_eq_right hij]; exact hu.2 (Fin.val_injective.ne hij)
       have hv_orth : Orthonormal 𝕜 (fun i : Fin (m + 1) => v i) := by
         rw [orthonormal_iff_ite]
         intro i j
         by_cases hij : i = j
         · subst hij
-          rw [if_pos rfl, inner_self_eq_norm_sq_to_K,
+          rw [ite_eq_left rfl, inner_self_eq_norm_sq_to_K,
             (hv.1 (i : ℕ)).resolve_right (hvt (i : ℕ) (hσi i))]; norm_num
-        · rw [if_neg hij]; exact hv.2 (Fin.val_injective.ne hij)
+        · rw [ite_eq_right hij]; exact hv.2 (Fin.val_injective.ne hij)
       set M : Submodule 𝕜 H₁ :=
         Submodule.span 𝕜 (Set.range (fun i : Fin (m + 1) => u i)) with hMdef
       have he_li : LinearIndependent 𝕜 (fun i : Fin (m + 1) => u i) :=
@@ -1275,10 +1275,10 @@ theorem IsCompactOperator.diagonalFactorisation
         refine (Finset.sum_eq_single k ?_ ?_).trans ?_
         · intro j _ hjk
           rw [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply, hv.inner_eq ↑j ↑k,
-            if_neg (Fin.val_injective.ne hjk), zero_smul]
+            ite_eq_right (Fin.val_injective.ne hjk), zero_smul]
         · intro h; exact absurd (Finset.mem_univ k) h
         · rw [ContinuousLinearMap.smulRight_apply, innerSL_apply_apply, hv.inner_eq ↑k ↑k,
-            if_pos rfl, (hv.1 ↑k).resolve_right hvk]; norm_num
+            ite_eq_left rfl, (hv.1 ↑k).resolve_right hvk]; norm_num
       rw [hBvk]
 
 /-! ### Scalar factorisation (general operators)

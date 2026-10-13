@@ -1,18 +1,14 @@
 name = "snumbers"
 defaultTargets = ["SNumbers", "BasicResults", "AddOns"]
 
-# Pin Mathlib to the v4.33.1 release tag (matches lean-toolchain).
+# Pin Mathlib to the v4.35.0-rc2 release tag (matches lean-toolchain).
 # A tagged release is a stable point with a fully-published build cache, so
-# `lake exe cache get` finds every olean — unlike a bleeding-edge `master`
+# `lake exe cache get` finds every olean, unlike a bleeding-edge `master`
 # commit, whose cache is still being uploaded and downloads incomplete.
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-version = "git#v4.33.1"
-
-[[require]]
-name = "checkdecls"
-git = "https://github.com/PatrickMassot/checkdecls.git"
+version = "git#v4.35.0-rc2"
 
 [[lean_lib]]
 name = "SNumbers"
@@ -39,9 +35,10 @@ name = "AddOns"
 # (PalomarSubmission issue 108).
 #
 # Each root is listed alongside its `.+` form on purpose: the `.+` form builds
-# the submodules only, and `leanblueprint checkdecls` imports the *root* module
-# of every `lean_lib`, so a missing root olean breaks it. Both roots import
-# nothing, so loading them alongside the other libraries stays harmless.
+# the submodules only, and `blueprint/scripts/check_lean_decls.py` imports the
+# *root* module of every `lean_lib`, so a missing root olean breaks it. Both
+# roots import nothing, so loading them alongside the other libraries stays
+# harmless.
 [[lean_lib]]
 name = "PalomarChallenges"
 globs = ["PalomarChallenges", "PalomarChallenges.+"]

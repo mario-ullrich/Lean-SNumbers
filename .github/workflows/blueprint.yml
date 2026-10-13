@@ -55,8 +55,8 @@ jobs:
             .lake/build
           key: ${{ runner.os }}-lean-${{ hashFiles('lake-manifest.json') }}
 
-      # ----- Lean side: build the project so that checkdecls can verify
-      # each `\lean{Decl}` tag against the actually-existing declaration.
+      # ----- Lean side: build the project so that the declaration check can
+      # verify each `\lean{Decl}` tag against the actually-existing declaration.
       - name: Install elan (Lean version manager)
         run: |
           curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
@@ -74,9 +74,9 @@ jobs:
 
       # The Palomar submission surfaces sit outside `defaultTargets`, so build
       # them explicitly. They ride along in this workflow because the step above
-      # already builds the whole project for `checkdecls`, with elan installed
-      # and the Mathlib cache warm; a separate workflow would repeat that setup
-      # for a thirty-second build. This is what catches a Challenge module broken
+      # already builds the whole project for the declaration check, with elan
+      # installed and the Mathlib cache warm; a separate workflow would repeat
+      # that setup for a thirty-second build. This is what catches a Challenge module broken
       # by a later Mathlib bump, which would otherwise surface only at submission
       # time. The two `sorry` warnings from the Challenge module are required by
       # the submission format and do not fail the build.
@@ -145,9 +145,13 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --rev "$GITHUB_SHA"
 
+      # Fatal on purpose: a blueprint that cites a declaration the project no
+      # longer has is wrong, and a step that only reports can itself break
+      # unnoticed. The script performs the check of `leanblueprint checkdecls`
+      # inside Lean itself; its docstring says why the `checkdecls` executable
+      # cannot be used.
       - name: Verify Lean declaration references
-        run: leanblueprint checkdecls
-        continue-on-error: true   # Reported, but not treated as a build failure.
+        run: python blueprint/scripts/check_lean_decls.py
 
       # Bundle the PDF with the web artifact, so one download has both.
       - name: Include the PDF in the web bundle

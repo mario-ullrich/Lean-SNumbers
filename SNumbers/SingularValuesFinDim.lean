@@ -86,7 +86,7 @@ private lemma svd_adjoint_apply {S : H₁ →L[𝕜] H₂} {σ : ℕ → ℝ} {u
       rw [hv.inner_eq k j]
       by_cases hjk : j = k
       · subst hjk; simp
-      · rw [if_neg (fun e => hjk e.symm), mul_zero, if_neg hjk]
+      · rw [ite_eq_right (fun e => hjk e.symm), mul_zero, ite_eq_right hjk]
     rw [hfun] at h
     exact h.unique (hasSum_ite_eq k _)
   rw [LinearMap.adjoint_inner_left, ContinuousLinearMap.coe_coe, hval, inner_smul_left,

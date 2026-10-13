@@ -14,7 +14,7 @@ supplies, under their own names, the declarations its Challenge advertises.
 See `PalomarChallenges` for the audited statements, the submission metadata, and
 why the two live in separate libraries with distinct root components.
 
-This module imports nothing, so that `leanblueprint checkdecls` — which loads
-the root module of every `lean_lib` into one environment — never brings a
-Challenge and a Solution together.
+This module imports nothing, so that `blueprint/scripts/check_lean_decls.py`,
+which loads the root module of every `lean_lib` into one environment, never
+brings a Challenge and a Solution together.
 -/

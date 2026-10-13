@@ -15,7 +15,7 @@ import Mathlib.Analysis.Normed.Group.Quotient
 import Mathlib.Analysis.Normed.Module.DoubleDual
 import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.Analysis.Normed.Module.HahnBanach
-import Mathlib.Analysis.Seminorm
+import Mathlib.Analysis.Normed.Module.Seminorm.Basic
 import Mathlib.Topology.Order.Compact
 
 /-!

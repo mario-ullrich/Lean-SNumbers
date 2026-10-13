@@ -12,8 +12,8 @@ The workflow does the following:
   `lake update`, which would re-resolve the dependencies and make CI builds
   non-reproducible)
 - builds the blueprint PDF and web site via `leanblueprint`
-- checks with `leanblueprint checkdecls` that every `\lean{...}` declaration
-  named in the blueprint actually exists in the compiled project
+- checks with `blueprint/scripts/check_lean_decls.py` that every `\lean{...}`
+  declaration named in the blueprint actually exists in the compiled project
 - uploads `blueprint-YYYYMMDD` as a downloadable run artifact, containing the
   PDF (as `blueprint.pdf`) and the web pages
 - deploys `blueprint/web` to GitHub Pages, at
@@ -45,12 +45,12 @@ lake exe cache get
 lake build
 leanblueprint pdf          # blueprint/print/print.pdf
 leanblueprint web          # blueprint/web/index.html
-leanblueprint checkdecls
+python blueprint/scripts/check_lean_decls.py
 ```
 
 ## Two checks nothing else covers
 
-`checkdecls` validates the `\lean{...}` tags in the blueprint. Two kinds of name
+`check_lean_decls.py` validates the `\lean{...}` tags in the blueprint. Two kinds of name
 live outside its reach — declarations named in `README.md`, which is not
 compiled, and Mathlib declarations named in prose inside a doc comment, which the
 compiler never resolves. Both go stale silently, the second one typically at a

@@ -72,13 +72,13 @@ def signedSum (w : ι → G) (S J : Finset ι) : G :=
 lemma signedSum_insert_of_notMem {w : ι → G} {a : ι} {S J : Finset ι}
     (ha : a ∉ J) (haS : a ∉ S) :
     signedSum w S (insert a J) = signedSum w S J - w a := by
-  rw [signedSum, signedSum, Finset.sum_insert ha, if_neg haS]
+  rw [signedSum, signedSum, Finset.sum_insert ha, ite_eq_right haS]
   abel
 
 /-- Adding a new index `a ∉ J` inside the sign pattern adds `w a`. -/
 lemma signedSum_insert_insert {w : ι → G} {a : ι} {S J : Finset ι} (ha : a ∉ J) :
     signedSum w (insert a S) (insert a J) = signedSum w S J + w a := by
-  rw [signedSum, signedSum, Finset.sum_insert ha, if_pos (Finset.mem_insert_self a S)]
+  rw [signedSum, signedSum, Finset.sum_insert ha, ite_eq_left (Finset.mem_insert_self a S)]
   have hcongr : ∀ j ∈ J, (if j ∈ insert a S then w j else -w j)
       = if j ∈ S then w j else -w j := by
     intro j hj
@@ -238,8 +238,8 @@ theorem sum_norm_sq_row_le (A : H →L[𝕜] lp (fun _ : ι => 𝕜) 1) {w : ι 
     rw [hz, signedSum, sum_inner]
     refine Finset.sum_congr rfl fun j _ => ?_
     by_cases hj : j ∈ S
-    · rw [if_pos hj, if_pos hj, hw]
-    · rw [if_neg hj, if_neg hj, inner_neg_left, hw]
+    · rw [ite_eq_left hj, ite_eq_left hj, hw]
+    · rw [ite_eq_right hj, ite_eq_right hj, inner_neg_left, hw]
   have hle : ‖z‖ ^ 2 ≤ ‖A‖ * ‖z‖ :=
     calc ‖z‖ ^ 2 = RCLike.re (inner 𝕜 z z : 𝕜) := (inner_self_eq_norm_sq z).symm
       _ ≤ ‖(inner 𝕜 z z : 𝕜)‖ := RCLike.re_le_norm _

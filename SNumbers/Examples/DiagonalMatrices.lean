@@ -543,11 +543,11 @@ theorem approximationNumber_DiagCLMpq_le (hpq : p < q) (hq : q ≠ ∞) (σ : Fi
         = ∑ i ∈ Finset.univ.filter (fun i : Fin m => n ≤ (i : ℕ)), ‖σ i‖ ^ diagExp p q := by
       refine Finset.sum_congr rfl fun i hi => ?_
       rw [Finset.mem_filter] at hi
-      simp only [hρ, if_neg (not_lt.mpr hi.2)]
+      simp only [hρ, ite_eq_right (not_lt.mpr hi.2)]
     have h2 : ∑ i ∈ Finset.univ.filter (fun i : Fin m => ¬ n ≤ (i : ℕ)), ‖ρ i‖ ^ diagExp p q = 0 := by
       refine Finset.sum_eq_zero fun i hi => ?_
       rw [Finset.mem_filter, not_le] at hi
-      simp only [hρ, if_pos hi.2, norm_zero, Real.zero_rpow hR.ne']
+      simp only [hρ, ite_eq_left hi.2, norm_zero, Real.zero_rpow hR.ne']
     rw [h1, h2, add_zero]
   calc approximationNumber (DiagCLMpq p q σ) n
       ≤ ‖DiagCLMpq p q σ - L‖ := approximationNumber_le_norm_sub hLrank
