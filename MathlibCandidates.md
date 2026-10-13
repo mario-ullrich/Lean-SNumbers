@@ -10,16 +10,18 @@ main declarations:
   and the bordered determinant over any commutative ring — the elementary
   column-operation form of the Schur formula
   (`Matrix.det_eq_corner_mul_det_submatrix`).
-* **Quotient operator norms** (`SNumbers/Helpers.lean`): Mathlib has
+* **Quotient operator norms** (`SNumbers/QuotientMapNorms.lean`): Mathlib has
   `Submodule.mkQL` and `liftQL` but no norm bounds for them —
   `Submodule.norm_mkQL_le`, `norm_mkQL_apply_le`, `norm_liftQL_le`,
   `liftQL_mkQL`. Plus the rank API for continuous maps
-  (`ContinuousLinearMap.rank`, `rank_comp_comp_le`).
-* **Operator norm from the unit ball** (`SNumbers/Helpers.lean`): over a densely
+  (`ContinuousLinearMap.rank`, `rank_comp_comp_le`, in `SNumbers/Basic.lean` and
+  `SNumbers/ContinuousLinearMapRank.lean`).
+* **Operator norm from the unit ball** (`SNumbers/QuotientMapNorms.lean`): over a densely
   normed field, a bound on the closed unit ball bounds the operator norm
   (`ContinuousLinearMap.opNorm_le_of_unit_closedBall`). Mathlib has the
   supremum identity `sSup_unitClosedBall_eq_norm` but not the bound form.
-* **John's ellipsoid** (`BasicResults/John.lean`, `JohnAux.lean`): the theorem
+* **John's ellipsoid** (`BasicResults/John.lean`, `CompactConvexHull.lean`,
+  `JohnIngredients.lean`): the theorem
   itself (`John.exists_maxVolume`, `john_decomposition`) with the two projection
   theorems it yields — Kadets–Snobar `‖P‖ ≤ √n` (`exists_projection`) and
   Garling–Gordon (`exists_projection_ker`). Its general-purpose ingredients:
@@ -85,7 +87,7 @@ main declarations:
   has only the vector-valued `lp.tsumCLM` and `lp.mapCLM`, which `Q_X` factors
   through.
 * **Coordinate pigeonhole and flatness**
-  (`SNumbers/Examples/ExHelpers.lean`): a subspace of `𝕜^m` of dimension
+  (`SNumbers/Examples/FlatnessLemmas.lean`): a subspace of `𝕜^m` of dimension
   `> |A|` contains a nonzero vector vanishing on `A`
   (`exists_mem_ker_coords`), and the (weighted) flatness lemma
   (`exists_flat_vector_weighted`).

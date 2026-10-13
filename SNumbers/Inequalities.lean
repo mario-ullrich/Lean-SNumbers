@@ -154,6 +154,17 @@ theorem bernsteinNumber_le_gelfandNumber (S : X →L[𝕜] Y) (n : ℕ) :
   bernsteinNumber_le_of_injective_strict
     isStrictSNumberSequence_gelfandNumber injective_gelfandNumber S n
 
+/-- **Cauchy–Schwarz against the constant vector `1`:** a sum of reals is bounded
+by `√(#ι)` times the `ℓ₂` norm of its terms. No sign assumption on `a` is needed.
+
+This is the specialisation of Mathlib's two-sequence
+`Real.sum_mul_le_sqrt_mul_sqrt` at `g ≡ 1`, which Mathlib itself does not
+provide; it is used wherever a `∑ ‖·‖` has to be traded for a `√(∑ ‖·‖²)`. -/
+lemma sum_le_sqrt_card_mul_sqrt_sum_sq {ι : Type*} [Fintype ι] (a : ι → ℝ) :
+    ∑ i, a i ≤ Real.sqrt (Fintype.card ι) * Real.sqrt (∑ i, a i ^ 2) := by
+  have h := Real.sum_mul_le_sqrt_mul_sqrt Finset.univ a (fun _ => (1 : ℝ))
+  simpa [Finset.card_univ, mul_comm] using h
+
 /-! ## Reverse bound (Hilbert codomain): `cₙ ≤ √(n+1)·bₙ`
 
 The reverse of `bₙ ≤ cₙ`, when the codomain is a Hilbert space:

@@ -6,7 +6,7 @@ Authors: Mario Ullrich
 module
 
 public import SNumbers.Approximation
-public import SNumbers.Examples.ExHelpers
+public import SNumbers.Examples.FlatnessLemmas
 public import Mathlib.Analysis.MeanInequalities
 
 /-!
@@ -36,7 +36,7 @@ This file develops the case `1 ≤ p ≤ q < ∞`:
   Gelfand-width lower bound, Pietsch §11.11): every subspace of dimension `≥ m-n`
   contains a vector with `p`/`q`-norm ratio `≥ (m-n)^{1/p-1/q}`, proved from the
   flatness / extreme-point lemma `exists_flat_vector` of
-  `SNumbers.Examples.ExHelpers`.
+  `SNumbers.Examples.FlatnessLemmas`.
 -/
 
 @[expose] public section
@@ -224,7 +224,7 @@ For any rank-`≤ n` operator `L`, its kernel has dimension `≥ m - n`, and
 every subspace of dimension `≥ m - n` contains a vector whose `p`-norm is at
 least `(m-n)^{1/p-1/q}` times its `q`-norm. It comes from the flatness lemma
 `exists_flat_vector` (an extreme-point argument, in
-`SNumbers.Examples.ExHelpers`) combined with the interpolation estimate
+`SNumbers.Examples.FlatnessLemmas`) combined with the interpolation estimate
 `norm_ratio_of_flat` below. -/
 
 /-- **Interpolation for a flat vector.** If `‖w i‖ ≤ 1` everywhere and `‖w i‖ = 1`

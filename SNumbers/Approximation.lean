@@ -5,7 +5,7 @@ Authors: Mario Ullrich
 -/
 module
 
-public import SNumbers.Helpers
+public import SNumbers.ContinuousLinearMapRank
 public import Mathlib.Analysis.Normed.Module.RieszLemma
 public import Mathlib.Analysis.Normed.Module.FiniteDimension
 

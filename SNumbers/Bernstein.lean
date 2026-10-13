@@ -5,7 +5,7 @@ Authors: Mario Ullrich
 -/
 module
 
-public import SNumbers.Helpers
+public import SNumbers.ContinuousLinearMapRank
 public import SNumbers.Injectivity
 public import Mathlib.LinearAlgebra.Dimension.RankNullity
 

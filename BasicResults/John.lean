@@ -6,7 +6,8 @@ Authors: Mario Ullrich
 module
 
 public import BasicResults.Determinant
-public import BasicResults.JohnAux
+public import BasicResults.CompactConvexHull
+public import BasicResults.JohnIngredients
 public import Mathlib.Analysis.InnerProductSpace.Adjoint
 public import Mathlib.Analysis.InnerProductSpace.Dual
 public import Mathlib.Analysis.InnerProductSpace.PiL2
@@ -53,7 +54,7 @@ norm (`c‖x‖ ≤ p x ≤ C‖x‖`, `c > 0`). The ellipsoid `T (B₂)` lies i
   `(1-ρ)⁻¹ • (id + tH)` to contradict maximality, and Carathéodory to extract the
   finite combination. The general-purpose ingredients (compactness of convex hulls,
   seminorm Hahn–Banach, trace duality, the product bound `∏(1+aᵢ) ≥ 1-2∑aᵢ²`) live
-  in `BasicResults/JohnAux.lean`.
+  in `BasicResults/CompactConvexHull.lean` and `BasicResults/JohnIngredients.lean`.
 * `John.exists_projection` — **Kadets–Snobar**: every finite-dimensional subspace
   of a normed `𝕜`-space is the range of a projection `P` with `‖P‖ ≤ √(dim)`. Its
   analytic core is the weighted Cauchy–Schwarz bound `John.norm_sum_weight_smul_le`.

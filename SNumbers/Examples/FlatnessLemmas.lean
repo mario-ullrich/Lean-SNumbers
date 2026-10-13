@@ -10,7 +10,7 @@ public import SNumbers.PiLpCoordinates
 public import Mathlib.Analysis.Convex.KreinMilman
 
 /-!
-# Shared helpers for the worked examples
+# Flatness lemmas for the worked examples
 
 Geometric and rank ingredients used by more than one of the worked examples
 (`SNumbers.Examples.Identity`, `SNumbers.Examples.DiagonalMatrices`), collected

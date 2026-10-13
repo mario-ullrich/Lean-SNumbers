@@ -12,7 +12,8 @@ public import BasicResults.GarlingGordon
 public import BasicResults.KadetsSnobar
 public import BasicResults.LittleGrothendieck
 public import BasicResults.John
-public import BasicResults.JohnAux
+public import BasicResults.CompactConvexHull
+public import BasicResults.JohnIngredients
 public import BasicResults.Spectral.MonotoneConvergence
 public import BasicResults.Spectral.Complexification
 public import BasicResults.Spectral.Projection
@@ -57,9 +58,10 @@ that support the s-numbers framework:
   with constant one) and, dually, `∑_j ‖row_j‖² ≤ ‖A‖²` for `A : H → ℓ₁`. Both say
   that such operators are Hilbert–Schmidt; they drive the sharp Hilbert-number
   bound for `I : ℓ₁ → ℓ_∞` in `SNumbers.Examples.IdentityL1Linfty`.
-* `BasicResults.JohnAux` — general-purpose ingredients for the above, each a
-  Mathlib-upstream candidate: closedness — hence compactness — of convex hulls of
-  compact sets in finite dimensions, the supporting-vector form of Hahn–Banach
+* `BasicResults.CompactConvexHull`: in finite dimensions the convex hull of a
+  compact set is closed, hence compact.
+* `BasicResults.JohnIngredients` — general-purpose ingredients for the above, each a
+  Mathlib-upstream candidate: the supporting-vector form of Hahn–Banach
   dominated by a seminorm on an inner product space, trace duality for
   endomorphisms, and the product bound
   `∏(1+aᵢ) ≥ 1 - 2∑aᵢ²` for `∑aᵢ = 0`.

@@ -16,7 +16,7 @@ This file collects:
 
 * `ContinuousLinearMap.rank` — a thin wrapper around `LinearMap.rank` providing
   dot notation for continuous linear maps. Auxiliary rank facts live in
-  `SNumbers.Helpers`.
+  `SNumbers.ContinuousLinearMapRank`.
 * The five Pietsch axioms (S1)–(S5) characterising an *s-number sequence*,
   packaged in the structure `IsSNumberSequence`.
 * The strengthening (S5') and the structure `IsStrictSNumberSequence`.

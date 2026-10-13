@@ -11,7 +11,7 @@ public import SNumbers.Gelfand
 public import SNumbers.Kolmogorov
 public import SNumbers.Hilbert
 public import SNumbers.PiLpCoordinates
-public import SNumbers.Examples.ExHelpers
+public import SNumbers.Examples.FlatnessLemmas
 public import SNumbers.Examples.Identity
 public import Mathlib.Analysis.Normed.Lp.PiLp
 public import Mathlib.Analysis.MeanInequalities
@@ -63,7 +63,7 @@ exponents**, in two parts.
 
 The unit-diagonal case is developed separately and self-containedly in
 `SNumbers.Examples.Identity`, which this file builds on; the shared geometric
-and rank ingredients are in `SNumbers.Examples.ExHelpers`, and the coordinate
+and rank ingredients are in `SNumbers.Examples.FlatnessLemmas`, and the coordinate
 maps `projFin` / `padFin` in `SNumbers.PiLpCoordinates`.
 
 ## References
@@ -566,7 +566,7 @@ For any rank-`≤ n` operator `L`, its kernel has dimension `≥ m − n`, and
 dimension `≥ m − n`, a vector `x` with `‖D_σ x‖_p ≥ diagTail · ‖x‖_q`. The
 argument is the classical Gelfand-width construction adapted to the weight
 `w_i = ‖σ_i‖^{r/q}`, using the weighted flatness lemma
-`exists_flat_vector_weighted` of `SNumbers.Examples.ExHelpers` (an extreme-point
+`exists_flat_vector_weighted` of `SNumbers.Examples.FlatnessLemmas` (an extreme-point
 argument, built on a coordinate pigeonhole). -/
 
 /-! ## Lower bound — the weighted ratio inequality

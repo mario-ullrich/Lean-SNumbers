@@ -6,7 +6,8 @@ Authors: Mario Ullrich
 module
 
 public import SNumbers.Basic
-public import SNumbers.Helpers
+public import SNumbers.ContinuousLinearMapRank
+public import SNumbers.QuotientMapNorms
 public import SNumbers.PiLpCoordinates
 public import SNumbers.Approximation
 public import SNumbers.Bernstein
@@ -21,7 +22,7 @@ public import SNumbers.SingularValuesFinDim
 public import SNumbers.Injectivity
 public import SNumbers.Entropy
 public import SNumbers.EntropyBounds
-public import SNumbers.Examples.ExHelpers
+public import SNumbers.Examples.FlatnessLemmas
 public import SNumbers.Examples.Identity
 public import SNumbers.Examples.DiagonalMatrices
 public import SNumbers.Examples.IdentityL1Linfty
@@ -37,13 +38,13 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   axioms (S1)–(S5), packaged as `IsSNumberSequence`; the (S5')
   strengthening and `IsStrictSNumberSequence`; and absolute homogeneity
   `sₙ(c • T) = ‖c‖ · sₙ(T)`.
-* `SNumbers.Helpers`: small generic facts shared across the development —
-  rank lemmas for continuous linear maps (`rank_zero`,
-  `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`), operator-norm bounds
-  for Mathlib's quotient CLMs `Submodule.mkQL` / `Submodule.liftQL`
-  (`norm_mkQL_le`, `norm_mkQL_apply_le`, `norm_liftQL_le`, `liftQL_mkQL`),
-  the bound `opNorm_le_of_unit_closedBall` from the closed unit ball, and
-  `finrank_euclideanSpace_fin'` over any `NontriviallyNormedField`.
+* `SNumbers.ContinuousLinearMapRank`: rank lemmas for continuous linear maps
+  (`rank_zero`, `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and
+  `finrank_euclideanSpace_fin'`, `dim ℓ₂ⁿ = n` over any `NontriviallyNormedField`.
+* `SNumbers.QuotientMapNorms`: operator-norm bounds for Mathlib's quotient maps
+  `Submodule.mkQL` / `Submodule.liftQL` (`norm_mkQL_le`, `norm_mkQL_apply_le`,
+  `norm_liftQL_le`, `liftQL_mkQL`), and the bound `opNorm_le_of_unit_closedBall`
+  from the closed unit ball.
 * `SNumbers.PiLpCoordinates`: the coordinate projection/embedding
   contractions `projFin` / `padFin` between `ℓ^p_n` and `ℓ^p_m`.
 * `SNumbers.Approximation`: the approximation numbers `aₙ`, proved to form a
@@ -111,7 +112,7 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
   gives the sharp `max(cₙ,dₙ) ≤ (n+1)·eₙ` (Pietsch 12.3.2) via triangular flags
   and their `2^(n+1)` signed averages, and — using a volume comparison for
   `eₙ(id) ≥ 1/2` — the Hilbert-entropy bound `hₙ ≤ 2·eₙ`.
-* `SNumbers.Examples.ExHelpers`: the geometric and rank ingredients shared by the
+* `SNumbers.Examples.FlatnessLemmas`: the geometric and rank ingredients shared by the
   worked examples — the coordinate pigeonhole and the (weighted) flatness lemmas
   behind the Gelfand-width lower bounds.
 * `SNumbers.Examples.Identity`: the **identity embedding**
@@ -139,7 +140,8 @@ The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
 
 A companion library `BasicResults` collects the supporting classical theory:
 Auerbach's lemma, John's ellipsoid with the two projection theorems it yields
-(`BasicResults.John`, `JohnAux`, `GarlingGordon`, `KadetsSnobar`), determinants
+(`BasicResults.John`, `CompactConvexHull`, `JohnIngredients`, `GarlingGordon`,
+`KadetsSnobar`), determinants
 (`BasicResults.Determinant`), the singular value decomposition
 `BasicResults.SVD` (the compact SVD, the scalar factorisation for the uniqueness
 theorem, and the bound `(n+1)·aₙ(T₂T₁) ≤ ‖T₁‖_HS·‖T₂‖_HS` for a compact
