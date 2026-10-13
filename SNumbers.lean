@@ -52,8 +52,9 @@ quantities `Δₖ(S)`, the supremum of `|det (B ∘ S ∘ A)|` over contractions
 Around it: on Hilbert spaces every s-number sequence coincides with the approximation
 numbers, and in finite dimension with the singular values; compact operators between
 Hilbert spaces have a singular value decomposition; and the entropy numbers, which are not
-s-numbers, measure compactness: an operator into a Banach space is compact if and only if
-its entropy numbers tend to `0`.
+s-numbers, bound every s-number sequence, `sₙ(S) ≤ 2e·(n+1)·eₙ(S)`, and measure
+compactness: an operator into a Banach space is compact if and only if its entropy numbers
+tend to `0`.
 
 ## Main contents
 
@@ -134,7 +135,9 @@ its entropy numbers tend to `0`.
   in `AddOns.Compact`. Lower bounds come from counting separated points, which
   gives the sharp `max(cₙ,dₙ) ≤ (n+1)·eₙ` (Pietsch 12.3.2) via triangular flags
   and their `2^(n+1)` signed averages, and, using a volume comparison for
-  `eₙ(id) ≥ 1/2`, the Hilbert-entropy bound `hₙ ≤ 2·eₙ`.
+  `eₙ(id) ≥ 1/2`, the Hilbert-entropy bound `hₙ ≤ 2·eₙ`. With the maximal difference
+  theorem it bounds every s-number sequence, `sₙ ≤ 2e·(n+1)·eₙ`
+  (`sn_le_two_e_mul_entropyNumber`).
 * `SNumbers.Examples.FlatnessLemmas`: the geometric and rank ingredients shared by the
   worked examples: the coordinate pigeonhole and the (weighted) flatness lemmas
   behind the Gelfand-width lower bounds.

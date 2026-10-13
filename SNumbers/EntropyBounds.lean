@@ -7,15 +7,18 @@ module
 
 public import SNumbers.Entropy
 public import SNumbers.Inequalities
+public import SNumbers.MaxDifference
 public import BasicResults.SVD
 public import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 
 /-!
-# Bounding the Gelfand and Kolmogorov numbers by the entropy numbers
+# Bounding s-numbers by the entropy numbers
 
 The entropy numbers `eₙ` are not an `s`-number sequence (they fail (S4) and
 (S5), see `SNumbers.Entropy`), but they dominate the Gelfand and Kolmogorov
-numbers, and that is what ties those two sequences to compactness.
+numbers, and that is what ties those two sequences to compactness. They also
+dominate the Hilbert numbers, and through the bound `sₙ ≤ e·(n+1)·hₙ` of
+`SNumbers.MaxDifference` every s-number sequence, up to the factor `2e·(n+1)`.
 
 ## Upper bounds: covering estimates
 
@@ -60,6 +63,8 @@ two of them, and here two in one box is a contradiction.
 * `SNumbers.approximationNumber_le_two_mul_entropyNumber` :
     `aₙ S ≤ 2 · eₙ S` between Hilbert spaces.
 * `SNumbers.hilbertNumber_le_two_mul_entropyNumber` : `hₙ S ≤ 2 · eₙ S`.
+* `SNumbers.sn_le_two_e_mul_entropyNumber` : `sₙ S ≤ 2e · (n+1) · eₙ S` for every
+  s-number sequence `s`.
 
 ## Implementation notes
 
@@ -806,6 +811,23 @@ theorem hilbertNumber_le_two_mul_entropyNumber (S : X →L[𝕜] Y) (n : ℕ) :
         have := entropyNumber_comp_comp_le B S A n
         linarith
     _ = 2 * entropyNumber S n * (‖B‖ * ‖A‖) := by ring
+
+/-! ### All s-numbers against the entropy numbers -/
+
+/-- **Every s-number sequence is bounded by the entropy numbers**:
+`sₙ(S) ≤ 2e·(n+1)·eₙ(S)`. The bound `sₙ ≤ e·(n+1)·tₙ` between any two s-number sequences
+(`sn_le_e_mul_tn`), taken with `t` the Hilbert numbers, combined with the Hilbert-entropy
+bound `hₙ ≤ 2·eₙ`. -/
+theorem sn_le_two_e_mul_entropyNumber {s : Family 𝕜} (hs : IsSNumberSequence s)
+    (S : X →L[𝕜] Y) (n : ℕ) :
+    s S n ≤ 2 * Real.exp 1 * ((n : ℝ) + 1) * entropyNumber S n := by
+  calc s S n
+      ≤ Real.exp 1 * ((n : ℝ) + 1) * hilbertNumber S n :=
+        sn_le_e_mul_tn hs isSNumberSequence_hilbertNumber S n
+    _ ≤ Real.exp 1 * ((n : ℝ) + 1) * (2 * entropyNumber S n) :=
+        mul_le_mul_of_nonneg_left (hilbertNumber_le_two_mul_entropyNumber S n)
+          (by positivity)
+    _ = 2 * Real.exp 1 * ((n : ℝ) + 1) * entropyNumber S n := by ring
 
 end SNumbers
 

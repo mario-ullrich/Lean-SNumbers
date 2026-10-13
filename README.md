@@ -80,8 +80,10 @@ Throughout, `T : X → Y` is a bounded operator between normed spaces over `ℝ`
   the Kadets–Snobar theorem: every `n`-dimensional subspace of a normed space is
   the range of a projection `P` with `‖P‖ ≤ √n` (`John.exists_projection`).
 * **Entropy numbers.** `max(cₙ(S), dₙ(S)) ≤ (n+1) · eₙ(S)`
-  (`SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber`), and
-  for complete `Y` the operator `S` is compact if and only if `eₙ(S) → 0`
+  (`SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber`), every
+  s-number sequence satisfies `sₙ(S) ≤ 2e · (n+1) · eₙ(S)`
+  (`SNumbers.sn_le_two_e_mul_entropyNumber`), and for complete `Y` the operator `S`
+  is compact if and only if `eₙ(S) → 0`
   (`SNumbers.isCompactOperator_iff_tendsto_entropyNumber`).
 
 Everything else, including the s-numbers of diagonal operators between `ℓ^p_m`

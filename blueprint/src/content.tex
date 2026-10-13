@@ -1835,7 +1835,9 @@ This chapter compares $c_n$, $d_n$ and $h_n$ with the entropy numbers of
 Chapter~\ref{ch:entropy}, in both directions: upper bounds for $c_n, d_n$ in
 terms of $e_n$ give
 ``compact $\Rightarrow$ decay'', and a lower bound for $e_n$ gives the sharp
-comparison. The comparisons are formalised in \texttt{EntropyBounds.lean},
+comparison. Through Corollary~\ref{cor:all-snumbers-bound} the bound for $h_n$
+extends to every s-number sequence (Section~\ref{sec:all-snumbers-entropy}).
+The comparisons are formalised in \texttt{EntropyBounds.lean},
 the compactness criteria in \texttt{AddOns/Compact.lean}, both over
 $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$.
 
@@ -2083,6 +2085,37 @@ Now $h_n(S)$ is the supremum of $a_n(B \circ S \circ A)/(\|B\|\,\|A\|)$ over
 factorisations through $\ell_2$, and each numerator is at most
 $2 e_n(B \circ S \circ A) \le 2 \|B\| e_n(S) \|A\|$.
 \end{proof}
+
+\section{All s-numbers}
+\label{sec:all-snumbers-entropy}
+
+\begin{corollary}[Entropy numbers bound all s-numbers]
+\label{cor:snumbers-entropy}
+\lean{SNumbers.sn_le_two_e_mul_entropyNumber}
+\leanok
+\uses{cor:all-snumbers-bound, thm:hilbert-entropy}
+Let $s$ be an s-number sequence. For every $S \in \mathcal{L}(X, Y)$ and
+$n \in \mathbb{N}_0$,
+\[
+  s_n(S) \;\le\; 2e\,(n+1)\, e_n(S) .
+\]
+\end{corollary}
+\begin{proof}
+\leanok
+Corollary~\ref{cor:all-snumbers-bound} with $t = h$ and the Hilbert-entropy bound
+(Theorem~\ref{thm:hilbert-entropy}) give
+$s_n(S) \le e\,(n+1)\, h_n(S) \le 2e\,(n+1)\, e_n(S)$.
+\end{proof}
+
+\begin{remark}
+No bound $a_n(S) \le C\, e_n(S)$ with a constant $C$ holds for all operators between
+Banach spaces: compact operators into a Banach space have $e_n(S) \to 0$
+(Theorem~\ref{thm:entropy-compact}), and a bound of this form would make every compact
+operator a norm limit of finite-rank operators, which fails on Banach spaces without the
+approximation property (Enflo). For the Gelfand and Kolmogorov numbers the factor is
+$n+1$ (Theorem~\ref{thm:gelfand-kolmogorov-le-entropy}), for the Hilbert numbers $2$
+(Theorem~\ref{thm:hilbert-entropy}).
+\end{remark}
 
 \bpbibheading
 \begin{thebibliography}{99}
