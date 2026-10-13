@@ -32,6 +32,29 @@ public import SNumbers.Examples.IdentityL1Linfty
 
 The Pietsch axiomatic theory of s-numbers, formalised in Lean 4 / Mathlib.
 
+An *s-number sequence* assigns to every bounded linear operator `S : X →L[𝕜] Y` between
+normed spaces a sequence of real numbers `sₙ(S)` subject to five axioms: (S1)
+`‖S‖ = s₀(S) ≥ s₁(S) ≥ ⋯ ≥ 0`; (S2) `sₙ(S + T) ≤ sₙ(S) + ‖T‖`;
+(S3) `sₙ(B ∘ S ∘ A) ≤ ‖B‖ · sₙ(S) · ‖A‖`; (S4) `sₙ(S) = 0` whenever `S` has rank at most
+`n`; (S5) `sₙ(id) = 1` on `ℓ₂ⁿ⁺¹`. Indexing starts at `0`, one below Pietsch's convention.
+The classical examples are the approximation, Gelfand, Kolmogorov, Bernstein and Hilbert
+numbers `aₙ`, `cₙ`, `dₙ`, `bₙ`, `hₙ`, the last defined over `ℝ` and `ℂ`. Over these fields
+the approximation numbers are the largest and the Hilbert numbers the smallest s-number
+sequence, so `hₙ(S) ≤ sₙ(S) ≤ aₙ(S)` for every `s`.
+
+The main result is the **maximal difference theorem** `aₙ(S) ≤ e·(n+1)·hₙ(S)`, hence
+`sₙ(S) ≤ e·(n+1)·tₙ(S)` for any two s-number sequences; the inclusion `ℓ₁ → ℓ_∞` shows that
+the factor `n+1` is order-optimal. Its proof goes through the determinant
+quantities `Δₖ(S)`, the supremum of `|det (B ∘ S ∘ A)|` over contractions `A : ℓ₂ᵏ → X` and
+`B : Y → ℓ₂ᵏ`, which satisfy `Δₙ₊₁(S) ≤ hₙ(S)·Δₙ(S)` and
+`Δₙ₊₁(S) ≥ (nⁿ/(n+1)^{n+1})·aₙ(S)·Δₙ(S)`.
+
+Around it: on Hilbert spaces every s-number sequence coincides with the approximation
+numbers, and in finite dimension with the singular values; compact operators between
+Hilbert spaces have a singular value decomposition; and the entropy numbers, which are not
+s-numbers, measure compactness: an operator into a Banach space is compact if and only if
+its entropy numbers tend to `0`.
+
 ## Main contents
 
 * `SNumbers.Basic`: the `rank` of a continuous linear map and the Pietsch
