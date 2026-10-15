@@ -12,13 +12,6 @@ Mathlib relies on throughout (`propext`, `Classical.choice`, `Quot.sound`).
 * **Blueprint as PDF**: <https://mario-ullrich.github.io/Lean-SNumbers/blueprint.pdf>
 * **Dependency graph**:
   <https://mario-ullrich.github.io/Lean-SNumbers/dep_graph_document.html>
-* **Palomar registry**: the maximal difference theorem is registered as
-  [PALOMAR-2026-09-07-000008](https://palomar-registry.org/entry?id=PALOMAR-2026-09-07-000008&version=1).
-  The registry re-ran the proof at commit
-  [`085b299`](https://github.com/mario-ullrich/Lean-SNumbers/tree/085b29905f46bc4e61e19be642699153bdb99c2d)
-  against Lean `v4.33.0` and Mathlib `db584cd`, and verified the declarations
-  `SNumbers.approximationNumber_le_mul_hilbertNumber` and
-  `SNumbers.approximationNumber_le_e_mul_hilbertNumber`.
 
 ## What are s-numbers?
 
@@ -91,6 +84,14 @@ spaces and the characterisations of compactness by `cₙ`, `dₙ` and, on Hilber
 spaces, by every s-number sequence, is in the blueprint with its Lean name at
 every statement.
 
+## Palomar registry
+
+The [Palomar registry](https://palomar-registry.org) re-checks a registered proof at a
+fixed commit. The maximal difference theorem is registered as
+[PALOMAR-2026-09-07-000008](https://palomar-registry.org/entry?id=PALOMAR-2026-09-07-000008&version=1),
+checked at commit
+[`085b299`](https://github.com/mario-ullrich/Lean-SNumbers/tree/085b29905f46bc4e61e19be642699153bdb99c2d).
+
 ## Organisation
 
 Three libraries. `SNumbers` holds the theory: the axioms, the five classical
@@ -100,13 +101,10 @@ lacks: the SVD of compact operators, determinant identities, John's ellipsoid,
 Auerbach's lemma, and a spectral toolkit; [MathlibCandidates.md](MathlibCandidates.md)
 lists what could be upstreamed. `AddOns` measures compactness by s-numbers.
 
-`Palomar/` holds the submission surfaces for the
-[Palomar registry](https://palomar-registry.org), one directory per registered result,
-each with a `Challenge` module stating the advertised theorems and a `Solution` module
-supplying their proofs from the development. The placeholder `sorry`s in the `Challenge`
-modules are required by that format: a Challenge advertises statements and imports only
-Mathlib, so a reader can audit what is claimed without reading the development. This
-library sits outside `defaultTargets`; build it with `lake build Palomar`.
+`Palomar/` holds the registry submissions, one directory per entry: a `Challenge` module
+states the registered theorems on Mathlib alone, with `sorry` in place of the proofs as
+the registry format requires, and a `Solution` module proves them from the development.
+Build it separately with `lake build Palomar`.
 
 ## Building
 
