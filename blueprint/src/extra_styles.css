@@ -8,6 +8,26 @@ div.thm_header_hidden_extras {
 	display: inline-block;
 }
 
+/* The checkmark that marks a formalised result carries no information where every
+   result is formalised, so it stays out of the heading. */
+div.thm_header_extras {
+	display: none;
+}
+
+/* On a narrow window the heading of a result wraps, and the icon bar (permalink,
+   proof, Uses, Lean) takes a line of its own under "Theorem 1.1 (Title)" instead of
+   squeezing the title. */
+@media (max-width: 640px) {
+	div[class$=_thmheading] {
+		flex-wrap: wrap;
+	}
+
+	div.thm_header_hidden_extras {
+		flex-basis: 100%;
+		margin-top: 0.15rem;
+	}
+}
+
 /* Vertical-line markers for theorem statements and proofs. */
 
 div.theorem_thmcontent {
@@ -86,6 +106,40 @@ div.titlepage p.authors {
 div.titlepage p.repo-link {
 	margin-top: 0.15rem;
 	margin-bottom: 2rem;
+}
+
+/* The header of the dependency-graph page. dep_graph.css lays the title absolutely over
+   the whole header, centred, while the Home link sits left in the flow, so a long title
+   runs over the link on a narrow window. In the flow beside the link the two cannot
+   overlap; the title takes the remaining width, is centred there, and wraps and shrinks
+   on phones. The header may then grow beyond its fixed 3rem, and no header shrinks for
+   the content below it, which clipped a title of several lines on a phone. */
+body > header {
+	flex-shrink: 0;
+}
+
+body > header h1#doc_title {
+	position: static;
+	flex: 1;
+	margin: 0;
+	padding: 0 .5rem;
+	text-align: center;
+	line-height: 1.2;
+}
+
+body > header a.toc {
+	margin-right: 0;
+}
+
+body > header:has(> h1#doc_title) {
+	height: auto;
+	min-height: 3rem;
+}
+
+@media (max-width: 600px) {
+	body > header h1#doc_title {
+		font-size: 1.1rem;
+	}
 }
 
 /* The statement that opens on a click in the dependency graph fits the window:
