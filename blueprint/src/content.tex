@@ -92,7 +92,7 @@ a_n(S) := \inf \bigl\{ \|S - A\| : A \in \mathcal{L}(X, Y),
 \label{thm:approx-is-snumber}
 \lean{SNumbers.isStrictSNumberSequence_approximationNumber}
 \leanok
-\uses{def:approximation-number, def:strict-s-number-sequence}
+\uses{def:strict-s-number-sequence, def:approximation-number}
 Let $X, Y$ be Banach spaces over $\mathbb{K}$. Then the approximation
 numbers $a = (a_n)_n$ form a \emph{strict} s-number sequence: they
 satisfy the axioms (S1)--(S5) and the strengthening (S5$'$).
@@ -133,7 +133,7 @@ b_n(S) := \sup_{\dim M = n+1}
 \label{thm:bernstein-is-snumber}
 \lean{SNumbers.isStrictSNumberSequence_bernsteinNumber}
 \leanok
-\uses{def:bernstein-number, def:strict-s-number-sequence}
+\uses{def:strict-s-number-sequence, def:bernstein-number}
 Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
 over $\mathbb{K}$. Then the Bernstein numbers $b = (b_n)_n$ form a
 \emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
@@ -182,7 +182,7 @@ c_n(S) := \inf \bigl\{ \|S \restriction_M\| :
 \label{thm:gelfand-is-snumber}
 \lean{SNumbers.isStrictSNumberSequence_gelfandNumber}
 \leanok
-\uses{def:gelfand-number, def:strict-s-number-sequence}
+\uses{def:strict-s-number-sequence, def:gelfand-number}
 Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
 over $\mathbb{K}$. Then the Gelfand numbers $c = (c_n)_n$ form a
 \emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
@@ -232,7 +232,7 @@ d_n(S) := \inf_{\substack{V \subseteq Y \\ \dim V \le n}}
 \label{thm:kolmogorov-is-snumber}
 \lean{SNumbers.isStrictSNumberSequence_kolmogorovNumber}
 \leanok
-\uses{def:kolmogorov-number, def:strict-s-number-sequence}
+\uses{def:strict-s-number-sequence, def:kolmogorov-number}
 Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
 over $\mathbb{K}$. Then the Kolmogorov numbers $d = (d_n)_n$ form a
 \emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
@@ -277,7 +277,7 @@ $B_X$, given by
 \lean{SNumbers.Lifting.kolmogorovNumber_strict,
       SNumbers.Lifting.kolmogorovNumber_comp_comp_le}
 \leanok
-\uses{def:kolmogorov-number, def:approximation-number}
+\uses{def:approximation-number, def:kolmogorov-number}
 For every Banach space $X$ and every $S \in \mathcal{L}(X, Y)$,
 $d_n(S) = a_n(S \circ Q_X)$, and $d = (d_n)_n$ so defined is a \emph{strict}
 s-number sequence: it satisfies (S1)--(S5) and (S5$'$).
@@ -311,7 +311,7 @@ formalisations agree, by Pietsch's identity
 \label{thm:pietsch-identity}
 \lean{SNumbers.kolmogorovNumber_eq_approx}
 \leanok
-\uses{def:kolmogorov-number, def:approximation-number}
+\uses{def:approximation-number, def:kolmogorov-number}
 For every Banach space $X$ and every $S \in \mathcal{L}(X, Y)$, the
 canonical Kolmogorov number equals the approximation number of the lift:
 $d_n(S) = a_n(S \circ Q_X)$.
@@ -353,7 +353,7 @@ h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
 \label{prop:hilbert-is-snumber}
 \lean{SNumbers.isSNumberSequence_hilbertNumber}
 \leanok
-\uses{def:hilbert-number, def:approximation-number, def:s-number-sequence}
+\uses{def:s-number-sequence, def:approximation-number, def:hilbert-number}
 Let $X, Y$ be Banach spaces. Then the Hilbert numbers $h = (h_n)_n$ form an
 s-number sequence: they satisfy the axioms (S1)--(S5). The sequence $h$ is
 not strict: (S5$'$) fails in general.
@@ -472,7 +472,7 @@ operator-norm limit of a sequence of finite-rank operators.
 \lean{SVD.isApproximable_iff_existsLimit,
       SVD.isClosed_isApproximable}
 \leanok
-\uses{def:approximable, def:approximation-number}
+\uses{def:approximation-number, def:approximable}
 The approximable operators form a closed two-sided operator ideal: a
 subspace of $\mathcal{L}(X, Y)$, closed under pre/post-composition with
 bounded operators, closed in operator-norm topology, and containing all
@@ -538,7 +538,7 @@ continuity $S u = y = \|S\| v$.
 \label{thm:schmidt-representation}
 \lean{SVD.IsCompactOperator.SVD}
 \leanok
-\uses{def:approximation-number, thm:norm-singular-value}
+\uses{def:approximation-number}
 For every compact $S \in \mathcal{L}(H_1, H_2)$ there exist
 orthonormal sequences $(u_k) \subseteq H_1$, $(v_k) \subseteq H_2$ such
 that
@@ -565,7 +565,7 @@ the $n$-th residual has norm $\sigma_n$. Eckart--Young
 \label{thm:eckart-young}
 \lean{SVD.IsCompactOperator.truncation_residual_eq_approxNumber}
 \leanok
-\uses{def:approximation-number, thm:schmidt-representation}
+\uses{def:approximation-number}
 For every approximable $S \in \mathcal{L}(H_1, H_2)$ and every
 $n \in \mathbb{N}_0$ there exists $L \in \mathcal{L}(H_1, H_2)$ with
 $\operatorname{rank}(L) \le n$ and $\|S - L\| = a_n(S)$.
@@ -585,7 +585,7 @@ is by definition the infimum of $\|S - L'\|$ over such $L'$.
 \label{thm:schmidt-diagonal}
 \lean{SVD.IsCompactOperator.diagonalFactorisation}
 \leanok
-\uses{def:approximation-number, thm:schmidt-representation}
+\uses{def:approximation-number}
 For every compact $S \in \mathcal{L}(H_1, H_2)$ and every
 $n \in \mathbb{N}_0$ there exist contractions
 $A \in \mathcal{L}(\ell_2^{n+1}, H_1)$ and
@@ -618,7 +618,6 @@ pinning the \emph{exact} values $a_k$, it requires $S$ compact.
 \label{thm:scalar-factorisation}
 \lean{SVD.exists_scalar_factorisation}
 \leanok
-\uses{def:approximation-number}
 For \emph{any} bounded $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces
 and any real $c$ with $0 \le c < a_n(S)$, there are contractions
 $A \in \mathcal{L}(\ell_2^{n+1}, H_1)$, $B \in \mathcal{L}(H_2, \ell_2^{n+1})$
@@ -648,7 +647,7 @@ every bounded operator.
 \label{thm:compact-implies-approximable}
 \lean{SVD.IsCompactOperator.isApproximable}
 \leanok
-\uses{def:approximable, thm:schmidt-representation, thm:eckart-young}
+\uses{def:approximable}
 Every compact $S \in \mathcal{L}(H_1, H_2)$ between Hilbert spaces is
 approximable.
 \end{theorem}
@@ -666,7 +665,6 @@ operators converging to $S$ in operator norm.
 \label{thm:compact-iff-approximable}
 \lean{SVD.isApproximable_iff_isCompactOperator}
 \leanok
-\uses{thm:approximable-implies-compact, thm:compact-implies-approximable}
 On Hilbert spaces, $S$ is approximable iff $S$ is compact.
 \end{theorem}
 \begin{proof}
@@ -692,8 +690,7 @@ once.
 \lean{SNumbers.sn_eq_singularValues_of_finiteDimensional,
       SNumbers.project_singularValues_eq}
 \leanok
-\uses{def:s-number-sequence, thm:all-eq-on-hilbert, thm:schmidt-representation,
-  thm:eckart-young}
+\uses{def:s-number-sequence}
 Let $H_1, H_2$ be finite-dimensional Hilbert spaces over
 $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$. For every s-number sequence
 $s$, every $S \in \mathcal{L}(H_1, H_2)$ and every $n \in \mathbb{N}_0$,
@@ -824,14 +821,13 @@ combination.
 \lean{SNumbers.exists_projection_range_eq_of_rank_le,
       John.exists_projection}
 \leanok
-\uses{thm:john-decomposition}
 Let $Y$ be a normed $\mathbb{K}$-space and $V \subseteq Y$ a subspace of dimension
 $\le n$. Then there is a bounded projection $P : Y \to Y$ ($P \circ P = P$) with
 $\operatorname{range} P = V$ and $\|P\| \le \sqrt{n}$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:john-decomposition, thm:john-maxvolume}
+\uses{thm:john-maxvolume, thm:john-decomposition}
 A classical result \cite{KS71}, see also \cite[1.5.5]{Pietsch87}. Put $V$ in
 John position via the maximal-volume ellipsoid
 (Theorem~\ref{thm:john-maxvolume}): the decomposition of identity
@@ -848,7 +844,6 @@ $\|P\| \le \sqrt{\dim V} \le \sqrt{n}$.
 \lean{SNumbers.exists_projection_ker_eq_of_codim_le,
       John.exists_projection_ker}
 \leanok
-\uses{thm:john-decomposition}
 Let $X$ be a normed $\mathbb{K}$-space and $M \subseteq X$ a closed subspace of
 codimension $\le n$. Then for every $\varepsilon > 0$ there is a bounded
 projection $P : X \to X$ ($P \circ P = P$) with $\ker P = M$ and
@@ -856,7 +851,7 @@ $\|P\| \le \sqrt{n} + \varepsilon$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:john-decomposition, thm:john-maxvolume}
+\uses{thm:john-maxvolume, thm:john-decomposition}
 The dual of Kadets--Snobar (Theorem~\ref{thm:kadets-snobar}) \cite{GG71}, see
 also \cite[1.7.17]{Pietsch87}. Run the John development
 (Theorems~\ref{thm:john-maxvolume} and~\ref{thm:john-decomposition})
@@ -880,7 +875,7 @@ $\varepsilon \to 0$.
 \label{thm:approx-le-gelfand}
 \lean{SNumbers.approximationNumber_le_sqrt_mul_gelfandNumber}
 \leanok
-\uses{def:approximation-number, def:gelfand-number, thm:garling-gordon}
+\uses{def:approximation-number, def:gelfand-number}
 For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
 $a_n(S) \le (1 + \sqrt{n})\,c_n(S)$.
 \end{theorem}
@@ -902,7 +897,7 @@ infimum over $M$ gives the claim.
 \label{thm:approx-le-kolmogorov}
 \lean{SNumbers.approximationNumber_le_sqrt_mul_kolmogorovNumber}
 \leanok
-\uses{def:approximation-number, def:kolmogorov-number, thm:kadets-snobar}
+\uses{def:approximation-number, def:kolmogorov-number}
 For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
 $a_n(S) \le (1 + \sqrt{n})\,d_n(S)$.
 \end{theorem}
@@ -924,7 +919,6 @@ after taking the infimum.
 \label{thm:approx-le-min}
 \lean{SNumbers.approximationNumber_le_sqrt_mul_min}
 \leanok
-\uses{thm:approx-le-gelfand, thm:approx-le-kolmogorov}
 For $S \in \mathcal{L}(X, Y)$ between Banach spaces,
 \[
   a_n(S) \;\le\; (1 + \sqrt{n})\,\min\bigl(c_n(S), d_n(S)\bigr).
@@ -971,7 +965,7 @@ $\Delta_k(S) \le \|S\|^k$, via $\prod_i a_i(T) = |\det T|$
 \label{lem:prod-approx-eq-det}
 \lean{SNumbers.prod_approximationNumber_eq_norm_det}
 \leanok
-\uses{def:approximation-number, thm:sn-eq-singular-values}
+\uses{def:approximation-number}
 For an endomorphism $T$ of a finite-dimensional inner-product space,
 $\prod_{k < \dim} a_k(T) = |\det T|$.
 \end{lemma}
@@ -1015,7 +1009,7 @@ the corner; Laplace expansion along it gives the claim.
 \label{lem:det-growth}
 \lean{SNumbers.approximationNumber_mul_detNumber_le_detNumber_succ}
 \leanok
-\uses{def:det-quantity, lem:det-bordered, def:approximation-number}
+\uses{def:approximation-number, def:det-quantity}
 For every $S \in \mathcal{L}(X, Y)$ and $k \in \mathbb{N}_0$,
 \[
   \frac{k^k}{(k+1)^{k+1}}\; a_k(S)\; \Delta_k(S) \;\le\; \Delta_{k+1}(S).
@@ -1054,12 +1048,12 @@ induction from $\Delta_0(S) = 1$ and $a_k(S) \ge a_n(S)$.
 \label{lem:det-upper}
 \lean{SNumbers.detNumber_succ_le_hilbertNumber_mul}
 \leanok
-\uses{def:det-quantity, lem:prod-approx-eq-det, thm:schmidt-diagonal, def:hilbert-number}
+\uses{def:hilbert-number, def:det-quantity}
 $\Delta_{n+1}(S) \le h_n(S)\, \Delta_n(S)$.
 \end{lemma}
 \begin{proof}
 \leanok
-\uses{lem:prod-approx-eq-det, thm:schmidt-diagonal}
+\uses{thm:schmidt-diagonal, lem:prod-approx-eq-det}
 For admissible $(A, B)$ and $T := B S A$ on $\ell_2^{n+1}$,
 $|\det T| = \prod_{k \le n} a_k(T)$ (Lemma~\ref{lem:prod-approx-eq-det}).
 The last factor satisfies $a_n(T) \le \|B\|\|A\|\, h_n(S) \le h_n(S)$. For the
@@ -1077,7 +1071,7 @@ $\Delta_{n+1}(S)$.
 \lean{SNumbers.approximationNumber_le_mul_hilbertNumber,
       SNumbers.approximationNumber_le_e_mul_hilbertNumber}
 \leanok
-\uses{lem:det-growth, lem:det-upper, def:approximation-number, def:hilbert-number}
+\uses{def:approximation-number, def:hilbert-number}
 For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
 \[
   a_n(S) \;\le\; \frac{(n+1)^{n+1}}{n^n}\, h_n(S)
@@ -1106,7 +1100,6 @@ is a factor linear in $n$. This is the conjecture of Carl and Pietsch
 \label{cor:all-snumbers-bound}
 \lean{SNumbers.sn_le_e_mul_tn}
 \leanok
-\uses{thm:maximal-difference, thm:sandwich}
 For all s-number sequences $s, t$, every $S \in \mathcal{L}(X, Y)$ and every
 $n \in \mathbb{N}_0$,
 \[
@@ -1115,7 +1108,7 @@ $n \in \mathbb{N}_0$,
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{thm:maximal-difference, thm:sandwich}
+\uses{thm:sandwich, thm:maximal-difference}
 By the sandwich theorem (Theorem~\ref{thm:sandwich}) the Hilbert numbers are
 the smallest and the approximation numbers the largest s-number sequence, so
 Theorem~\ref{thm:maximal-difference} gives
@@ -1129,8 +1122,7 @@ conjecture} \cite{MH}, again up to the constant $e$.
 \label{cor:mityagin-henkin}
 \lean{SNumbers.max_gelfandNumber_kolmogorovNumber_le_e_mul_bernsteinNumber}
 \leanok
-\uses{cor:all-snumbers-bound, def:gelfand-number, def:kolmogorov-number,
-  def:bernstein-number}
+\uses{def:bernstein-number, def:gelfand-number, def:kolmogorov-number}
 For every $S \in \mathcal{L}(X, Y)$ and every $n \in \mathbb{N}_0$,
 \[
   \max\bigl(c_n(S), d_n(S)\bigr) \;\le\; e\,(n+1)\, b_n(S) .
@@ -1187,7 +1179,7 @@ $m^{1/p}$.
 \label{thm:sn-id-pq}
 \lean{SNumbers.approximationNumber_idEmbed_eq}
 \leanok
-\uses{def:approximation-number, thm:norm-id-pq, thm:sandwich}
+\uses{def:approximation-number, thm:sandwich}
 For $1 \le p \le q < \infty$ and $n < m$,
 \[
   a_n\bigl( \mathrm{id} : \ell_q^m \to \ell_p^m \bigr)
@@ -1240,7 +1232,7 @@ $n < m$.
 \label{thm:diag-same}
 \lean{SNumbers.norm_DiagCLM, SNumbers.sn_DiagCLM_eq}
 \leanok
-\uses{def:strict-s-number-sequence, thm:sandwich, prop:sn-id-p}
+\uses{def:strict-s-number-sequence, thm:sandwich}
 Let $1 \le p \le \infty$ and $D_\sigma : \ell_p^m \to \ell_p^m$. Then
 $\|D_\sigma\| = \max_i |\sigma_i|$, and for every \emph{strict}
 s-number sequence $s$ (in particular for $a_n$, $b_n$, $c_n$, $d_n$),
@@ -1274,7 +1266,7 @@ $h_n(D_\sigma) \le |\sigma_n|$; equality can fail for $p \neq 2$.
 \lean{SNumbers.norm_DiagCLMpq_eq,
       SNumbers.approximationNumber_DiagCLMpq_eq}
 \leanok
-\uses{def:approximation-number, thm:sandwich, thm:sn-id-pq}
+\uses{def:approximation-number, thm:sandwich}
 Let $1 \le p < q < \infty$ and define $r$ by
 $\tfrac1r = \tfrac1p - \tfrac1q$. For $D_\sigma : \ell_q^m \to \ell_p^m$,
 \[
@@ -1306,7 +1298,7 @@ every s-number sequence, and it needs no ordering of the diagonal.
 \label{thm:diag-reverse}
 \lean{SNumbers.norm_DiagCLMpq_iSup, SNumbers.sn_DiagCLMpq_le_of_exponent_ge}
 \leanok
-\uses{thm:diag-same, thm:sandwich}
+\uses{thm:sandwich}
 Let $1 \le q \le p \le \infty$ (including $p = \infty$). For
 $D_\sigma : \ell_q^m \to \ell_p^m$,
 \[
@@ -1375,7 +1367,6 @@ and there are $2^{|J|}$ of them.
 \lean{SNumbers.sum_norm_sq_apply_single_le,
       SNumbers.sum_norm_sq_row_le}
 \leanok
-\uses{lem:sign-averaging}
 Let $H$ be a Hilbert space and $J$ a finite set of indices.
 \begin{enumerate}
   \item For every $B \in \mathcal{L}(\ell_\infty, H)$,
@@ -1435,7 +1426,7 @@ over $j$ and use the row bound.
 \label{thm:hs-product-bound}
 \lean{SVD.mul_approximationNumber_le_of_factorization}
 \leanok
-\uses{thm:schmidt-representation, thm:eckart-young, def:approximation-number}
+\uses{def:approximation-number}
 Let $T = T_2 T_1$ be compact, with $T_1 \in \mathcal{L}(H_1, H_2)$ and
 $T_2 \in \mathcal{L}(H_2, H_3)$, and let $a, b \ge 0$ be such that
 \[
@@ -1475,7 +1466,6 @@ hypotheses gives $\sum_{k \le n}\sigma_k \le b\,a$.
 \lean{SNumbers.L1Linf.gelfand_le_one,
       SNumbers.L1Linf.half_le_gelfandNumber}
 \leanok
-\uses{def:gelfand-number}
 For all $n$, $\tfrac12 \le c_n(I) \le 1$.
 \end{proposition}
 \begin{proof}
@@ -1497,7 +1487,6 @@ every $\varepsilon > 0$.
 \label{prop:l1-linf-hilbert-lower}
 \lean{SNumbers.L1Linf.one_div_le_hilbertNumber}
 \leanok
-\uses{def:hilbert-number, prop:hilbert-is-snumber}
 $h_n(I) \ge (n+1)^{-1}$ for all $n$.
 \end{proposition}
 \begin{proof}
@@ -1517,14 +1506,13 @@ $h_n(\mathrm{id}_{\ell_2^{\,n+1}}) \ge 1$,
 \label{thm:l1-linf-hilbert-upper}
 \lean{SNumbers.L1Linf.hilbertNumber_le_one_div}
 \leanok
-\uses{def:hilbert-number, lem:little-grothendieck, lem:bessel-rows,
-  thm:hs-product-bound, thm:approximable-implies-compact}
+\uses{def:hilbert-number}
 $h_n(I) \le (n+1)^{-1}$ for all $n$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{lem:little-grothendieck, lem:bessel-rows, thm:hs-product-bound,
-  thm:approximable-implies-compact}
+\uses{thm:approximable-implies-compact, lem:little-grothendieck, lem:bessel-rows,
+  thm:hs-product-bound}
 Let $A \in \mathcal{L}(\ell_2, \ell_1)$ and $B \in \mathcal{L}(\ell_\infty,
 \ell_2)$ be non-zero; we must bound $a_n(B I A) \le \|A\|\,\|B\|/(n+1)$.
 Factorising $I = J_2 J_1$ with the norm-one inclusions
@@ -1557,12 +1545,11 @@ admissible $A, B$ gives $h_n(I) \le (n+1)^{-1}$.
 \label{cor:l1-linf-hilbert-eq}
 \lean{SNumbers.L1Linf.hilbertNumber_eq_one_div}
 \leanok
-\uses{thm:l1-linf-hilbert-upper, prop:l1-linf-hilbert-lower}
 $h_n(I) = (n+1)^{-1}$ for all $n$.
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{thm:l1-linf-hilbert-upper, prop:l1-linf-hilbert-lower}
+\uses{prop:l1-linf-hilbert-lower, thm:l1-linf-hilbert-upper}
 Combine Proposition~\ref{prop:l1-linf-hilbert-lower} and
 Theorem~\ref{thm:l1-linf-hilbert-upper}.
 \end{proof}
@@ -1574,7 +1561,7 @@ Theorem~\ref{thm:l1-linf-hilbert-upper}.
 \label{cor:l1-linf-order-optimal}
 \lean{SNumbers.L1Linf.mul_hilbertNumber_le_gelfandNumber}
 \leanok
-\uses{cor:l1-linf-hilbert-eq, prop:l1-linf-gelfand, thm:maximal-difference}
+\uses{thm:maximal-difference}
 For all $n$,
 \[
   \frac{n+1}{2}\, h_n(I) \;\le\; c_n(I) \;\le\; a_n(I) ,
@@ -1584,7 +1571,7 @@ Hence no bound $a_n \le \varphi(n)\,h_n$ can hold with $\varphi(n) = o(n)$.
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{cor:l1-linf-hilbert-eq, prop:l1-linf-gelfand}
+\uses{prop:l1-linf-gelfand, cor:l1-linf-hilbert-eq}
 By Corollary~\ref{cor:l1-linf-hilbert-eq}, $\tfrac{n+1}{2}\, h_n(I) = \tfrac12$,
 which is at most $c_n(I)$ by Proposition~\ref{prop:l1-linf-gelfand}.
 \end{proof}
@@ -1651,7 +1638,7 @@ unchanged, $s_n(S \circ Q) = s_n(S)$.
 \label{thm:gelfand-injective}
 \lean{SNumbers.injective_gelfandNumber}
 \leanok
-\uses{def:injective-surjective, def:gelfand-number, lem:metric-norm-comp}
+\uses{def:gelfand-number, def:injective-surjective}
 The Gelfand numbers $c_n$ form an injective s-number sequence:
 $c_n(J \circ S) = c_n(S)$ for every metric injection $J$.
 \end{theorem}
@@ -1668,7 +1655,7 @@ term by term, so the Gelfand numbers agree.
 \label{thm:kolmogorov-surjective}
 \lean{SNumbers.surjective_kolmogorovNumber}
 \leanok
-\uses{def:injective-surjective, def:kolmogorov-number, lem:metric-norm-comp}
+\uses{def:kolmogorov-number, def:injective-surjective}
 The Kolmogorov numbers $d_n$ form a surjective s-number sequence:
 $d_n(S \circ Q) = d_n(S)$ for every metric surjection $Q$.
 \end{theorem}
@@ -1732,7 +1719,7 @@ $S(B_X)$, for every $\delta > 0$.
 \label{thm:entropy-additive}
 \lean{SNumbers.entropyNumber_additive, SNumbers.entropyNumber_add_le}
 \leanok
-\uses{def:entropy-number, prop:entropy-basic}
+\uses{def:entropy-number}
 For all $S, T \in \mathcal{L}(X, Y)$ and $n, m \in \mathbb{N}_0$,
 \[
   e_{n+m}(S + T) \;\le\; e_n(S) + e_m(T) .
@@ -1755,7 +1742,7 @@ $e_n(S + T) \le e_n(S) + \|T\|$.
 \label{thm:entropy-multiplicative}
 \lean{SNumbers.entropyNumber_multiplicative, SNumbers.entropyNumber_comp_comp_le}
 \leanok
-\uses{def:entropy-number, prop:entropy-basic}
+\uses{def:entropy-number}
 Let the norm values of $\mathbb{K}$ be dense in $[0, \infty)$ (as for
 $\mathbb{R}$ and $\mathbb{C}$). Then for all $S \in \mathcal{L}(X, Y)$,
 $B \in \mathcal{L}(Y, Z)$ and $n, m \in \mathbb{N}_0$,
@@ -1849,7 +1836,7 @@ $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$.
 \lean{SNumbers.kolmogorovNumber_le_of_fin_net,
       SNumbers.gelfandNumber_le_two_mul_of_fin_net}
 \leanok
-\uses{def:kolmogorov-number, def:gelfand-number}
+\uses{def:gelfand-number, def:kolmogorov-number}
 Let $S \in \mathcal{L}(X, Y)$ and suppose every $x \in B_X$ satisfies
 $\|Sx - y_i\| \le \varepsilon$ for some member of a family
 $y_1, \dots, y_k \in Y$. Then
@@ -1879,7 +1866,7 @@ $\|Sx\| \le \|Sx - y_i\| + \|y_i\| \le 2\varepsilon$.
 \lean{SNumbers.kolmogorovNumber_two_pow_le_entropyNumber,
       SNumbers.gelfandNumber_two_pow_le_two_mul_entropyNumber}
 \leanok
-\uses{thm:covering-estimates, def:entropy-number}
+\uses{def:entropy-number, thm:covering-estimates}
 For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
 \[
   d_{2^n}(S) \;\le\; e_n(S)
@@ -1945,7 +1932,6 @@ need not tend to $0$.)
 \label{thm:compact-iff-sn-hilbert}
 \lean{SVD.isCompactOperator_iff_tendsto_sn}
 \leanok
-\uses{thm:all-eq-on-hilbert, thm:compact-iff-approximable}
 Let $H_1, H_2$ be Hilbert spaces and $s$ any s-number sequence. Then
 $S \in \mathcal{L}(H_1, H_2)$ is compact if and only if $s_n(S) \to 0$.
 \end{theorem}
@@ -1981,7 +1967,7 @@ $2^n$, contradicting admissibility.
 \label{thm:triangular-flags}
 \lean{SNumbers.exists_kolmogorov_flag, SNumbers.exists_gelfand_flag}
 \leanok
-\uses{def:kolmogorov-number, def:gelfand-number}
+\uses{def:gelfand-number, def:kolmogorov-number}
 Let $\gamma < d_n(S)$. Then there are $x_0, \dots, x_n \in B_X$ and subspaces
 $V_0, \dots, V_n \subseteq Y$ with $S x_k \in V_j$ for $k < j$ and
 $\|S x_j + w\| > \gamma$ for all $w \in V_j$. Dually, for
@@ -2061,7 +2047,7 @@ $2^n \varepsilon^D \le 2^n 2^{-(n+1)} = 1/2$, a contradiction.
 \lean{SNumbers.hilbertNumber_le_two_mul_entropyNumber,
       SNumbers.approximationNumber_le_two_mul_entropyNumber}
 \leanok
-\uses{prop:entropy-identity, thm:scalar-factorisation, thm:entropy-multiplicative}
+\uses{thm:scalar-factorisation, thm:entropy-multiplicative, prop:entropy-identity}
 For every $S \in \mathcal{L}(X, Y)$ and $n \in \mathbb{N}_0$,
 \[
   h_n(S) \;\le\; 2\, e_n(S) .
