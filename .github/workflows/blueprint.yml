@@ -143,17 +143,18 @@ jobs:
       - name: Let the dependency graph take pinch and ctrl+wheel zoom
         run: python blueprint/scripts/dep_graph_zoom.py
 
-      # Make the title page reachable from every page and the repository from
-      # the title page. The menu of each chapter page gains a first entry
-      # "Home" that leads to index.html, as the dependency graph page already
-      # has, followed by the entry for the dependency graph, which
-      # leanblueprint puts at the end; the title page gains a link to the
-      # GitHub repository below the author. plasTeX renders neither: `\home`
-      # and `\github` in web.tex only feed other templates.
-      - name: Link the title page from every page and the repository from it
+      # Make the title page reachable from every page, and the repository and
+      # the dependency graph from the title page. The menu of each chapter page
+      # gains a first entry "Home" that leads to index.html, as the dependency
+      # graph page already has, followed by the entry for the dependency graph,
+      # which leanblueprint puts at the end; the title page gains two lines
+      # below the author, the GitHub repository and the dependency graph.
+      # plasTeX renders none of these: `\home` and `\github` in web.tex only
+      # feed other templates.
+      - name: Link the title page from every page, and the repository and the graph from it
         run: |
           sed -i '/^<li ><a href="dep_graph_document.html">Dependency graph<\/a><\/li>$/d; s#<ul class="sub-toc-0">#&\n<li ><a href="index.html">Home</a></li>\n<li ><a href="dep_graph_document.html">Dependency graph</a></li>#' blueprint/web/*.html
-          sed -i 's#<span class="author">Mario Ullrich</span>#&</p>\n<p class="repo-link">GitHub: <a href="https://github.com/mario-ullrich/Lean-SNumbers">Lean-SNumbers</a>#' blueprint/web/index.html
+          sed -i 's#<span class="author">Mario Ullrich</span>#&</p>\n<p class="repo-link">GitHub: <a href="https://github.com/mario-ullrich/Lean-SNumbers">Lean-SNumbers</a></p>\n<p class="repo-link"><a href="dep_graph_document.html">Dependency graph</a>#' blueprint/web/index.html
 
       # Point the `\lean{...}` links at this repository. leanblueprint builds
       # them as `{dochome}/find/#doc/Decl` and, with no `\dochome` set, falls

@@ -97,14 +97,17 @@ div.proof_wrapper {
 	margin-bottom: 2.5rem;
 }
 
-/* The repository line on the title page, added below the author by the
-   workflow: close to the author, with room before the page goes on. */
+/* The two link lines on the title page, added below the author by the workflow:
+   close to the author and to each other, with room before the page goes on. */
 div.titlepage p.authors {
 	margin-bottom: 0.15rem;
 }
 
 div.titlepage p.repo-link {
-	margin-top: 0.15rem;
+	margin: 0.15rem 0;
+}
+
+div.titlepage p.repo-link:last-of-type {
 	margin-bottom: 2rem;
 }
 
