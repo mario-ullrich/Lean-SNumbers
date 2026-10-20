@@ -131,6 +131,11 @@ leanblueprint web          # blueprint/web/index.html and the dependency graph
 python blueprint/scripts/check_lean_decls.py   # checks that every \lean{Decl} resolves
 ```
 
+On Windows, set `PYTHONUTF8=1` before `leanblueprint web` (in PowerShell
+`$env:PYTHONUTF8 = 1`): without it plasTeX writes some characters of the pages, the
+proof arrows among them, through the system code page, and the browser shows them
+garbled. The GitHub Actions build runs on Linux, where UTF-8 is the default.
+
 GitHub Actions builds the project and the blueprint on every push to `main`, and deploys
 the blueprint to GitHub Pages. Neither output is committed. To read a local build, or the
 workflow artifact `blueprint-YYYYMMDD` of a run, serve its folder (for instance with
