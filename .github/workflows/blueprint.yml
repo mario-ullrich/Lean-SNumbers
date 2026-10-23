@@ -132,9 +132,21 @@ jobs:
       #   * Reorient the graph left-to-right (rankdir=LR): base results on the
       #     left, derived results on the right. plastexdepgraph sets no rankdir,
       #     so we inject one right after the "digraph ... {" opening brace.
-      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows, draw all edges solid, title the page, lay out left-to-right)
+      #   * Merge edges that share an endpoint into one line where they run in
+      #     parallel (concentrate=true), which thins the bundle at the five
+      #     "is an s-number sequence" nodes.
+      #   * Set the entropy chapters apart: their nodes form a cluster with a
+      #     strong dark rounded frame and a bold label, appended before the
+      #     closing brace of the graph source "}`)" (unique on the page), so
+      #     that the nodes keep the default attributes declared at the top. An
+      #     invisible outer cluster with a margin keeps the rest of the graph
+      #     at a distance. Every name listed must be a node of the graph; a
+      #     missing one would appear as an empty node. The label is set in
+      #     Helvetica, whose metrics match the fonts browsers substitute for
+      #     it, and its leading blanks keep it off the rounded corner.
+      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows, draw all edges solid, title the page, lay out left-to-right, bundle edges, set the entropy block apart)
         run: |
-          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\[style=dashed\]//g; s/<h1 id="doc_title">Dependencies<\/h1>/<h1 id="doc_title">s-Numbers: Dependencies<\/h1>/; s/\(digraph[^{]*{\)/\1 rankdir="LR";/' blueprint/web/dep_graph_document.html
+          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\[style=dashed\]//g; s/<h1 id="doc_title">Dependencies<\/h1>/<h1 id="doc_title">s-Numbers: Dependencies<\/h1>/; s/\(digraph[^{]*{\)/\1 rankdir="LR"; concentrate=true;/; s/}`)/ subgraph cluster_entropy_halo { style=invis; margin=40; subgraph cluster_entropy { label="   Entropy numbers"; labeljust=l; fontname="Helvetica-Bold"; fontsize=20; fontcolor="#303030"; color="#404040"; style=rounded; penwidth=2.5; margin=18; "def:entropy-number"; "prop:entropy-basic"; "thm:entropy-additive"; "thm:entropy-multiplicative"; "thm:entropy-compact"; "thm:covering-estimates"; "cor:dyadic-entropy"; "thm:compact-iff-gelfand-kolmogorov"; "thm:compact-iff-sn-hilbert"; "prop:entropy-lower-bound"; "thm:triangular-flags"; "thm:gelfand-kolmogorov-le-entropy"; "prop:entropy-identity"; "thm:hilbert-entropy"; "cor:snumbers-entropy"; } } }`)/' blueprint/web/dep_graph_document.html
 
       # Zoom the graph, not the page: d3's zoom ignores ctrl+wheel, which is how
       # a touchpad pinch arrives, so the browser zoomed the whole page and with
