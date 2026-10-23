@@ -51,3 +51,6 @@ __pycache__/
 *.pyc
 venv/
 .venv/
+
+# Paper sources (untracked)
+refs/
