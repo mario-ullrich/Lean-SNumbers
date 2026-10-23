@@ -56,7 +56,9 @@ Throughout, `T : X → Y` is a bounded operator between normed spaces over `ℝ`
   `s_{n+m}(S ∘ T) ≤ sₙ(S) · s_m(T)` (`SNumbers.approximationNumber_additive`,
   `SNumbers.approximationNumber_multiplicative`, and likewise for `gelfandNumber` and
   `kolmogorovNumber`), and the Hilbert numbers satisfy the first
-  (`SNumbers.hilbertNumber_additive`).
+  (`SNumbers.hilbertNumber_additive`). The Bernstein numbers satisfy neither: explicit
+  operators built from the identities between `ℓ₂ᴺ` and `ℓ∞ᴺ` violate both
+  (`SNumbers.not_additive_bernsteinNumber`, `SNumbers.not_multiplicative_bernsteinNumber`).
 * **Gelfand and Kolmogorov numbers against approximation numbers.** The classical
   bound `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))`, via the Kadets–Snobar and
   Garling–Gordon projection theorems

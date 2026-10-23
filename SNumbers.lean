@@ -26,6 +26,7 @@ public import SNumbers.Examples.FlatnessLemmas
 public import SNumbers.Examples.Identity
 public import SNumbers.Examples.DiagonalMatrices
 public import SNumbers.Examples.IdentityL1Linfty
+public import SNumbers.Examples.IdentityL2Linfty
 
 /-!
 # s-Numbers of bounded linear operators between Banach spaces
@@ -167,6 +168,11 @@ tend to `0`.
   two Hilbert–Schmidt factors of `B I A` by sign averaging
   (`BasicResults.LittleGrothendieck`), then sums the singular values of the compact
   operator `B I A` via Bessel and Cauchy–Schwarz.
+* `SNumbers.Examples.IdentityL2Linfty`: the identities between `ℓ₂ᴺ` and `ℓ∞ᴺ`, with
+  `bₙ(ℓ₂ᴺ → ℓ∞ᴺ) ≤ 1/√(n+1)` and `bₙ(ℓ∞ᴺ → ℓ₂ᴺ) ≤ √(N/(n+1))`, and from them two
+  explicit counterexamples: the Bernstein numbers are neither multiplicative
+  (`not_multiplicative_bernsteinNumber`, on `ℓ₂³` and `ℓ∞³`) nor additive
+  (`not_additive_bernsteinNumber`, on `ℓ₂⁷¹ × ℓ∞⁷¹`).
 
 A companion library `BasicResults` collects the supporting classical theory:
 Auerbach's lemma, John's ellipsoid with the two projection theorems it yields

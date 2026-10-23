@@ -104,7 +104,8 @@ $s_n(BSA) \le s_0(B) \, s_n(SA) \le \|B\| \, s_n(S) \, s_0(A)$
 \texttt{Multiplicative.idealLike}). The
 approximation, Gelfand and Kolmogorov numbers are additive and
 multiplicative and obtain (S2) and (S3) in this way; the Hilbert numbers are
-additive.
+additive, and the Bernstein numbers are neither
+(Theorem~\ref{thm:bernstein-is-snumber}).
 
 \chapter{The five canonical examples}
 \label{ch:examples}
@@ -186,15 +187,23 @@ b_n(S) := \sup_{\dim M = n+1}
 \]
 \end{definition}
 
+Over $\mathbb{R}$ and $\mathbb{C}$ the Bernstein numbers are neither
+additive nor multiplicative; this is \cite[Theorem~3]{Pietsch08}. Pietsch's
+proof uses the identities between
+$\ell_2^N$ and $\ell_\infty^N$ together with the $2$-summing norm; the
+proof below uses the same identities with elementary bounds, in dimensions
+$3$ and $71$.
+
 \begin{theorem}
 \label{thm:bernstein-is-snumber}
-\lean{SNumbers.isStrictSNumberSequence_bernsteinNumber}
+\lean{SNumbers.isStrictSNumberSequence_bernsteinNumber, SNumbers.not_additive_bernsteinNumber, SNumbers.not_multiplicative_bernsteinNumber}
 \leanok
-\uses{def:strict-s-number-sequence, def:bernstein-number}
+\uses{def:strict-s-number-sequence, def:additive-sequence, def:multiplicative-sequence, def:bernstein-number}
 Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
 over $\mathbb{K}$. Then the Bernstein numbers $b = (b_n)_n$ form a
 \emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
-strengthening (S5$'$).
+strengthening (S5$'$). If $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$, then
+$b$ is neither additive nor multiplicative.
 \end{theorem}
 \begin{proof}
 \leanok
@@ -214,11 +223,49 @@ $\gamma(BSA, M) \le \|B\| \, \gamma(S, M') \, \|A\| \le
 $\le n$ has nontrivial kernel on every $(n+1)$-dimensional subspace by
 rank--nullity, forcing the gain to zero. Finally (S5$'$): the identity has
 gain $1$ on every nontrivial subspace, and $\dim X > n$ guarantees an
-$(n+1)$-dimensional subspace exists.
-\end{proof}
+$(n+1)$-dimensional subspace exists. All of this needs only a non-trivially
+normed scalar field: no completeness, and no Riesz lemma.
 
-The argument needs only a non-trivially normed scalar field~$\mathbb{K}$:
-no completeness, and no Riesz lemma.
+For the two failures let $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$ and
+write $\ell_p^N$ for $\mathbb{K}^N$ with the $p$-norm. Two bounds on the
+identities enter:
+\[
+  b_n(\mathrm{id} : \ell_2^N \to \ell_\infty^N) \le \frac{1}{\sqrt{n+1}},
+  \qquad
+  b_n(\mathrm{id} : \ell_\infty^N \to \ell_2^N) \le \sqrt{\frac{N}{n+1}} .
+\]
+For the first bound (\texttt{bernsteinNumber\_idEmbed\_two\_infty\_le}) let
+$M \subseteq \mathbb{K}^N$ have dimension $n + 1$. By the flatness lemma
+behind the Gelfand-width lower bounds, an extreme point argument, $M$
+contains a vector $x$ with $|x_i| \le 1$ for all $i$ and $|x_i| = 1$ for at
+least $n + 1$ indices $i$; then $\|x\|_\infty \le 1$ and
+$\|x\|_2 \ge \sqrt{n+1}$. For the second bound
+(\texttt{bernsteinNumber\_idEmbed\_infty\_two\_le}) let $c$ be the gain of
+the identity $\ell_\infty^N \to \ell_2^N$ on an $(n+1)$-dimensional $M$, and
+let
+$v_1, \dots, v_{n+1}$ be an orthonormal basis of $M$ for the inner product
+of $\ell_2^N$. For a coordinate $k$ put $s_k := \sum_i |v_i(k)|^2$ and
+$x := \sum_i \overline{v_i(k)} \, v_i \in M$. Then $x(k) = s_k$ and
+$\|x\|_2^2 = s_k$, so $c \, s_k \le c \, \|x\|_\infty \le \|x\|_2 =
+\sqrt{s_k}$, that is, $c^2 s_k \le 1$; summing over $k$ and using
+$\sum_k s_k = \sum_i \|v_i\|_2^2 = n + 1$ gives $c^2 (n+1) \le N$.
+
+Multiplicativity fails for $T = \mathrm{id} : \ell_2^3 \to \ell_\infty^3$
+and $S = \mathrm{id} : \ell_\infty^3 \to \ell_2^3$
+(\texttt{bernsteinNumber\_mul\_lt\_comp}): the composition $S T$ is
+the identity of $\ell_2^3$, so $b_2(S T) = 1$ by (S5$'$), while the two
+bounds give $b_1(S) \, b_1(T) \le \sqrt{3/2} \cdot 1/\sqrt{2} = \sqrt{3}/2
+< 1$. Additivity fails on $Z = \ell_2^{71} \times \ell_\infty^{71}$ with the
+norm $\|(x, y)\| = \max\{\|x\|_2, \|y\|_\infty\}$ for the operators
+$S(x, y) = (0, x)$ and $T(x, y) = (y/9, 0)$
+(\texttt{bernsteinNumber\_add\_lt}): on the $71$-dimensional
+subspace $E = \{(x, 3x) : x \in \mathbb{K}^{71}\}$ the operator $S + T$
+acts as multiplication by $1/3$, since $(S + T)(x, 3x) = (x/3, x)$, hence
+$b_{70}(S + T) \ge 1/3$; by the ideal property and the two bounds,
+$b_{35}(S) \le b_{35}(\mathrm{id} : \ell_2^{71} \to \ell_\infty^{71}) \le
+1/6$ and $b_{35}(T) \le \tfrac19 \, b_{35}(\mathrm{id} : \ell_\infty^{71}
+\to \ell_2^{71}) \le \tfrac19 \sqrt{71/36} < \tfrac16$, since $71 < 81$.
+\end{proof}
 
 \section{Gelfand numbers $c_n$}
 \label{sec:gelf}
@@ -2278,6 +2325,12 @@ A.~Pietsch,
 \emph{Eigenvalues and s-numbers},
 Cambridge Studies in Advanced Mathematics~13, Cambridge University Press, 1987,
 \href{https://zbmath.org/3996455}{link}.
+
+\bibitem{Pietsch08}
+A.~Pietsch,
+\emph{Bad properties of the Bernstein numbers},
+Studia Math.\ \textbf{184} (2008), 263--269,
+\href{https://doi.org/10.4064/sm184-3-5}{doi}.
 
 \bibitem{U24}
 M.~Ullrich,
