@@ -12,23 +12,6 @@ public import Mathlib.LinearAlgebra.Dimension.LinearMap
 /-!
 # s-Numbers: rank definition and the Pietsch axioms
 
-This file collects:
-
-* `ContinuousLinearMap.rank`: a thin wrapper around `LinearMap.rank` providing
-  dot notation for continuous linear maps. Auxiliary rank facts live in
-  `SNumbers.ContinuousLinearMapRank`.
-* The five Pietsch axioms (S1)–(S5) characterising an *s-number sequence*,
-  packaged in the structure `IsSNumberSequence`.
-* The strengthening (S5') and the structure `IsStrictSNumberSequence`.
-* **Homogeneity** (`norm_smul_sn`): every s-number sequence satisfies
-  `sₙ(c • T) = ‖c‖ · sₙ(T)`, with the two one-sided inequalities
-  `sn_smul_le` and `norm_smul_le_sn`. This is a consequence of the axioms
-  (essentially (S3)), so it belongs here with the abstract theory.
-* **Norm bound** (`IsSNumberSequence.le_norm`): every s-number sequence
-  satisfies `sₙ S ≤ ‖S‖`, since `sₙ S ≤ s₀ S = ‖S‖` (antitonicity + (S1a)).
-  Like homogeneity, a consequence of the axioms belonging with the abstract
-  theory; the concrete `…_le_norm` lemmas in each file are its instances.
-
 An s-number sequence assigns to every bounded linear operator
 `S : X →L[𝕜] Y` between (real or complex) Banach spaces a sequence
 `(s_n S)_{n ∈ ℕ}` of non-negative reals satisfying:
@@ -39,8 +22,30 @@ An s-number sequence assigns to every bounded linear operator
 * (S4) `s n S = 0` whenever `rank S ≤ n`,
 * (S5) `s n (id_{ℓ₂^{n+1}}) = 1`.
 
-A *strict* s-number sequence additionally satisfies the strengthening
-(S5') `s n (id_X) = 1` for every `X` with `dim X > n`, not just `ℓ₂^{n+1}`.
+Three strengthenings of single axioms are classical. An s-number sequence is
+
+* *strict* if (S5') `s n (id_X) = 1` for every `X` with `dim X > n`, not just `ℓ₂^{n+1}`;
+* *additive* if `s (n+m) (S + T) ≤ s n S + s m T`, the strong form of (S2);
+* *multiplicative* if `s (n+m) (S ∘ T) ≤ s n S * s m T`, the strong form of (S3).
+
+## Main definitions
+
+* `ContinuousLinearMap.rank`: a thin wrapper around `LinearMap.rank` providing
+  dot notation for continuous linear maps. Auxiliary rank facts live in
+  `SNumbers.ContinuousLinearMapRank`.
+* `SNumbers.IsSNumberSequence`: the axioms (S1)–(S5).
+* `SNumbers.IsStrictSNumberSequence`: the axioms (S1)–(S5) together with (S5').
+* `SNumbers.Additive`, `SNumbers.Multiplicative`: additivity and multiplicativity.
+
+## Main results
+
+* `SNumbers.IsSNumberSequence.le_norm`: every s-number sequence satisfies
+  `sₙ S ≤ ‖S‖`, since `sₙ S ≤ s₀ S = ‖S‖`; the concrete `…_le_norm` lemmas in
+  each file are its instances.
+* `SNumbers.Additive.subadditive`, `SNumbers.Multiplicative.idealLike`: the
+  strong forms imply (S2) and (S3), using `s 0 = ‖·‖`.
+* `SNumbers.norm_smul_sn`: **homogeneity** `sₙ(c • T) = ‖c‖ · sₙ(T)`, with the
+  two one-sided inequalities `sn_smul_le` and `norm_smul_le_sn`, a consequence of (S3).
 
 ## Index convention
 
@@ -182,6 +187,59 @@ not just on `ℓ₂^{n+1}`. -/
 structure IsStrictSNumberSequence (s : Family 𝕜) : Prop extends IsSNumberSequence s where
   /-- (S5') `s n (id_X) = 1` whenever `dim X > n`. -/
   strictly_normalised_at_id : StrictlyNormalisedAtId s
+
+/-! ### Additive and multiplicative sequences
+
+Additivity and multiplicativity are the strong forms of the axioms (S2) and (S3).
+Together with `s · 0 = ‖·‖` they imply the weak forms; the approximation, Gelfand and
+Kolmogorov numbers prove (S2) and (S3) in this way. -/
+
+/-- **Additivity**: `s (S + T) (n + m) ≤ s S n + s T m` for all operators `S, T : X → Y`
+and all `n, m`.
+
+This is the classical strengthening of (S2): taking `m = 0` and `s T 0 = ‖T‖` gives
+(S2) back (`Additive.subadditive`). In Pietsch's `1`-based indexing it reads
+`s_{n+m-1}(S + T) ≤ s_n(S) + s_m(T)`. -/
+def Additive (s : Family 𝕜) : Prop :=
+  ∀ {X Y : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+      [NormedAddCommGroup Y] [NormedSpace 𝕜 Y] (S T : X →L[𝕜] Y) (n m : ℕ),
+    s (S + T) (n + m) ≤ s S n + s T m
+
+/-- **Multiplicativity**: `s (S ∘ T) (n + m) ≤ s S n * s T m` for all operators
+`T : X → Y`, `S : Y → Z` and all `n, m`.
+
+This is the classical strengthening of (S3): applying it twice with one index `0`
+and `s · 0 = ‖·‖` gives (S3) back (`Multiplicative.idealLike`). In Pietsch's
+`1`-based indexing it reads `s_{n+m-1}(S T) ≤ s_n(S) · s_m(T)`. -/
+def Multiplicative (s : Family 𝕜) : Prop :=
+  ∀ {X Y Z : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+      [NormedAddCommGroup Y] [NormedSpace 𝕜 Y]
+      [NormedAddCommGroup Z] [NormedSpace 𝕜 Z]
+      (S : Y →L[𝕜] Z) (T : X →L[𝕜] Y) (n m : ℕ),
+    s (S.comp T) (n + m) ≤ s S n * s T m
+
+/-- Additivity implies (S2): take `m = 0` and use `s T 0 = ‖T‖`. -/
+theorem Additive.subadditive {s : Family 𝕜} (h : Additive s) (h0 : NormAtZero s) :
+    Subadditive s := by
+  intro X Y _ _ _ _ S T n
+  have h' := h S T n 0
+  rwa [Nat.add_zero, h0 T] at h'
+
+/-- Multiplicativity implies (S3): `s (B ∘ (S ∘ A)) n ≤ s B 0 · s (S ∘ A) n` and
+`s (S ∘ A) n ≤ s S n · s A 0`, with `s B 0 = ‖B‖` and `s A 0 = ‖A‖`. -/
+theorem Multiplicative.idealLike {s : Family 𝕜} (h : Multiplicative s) (h0 : NormAtZero s) :
+    IdealLike s := by
+  intro W X Y Z _ _ _ _ _ _ _ _ A S B n
+  have hSA : s (S.comp A) n ≤ s S n * ‖A‖ := by
+    have h' := h S A n 0
+    rwa [Nat.add_zero, h0 A] at h'
+  have hB : s (B.comp (S.comp A)) n ≤ ‖B‖ * s (S.comp A) n := by
+    have h' := h B (S.comp A) 0 n
+    rwa [Nat.zero_add, h0 B] at h'
+  calc s (B.comp (S.comp A)) n
+      ≤ ‖B‖ * s (S.comp A) n := hB
+    _ ≤ ‖B‖ * (s S n * ‖A‖) := mul_le_mul_of_nonneg_left hSA (norm_nonneg B)
+    _ = ‖B‖ * s S n * ‖A‖ := (mul_assoc _ _ _).symm
 
 /-! ### Homogeneity
 

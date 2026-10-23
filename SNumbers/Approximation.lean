@@ -37,6 +37,10 @@ s-number sequence `s`).
 * `SNumbers.approximationNumber_zero_eq_norm` : `a_0 S = ‖S‖`              (S1a)
 * `SNumbers.approximationNumber_antitone` : `a_{n+1} S ≤ a_n S`            (S1b)
 * `SNumbers.approximationNumber_nonneg` : `0 ≤ a_n S`                      (S1c)
+* `SNumbers.approximationNumber_additive` :
+    `a_{n+m} (S + T) ≤ a_n S + a_m T`                                       (additivity)
+* `SNumbers.approximationNumber_multiplicative` :
+    `a_{n+m} (S ∘ T) ≤ a_n S * a_m T`                                       (multiplicativity)
 * `SNumbers.approximationNumber_add_le` : `a_n (S + T) ≤ a_n S + ‖T‖`      (S2)
 * `SNumbers.approximationNumber_comp_comp_le` :
     `a_n (B ∘ S ∘ A) ≤ ‖B‖ * a_n S * ‖A‖`                                   (S3)
@@ -151,96 +155,129 @@ lemma approximationNumber_eq_zero_of_rank_le {S : X →L[𝕜] Y} {n : ℕ}
   have h0 : (0 : ℝ) ∈ approximationSet S n := ⟨S, hS, by simp⟩
   exact csInf_le (bddBelow_approximationSet S n) h0
 
-/-! ### (S2) Subadditivity -/
+/-! ### Additivity and multiplicativity
 
-/-- (S2) `a_n (S + T) ≤ a_n S + ‖T‖`. -/
-lemma approximationNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
-    approximationNumber (S + T) n ≤ approximationNumber S n + ‖T‖ := by
-  -- For each `L` with rank ≤ n we have `‖(S+T) - L‖ ≤ ‖S - L‖ + ‖T‖`, and
-  -- the LHS is in the approximation set of `S+T`. Hence
-  -- `a_n(S+T) ≤ ‖S - L‖ + ‖T‖`. Taking the infimum over `L` and using
-  -- `csInf_le_iff`/`le_sub_iff_add_le` gives the bound.
+The strong forms of (S2) and (S3), in which both operators are approximated
+(cf. Pietsch, *Eigenvalues and s-numbers*, Section 2.3):
+
+* if `L` approximates `S` with rank `≤ n` and `K` approximates `T` with rank `≤ m`,
+  then `L + K` approximates `S + T` with rank `≤ n + m`;
+* for composition, `R := L ∘ T + (S - L) ∘ K` has rank `≤ n + m` and leaves the
+  residual `S ∘ T - R = (S - L) ∘ (T - K)`.
+
+Taking the infimum over `L` and `K` gives `a_{n+m}(S + T) ≤ aₙ(S) + a_m(T)` and
+`a_{n+m}(S ∘ T) ≤ aₙ(S) · a_m(T)`. -/
+
+/-- One pair of approximants for additivity: if `rank L ≤ n` and `rank K ≤ m`, then
+`a_{n+m}(S + T) ≤ ‖S - L‖ + ‖T - K‖`, witnessed by the approximant `L + K`. -/
+lemma approximationNumber_add_le_norm_sub_add {S T L K : X →L[𝕜] Y} {n m : ℕ}
+    (hL : L.rank ≤ (n : Cardinal)) (hK : K.rank ≤ (m : Cardinal)) :
+    approximationNumber (S + T) (n + m) ≤ ‖S - L‖ + ‖T - K‖ := by
+  -- `rank (L + K) ≤ rank L + rank K ≤ n + m`
+  have h_rank : (L + K).rank ≤ ((n + m : ℕ) : Cardinal) := by
+    rw [Nat.cast_add]
+    exact (LinearMap.rank_add_le (L : X →ₗ[𝕜] Y) (K : X →ₗ[𝕜] Y)).trans (add_le_add hL hK)
+  calc approximationNumber (S + T) (n + m)
+      ≤ ‖(S + T) - (L + K)‖ := approximationNumber_le_norm_sub h_rank
+    _ = ‖(S - L) + (T - K)‖ := by congr 1; abel
+    _ ≤ ‖S - L‖ + ‖T - K‖ := norm_add_le _ _
+
+/-- **Additivity of the approximation numbers**:
+`a_{n+m}(S + T) ≤ aₙ(S) + a_m(T)`. -/
+theorem approximationNumber_additive (S T : X →L[𝕜] Y) (n m : ℕ) :
+    approximationNumber (S + T) (n + m) ≤
+      approximationNumber S n + approximationNumber T m := by
+  -- infimum over the approximants `L` of `S`
   rw [← sub_le_iff_le_add]
   refine le_csInf (approximationSet_nonempty S n) ?_
-  rintro r ⟨L, hL, rfl⟩
-  have h1 : approximationNumber (S + T) n ≤ ‖(S + T) - L‖ :=
-    approximationNumber_le_norm_sub hL
-  have h2 : ‖(S + T) - L‖ ≤ ‖S - L‖ + ‖T‖ := by
-    have eq : (S + T) - L = (S - L) + T := by abel
-    rw [eq]; exact norm_add_le _ _
-  linarith
+  rintro _ ⟨L, hL, rfl⟩
+  -- infimum over the approximants `K` of `T`
+  rw [sub_le_comm]
+  refine le_csInf (approximationSet_nonempty T m) ?_
+  rintro _ ⟨K, hK, rfl⟩
+  linarith [approximationNumber_add_le_norm_sub_add (S := S) (T := T) hL hK]
+
+/-- One pair of approximants for multiplicativity: if `rank L ≤ n` and `rank K ≤ m`, then
+`a_{n+m}(S ∘ T) ≤ ‖S - L‖ · ‖T - K‖`, witnessed by the approximant
+`L ∘ T + (S - L) ∘ K`, whose residual is `(S - L) ∘ (T - K)`. -/
+lemma approximationNumber_comp_le_norm_sub_mul {S L : Y →L[𝕜] Z} {T K : X →L[𝕜] Y}
+    {n m : ℕ} (hL : L.rank ≤ (n : Cardinal)) (hK : K.rank ≤ (m : Cardinal)) :
+    approximationNumber (S.comp T) (n + m) ≤ ‖S - L‖ * ‖T - K‖ := by
+  set R : X →L[𝕜] Z := L.comp T + (S - L).comp K with hR
+  -- `rank R ≤ rank (L ∘ T) + rank ((S - L) ∘ K) ≤ rank L + rank K ≤ n + m`
+  have h_rank : R.rank ≤ ((n + m : ℕ) : Cardinal) := by
+    rw [Nat.cast_add]
+    calc R.rank
+        ≤ (L.comp T).rank + ((S - L).comp K).rank :=
+          LinearMap.rank_add_le ((L.comp T : X →L[𝕜] Z) : X →ₗ[𝕜] Z)
+            ((S - L).comp K : X →ₗ[𝕜] Z)
+      _ ≤ L.rank + K.rank :=
+          add_le_add (LinearMap.rank_comp_le_left (T : X →ₗ[𝕜] Y) (L : Y →ₗ[𝕜] Z))
+            (LinearMap.rank_comp_le_right (K : X →ₗ[𝕜] Y) ((S - L : Y →L[𝕜] Z) : Y →ₗ[𝕜] Z))
+      _ ≤ n + m := add_le_add hL hK
+  -- the residual factors
+  have h_eq : S.comp T - R = (S - L).comp (T - K) := by
+    rw [hR]
+    simp only [ContinuousLinearMap.comp_sub, ContinuousLinearMap.sub_comp]
+    abel
+  calc approximationNumber (S.comp T) (n + m)
+      ≤ ‖S.comp T - R‖ := approximationNumber_le_norm_sub h_rank
+    _ = ‖(S - L).comp (T - K)‖ := by rw [h_eq]
+    _ ≤ ‖S - L‖ * ‖T - K‖ := opNorm_comp_le _ _
+
+/-- **Multiplicativity of the approximation numbers**: for `T : X → Y` and `S : Y → Z`,
+`a_{n+m}(S ∘ T) ≤ aₙ(S) · a_m(T)`. -/
+theorem approximationNumber_multiplicative (S : Y →L[𝕜] Z) (T : X →L[𝕜] Y) (n m : ℕ) :
+    approximationNumber (S.comp T) (n + m) ≤
+      approximationNumber S n * approximationNumber T m := by
+  -- For a fixed approximant `L` of `S`, take the infimum over the approximants `K` of `T`,
+  -- pulling the non-negative factor `‖S - L‖` inside it.
+  have h1 : ∀ L : Y →L[𝕜] Z, L.rank ≤ (n : Cardinal) →
+      approximationNumber (S.comp T) (n + m) ≤ ‖S - L‖ * approximationNumber T m := by
+    intro L hL
+    show _ ≤ ‖S - L‖ • sInf (approximationSet T m)
+    rw [← Real.sInf_smul_of_nonneg (norm_nonneg _)]
+    refine le_csInf ((approximationSet_nonempty T m).image _) ?_
+    rintro _ ⟨_, ⟨K, hK, rfl⟩, rfl⟩
+    exact approximationNumber_comp_le_norm_sub_mul hL hK
+  -- Then take the infimum over `L`, pulling the factor `a_m(T) ≥ 0` inside it.
+  rw [mul_comm]
+  show _ ≤ approximationNumber T m • sInf (approximationSet S n)
+  rw [← Real.sInf_smul_of_nonneg (approximationNumber_nonneg T m)]
+  refine le_csInf ((approximationSet_nonempty S n).image _) ?_
+  rintro _ ⟨_, ⟨L, hL, rfl⟩, rfl⟩
+  show _ ≤ approximationNumber T m * ‖S - L‖
+  rw [mul_comm]
+  exact h1 L hL
+
+/-! ### (S2) Subadditivity -/
+
+/-- (S2) `a_n (S + T) ≤ a_n S + ‖T‖`: additivity with `m = 0`, since `a_0 T = ‖T‖`. -/
+lemma approximationNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
+    approximationNumber (S + T) n ≤ approximationNumber S n + ‖T‖ := by
+  have h := approximationNumber_additive S T n 0
+  rwa [Nat.add_zero, approximationNumber_zero_eq_norm] at h
 
 /-! ### (S3) Ideal property -/
 
-/--
-**(S3) Ideal property.** `a_n (B ∘ S ∘ A) ≤ ‖B‖ * a_n S * ‖A‖`.
-
-Proof outline (cf. Pietsch, *Eigenvalues and s-numbers*, Section 2.3):
-
-1. For every `L : X →L[𝕜] Y` with `L.rank ≤ n`, the operator `B ∘ L ∘ A`
-   has rank `≤ n` (lemma `ContinuousLinearMap.rank_comp_comp_le`).
-2. By submultiplicativity of the operator norm,
-   `‖B(S - L)A‖ ≤ ‖B‖ * ‖S - L‖ * ‖A‖`.
-3. Therefore `a_n(BSA) ≤ ‖B‖ * ‖S - L‖ * ‖A‖` for every such `L`.
-4. Taking the infimum over `L` and pulling out the non-negative factor
-   `‖B‖ * ‖A‖` via `Real.sInf_smul_of_nonneg` yields the bound. -/
+/-- **(S3) Ideal property.** `a_n (B ∘ S ∘ A) ≤ ‖B‖ * a_n S * ‖A‖`: multiplicativity
+applied twice with one index `0`, since `a_0 = ‖·‖`. -/
 lemma approximationNumber_comp_comp_le
     (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (n : ℕ) :
     approximationNumber (B.comp (S.comp A)) n ≤
       ‖B‖ * approximationNumber S n * ‖A‖ := by
-  -- Step 1: for every approximant `L` of `S` with rank ≤ n, the operator
-  -- `B ∘ L ∘ A` is itself an approximant of `B ∘ S ∘ A` of rank ≤ n. Bounding
-  -- its residual by submultiplicativity gives the key inequality
-  -- `a_n (B S A) ≤ ‖B‖ * ‖A‖ * ‖S - L‖` for every such `L`.
-  have hkey : ∀ L : X →L[𝕜] Y, L.rank ≤ (n : Cardinal) →
-      approximationNumber (B.comp (S.comp A)) n ≤ ‖B‖ * ‖A‖ * ‖S - L‖ := by
-    intro L hL
-    -- (a) `B ∘ L ∘ A` has rank ≤ rank L ≤ n, so it is an admissible approximant.
-    have h_rank_le : (B.comp (L.comp A)).rank ≤ (n : Cardinal) :=
-      (ContinuousLinearMap.rank_comp_comp_le A L B).trans hL
-    -- (b) The residual of `B ∘ S ∘ A` against `B ∘ L ∘ A` factors as
-    --     `B ∘ (S - L) ∘ A`.
-    have h_eq : B.comp (S.comp A) - B.comp (L.comp A)
-                  = B.comp ((S - L).comp A) := by simp
-    -- (c) Two applications of operator-norm submultiplicativity:
-    --     first peel off `B`, then peel off `A`.
-    have h_norm_BSA : ‖B.comp ((S - L).comp A)‖ ≤ ‖B‖ * ‖(S - L).comp A‖ :=
-      opNorm_comp_le _ _
-    have h_norm_SA : ‖(S - L).comp A‖ ≤ ‖S - L‖ * ‖A‖ := opNorm_comp_le _ _
-    have h_norm_BS : ‖B.comp ((S - L).comp A)‖ ≤ ‖B‖ * (‖S - L‖ * ‖A‖) :=
-      h_norm_BSA.trans (mul_le_mul_of_nonneg_left h_norm_SA (norm_nonneg _))
-    -- (d) Chain everything: `a_n (B S A) ≤ residual ≤ ‖B‖ * ‖A‖ * ‖S - L‖`.
-    have h_residual : approximationNumber (B.comp (S.comp A)) n
-                        ≤ ‖B.comp (S.comp A) - B.comp (L.comp A)‖ :=
-      approximationNumber_le_norm_sub h_rank_le
-    have h_residual' : approximationNumber (B.comp (S.comp A)) n
-                        ≤ ‖B.comp ((S - L).comp A)‖ := by
-      rw [h_eq] at h_residual; exact h_residual
-    have h_chain : approximationNumber (B.comp (S.comp A)) n
-                    ≤ ‖B‖ * (‖S - L‖ * ‖A‖) := h_residual'.trans h_norm_BS
-    -- Reorder the right-hand side by `ring`.
-    have h_reorder : ‖B‖ * (‖S - L‖ * ‖A‖) = ‖B‖ * ‖A‖ * ‖S - L‖ := by ring
-    rw [h_reorder] at h_chain
-    exact h_chain
-  -- Step 2: take the infimum over `L`. The clever step is pulling the
-  -- non-negative scalar `‖B‖ * ‖A‖` *inside* the infimum: rewriting
-  -- `(‖B‖ * ‖A‖) * sInf S = sInf ((‖B‖ * ‖A‖) • S)` reduces the goal to a
-  -- pointwise inequality on the image of the approximation set.
-  have h_BA_nonneg : 0 ≤ ‖B‖ * ‖A‖ := mul_nonneg (norm_nonneg _) (norm_nonneg _)
-  have h_inf : approximationNumber (B.comp (S.comp A)) n
-                  ≤ ‖B‖ * ‖A‖ * approximationNumber S n := by
-    -- Rewrite the right-hand side as a scalar action on the infimum.
-    show _ ≤ (‖B‖ * ‖A‖) • sInf (approximationSet S n)
-    rw [← Real.sInf_smul_of_nonneg h_BA_nonneg]
-    -- Now the goal is `a_n (B S A) ≤ sInf ((‖B‖ * ‖A‖) • approximationSet S n)`.
-    refine le_csInf ((approximationSet_nonempty S n).image _) ?_
-    rintro _ ⟨_, ⟨L, hL, rfl⟩, rfl⟩
-    exact hkey L hL
-  -- Step 3: `‖B‖ * ‖A‖ * a_n S = ‖B‖ * a_n S * ‖A‖`.
-  have h_reorder : ‖B‖ * ‖A‖ * approximationNumber S n
-                    = ‖B‖ * approximationNumber S n * ‖A‖ := by ring
-  exact h_inf.trans_eq h_reorder
-
+  have hSA : approximationNumber (S.comp A) n ≤ approximationNumber S n * ‖A‖ := by
+    have h := approximationNumber_multiplicative S A n 0
+    rwa [Nat.add_zero, approximationNumber_zero_eq_norm] at h
+  have hB : approximationNumber (B.comp (S.comp A)) n ≤
+      ‖B‖ * approximationNumber (S.comp A) n := by
+    have h := approximationNumber_multiplicative B (S.comp A) 0 n
+    rwa [Nat.zero_add, approximationNumber_zero_eq_norm] at h
+  calc approximationNumber (B.comp (S.comp A)) n
+      ≤ ‖B‖ * approximationNumber (S.comp A) n := hB
+    _ ≤ ‖B‖ * (approximationNumber S n * ‖A‖) :=
+        mul_le_mul_of_nonneg_left hSA (norm_nonneg B)
+    _ = ‖B‖ * approximationNumber S n * ‖A‖ := (mul_assoc _ _ _).symm
 
 
 /-! ### The approximation numbers are the largest s-number sequence -/
@@ -380,5 +417,15 @@ theorem isStrictSNumberSequence_approximationNumber :
     IsStrictSNumberSequence (𝕜 := 𝕜) approxFamily where
   toIsSNumberSequence := isSNumberSequence_approximationNumber
   strictly_normalised_at_id := fun n h => approximationNumber_strict n h
+
+omit [CompleteSpace 𝕜] in
+/-- The approximation numbers are additive: `a_{n+m}(S + T) ≤ aₙ(S) + a_m(T)`. -/
+theorem additive_approxFamily : Additive (𝕜 := 𝕜) approxFamily :=
+  fun S T n m => approximationNumber_additive S T n m
+
+omit [CompleteSpace 𝕜] in
+/-- The approximation numbers are multiplicative: `a_{n+m}(S ∘ T) ≤ aₙ(S) · a_m(T)`. -/
+theorem multiplicative_approxFamily : Multiplicative (𝕜 := 𝕜) approxFamily :=
+  fun S T n m => approximationNumber_multiplicative S T n m
 
 end SNumbers

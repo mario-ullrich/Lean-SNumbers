@@ -66,12 +66,52 @@ strengthening
 \end{description}
 \end{definition}
 
+Two further classical strengthenings concern the axioms (S2) and (S3); see
+\cite{Pietsch-s} and \cite[Section~5.1]{LE11}.
+
+\begin{definition}[Additive s-number sequence]
+\label{def:additive-sequence}
+\lean{SNumbers.Additive}
+\leanok
+\uses{def:s-number-sequence}
+A family $s = (s_n)_{n \in \mathbb{N}_0}$ as in
+Definition~\ref{def:s-number-sequence} is \emph{additive} if for all Banach
+spaces $X, Y$, all $S, T \in \mathcal{L}(X, Y)$ and all
+$n, m \in \mathbb{N}_0$,
+\[
+  s_{n+m}(S + T) \le s_n(S) + s_m(T).
+\]
+\end{definition}
+
+\begin{definition}[Multiplicative s-number sequence]
+\label{def:multiplicative-sequence}
+\lean{SNumbers.Multiplicative}
+\leanok
+\uses{def:s-number-sequence}
+A family $s = (s_n)_{n \in \mathbb{N}_0}$ as in
+Definition~\ref{def:s-number-sequence} is \emph{multiplicative} if for all
+Banach spaces $X, Y, Z$, all $T \in \mathcal{L}(X, Y)$,
+$S \in \mathcal{L}(Y, Z)$ and all $n, m \in \mathbb{N}_0$,
+\[
+  s_{n+m}(S T) \le s_n(S) \, s_m(T).
+\]
+\end{definition}
+
+Together with $s_0 = \|\cdot\|$, additivity implies (S2), by taking $m = 0$,
+and multiplicativity implies (S3), by two applications with one index $0$:
+$s_n(BSA) \le s_0(B) \, s_n(SA) \le \|B\| \, s_n(S) \, s_0(A)$
+(\texttt{Additive.subadditive},
+\texttt{Multiplicative.idealLike}). The
+approximation, Gelfand and Kolmogorov numbers are additive and
+multiplicative and obtain (S2) and (S3) in this way; the Hilbert numbers are
+additive.
+
 \chapter{The five canonical examples}
 \label{ch:examples}
 
 We construct the five classical s-number sequences and verify the
-axioms (S1)--(S5), and, where it holds, the strengthening (S5$'$),
-for each of them.
+axioms (S1)--(S5) and, where they hold, the strengthenings (S5$'$),
+additivity and multiplicativity, for each of them.
 
 \section{Approximation numbers $a_n$}
 \label{sec:approx}
@@ -90,20 +130,37 @@ a_n(S) := \inf \bigl\{ \|S - A\| : A \in \mathcal{L}(X, Y),
 
 \begin{theorem}
 \label{thm:approx-is-snumber}
-\lean{SNumbers.isStrictSNumberSequence_approximationNumber}
+\lean{SNumbers.isStrictSNumberSequence_approximationNumber, SNumbers.additive_approxFamily, SNumbers.multiplicative_approxFamily}
 \leanok
-\uses{def:strict-s-number-sequence, def:approximation-number}
-Let $X, Y$ be Banach spaces over $\mathbb{K}$. Then the approximation
-numbers $a = (a_n)_n$ form a \emph{strict} s-number sequence: they
-satisfy the axioms (S1)--(S5) and the strengthening (S5$'$).
+\uses{def:strict-s-number-sequence, def:additive-sequence, def:multiplicative-sequence, def:approximation-number}
+Let $X, Y, Z$ be Banach spaces over $\mathbb{K}$. Then the approximation
+numbers $a = (a_n)_n$ form a \emph{strict} s-number sequence that is
+\emph{additive} and \emph{multiplicative}: they satisfy the axioms
+(S1)--(S5) and the strengthening (S5$'$), and for all
+$n, m \in \mathbb{N}_0$,
+\[
+  a_{n+m}(S + T) \le a_n(S) + a_m(T)
+  \quad \text{for all } S, T \in \mathcal{L}(X, Y),
+\]
+\[
+  a_{n+m}(R T) \le a_n(R) \, a_m(T)
+  \quad \text{for all } T \in \mathcal{L}(X, Y), \ R \in \mathcal{L}(Y, Z).
+\]
 \end{theorem}
 \begin{proof}
 \leanok
-Axioms (S1)--(S4) follow directly from the definition of $a_n$ as an
-infimum: monotonicity and nonnegativity are inherited from the underlying
-set of approximants, subadditivity (S2) uses that $A$ approximates $S + T$
-whenever it approximates $S$ up to $\|T\|$, the ideal property (S3) uses
-$\operatorname{rank}(B A' A) \le \operatorname{rank}(A')$, and (S4) is
+Additivity and multiplicativity come from pairs of approximants. Let $L$
+have rank at most $n$ and $K$ rank at most $m$. If $L$ approximates $S$ and
+$K$ approximates $T$, then $L + K$ has rank at most $n + m$ and
+$\|(S + T) - (L + K)\| \le \|S - L\| + \|T - K\|$. If $L$ approximates $R$
+and $K$ approximates $T$, then $L T + (R - L) K$ has rank at most $n + m$ and
+$R T - L T - (R - L) K = (R - L)(T - K)$, so
+$a_{n+m}(R T) \le \|R - L\| \, \|T - K\|$. Taking the infimum over $L$ and
+$K$ gives both inequalities.
+
+Monotonicity and nonnegativity are inherited from the underlying set of
+approximants. (S2) and (S3) are the cases of additivity and
+multiplicativity with one index $0$, since $a_0 = \|\cdot\|$, and (S4) is
 witnessed by the approximant $A = S$. For (S5$'$) let $L$ have
 $\operatorname{rank}(L) \le n < \dim X$; then $\operatorname{range}(L)$
 is a proper finite-dimensional, hence closed, subspace of $X$, and Riesz's
@@ -180,29 +237,51 @@ c_n(S) := \inf \bigl\{ \|S \restriction_M\| :
 
 \begin{theorem}
 \label{thm:gelfand-is-snumber}
-\lean{SNumbers.isStrictSNumberSequence_gelfandNumber}
+\lean{SNumbers.isStrictSNumberSequence_gelfandNumber, SNumbers.additive_gelfandNumber, SNumbers.multiplicative_gelfandNumber}
 \leanok
-\uses{def:strict-s-number-sequence, def:gelfand-number}
-Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
+\uses{def:strict-s-number-sequence, def:additive-sequence, def:multiplicative-sequence, def:gelfand-number}
+Let $\mathbb{K}$ be a non-trivially normed field and $X, Y, Z$ normed spaces
 over $\mathbb{K}$. Then the Gelfand numbers $c = (c_n)_n$ form a
-\emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
-strengthening (S5$'$).
+\emph{strict} s-number sequence that is \emph{additive} and
+\emph{multiplicative}: they satisfy (S1)--(S5) and the strengthening
+(S5$'$), and for all $n, m \in \mathbb{N}_0$,
+\[
+  c_{n+m}(S + T) \le c_n(S) + c_m(T)
+  \quad \text{for all } S, T \in \mathcal{L}(X, Y),
+\]
+\[
+  c_{n+m}(R T) \le c_n(R) \, c_m(T)
+  \quad \text{for all } T \in \mathcal{L}(X, Y), \ R \in \mathcal{L}(Y, Z).
+\]
 \end{theorem}
 \begin{proof}
 \leanok
-The development is dual to the Kolmogorov one
+Call a closed subspace of codimension at most $n$ admissible at stage $n$.
+Codimensions add up under intersections,
+$\operatorname{codim}(M \cap N) \le \operatorname{codim} M +
+\operatorname{codim} N$, since the map $X \to X/M \times X/N$,
+$x \mapsto ([x]_M, [x]_N)$, has kernel $M \cap N$
+(\texttt{rank\_quotient\_inf\_le}). For additivity, let $M, N \subseteq X$
+be admissible at stages $n$ and $m$. Then $M \cap N$ is closed and
+admissible at stage $n + m$, and
+$\|(S + T)\restriction_{M \cap N}\| \le \|S \restriction_M\| +
+\|T \restriction_N\|$. For multiplicativity, let $M \subseteq Y$ and
+$N \subseteq X$ be admissible at stages $n$ and $m$. Then $T^{-1}(M) \cap N$
+is closed and admissible at stage $n + m$, since
+$\operatorname{codim} T^{-1}(M) \le \operatorname{codim} M$, and for $x$ in
+it $\|R T x\| \le \|R \restriction_M\| \, \|T x\| \le
+\|R \restriction_M\| \, \|T \restriction_N\| \, \|x\|$. Taking the infimum
+over $M$ and $N$ gives both inequalities.
+
+The axioms are dual to the Kolmogorov case
 (Theorem~\ref{thm:kolmogorov-is-snumber}) under the
 domain~$\leftrightarrow$~codomain swap: where the Kolmogorov numbers push
 $S$ down a quotient projection $\pi_V : Y \to Y/V$ for a small
 $V \subseteq Y$, the Gelfand numbers restrict $S$ along the inclusion
 $\iota_M : M \hookrightarrow X$ for a subspace $M \subseteq X$ of small
-codimension. With $M = X$ one gets $c_0(S) = \|S\|$; (S2) is the triangle
-inequality applied to $(S+T) \circ \iota_M$. For the ideal property (S3),
-following \cite[\S 2.4]{Pietsch87}, take
-admissible $M$ for $S$ and pass to $M' := A^{-1}(M)$: it is closed, its
-codimension is at most that of $M$ by the first isomorphism theorem applied
-to $\pi_M \circ A$, and $\|BSA(w)\| \le \|B\| \, \|S \circ \iota_M\| \,
-\|A\| \, \|w\|$ for $w \in M'$. For (S4) take $M := \ker S$, which is
+codimension. With $M = X$ one gets $c_0(S) = \|S\|$. (S2) and (S3) are the
+cases of additivity and multiplicativity with one index $0$. For (S4) take
+$M := \ker S$, which is
 closed with $\operatorname{codim} M = \operatorname{rank} S \le n$ and
 $S \circ \iota_M = 0$. For (S5$'$), the inclusion $\iota_M$ is an isometry,
 so the identity restricted to any nontrivial $M$ has norm $1$, and
@@ -230,22 +309,40 @@ d_n(S) := \inf_{\substack{V \subseteq Y \\ \dim V \le n}}
 
 \begin{theorem}
 \label{thm:kolmogorov-is-snumber}
-\lean{SNumbers.isStrictSNumberSequence_kolmogorovNumber}
+\lean{SNumbers.isStrictSNumberSequence_kolmogorovNumber, SNumbers.additive_kolmogorovNumber, SNumbers.multiplicative_kolmogorovNumber}
 \leanok
-\uses{def:strict-s-number-sequence, def:kolmogorov-number}
-Let $\mathbb{K}$ be a non-trivially normed field and $X, Y$ normed spaces
+\uses{def:strict-s-number-sequence, def:additive-sequence, def:multiplicative-sequence, def:kolmogorov-number}
+Let $\mathbb{K}$ be a non-trivially normed field and $X, Y, Z$ normed spaces
 over $\mathbb{K}$. Then the Kolmogorov numbers $d = (d_n)_n$ form a
-\emph{strict} s-number sequence: they satisfy (S1)--(S5) and the
-strengthening (S5$'$).
+\emph{strict} s-number sequence that is \emph{additive} and
+\emph{multiplicative}: they satisfy (S1)--(S5) and the strengthening
+(S5$'$), and for all $n, m \in \mathbb{N}_0$,
+\[
+  d_{n+m}(S + T) \le d_n(S) + d_m(T)
+  \quad \text{for all } S, T \in \mathcal{L}(X, Y),
+\]
+\[
+  d_{n+m}(R T) \le d_n(R) \, d_m(T)
+  \quad \text{for all } T \in \mathcal{L}(X, Y), \ R \in \mathcal{L}(Y, Z).
+\]
 \end{theorem}
 \begin{proof}
 \leanok
 The proof works with the operator-norm-on-quotient identity
 $d_n(S) = \inf_V \|\pi_V \circ S\|$, where $\pi_V : Y \to Y/V$ is the
-canonical projection onto the quotient. (S2) is the triangle inequality
-applied to $\pi_V \circ S$; for (S3), an admissible $V$ for $S$ transports
-to the admissible subspace $B(V)$ for $BSA$, with the deviation bounded
-per point; for (S4) take $V = \operatorname{range} S$. For (S5$'$), given a
+canonical projection onto the quotient and $V$ runs over the subspaces of
+dimension at most $n$; enlarging $V$ does not increase
+$\|\pi_V \circ S\|$. For additivity, let $V, U \subseteq Y$ have dimensions
+at most $n$ and $m$. Then $V + U$ has dimension at most $n + m$ and
+$\|\pi_{V+U} (S + T)\| \le \|\pi_V S\| + \|\pi_U T\|$. For multiplicativity,
+let $V \subseteq Z$ and $U \subseteq Y$ have dimensions at most $n$ and $m$.
+Then $L := V + R(U)$ has dimension at most $n + m$, and the map
+$y \mapsto \pi_L R y$ vanishes on $U$, so it factors through $Y/U$ with norm
+at most $\|\pi_V R\|$. Hence $\|\pi_L R T\| \le \|\pi_V R\| \, \|\pi_U T\|$.
+Taking the infimum over $V$ and $U$ gives both inequalities.
+
+(S2) and (S3) are the cases of additivity and multiplicativity with one
+index $0$; for (S4) take $V = \operatorname{range} S$. For (S5$'$), given a
 subspace $V$ of dimension $\le n < \dim X$, its closure is proper and
 Riesz's lemma produces unit vectors almost at distance $1$ from $V$, so
 $\|\pi_V\| = 1$ and $d_n(\mathrm{id}_X) = 1$.
@@ -353,24 +450,40 @@ h_n(S) := \sup \biggl\{ \frac{a_n(B \, S \, A)}{\|B\| \, \|A\|} :
 
 \begin{proposition}
 \label{prop:hilbert-is-snumber}
-\lean{SNumbers.isSNumberSequence_hilbertNumber}
+\lean{SNumbers.isSNumberSequence_hilbertNumber, SNumbers.additive_hilbertNumber}
 \leanok
-\uses{def:s-number-sequence, def:approximation-number, def:hilbert-number}
+\uses{def:s-number-sequence, def:additive-sequence, def:approximation-number, def:hilbert-number}
 Let $X, Y$ be Banach spaces. Then the Hilbert numbers $h = (h_n)_n$ form an
-s-number sequence: they satisfy the axioms (S1)--(S5). The sequence $h$ is
-not strict: (S5$'$) fails in general.
+s-number sequence that is \emph{additive}: they satisfy the axioms
+(S1)--(S5), and for all $S, T \in \mathcal{L}(X, Y)$ and all
+$n, m \in \mathbb{N}_0$,
+\[
+  h_{n+m}(S + T) \le h_n(S) + h_m(T).
+\]
+The sequence $h$ is not strict: (S5$'$) fails in general.
 \end{proposition}
 \begin{proof}
 \leanok
-Each axiom is obtained by pushing the corresponding property of the
+\uses{thm:approx-is-snumber}
+Each property is obtained by pushing the corresponding property of the
 approximation numbers $a_n$ through the supremum defining $h_n$:
-nonnegativity, antitonicity, subadditivity (S2), the ideal property (S3)
-and the rank axiom (S4) transfer directly. For the normalisations,
-$h_0(S) = \|S\|$ combines the upper bound $h_n(S) \le \|S\|$ with a
-rank-one factorisation of arbitrary unit vectors through $L_2$, and
-$h_n(\mathrm{id}_{\ell_2^{n+1}}) = 1$ (S5) tests the supremum with the
-canonical embedding and projection between $\ell_2^{n+1}$ and $L_2$.
+nonnegativity, antitonicity, the ideal property (S3) and the rank axiom
+(S4) transfer directly. For additivity, the operator
+$B (S + T) A = BSA + BTA$ satisfies
+$a_{n+m}(B (S + T) A) \le a_n(BSA) + a_m(BTA)
+\le (h_n(S) + h_m(T)) \, \|B\| \, \|A\|$ for admissible $A, B$ by the
+additivity of the approximation numbers
+(Theorem~\ref{thm:approx-is-snumber}), and (S2) is its case $m = 0$. For the
+normalisations, $h_0(S) = \|S\|$ combines the upper bound
+$h_n(S) \le \|S\|$ with a rank-one factorisation of arbitrary unit vectors
+through $L_2$, and $h_n(\mathrm{id}_{\ell_2^{n+1}}) = 1$ (S5) tests the
+supremum with the canonical embedding and projection between
+$\ell_2^{n+1}$ and $L_2$.
 \end{proof}
+
+For multiplicativity the same argument would need a factorisation of $S T$
+through $L_2$ between $S$ and $T$; the admissible $A$ and $B$ act only at its
+two ends.
 
 \chapter{The smallest and the largest s-numbers}
 \label{ch:sandwich}
@@ -2136,6 +2249,12 @@ Mat.\ Zametki \textbf{10} (1971), 453--457,
 \href{https://www.mathnet.ru/eng/mzm9734}{link};
 English transl.\ in Math.\ Notes \textbf{10} (1971), 694--696,
 \href{https://doi.org/10.1007/BF01106467}{doi}.
+
+\bibitem{LE11}
+J.~Lang, D.~Edmunds,
+\emph{Eigenvalues, embeddings and generalised trigonometric functions},
+Lecture Notes in Mathematics~2016, Springer, 2011,
+\href{https://doi.org/10.1007/978-3-642-18429-1}{doi}.
 
 \bibitem{MH}
 B.~S.~Mityagin, G.~M.~Henkin,

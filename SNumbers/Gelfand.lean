@@ -34,6 +34,18 @@ require Riesz's lemma: the inclusion `M.subtypeL` is an isometry, so
 `‖id_X.comp M.subtypeL‖ = ‖M.subtypeL‖ = 1` whenever `M ≠ ⊥`. In
 particular, the strict-normalisation proof needs no `[CompleteSpace 𝕜]`
 hypothesis.
+
+## Main results
+
+* `SNumbers.gelfandNumber_additive` : `c_{n+m}(S + T) ≤ c_n S + c_m T`, using the
+  intersection `M ⊓ N` and `codim (M ⊓ N) ≤ codim M + codim N` (`rank_quotient_inf_le`).
+* `SNumbers.gelfandNumber_multiplicative` : `c_{n+m}(S ∘ T) ≤ c_n S * c_m T`, using
+  `T⁻¹(M) ⊓ N`.
+* `SNumbers.gelfandNumber_add_le`, `SNumbers.gelfandNumber_comp_comp_le` : (S2) and (S3),
+  as the cases with one index `0`.
+* `SNumbers.isStrictSNumberSequence_gelfandNumber` : the Gelfand numbers form a strict
+  s-number sequence; `additive_gelfandNumber` and `multiplicative_gelfandNumber` state
+  additivity and multiplicativity for the family.
 -/
 
 @[expose] public section
@@ -206,38 +218,60 @@ lemma gelfandNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
   (antitone_nat_of_succ_le (gelfandNumber_antitone S) (Nat.zero_le n)).trans_eq
     (gelfandNumber_zero_eq_norm S)
 
-/-! ## (S2) Subadditivity -/
+/-! ## Additivity and multiplicativity
 
-lemma gelfandNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
-    gelfandNumber (S + T) n ≤ gelfandNumber S n + ‖T‖ := by
-  rw [← sub_le_iff_le_add]
-  refine le_csInf (gelfandSet_nonempty S n) ?_
-  rintro _ ⟨M, hM_closed, hM_rank, rfl⟩
-  -- `(S+T).comp ι_M = S.comp ι_M + T.comp ι_M`. Triangle:
-  -- `‖(S+T).comp ι_M‖ ≤ ‖S.comp ι_M‖ + ‖T.comp ι_M‖ ≤ deviation S M + ‖T‖`.
-  have h_dist : gelfandNumber (S + T) n
-      ≤ deviationFromRestriction S M + deviationFromRestriction T M := by
-    refine (gelfandNumber_le_deviation hM_closed hM_rank).trans ?_
-    unfold deviationFromRestriction
-    have h_eq : (S + T).comp M.subtypeL = S.comp M.subtypeL + T.comp M.subtypeL :=
-      ContinuousLinearMap.add_comp _ _ _
-    rw [h_eq]
-    exact norm_add_le (S.comp M.subtypeL) (T.comp M.subtypeL)
-  have h_T : deviationFromRestriction T M ≤ ‖T‖ := deviationFromRestriction_le_norm T M
-  linarith
+The strong forms of (S2) and (S3), in which subspaces are chosen for both operators:
 
-/-! ## (S3) Ideal property
+* if `M` is admissible for `S` (closed, of codimension `≤ n`) and `N` for `T`
+  (codimension `≤ m`), then `M ⊓ N` is admissible for `S + T` at stage `n + m`, and
+  `‖(S + T)|_{M ⊓ N}‖ ≤ ‖S|_M‖ + ‖T|_N‖`;
+* for `T : X → Y` and `S : Y → Z`, if `M ⊆ Y` is admissible for `S` and `N ⊆ X` for `T`,
+  then `T⁻¹(M) ⊓ N` is admissible for `S ∘ T` at stage `n + m`, and on it
+  `‖S T x‖ ≤ ‖S|_M‖ · ‖T x‖ ≤ ‖S|_M‖ · ‖T|_N‖ · ‖x‖`.
 
-For `M ⊆ X` closed of codim ≤ n and `A : W →L[𝕜] X`, set
-`M' := M.comap A`. Then `M'` is closed (preimage of a closed set under a
-continuous map) and has codim ≤ n: the map `mkQ ∘ A : W →ₗ X/M`
-has kernel exactly `M'`, so `W/M' ↪ X/M` and rank is preserved or
-shrinks. The norm bound on the restriction is then a pointwise estimate
-in the spirit of Pietsch, *Eigenvalues and s-numbers*, §2.4: for
-`w ∈ M'` we have `A w ∈ M`, so
-`‖S(A w)‖ ≤ ‖S|_M‖ · ‖A w‖ ≤ ‖S|_M‖ · ‖A‖ · ‖w‖`, and one more `‖B‖` on
-the left finishes it. -/
+Codimensions add up under intersections (`rank_quotient_inf_le`) and do not grow under
+preimages (`rank_quotient_comap_le`). -/
 
+/-- Pointwise form of the restriction norm: for `x ∈ M`, `‖S x‖ ≤ ‖S|_M‖ · ‖x‖`. -/
+lemma norm_apply_le_deviationFromRestriction_mul (S : X →L[𝕜] Y) {M : Submodule 𝕜 X}
+    {x : X} (hx : x ∈ M) : ‖S x‖ ≤ deviationFromRestriction S M * ‖x‖ :=
+  (S.comp M.subtypeL).le_opNorm ⟨x, hx⟩
+
+/-- Restricting to a smaller subspace does not increase the norm:
+`M' ≤ M ⇒ ‖S|_{M'}‖ ≤ ‖S|_M‖`. -/
+lemma deviationFromRestriction_mono (S : X →L[𝕜] Y) {M M' : Submodule 𝕜 X} (h : M' ≤ M) :
+    deviationFromRestriction S M' ≤ deviationFromRestriction S M := by
+  refine opNorm_le_bound (S.comp M'.subtypeL) (deviationFromRestriction_nonneg S M)
+    fun x => ?_
+  exact norm_apply_le_deviationFromRestriction_mul S (h x.2)
+
+/-- The triangle inequality for restrictions: `‖(S + T)|_M‖ ≤ ‖S|_M‖ + ‖T|_M‖`. -/
+lemma deviationFromRestriction_add_le (S T : X →L[𝕜] Y) (M : Submodule 𝕜 X) :
+    deviationFromRestriction (S + T) M ≤
+      deviationFromRestriction S M + deviationFromRestriction T M := by
+  unfold deviationFromRestriction
+  rw [ContinuousLinearMap.add_comp]
+  exact norm_add_le _ _
+
+/-- **Codimensions add up under intersections**:
+`codim (M ⊓ N) ≤ codim M + codim N`. The map `x ↦ ([x]_M, [x]_N)` into
+`X/M × X/N` has kernel `M ⊓ N`, so `X/(M ⊓ N)` is isomorphic to a subspace of
+`X/M × X/N`. -/
+lemma rank_quotient_inf_le (M N : Submodule 𝕜 X) :
+    Module.rank 𝕜 (X ⧸ (M ⊓ N)) ≤ Module.rank 𝕜 (X ⧸ M) + Module.rank 𝕜 (X ⧸ N) := by
+  set g : X →ₗ[𝕜] (X ⧸ M) × (X ⧸ N) := LinearMap.prod M.mkQ N.mkQ with hg_def
+  have h_ker : LinearMap.ker g = M ⊓ N := by
+    rw [hg_def, LinearMap.ker_prod, Submodule.ker_mkQ, Submodule.ker_mkQ]
+  calc Module.rank 𝕜 (X ⧸ (M ⊓ N))
+      = Module.rank 𝕜 (X ⧸ LinearMap.ker g) := by rw [h_ker]
+    _ = Module.rank 𝕜 (LinearMap.range g) :=
+        (LinearMap.quotKerEquivRange g).rank_eq
+    _ ≤ Module.rank 𝕜 ((X ⧸ M) × (X ⧸ N)) :=
+        (LinearMap.range g).rank_le
+    _ = Module.rank 𝕜 (X ⧸ M) + Module.rank 𝕜 (X ⧸ N) := rank_prod'
+
+/-- **Codimensions do not grow under preimages**: `codim A⁻¹(M) ≤ codim M`. The map
+`w ↦ [A w]_M` has kernel `A⁻¹(M)`, so `W/A⁻¹(M)` is isomorphic to a subspace of `X/M`. -/
 private lemma rank_quotient_comap_le (A : W →L[𝕜] X) (M : Submodule 𝕜 X) :
     Module.rank 𝕜 (W ⧸ M.comap (A : W →ₗ[𝕜] X)) ≤ Module.rank 𝕜 (X ⧸ M) := by
   -- The map `f : W →ₗ X/M`, `f w = mkQ (A w)`, has kernel `M.comap A`.
@@ -252,6 +286,137 @@ private lemma rank_quotient_comap_le (A : W →L[𝕜] X) (M : Submodule 𝕜 X)
         (LinearMap.quotKerEquivRange g).rank_eq
     _ ≤ Module.rank 𝕜 (X ⧸ M) :=
         (LinearMap.range g).rank_le
+
+/-- Per-subspace multiplicativity: for `T : X → Y`, `S : Y → Z`, `M ⊆ Y` and `N ⊆ X`,
+`‖(S ∘ T)|_{T⁻¹(M) ⊓ N}‖ ≤ ‖S|_M‖ · ‖T|_N‖`. -/
+lemma deviationFromRestriction_comp_comap_inf_le (S : Y →L[𝕜] Z) (T : X →L[𝕜] Y)
+    (M : Submodule 𝕜 Y) (N : Submodule 𝕜 X) :
+    deviationFromRestriction (S.comp T) (M.comap (T : X →ₗ[𝕜] Y) ⊓ N) ≤
+      deviationFromRestriction S M * deviationFromRestriction T N := by
+  refine opNorm_le_bound ((S.comp T).comp (M.comap (T : X →ₗ[𝕜] Y) ⊓ N).subtypeL)
+    (mul_nonneg (deviationFromRestriction_nonneg S M) (deviationFromRestriction_nonneg T N))
+    fun x => ?_
+  -- `x` lies in `N`, and `T x` lies in `M`
+  have hTx : T (x : X) ∈ M := Submodule.mem_comap.mp (Submodule.mem_inf.mp x.2).1
+  have hxN : (x : X) ∈ N := (Submodule.mem_inf.mp x.2).2
+  calc ‖((S.comp T).comp (M.comap (T : X →ₗ[𝕜] Y) ⊓ N).subtypeL) x‖
+      = ‖S (T (x : X))‖ := rfl
+    _ ≤ deviationFromRestriction S M * ‖T (x : X)‖ :=
+        norm_apply_le_deviationFromRestriction_mul S hTx
+    _ ≤ deviationFromRestriction S M * (deviationFromRestriction T N * ‖(x : X)‖) :=
+        mul_le_mul_of_nonneg_left (norm_apply_le_deviationFromRestriction_mul T hxN)
+          (deviationFromRestriction_nonneg S M)
+    _ = deviationFromRestriction S M * deviationFromRestriction T N * ‖x‖ :=
+        (mul_assoc _ _ _).symm
+
+/-- **Additivity of the Gelfand numbers**: `c_{n+m}(S + T) ≤ cₙ(S) + c_m(T)`. -/
+theorem gelfandNumber_additive (S T : X →L[𝕜] Y) (n m : ℕ) :
+    gelfandNumber (S + T) (n + m) ≤ gelfandNumber S n + gelfandNumber T m := by
+  -- one admissible subspace for each operator
+  have hkey : ∀ M : Submodule 𝕜 X, IsClosed (M : Set X) →
+      Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) →
+      ∀ N : Submodule 𝕜 X, IsClosed (N : Set X) →
+      Module.rank 𝕜 (X ⧸ N) ≤ (m : Cardinal) →
+      gelfandNumber (S + T) (n + m) ≤
+        deviationFromRestriction S M + deviationFromRestriction T N := by
+    intro M hM_closed hM_rank N hN_closed hN_rank
+    have h_closed : IsClosed ((M ⊓ N : Submodule 𝕜 X) : Set X) := by
+      rw [Submodule.coe_inf]; exact hM_closed.inter hN_closed
+    have h_rank : Module.rank 𝕜 (X ⧸ (M ⊓ N)) ≤ ((n + m : ℕ) : Cardinal) := by
+      rw [Nat.cast_add]
+      exact (rank_quotient_inf_le M N).trans (add_le_add hM_rank hN_rank)
+    calc gelfandNumber (S + T) (n + m)
+        ≤ deviationFromRestriction (S + T) (M ⊓ N) :=
+          gelfandNumber_le_deviation h_closed h_rank
+      _ ≤ deviationFromRestriction S (M ⊓ N) + deviationFromRestriction T (M ⊓ N) :=
+          deviationFromRestriction_add_le S T _
+      _ ≤ deviationFromRestriction S M + deviationFromRestriction T N :=
+          add_le_add (deviationFromRestriction_mono S inf_le_left)
+            (deviationFromRestriction_mono T inf_le_right)
+  -- infimum over `M`, then over `N`
+  rw [← sub_le_iff_le_add]
+  refine le_gelfandNumber fun M hM_closed hM_rank => ?_
+  rw [sub_le_comm]
+  refine le_gelfandNumber fun N hN_closed hN_rank => ?_
+  linarith [hkey M hM_closed hM_rank N hN_closed hN_rank]
+
+/-- **Multiplicativity of the Gelfand numbers**: for `T : X → Y` and `S : Y → Z`,
+`c_{n+m}(S ∘ T) ≤ cₙ(S) · c_m(T)`. -/
+theorem gelfandNumber_multiplicative (S : Y →L[𝕜] Z) (T : X →L[𝕜] Y) (n m : ℕ) :
+    gelfandNumber (S.comp T) (n + m) ≤ gelfandNumber S n * gelfandNumber T m := by
+  -- one admissible subspace for each operator
+  have hkey : ∀ M : Submodule 𝕜 Y, IsClosed (M : Set Y) →
+      Module.rank 𝕜 (Y ⧸ M) ≤ (n : Cardinal) →
+      ∀ N : Submodule 𝕜 X, IsClosed (N : Set X) →
+      Module.rank 𝕜 (X ⧸ N) ≤ (m : Cardinal) →
+      gelfandNumber (S.comp T) (n + m) ≤
+        deviationFromRestriction S M * deviationFromRestriction T N := by
+    intro M hM_closed hM_rank N hN_closed hN_rank
+    -- `T⁻¹(M)` is closed, as the preimage of a closed set under a continuous map
+    have hM'_closed : IsClosed ((M.comap (T : X →ₗ[𝕜] Y)) : Set X) := by
+      have : ((M.comap (T : X →ₗ[𝕜] Y)) : Set X) = T ⁻¹' (M : Set Y) := rfl
+      rw [this]; exact hM_closed.preimage T.continuous
+    have h_closed :
+        IsClosed ((M.comap (T : X →ₗ[𝕜] Y) ⊓ N : Submodule 𝕜 X) : Set X) := by
+      rw [Submodule.coe_inf]; exact hM'_closed.inter hN_closed
+    have h_rank : Module.rank 𝕜 (X ⧸ (M.comap (T : X →ₗ[𝕜] Y) ⊓ N)) ≤
+        ((n + m : ℕ) : Cardinal) := by
+      rw [Nat.cast_add]
+      exact (rank_quotient_inf_le _ N).trans
+        (add_le_add ((rank_quotient_comap_le T M).trans hM_rank) hN_rank)
+    exact (gelfandNumber_le_deviation h_closed h_rank).trans
+      (deviationFromRestriction_comp_comap_inf_le S T M N)
+  -- For fixed `M`, take the infimum over `N`, pulling `‖S|_M‖ ≥ 0` inside it.
+  have h1 : ∀ M : Submodule 𝕜 Y, IsClosed (M : Set Y) →
+      Module.rank 𝕜 (Y ⧸ M) ≤ (n : Cardinal) →
+      gelfandNumber (S.comp T) (n + m) ≤
+        deviationFromRestriction S M * gelfandNumber T m := by
+    intro M hM_closed hM_rank
+    show _ ≤ deviationFromRestriction S M • sInf (gelfandSet T m)
+    rw [← Real.sInf_smul_of_nonneg (deviationFromRestriction_nonneg S M)]
+    refine le_csInf ((gelfandSet_nonempty T m).image _) ?_
+    rintro _ ⟨_, ⟨N, hN_closed, hN_rank, rfl⟩, rfl⟩
+    exact hkey M hM_closed hM_rank N hN_closed hN_rank
+  -- Then take the infimum over `M`, pulling `c_m(T) ≥ 0` inside it.
+  rw [mul_comm]
+  show _ ≤ gelfandNumber T m • sInf (gelfandSet S n)
+  rw [← Real.sInf_smul_of_nonneg (gelfandNumber_nonneg T m)]
+  refine le_csInf ((gelfandSet_nonempty S n).image _) ?_
+  rintro _ ⟨_, ⟨M, hM_closed, hM_rank, rfl⟩, rfl⟩
+  show _ ≤ gelfandNumber T m * deviationFromRestriction S M
+  rw [mul_comm]
+  exact h1 M hM_closed hM_rank
+
+/-! ## (S2) Subadditivity -/
+
+/-- (S2) `c_n (S + T) ≤ c_n S + ‖T‖`: additivity with `m = 0`, since `c_0 T = ‖T‖`. -/
+lemma gelfandNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
+    gelfandNumber (S + T) n ≤ gelfandNumber S n + ‖T‖ := by
+  have h := gelfandNumber_additive S T n 0
+  rwa [Nat.add_zero, gelfandNumber_zero_eq_norm] at h
+
+/-! ## (S3) Ideal property
+
+The ideal property is multiplicativity applied twice with one index `0`. The
+per-subspace bound `deviationFromRestriction_comp_comp_comap_le` treats it directly, with
+the single subspace `A⁻¹(M)`. -/
+
+/-- (S3) `c_n (B ∘ S ∘ A) ≤ ‖B‖ * c_n S * ‖A‖`: multiplicativity applied twice with one
+index `0`, since `c_0 = ‖·‖`. -/
+lemma gelfandNumber_comp_comp_le
+    (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (n : ℕ) :
+    gelfandNumber (B.comp (S.comp A)) n ≤
+      ‖B‖ * gelfandNumber S n * ‖A‖ := by
+  have hSA : gelfandNumber (S.comp A) n ≤ gelfandNumber S n * ‖A‖ := by
+    have h := gelfandNumber_multiplicative S A n 0
+    rwa [Nat.add_zero, gelfandNumber_zero_eq_norm] at h
+  have hB : gelfandNumber (B.comp (S.comp A)) n ≤ ‖B‖ * gelfandNumber (S.comp A) n := by
+    have h := gelfandNumber_multiplicative B (S.comp A) 0 n
+    rwa [Nat.zero_add, gelfandNumber_zero_eq_norm] at h
+  calc gelfandNumber (B.comp (S.comp A)) n
+      ≤ ‖B‖ * gelfandNumber (S.comp A) n := hB
+    _ ≤ ‖B‖ * (gelfandNumber S n * ‖A‖) := mul_le_mul_of_nonneg_left hSA (norm_nonneg B)
+    _ = ‖B‖ * gelfandNumber S n * ‖A‖ := (mul_assoc _ _ _).symm
 
 /-- Per-subspace (S3) bound:
 `deviation(B ∘ S ∘ A, M.comap A) ≤ ‖B‖ * ‖A‖ * deviation(S, M)`. -/
@@ -279,41 +444,6 @@ lemma deviationFromRestriction_comp_comp_comap_le
     _ ≤ ‖B‖ * (‖S.comp M.subtypeL‖ * (‖A‖ * ‖w‖)) := by
         gcongr; exact A.le_opNorm (w : W)
     _ = ‖B‖ * ‖A‖ * ‖S.comp M.subtypeL‖ * ‖w‖ := by ring
-
-lemma gelfandNumber_comp_comp_le
-    (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (n : ℕ) :
-    gelfandNumber (B.comp (S.comp A)) n ≤
-      ‖B‖ * gelfandNumber S n * ‖A‖ := by
-  -- Same scalar-pull-out trick as for the Kolmogorov / approximation
-  -- numbers: every admissible `M ⊆ X` produces an admissible
-  -- `M.comap A ⊆ W` for `B ∘ S ∘ A`, with the per-subspace bound
-  -- `‖B‖ * ‖A‖ * deviation(S, M)`.
-  have hkey : ∀ M : Submodule 𝕜 X, IsClosed (M : Set X) →
-      Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) →
-      gelfandNumber (B.comp (S.comp A)) n ≤
-        ‖B‖ * ‖A‖ * deviationFromRestriction S M := by
-    intro M hM_closed hM_rank
-    -- `M.comap A` is closed (preimage of closed under continuous A).
-    have hM'_closed : IsClosed ((M.comap (A : W →ₗ[𝕜] X)) : Set W) := by
-      have : ((M.comap (A : W →ₗ[𝕜] X)) : Set W) = A ⁻¹' (M : Set X) := rfl
-      rw [this]; exact hM_closed.preimage A.continuous
-    have hM'_rank :
-        Module.rank 𝕜 (W ⧸ M.comap (A : W →ₗ[𝕜] X)) ≤ (n : Cardinal) :=
-      (rank_quotient_comap_le A M).trans hM_rank
-    exact (gelfandNumber_le_deviation hM'_closed hM'_rank).trans
-      (deviationFromRestriction_comp_comp_comap_le A S B M)
-  have h_inf : gelfandNumber (B.comp (S.comp A)) n
-                ≤ ‖B‖ * ‖A‖ * gelfandNumber S n := by
-    show _ ≤ (‖B‖ * ‖A‖) • sInf
-      {r | ∃ M : Submodule 𝕜 X,
-            IsClosed (M : Set X) ∧
-            Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal) ∧
-            r = deviationFromRestriction S M}
-    rw [← Real.sInf_smul_of_nonneg (mul_nonneg (norm_nonneg _) (norm_nonneg _))]
-    refine le_csInf ((gelfandSet_nonempty S n).image _) ?_
-    rintro _ ⟨_, ⟨M, hM_closed, hM_rank, rfl⟩, rfl⟩
-    exact hkey M hM_closed hM_rank
-  exact h_inf.trans_eq (by ring)
 
 /-! ## (S4) Vanishing on operators of rank at most `n` -/
 
@@ -422,5 +552,15 @@ theorem isStrictSNumberSequence_gelfandNumber :
         (fun {_X _Y} _ _ _ _ S n => gelfandNumber S n) where
   toIsSNumberSequence := isSNumberSequence_gelfandNumber
   strictly_normalised_at_id := fun n h => gelfandNumber_strict n h
+
+/-- The Gelfand numbers are additive: `c_{n+m}(S + T) ≤ cₙ(S) + c_m(T)`. -/
+theorem additive_gelfandNumber :
+    Additive (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => gelfandNumber S n) :=
+  fun S T n m => gelfandNumber_additive S T n m
+
+/-- The Gelfand numbers are multiplicative: `c_{n+m}(S ∘ T) ≤ cₙ(S) · c_m(T)`. -/
+theorem multiplicative_gelfandNumber :
+    Multiplicative (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => gelfandNumber S n) :=
+  fun S T n m => gelfandNumber_multiplicative S T n m
 
 end SNumbers

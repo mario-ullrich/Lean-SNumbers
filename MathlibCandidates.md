@@ -15,7 +15,10 @@ main declarations:
   `Submodule.norm_mkQL_le`, `norm_mkQL_apply_le`, `norm_liftQL_le`,
   `liftQL_mkQL`. Plus the rank API for continuous maps
   (`ContinuousLinearMap.rank`, `rank_comp_comp_le`, in `SNumbers/Basic.lean` and
-  `SNumbers/ContinuousLinearMapRank.lean`).
+  `SNumbers/ContinuousLinearMapRank.lean`), and the codimension of an intersection,
+  `codim (M ⊓ N) ≤ codim M + codim N` (`SNumbers.rank_quotient_inf_le`, in
+  `SNumbers/Gelfand.lean`): Mathlib bounds the rank of `M ⊔ N`
+  (`Submodule.rank_add_le_rank_add_rank`) but not that of `X ⧸ (M ⊓ N)`.
 * **Operator norm from the unit ball** (`SNumbers/QuotientMapNorms.lean`): over a densely
   normed field, a bound on the closed unit ball bounds the operator norm
   (`ContinuousLinearMap.opNorm_le_of_unit_closedBall`). Mathlib has the

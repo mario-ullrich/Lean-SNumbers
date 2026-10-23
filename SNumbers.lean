@@ -60,8 +60,10 @@ tend to `0`.
 
 * `SNumbers.Basic`: the `rank` of a continuous linear map and the Pietsch
   axioms (S1)–(S5), packaged as `IsSNumberSequence`; the (S5')
-  strengthening and `IsStrictSNumberSequence`; and absolute homogeneity
-  `sₙ(c • T) = ‖c‖ · sₙ(T)`.
+  strengthening and `IsStrictSNumberSequence`; the strong forms of (S2) and (S3),
+  additivity `s_{n+m}(S + T) ≤ sₙ(S) + s_m(T)` and multiplicativity
+  `s_{n+m}(S ∘ T) ≤ sₙ(S) · s_m(T)` (`Additive`, `Multiplicative`); and absolute
+  homogeneity `sₙ(c • T) = ‖c‖ · sₙ(T)`.
 * `SNumbers.ContinuousLinearMapRank`: rank lemmas for continuous linear maps
   (`rank_zero`, `eq_zero_of_rank_le_zero`, `rank_comp_comp_le`) and
   `finrank_euclideanSpace_fin'`, `dim ℓ₂ⁿ = n` over any `NontriviallyNormedField`.
@@ -72,14 +74,16 @@ tend to `0`.
 * `SNumbers.PiLpCoordinates`: the coordinate projection/embedding
   contractions `projFin` / `padFin` between `ℓ^p_n` and `ℓ^p_m`.
 * `SNumbers.Approximation`: the approximation numbers `aₙ`, proved to form a
-  strict s-number sequence (S1)–(S5)+(S5'), and to be the *largest*
-  s-number sequence (`sₙ(S) ≤ aₙ(S)`).
+  strict s-number sequence (S1)–(S5)+(S5') that is additive and multiplicative,
+  and to be the *largest* s-number sequence (`sₙ(S) ≤ aₙ(S)`).
 * `SNumbers.Bernstein`, `SNumbers.Gelfand`, `SNumbers.Kolmogorov`,
   `SNumbers.Hilbert`: the further canonical examples `bₙ`, `cₙ`, `dₙ`, `hₙ`,
   one file each, all proved to form s-number sequences (Bernstein, Gelfand,
-  Kolmogorov strict). The Hilbert numbers are developed over any `RCLike`
-  field; their (S5) normalisation rests on the singular value decomposition,
-  formalised via `exists_l2_section` and `approximationNumber_id_euclidean`.
+  Kolmogorov strict). The Gelfand and Kolmogorov numbers are additive and
+  multiplicative, the Hilbert numbers additive. The Hilbert numbers are developed
+  over any `RCLike` field; their (S5) normalisation rests on the singular value
+  decomposition, formalised via `exists_l2_section` and
+  `approximationNumber_id_euclidean`.
 * `SNumbers.KolmogorovLifting`: an alternative development of the
   Kolmogorov numbers via Pietsch's identity `d_n S = a_n(S ∘ Q_X)`,
   where `Q_X : ℓ¹(B_X) →L[𝕜] X` is the canonical summation surjection.

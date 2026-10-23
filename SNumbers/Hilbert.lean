@@ -31,6 +31,9 @@ where `ℓ₂ = L2 𝕜` is `lp (fun _ : ℕ => 𝕜) 2`.
   axioms (S1)–(S4).
 * `SNumbers.isSNumberSequence_hilbertNumber`: the Hilbert numbers form an
   s-number sequence (S1)–(S5).
+* `SNumbers.hilbertNumber_additive`: additivity `h_{n+m}(S + T) ≤ hₙ(S) + h_m(T)`,
+  from the additivity of the approximation numbers; (S2) is its case `m = 0`.
+  The family form is `additive_hilbertNumber`.
 
 The two non-trivial halves are:
 
@@ -136,28 +139,32 @@ lemma hilbertNumber_antitone (S : X →L[𝕜] Y) (n : ℕ) :
   gcongr
   exact approximationNumber_antitone _ _
 
-/-! ### (S2) Subadditivity -/
+/-! ### Additivity -/
 
-/-- (S2) `h_n (S + T) ≤ h_n S + ‖T‖`. -/
-lemma hilbertNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
-    hilbertNumber (S + T) n ≤ hilbertNumber S n + ‖T‖ := by
+/-- **Additivity of the Hilbert numbers**: `h_{n+m}(S + T) ≤ hₙ(S) + h_m(T)`. For an
+admissible pair `(A, B)`, the operator `B ∘ (S + T) ∘ A` splits as
+`B ∘ S ∘ A + B ∘ T ∘ A`, and additivity of the approximation numbers bounds its
+`(n+m)`-th approximation number by the two ratios. -/
+theorem hilbertNumber_additive (S T : X →L[𝕜] Y) (n m : ℕ) :
+    hilbertNumber (S + T) (n + m) ≤ hilbertNumber S n + hilbertNumber T m := by
   rw [hilbertNumber_def]
-  refine Real.sSup_le ?_ (by have := hilbertNumber_nonneg S n; linarith [norm_nonneg T])
+  refine Real.sSup_le ?_ (add_nonneg (hilbertNumber_nonneg S n) (hilbertNumber_nonneg T m))
   rintro r ⟨A, B, hA, hB, rfl⟩
   have hpos : 0 < ‖B‖ * ‖A‖ := mul_pos (norm_pos_iff.mpr hB) (norm_pos_iff.mpr hA)
   -- `B ∘ (S + T) ∘ A = B∘S∘A + B∘T∘A`.
   have hcomp : B.comp ((S + T).comp A) = B.comp (S.comp A) + B.comp (T.comp A) := by
     rw [ContinuousLinearMap.add_comp, ContinuousLinearMap.comp_add]
+  have hS := ratio_le_hilbertNumber S n hA hB
+  have hT := ratio_le_hilbertNumber T m hA hB
+  rw [div_le_iff₀ hpos] at hS hT
   rw [hcomp, div_le_iff₀ hpos]
-  calc approximationNumber (B.comp (S.comp A) + B.comp (T.comp A)) n
-      ≤ approximationNumber (B.comp (S.comp A)) n + ‖B.comp (T.comp A)‖ :=
-        approximationNumber_add_le _ _ _
-    _ ≤ approximationNumber (B.comp (S.comp A)) n + ‖B‖ * ‖T‖ * ‖A‖ := by
-        gcongr; exact norm_comp_comp_le A T B
-    _ ≤ hilbertNumber S n * (‖B‖ * ‖A‖) + ‖B‖ * ‖T‖ * ‖A‖ := by
-        gcongr
-        rw [← div_le_iff₀ hpos]; exact ratio_le_hilbertNumber S n hA hB
-    _ = (hilbertNumber S n + ‖T‖) * (‖B‖ * ‖A‖) := by ring
+  calc approximationNumber (B.comp (S.comp A) + B.comp (T.comp A)) (n + m)
+      ≤ approximationNumber (B.comp (S.comp A)) n +
+          approximationNumber (B.comp (T.comp A)) m :=
+        approximationNumber_additive _ _ n m
+    _ ≤ hilbertNumber S n * (‖B‖ * ‖A‖) + hilbertNumber T m * (‖B‖ * ‖A‖) :=
+        add_le_add hS hT
+    _ = (hilbertNumber S n + hilbertNumber T m) * (‖B‖ * ‖A‖) := by ring
 
 /-! ### (S3) Ideal property -/
 
@@ -290,6 +297,12 @@ lemma hilbertNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) : hilbertNumber S n �
   (antitone_nat_of_succ_le (hilbertNumber_antitone S) (Nat.zero_le n)).trans_eq
     (hilbertNumber_zero_eq_norm S)
 
+/-- (S2) `h_n (S + T) ≤ h_n S + ‖T‖`: additivity with `m = 0`, since `h_0 T = ‖T‖`. -/
+lemma hilbertNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
+    hilbertNumber (S + T) n ≤ hilbertNumber S n + ‖T‖ := by
+  have h := hilbertNumber_additive S T n 0
+  rwa [Nat.add_zero, hilbertNumber_zero_eq_norm] at h
+
 /-- A contractive **section** of `ℓ₂ⁿ⁺¹` through `ℓ₂`: an isometric embedding
 `B : ℓ₂ⁿ⁺¹ → ℓ₂` together with a contraction `A : ℓ₂ → ℓ₂ⁿ⁺¹` retracting it,
 `A ∘ B = id`, with `‖A‖, ‖B‖ ≤ 1`.
@@ -405,5 +418,10 @@ theorem isSNumberSequence_hilbertNumber :
   vanishes_on_low_rank := fun _ _ h => hilbertNumber_eq_zero_of_rank_le h
   normalised_at_id := fun n =>
     le_antisymm ((hilbertNumber_le_norm _ n).trans norm_id_le) (one_le_hilbertNumber_id n)
+
+/-- The Hilbert numbers are additive: `h_{n+m}(S + T) ≤ hₙ(S) + h_m(T)`. -/
+theorem additive_hilbertNumber :
+    Additive (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => hilbertNumber S n) :=
+  fun S T n m => hilbertNumber_additive S T n m
 
 end SNumbers

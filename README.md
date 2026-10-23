@@ -30,7 +30,9 @@ assigning to each operator `T` a non-increasing sequence of non-negative reals
 * **(S5) norming:** `sₙ(id : ℓ₂ⁿ⁺¹ → ℓ₂ⁿ⁺¹) = 1`.
 
 A *strict* s-number sequence strengthens (S5) to **(S5')** `sₙ(id_X) = 1` for
-every space `X` with `dim X > n`, not just `ℓ₂ⁿ⁺¹`. The classical examples are
+every space `X` with `dim X > n`, not just `ℓ₂ⁿ⁺¹`. An *additive* one strengthens
+(S2) to `s_{n+m}(S + T) ≤ sₙ(S) + s_m(T)`, and a *multiplicative* one strengthens
+(S3) to `s_{n+m}(S ∘ T) ≤ sₙ(S) · s_m(T)`. The classical examples are
 the **approximation** `aₙ`, **Gelfand** `cₙ`, **Kolmogorov** `dₙ`, **Bernstein**
 `bₙ`, and **Hilbert** `hₙ` numbers. In Lean, `SNumbers.IsSNumberSequence` and
 `SNumbers.IsStrictSNumberSequence` state the axioms, and each classical example
@@ -49,6 +51,12 @@ Throughout, `T : X → Y` is a bounded operator between normed spaces over `ℝ`
   (`SNumbers.allSNumbers_eq_on_HilbertSpace`). In finite dimension these are
   Mathlib's singular values, `sₙ(T) = σₙ(T)`
   (`SNumbers.sn_eq_singularValues_of_finiteDimensional`).
+* **Additivity and multiplicativity.** The approximation, Gelfand and Kolmogorov
+  numbers satisfy `s_{n+m}(S + T) ≤ sₙ(S) + s_m(T)` and
+  `s_{n+m}(S ∘ T) ≤ sₙ(S) · s_m(T)` (`SNumbers.approximationNumber_additive`,
+  `SNumbers.approximationNumber_multiplicative`, and likewise for `gelfandNumber` and
+  `kolmogorovNumber`), and the Hilbert numbers satisfy the first
+  (`SNumbers.hilbertNumber_additive`).
 * **Gelfand and Kolmogorov numbers against approximation numbers.** The classical
   bound `aₙ(T) ≤ (1 + √n) · min(cₙ(T), dₙ(T))`, via the Kadets–Snobar and
   Garling–Gordon projection theorems

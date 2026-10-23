@@ -47,6 +47,17 @@ requires `[CompleteSpace X]` because `Q_X` is an infinite series in `X`,
 and is therefore restricted to **Banach spaces**. The two definitions
 agree on Banach spaces.
 
+## Main results
+
+* `SNumbers.kolmogorovNumber_additive` : `d_{n+m}(S + T) ≤ d_n S + d_m T`, using the sum
+  `V ⊔ U` of the two subspaces.
+* `SNumbers.kolmogorovNumber_multiplicative` : `d_{n+m}(S ∘ T) ≤ d_n S * d_m T`, using
+  `V ⊔ S(U)`.
+* `SNumbers.kolmogorovNumber_add_le`, `SNumbers.kolmogorovNumber_comp_comp_le` : (S2) and
+  (S3), as the cases with one index `0`.
+* `SNumbers.isStrictSNumberSequence_kolmogorovNumber` : the Kolmogorov numbers form a
+  strict s-number sequence; `additive_kolmogorovNumber` and
+  `multiplicative_kolmogorovNumber` state additivity and multiplicativity for the family.
 -/
 
 @[expose] public section
@@ -218,33 +229,174 @@ lemma kolmogorovNumber_le_norm (S : X →L[𝕜] Y) (n : ℕ) :
     (kolmogorovNumber_zero_eq_norm S)
 
 
+/-! ## Additivity and multiplicativity
+
+The strong forms of (S2) and (S3), in which subspaces are chosen for both operators:
+
+* if `V` is admissible for `S` (dimension `≤ n`) and `U` for `T` (dimension `≤ m`),
+  then `V ⊔ U` is admissible for `S + T` at stage `n + m`, and enlarging the subspace
+  does not increase the quotient norms (`deviationFromSubspace_anti`);
+* for `T : X → Y` and `S : Y → Z`, if `V ⊆ Z` is admissible for `S` and `U ⊆ Y` for `T`,
+  then `V ⊔ S(U)` is admissible for `S ∘ T` at stage `n + m`: the map
+  `y ↦ [S y]_{V ⊔ S(U)}` vanishes on `U`, so it factors through `Y/U` with norm at
+  most `‖π_V ∘ S‖`. -/
+
+/-- Enlarging the subspace does not increase the quotient norm:
+`V ≤ V' ⇒ ‖π_{V'} ∘ S‖ ≤ ‖π_V ∘ S‖`, since `π_{V'}` factors through `π_V` with a
+contraction. -/
+lemma deviationFromSubspace_anti (S : X →L[𝕜] Y) {V V' : Submodule 𝕜 Y} (h : V ≤ V') :
+    deviationFromSubspace S V' ≤ deviationFromSubspace S V := by
+  -- `π_{V'}` vanishes on `V`, so it descends to `Y/V`
+  have h_ker : V ≤ LinearMap.ker (V'.mkQL : Y →ₗ[𝕜] Y ⧸ V') := by
+    intro v hv
+    show V'.mkQL v = 0
+    rw [Submodule.mkQL_apply, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
+    exact h hv
+  have hfac : V'.mkQL.comp S = (V.liftQL V'.mkQL h_ker).comp (V.mkQL.comp S) := by
+    ext x
+    exact (V.liftQL_mkQL V'.mkQL h_ker (S x)).symm
+  show ‖V'.mkQL.comp S‖ ≤ ‖V.mkQL.comp S‖
+  rw [hfac]
+  calc ‖(V.liftQL V'.mkQL h_ker).comp (V.mkQL.comp S)‖
+      ≤ ‖V.liftQL V'.mkQL h_ker‖ * ‖V.mkQL.comp S‖ := opNorm_comp_le _ _
+    _ ≤ 1 * ‖V.mkQL.comp S‖ :=
+        mul_le_mul_of_nonneg_right ((V.norm_liftQL_le _ h_ker).trans V'.norm_mkQL_le)
+          (norm_nonneg _)
+    _ = ‖V.mkQL.comp S‖ := one_mul _
+
+/-- The triangle inequality for quotient norms:
+`‖π_V ∘ (S + T)‖ ≤ ‖π_V ∘ S‖ + ‖π_V ∘ T‖`. -/
+lemma deviationFromSubspace_add_le (S T : X →L[𝕜] Y) (V : Submodule 𝕜 Y) :
+    deviationFromSubspace (S + T) V ≤
+      deviationFromSubspace S V + deviationFromSubspace T V := by
+  unfold deviationFromSubspace
+  rw [ContinuousLinearMap.comp_add]
+  exact norm_add_le _ _
+
+/-- Per-subspace multiplicativity: for `T : X → Y`, `S : Y → Z`, `V ⊆ Z` and `U ⊆ Y`,
+`‖π_{V ⊔ S(U)} ∘ S ∘ T‖ ≤ ‖π_V ∘ S‖ · ‖π_U ∘ T‖`. -/
+lemma deviationFromSubspace_comp_sup_map_le (S : Y →L[𝕜] Z) (T : X →L[𝕜] Y)
+    (V : Submodule 𝕜 Z) (U : Submodule 𝕜 Y) :
+    deviationFromSubspace (S.comp T) (V ⊔ U.map (S : Y →ₗ[𝕜] Z)) ≤
+      deviationFromSubspace S V * deviationFromSubspace T U := by
+  set L : Submodule 𝕜 Z := V ⊔ U.map (S : Y →ₗ[𝕜] Z) with hL
+  set SL : Y →L[𝕜] Z ⧸ L := L.mkQL.comp S with hSL
+  -- `y ↦ [S y]_L` vanishes on `U`, since `S(U) ⊆ L`
+  have h_ker : U ≤ LinearMap.ker (SL : Y →ₗ[𝕜] Z ⧸ L) := by
+    intro w hw
+    show L.mkQL (S w) = 0
+    rw [Submodule.mkQL_apply, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
+    exact (le_sup_right : U.map (S : Y →ₗ[𝕜] Z) ≤ L) (Submodule.mem_map_of_mem hw)
+  -- and its norm is at most `‖π_V ∘ S‖`, since `V ≤ L`
+  have h_SL : ‖SL‖ ≤ deviationFromSubspace S V :=
+    deviationFromSubspace_anti S (le_sup_left : V ≤ L)
+  have hfac : L.mkQL.comp (S.comp T) = (U.liftQL SL h_ker).comp (U.mkQL.comp T) := by
+    ext x
+    exact (U.liftQL_mkQL SL h_ker (T x)).symm
+  show ‖L.mkQL.comp (S.comp T)‖ ≤ _
+  rw [hfac]
+  calc ‖(U.liftQL SL h_ker).comp (U.mkQL.comp T)‖
+      ≤ ‖U.liftQL SL h_ker‖ * ‖U.mkQL.comp T‖ := opNorm_comp_le _ _
+    _ ≤ deviationFromSubspace S V * deviationFromSubspace T U :=
+        mul_le_mul_of_nonneg_right ((U.norm_liftQL_le SL h_ker).trans h_SL) (norm_nonneg _)
+
+/-- **Additivity of the Kolmogorov numbers**: `d_{n+m}(S + T) ≤ dₙ(S) + d_m(T)`. -/
+theorem kolmogorovNumber_additive (S T : X →L[𝕜] Y) (n m : ℕ) :
+    kolmogorovNumber (S + T) (n + m) ≤ kolmogorovNumber S n + kolmogorovNumber T m := by
+  -- one admissible subspace for each operator
+  have hkey : ∀ V : Submodule 𝕜 Y, Module.rank 𝕜 V ≤ (n : Cardinal) →
+      ∀ U : Submodule 𝕜 Y, Module.rank 𝕜 U ≤ (m : Cardinal) →
+      kolmogorovNumber (S + T) (n + m) ≤
+        deviationFromSubspace S V + deviationFromSubspace T U := by
+    intro V hV U hU
+    have h_rank : Module.rank 𝕜 ↥(V ⊔ U) ≤ ((n + m : ℕ) : Cardinal) := by
+      rw [Nat.cast_add]
+      exact (Submodule.rank_add_le_rank_add_rank V U).trans (add_le_add hV hU)
+    calc kolmogorovNumber (S + T) (n + m)
+        ≤ deviationFromSubspace (S + T) (V ⊔ U) := kolmogorovNumber_le_deviation h_rank
+      _ ≤ deviationFromSubspace S (V ⊔ U) + deviationFromSubspace T (V ⊔ U) :=
+          deviationFromSubspace_add_le S T _
+      _ ≤ deviationFromSubspace S V + deviationFromSubspace T U :=
+          add_le_add (deviationFromSubspace_anti S le_sup_left)
+            (deviationFromSubspace_anti T le_sup_right)
+  -- infimum over `V`, then over `U`
+  rw [← sub_le_iff_le_add]
+  refine le_kolmogorovNumber fun V hV => ?_
+  rw [sub_le_comm]
+  refine le_kolmogorovNumber fun U hU => ?_
+  linarith [hkey V hV U hU]
+
+/-- **Multiplicativity of the Kolmogorov numbers**: for `T : X → Y` and `S : Y → Z`,
+`d_{n+m}(S ∘ T) ≤ dₙ(S) · d_m(T)`. -/
+theorem kolmogorovNumber_multiplicative (S : Y →L[𝕜] Z) (T : X →L[𝕜] Y) (n m : ℕ) :
+    kolmogorovNumber (S.comp T) (n + m) ≤ kolmogorovNumber S n * kolmogorovNumber T m := by
+  -- one admissible subspace for each operator
+  have hkey : ∀ V : Submodule 𝕜 Z, Module.rank 𝕜 V ≤ (n : Cardinal) →
+      ∀ U : Submodule 𝕜 Y, Module.rank 𝕜 U ≤ (m : Cardinal) →
+      kolmogorovNumber (S.comp T) (n + m) ≤
+        deviationFromSubspace S V * deviationFromSubspace T U := by
+    intro V hV U hU
+    have h_rank : Module.rank 𝕜 ↥(V ⊔ U.map (S : Y →ₗ[𝕜] Z)) ≤
+        ((n + m : ℕ) : Cardinal) := by
+      rw [Nat.cast_add]
+      exact (Submodule.rank_add_le_rank_add_rank _ _).trans
+        (add_le_add hV ((rank_map_le _ _).trans hU))
+    exact (kolmogorovNumber_le_deviation h_rank).trans
+      (deviationFromSubspace_comp_sup_map_le S T V U)
+  -- For fixed `V`, take the infimum over `U`, pulling `‖π_V ∘ S‖ ≥ 0` inside it.
+  have h1 : ∀ V : Submodule 𝕜 Z, Module.rank 𝕜 V ≤ (n : Cardinal) →
+      kolmogorovNumber (S.comp T) (n + m) ≤
+        deviationFromSubspace S V * kolmogorovNumber T m := by
+    intro V hV
+    show _ ≤ deviationFromSubspace S V • sInf (kolmogorovSet T m)
+    rw [← Real.sInf_smul_of_nonneg (deviationFromSubspace_nonneg S V)]
+    refine le_csInf ((kolmogorovSet_nonempty T m).image _) ?_
+    rintro _ ⟨_, ⟨U, hU, rfl⟩, rfl⟩
+    exact hkey V hV U hU
+  -- Then take the infimum over `V`, pulling `d_m(T) ≥ 0` inside it.
+  rw [mul_comm]
+  show _ ≤ kolmogorovNumber T m • sInf (kolmogorovSet S n)
+  rw [← Real.sInf_smul_of_nonneg (kolmogorovNumber_nonneg T m)]
+  refine le_csInf ((kolmogorovSet_nonempty S n).image _) ?_
+  rintro _ ⟨_, ⟨V, hV, rfl⟩, rfl⟩
+  show _ ≤ kolmogorovNumber T m * deviationFromSubspace S V
+  rw [mul_comm]
+  exact h1 V hV
+
 /-! ## (S2) Subadditivity -/
 
+/-- (S2) `d_n (S + T) ≤ d_n S + ‖T‖`: additivity with `m = 0`, since `d_0 T = ‖T‖`. -/
 lemma kolmogorovNumber_add_le (S T : X →L[𝕜] Y) (n : ℕ) :
     kolmogorovNumber (S + T) n ≤ kolmogorovNumber S n + ‖T‖ := by
-  rw [← sub_le_iff_le_add]
-  refine le_csInf (kolmogorovSet_nonempty S n) ?_
-  rintro _ ⟨V, hV, rfl⟩
-  -- `V.mkQL.comp (S+T) = V.mkQL.comp S + V.mkQL.comp T`. Triangle:
-  -- `‖V.mkQL.comp (S+T)‖ ≤ ‖V.mkQL.comp S‖ + ‖V.mkQL.comp T‖ ≤ deviation S V + ‖T‖`.
-  have h_dist : kolmogorovNumber (S + T) n
-      ≤ deviationFromSubspace S V + deviationFromSubspace T V := by
-    refine (kolmogorovNumber_le_deviation hV).trans ?_
-    unfold deviationFromSubspace
-    have h_eq : V.mkQL.comp (S + T) = V.mkQL.comp S + V.mkQL.comp T :=
-      ContinuousLinearMap.comp_add _ _ _
-    rw [h_eq]
-    exact norm_add_le (V.mkQL.comp S) (V.mkQL.comp T)
-  have h_T : deviationFromSubspace T V ≤ ‖T‖ := deviationFromSubspace_le_norm T V
-  linarith
+  have h := kolmogorovNumber_additive S T n 0
+  rwa [Nat.add_zero, kolmogorovNumber_zero_eq_norm] at h
 
 /-! ## (S3) Ideal property
 
-Pointwise, in the style of Pietsch, *Eigenvalues and s-numbers*, §2.4
-(dual to the Gelfand argument). For `w : W` we evaluate the deviation
-at `w` and chain three `le_opNorm` applications:
-one for the descent of `B` to a map `Y/V →L[𝕜] Z/B(V)` (constructed
-inline via `V.liftQL`), one for `V.mkQL.comp S`, and one for `A`. -/
+The ideal property is multiplicativity applied twice with one index `0`. The
+per-subspace bound `deviationFromSubspace_comp_comp_map_le` treats it directly, with the
+single subspace `B(V)`: for `w : W` it chains three `le_opNorm` applications, one for the
+descent of `B` to a map `Y/V →L[𝕜] Z/B(V)` (constructed inline via `V.liftQL`), one for
+`V.mkQL.comp S`, and one for `A`. -/
+
+/-- (S3) `d_n (B ∘ S ∘ A) ≤ ‖B‖ * d_n S * ‖A‖`: multiplicativity applied twice with one
+index `0`, since `d_0 = ‖·‖`. -/
+lemma kolmogorovNumber_comp_comp_le
+    (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (n : ℕ) :
+    kolmogorovNumber (B.comp (S.comp A)) n ≤
+      ‖B‖ * kolmogorovNumber S n * ‖A‖ := by
+  have hSA : kolmogorovNumber (S.comp A) n ≤ kolmogorovNumber S n * ‖A‖ := by
+    have h := kolmogorovNumber_multiplicative S A n 0
+    rwa [Nat.add_zero, kolmogorovNumber_zero_eq_norm] at h
+  have hB : kolmogorovNumber (B.comp (S.comp A)) n ≤
+      ‖B‖ * kolmogorovNumber (S.comp A) n := by
+    have h := kolmogorovNumber_multiplicative B (S.comp A) 0 n
+    rwa [Nat.zero_add, kolmogorovNumber_zero_eq_norm] at h
+  calc kolmogorovNumber (B.comp (S.comp A)) n
+      ≤ ‖B‖ * kolmogorovNumber (S.comp A) n := hB
+    _ ≤ ‖B‖ * (kolmogorovNumber S n * ‖A‖) :=
+        mul_le_mul_of_nonneg_left hSA (norm_nonneg B)
+    _ = ‖B‖ * kolmogorovNumber S n * ‖A‖ := (mul_assoc _ _ _).symm
 
 /-- Per-subspace (S3) bound:
 `deviation(B ∘ S ∘ A, B(V)) ≤ ‖B‖ * ‖A‖ * deviation(S, V)`. -/
@@ -300,29 +452,6 @@ lemma deviationFromSubspace_comp_comp_map_le
             (norm_nonneg (V.mkQL.comp S)))
           (norm_nonneg B)
     _ = ‖B‖ * ‖A‖ * ‖V.mkQL.comp S‖ * ‖w‖ := by ring
-
-lemma kolmogorovNumber_comp_comp_le
-    (A : W →L[𝕜] X) (S : X →L[𝕜] Y) (B : Y →L[𝕜] Z) (n : ℕ) :
-    kolmogorovNumber (B.comp (S.comp A)) n ≤
-      ‖B‖ * kolmogorovNumber S n * ‖A‖ := by
-  -- Same scalar-pull-out trick as for the approximation numbers, but the
-  -- per-subspace bound is a one-line consequence of operator-norm
-  -- submultiplicativity.
-  have hkey : ∀ V : Submodule 𝕜 Y, Module.rank 𝕜 V ≤ (n : Cardinal) →
-      kolmogorovNumber (B.comp (S.comp A)) n ≤ ‖B‖ * ‖A‖ * deviationFromSubspace S V :=
-    fun V hV =>
-      (kolmogorovNumber_le_deviation ((rank_map_le _ _).trans hV)).trans
-        (deviationFromSubspace_comp_comp_map_le A S B V)
-  have h_inf : kolmogorovNumber (B.comp (S.comp A)) n
-                ≤ ‖B‖ * ‖A‖ * kolmogorovNumber S n := by
-    show _ ≤ (‖B‖ * ‖A‖) • sInf
-      {r | ∃ V : Submodule 𝕜 Y,
-            Module.rank 𝕜 V ≤ (n : Cardinal) ∧ r = deviationFromSubspace S V}
-    rw [← Real.sInf_smul_of_nonneg (mul_nonneg (norm_nonneg _) (norm_nonneg _))]
-    refine le_csInf ((kolmogorovSet_nonempty S n).image _) ?_
-    rintro _ ⟨_, ⟨V, hV, rfl⟩, rfl⟩
-    exact hkey V hV
-  exact h_inf.trans_eq (by ring)
 
 /-! ## (S4) Vanishing on operators of rank at most `n` -/
 
@@ -447,5 +576,17 @@ theorem isStrictSNumberSequence_kolmogorovNumber :
         (fun {_X _Y} _ _ _ _ S n => kolmogorovNumber S n) where
   toIsSNumberSequence := isSNumberSequence_kolmogorovNumber
   strictly_normalised_at_id := fun n h => kolmogorovNumber_strict n h
+
+omit [CompleteSpace 𝕜] in
+/-- The Kolmogorov numbers are additive: `d_{n+m}(S + T) ≤ dₙ(S) + d_m(T)`. -/
+theorem additive_kolmogorovNumber :
+    Additive (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => kolmogorovNumber S n) :=
+  fun S T n m => kolmogorovNumber_additive S T n m
+
+omit [CompleteSpace 𝕜] in
+/-- The Kolmogorov numbers are multiplicative: `d_{n+m}(S ∘ T) ≤ dₙ(S) · d_m(T)`. -/
+theorem multiplicative_kolmogorovNumber :
+    Multiplicative (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => kolmogorovNumber S n) :=
+  fun S T n m => kolmogorovNumber_multiplicative S T n m
 
 end SNumbers
