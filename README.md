@@ -120,7 +120,7 @@ Build it separately with `lake build Palomar`.
 
 Requires [`elan`](https://github.com/leanprover/elan). The Lean version is pinned
 in `lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone builds against
-Lean / Mathlib `v4.35.0-rc2`:
+Lean / Mathlib `v4.35.0`:
 
 ```bash
 lake exe cache get   # downloads the prebuilt Mathlib oleans
