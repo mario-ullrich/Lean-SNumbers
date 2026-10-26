@@ -1860,6 +1860,52 @@ by Lemma~\ref{lem:metric-norm-comp}. The two infimum sets coincide term by
 term, so the Kolmogorov numbers agree.
 \end{proof}
 
+The Kolmogorov numbers are the approximation numbers after the metric surjection
+$Q_X : \ell_1(B_X) \to X$ (Theorem~\ref{thm:pietsch-identity}). Dually, the Gelfand
+numbers are the approximation numbers after a metric injection of the codomain. Let
+$\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$ and let
+$J_Y : Y \to \ell_\infty(B_{Y^*})$, $(J_Y y)(\varphi) = \varphi(y)$, be the canonical
+embedding into the bounded families indexed by the closed unit ball of the dual.
+
+\begin{lemma}
+\label{lem:canonical-embedding}
+\lean{SNumbers.Embedding.J, SNumbers.Embedding.isMetricInjection_J}
+\leanok
+\uses{def:metric-injection}
+$J_Y$ is a metric injection: $\|J_Y y\| = \|y\|$ for every $y \in Y$.
+\end{lemma}
+\begin{proof}
+\leanok
+Every coordinate is a functional of norm at most $1$, so $\|J_Y y\| \le \|y\|$, and a
+norming functional of $y$ (Hahn--Banach) gives $\|J_Y y\| \ge \|y\|$.
+\end{proof}
+
+\begin{theorem}[Pietsch's embedding identity]
+\label{thm:pietsch-embedding}
+\lean{SNumbers.Embedding.gelfandNumber_eq_approximationNumber}
+\leanok
+\uses{def:gelfand-number, def:approximation-number, lem:canonical-embedding}
+For all normed spaces $X$, $Y$ over $\mathbb{K}$, every $S \in \mathcal{L}(X, Y)$ and
+every $n \in \mathbb{N}_0$,
+\[
+  c_n(S) = a_n(J_Y \circ S) .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:gelfand-injective, thm:sandwich, thm:gelfand-is-snumber}
+By injectivity (Theorem~\ref{thm:gelfand-injective}) and the sandwich theorem,
+$c_n(S) = c_n(J_Y S) \le a_n(J_Y S)$. Conversely, let $M \subseteq X$ be closed of
+codimension at most $n$. Extend each functional $(\varphi \circ S)|_M$,
+$\varphi \in B_{Y^*}$, to $g_\varphi \in X^*$ of the same norm (Hahn--Banach), so
+$\|g_\varphi\| \le \|S|_M\|$. The operator $L x = (\varphi(S x) - g_\varphi(x))_\varphi$
+vanishes on $M$, hence factors through $X/M$ and has rank at most $n$, and
+$(J_Y S - L)x = (g_\varphi(x))_\varphi$ has norm at most $\|S|_M\|\,\|x\|$. Thus
+$a_n(J_Y S) \le \|S|_M\|$, and the infimum over $M$ gives $a_n(J_Y S) \le c_n(S)$.
+The proof uses neither completeness of $X$ nor of $Y$, in contrast to the lifting
+identity.
+\end{proof}
+
 \chapter{Entropy numbers}
 \label{ch:entropy}
 

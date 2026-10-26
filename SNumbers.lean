@@ -14,6 +14,7 @@ public import SNumbers.Bernstein
 public import SNumbers.Gelfand
 public import SNumbers.Kolmogorov
 public import SNumbers.KolmogorovLifting
+public import SNumbers.GelfandEmbedding
 public import SNumbers.Hilbert
 public import SNumbers.Inequalities
 public import SNumbers.MaxDifference
@@ -91,6 +92,10 @@ tend to `0`.
   Many axioms become one-liners over `a_n`, but the construction needs
   `[CompleteSpace X]` (an infinite series in `X`), so it is restricted to
   Banach spaces. Lives in the sub-namespace `SNumbers.Lifting`.
+* `SNumbers.GelfandEmbedding`: the dual counterpart, Pietsch's embedding identity
+  `cₙ(S) = aₙ(J_Y ∘ S)` with the canonical metric injection
+  `J_Y : Y →L[𝕜] ℓ_∞(B_{Y*})`, valid between arbitrary normed spaces over `ℝ` or `ℂ`
+  (Hahn–Banach replaces completeness). Lives in the sub-namespace `SNumbers.Embedding`.
 * `SNumbers.Uniqueness`: on Hilbert spaces every s-number sequence coincides
   with the approximation numbers, `sₙ(S) = aₙ(S)` (Pietsch 2.11.9), via the
   scalar factorisation `SVD.exists_scalar_factorisation` in `BasicResults.SVD`.
