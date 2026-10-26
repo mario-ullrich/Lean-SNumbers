@@ -213,6 +213,44 @@ lemma IsSNumberSequence.le_norm {s : Family 𝕜} (h : IsSNumberSequence s)
     s S n ≤ ‖S‖ :=
   (antitone_nat_of_succ_le (h.antitone S) (Nat.zero_le n)).trans_eq (h.norm_at_zero S)
 
+/-- Every s-number sequence is `1`-Lipschitz in the operator at a fixed index:
+`|sₙ(S) − sₙ(T)| ≤ ‖S − T‖`. Both one-sided bounds are (S2), applied to `S = T + (S − T)`
+and to `T = S + (T − S)`. -/
+lemma IsSNumberSequence.abs_sub_le {s : Family 𝕜} (h : IsSNumberSequence s)
+    {X Y : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X]
+    [NormedAddCommGroup Y] [NormedSpace 𝕜 Y] (S T : X →L[𝕜] Y) (n : ℕ) :
+    |s S n - s T n| ≤ ‖S - T‖ := by
+  have h₁ := h.subadditive T (S - T) n
+  have h₂ := h.subadditive S (T - S) n
+  rw [add_sub_cancel] at h₁
+  rw [add_sub_cancel, norm_sub_rev] at h₂
+  exact abs_sub_le_iff.mpr ⟨by linarith, by linarith⟩
+
+/-! ### Pseudo-s-number sequences
+
+Pietsch (*Operator ideals*, Chapter 12) calls a family satisfying (S1)–(S3) a
+pseudo-s-number sequence. The entropy numbers are the main example: they satisfy
+(S1)–(S3) and fail the rank axiom (S4), since `eₙ(S) > 0` for every `S ≠ 0`. -/
+
+/-- A **pseudo-s-number sequence**: the axioms (S1)–(S3) of an s-number sequence,
+without the rank axiom (S4) and the normalisation (S5). -/
+structure IsPseudoSNumberSequence (s : Family 𝕜) : Prop where
+  /-- (S1) `s` takes non-negative values. -/
+  nonneg : Nonneg s
+  /-- (S1) `s 0 S = ‖S‖`. -/
+  norm_at_zero : NormAtZero s
+  /-- (S1) `s` is antitone in `n`. -/
+  antitone : Antitone s
+  /-- (S2) Subadditivity. -/
+  subadditive : Subadditive s
+  /-- (S3) Ideal property. -/
+  ideal : IdealLike s
+
+/-- Every s-number sequence is a pseudo-s-number sequence. -/
+lemma IsSNumberSequence.isPseudoSNumberSequence {s : Family 𝕜} (h : IsSNumberSequence s) :
+    IsPseudoSNumberSequence s :=
+  ⟨h.nonneg, h.norm_at_zero, h.antitone, h.subadditive, h.ideal⟩
+
 /-! ### Strict s-number sequences
 
 The structure `IsStrictSNumberSequence` packages an `IsSNumberSequence` together

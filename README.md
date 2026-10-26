@@ -82,7 +82,11 @@ Throughout, `T : X → Y` is a bounded operator between normed spaces over `ℝ`
   points `uᵢ` with `cᵢ ≥ 0` and `∑ᵢ cᵢ = dim` (`John.john_decomposition`). Hence
   the Kadets–Snobar theorem: every `n`-dimensional subspace of a normed space is
   the range of a projection `P` with `‖P‖ ≤ √n` (`John.exists_projection`).
-* **Entropy numbers.** `max(cₙ(S), dₙ(S)) ≤ (n+1) · eₙ(S)`
+* **Entropy numbers.** Over `ℝ` and `ℂ` the entropy numbers are a pseudo-s-number
+  sequence in Pietsch's sense: they satisfy (S1)–(S3)
+  (`SNumbers.isPseudoSNumberSequence_entropyNumber`), and `eₙ(S) > 0` for every
+  `S ≠ 0`, so the rank axiom (S4) fails (`SNumbers.entropyNumber_pos`).
+  `max(cₙ(S), dₙ(S)) ≤ (n+1) · eₙ(S)`
   (`SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber`), every
   s-number sequence satisfies `sₙ(S) ≤ 2e · (n+1) · eₙ(S)`
   (`SNumbers.sn_le_two_e_mul_entropyNumber`), and for complete `Y` the operator `S`

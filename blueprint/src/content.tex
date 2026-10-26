@@ -107,6 +107,35 @@ multiplicative and obtain (S2) and (S3) in this way; the Hilbert numbers are
 additive, and the Bernstein numbers are neither
 (Theorem~\ref{thm:bernstein-is-snumber}).
 
+\begin{lemma}[Continuity in the operator]
+\label{lem:sn-lipschitz}
+\lean{SNumbers.IsSNumberSequence.abs_sub_le}
+\leanok
+\uses{def:s-number-sequence}
+For every s-number sequence $s$, all $S, T \in \mathcal{L}(X, Y)$ and every
+$n \in \mathbb{N}_0$,
+\[
+  |s_n(S) - s_n(T)| \le \|S - T\| .
+\]
+\end{lemma}
+\begin{proof}
+\leanok
+By (S2), $s_n(S) = s_n(T + (S - T)) \le s_n(T) + \|S - T\|$, and symmetrically
+$s_n(T) \le s_n(S) + \|S - T\|$.
+\end{proof}
+
+\begin{definition}[Pseudo-s-number sequence]
+\label{def:pseudo-s-number-sequence}
+\lean{SNumbers.IsPseudoSNumberSequence}
+\leanok
+\uses{def:s-number-sequence}
+A family $s = (s_n)_{n \in \mathbb{N}_0}$ as in
+Definition~\ref{def:s-number-sequence} is a \emph{pseudo-\textup{s}-number
+sequence} if it satisfies (S1), (S2) and (S3) \cite[12.1.1]{Pietsch-ideals}.
+Every s-number sequence is one
+(\texttt{IsSNumberSequence.isPseudoSNumberSequence}).
+\end{definition}
+
 \chapter{The five canonical examples}
 \label{ch:examples}
 
@@ -1839,9 +1868,10 @@ measure how many balls of a given radius are needed to cover the image of
 the unit ball. They are \emph{not} s-numbers (the rank axiom (S4) and
 the normalisation (S5) both fail), but they satisfy the remaining
 properties, in the strong additive and multiplicative form of
-Theorems~\ref{thm:entropy-additive} and~\ref{thm:entropy-multiplicative}; such
-sequences are called \emph{pseudo-\textup{s}-number} sequences
-\cite[12.1.1]{Pietsch-ideals}. Everything in this chapter is formalised
+Theorems~\ref{thm:entropy-additive} and~\ref{thm:entropy-multiplicative}: they
+are a pseudo-\textup{s}-number sequence
+(Definition~\ref{def:pseudo-s-number-sequence},
+Theorem~\ref{thm:entropy-pseudo}). Everything in this chapter is formalised
 in \texttt{Entropy.lean}, over a non-trivially normed field
 $\mathbb{K}$ unless stated otherwise.
 
@@ -1929,23 +1959,45 @@ Taking one index to be $0$ and using $e_0 \le \|\cdot\|$ twice
 (Proposition~\ref{prop:entropy-basic}) gives the s-number axiom (S3):
 $e_n(B \circ S \circ A) \le \|B\| \, e_n(S) \, \|A\|$.
 
-\begin{remark}[Entropy numbers are not s-numbers]
-\label{rem:entropy-not-snumber}
-Two of Pietsch's axioms fail, and one is not formalised:
-\begin{itemize}
-  \item (S4) fails: if $e_n(S) = 0$ then $S(B_X)$ is covered by $2^n$
-    balls of arbitrarily small radius, hence has at most $2^n$ points,
-    which is impossible for $S \neq 0$. So $e_n(S) > 0$ even for finite-rank $S$.
-  \item (S5) fails for $n \ge 2$: covering the Euclidean unit ball of
-    $\mathbb{R}^{n+1}$ by balls of radius $< 1$ takes only $n + 2$ of
-    them, and $2^n \ge n + 2$ from $n = 2$ on, so
-    $e_n(\mathrm{id}_{\ell_2^{n+1}}) < 1$.
-  \item (S1a), the equality $e_0(S) = \|S\|$, holds over $\mathbb{R}$ and
-    $\mathbb{C}$ by symmetry of $S(B_X)$, but fails over general normed
-    fields; only the inequality $e_0(S) \le \|S\|$ is formalised, which is
-    all that is used anywhere in this blueprint.
-\end{itemize}
-\end{remark}
+\begin{proposition}[The first entropy number]
+\label{prop:entropy-zero}
+\lean{SNumbers.entropyNumber_zero_eq_norm, SNumbers.norm_le_of_mem_entropySet_zero}
+\leanok
+\uses{def:entropy-number}
+Let $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$. For every
+$S \in \mathcal{L}(X, Y)$, $e_0(S) = \|S\|$.
+\end{proposition}
+\begin{proof}
+\leanok
+\uses{prop:entropy-basic}
+The bound $e_0(S) \le \|S\|$ is Proposition~\ref{prop:entropy-basic}. If one
+closed ball of radius $\varepsilon$ around $y$ covers $S(B_X)$, it contains $Sx$
+and $-Sx$ for every $x \in B_X$, so
+$2\|Sx\| = \|(Sx - y) - (-Sx - y)\| \le 2\varepsilon$. Rescaling a nonzero $x$
+to norm $1$ gives $\|S\| \le \varepsilon$.
+\end{proof}
+
+\begin{theorem}[Entropy numbers are pseudo-s-numbers]
+\label{thm:entropy-pseudo}
+\lean{SNumbers.isPseudoSNumberSequence_entropyNumber}
+\leanok
+\uses{def:pseudo-s-number-sequence, def:entropy-number}
+Let $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$. The entropy numbers
+$e = (e_n)_n$ form a pseudo-\textup{s}-number sequence: they satisfy (S1),
+(S2) and (S3).
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{prop:entropy-zero, prop:entropy-basic, thm:entropy-additive, thm:entropy-multiplicative}
+(S1) is Propositions~\ref{prop:entropy-zero} and~\ref{prop:entropy-basic};
+(S2) and (S3) are the cases with one index $0$ of
+Theorems~\ref{thm:entropy-additive} and~\ref{thm:entropy-multiplicative}.
+\end{proof}
+
+The rank axiom (S4) fails (Theorem~\ref{thm:entropy-pos}), and so does the
+normalisation (S5) for $n \ge 2$: covering the Euclidean unit ball of
+$\mathbb{R}^{n+1}$ by balls of radius $< 1$ takes only $n + 2$ of them, and
+$2^n \ge n + 2$ from $n = 2$ on, so $e_n(\mathrm{id}_{\ell_2^{n+1}}) < 1$.
 
 \begin{theorem}
 \label{thm:entropy-compact}
@@ -2123,6 +2175,24 @@ $2\varepsilon < \delta$ then each ball of an admissible cover contains at
 most one of the points. Assigning to every point a covering centre is then
 injective, so there are at least as many centres as points, more than
 $2^n$, contradicting admissibility.
+\end{proof}
+
+\begin{theorem}[Entropy numbers fail the rank axiom]
+\label{thm:entropy-pos}
+\lean{SNumbers.entropyNumber_pos}
+\leanok
+\uses{def:entropy-number}
+Let $\mathbb{K} \in \{\mathbb{R}, \mathbb{C}\}$. For every
+$S \in \mathcal{L}(X, Y)$ with $S \neq 0$ and every $n \in \mathbb{N}_0$,
+$e_n(S) > 0$. In particular (S4) fails for every nonzero operator of finite rank.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{prop:entropy-lower-bound}
+Take a unit vector $x$ with $v = Sx \neq 0$. The $2^n + 1$ points
+$\frac{k}{2^n} v$, $0 \le k \le 2^n$, are images of the vectors
+$\frac{k}{2^n} x \in B_X$ and lie at mutual distance at least $\|v\| / 2^n$, so
+$e_n(S) \ge \|v\| / 2^{n+1}$ by Proposition~\ref{prop:entropy-lower-bound}.
 \end{proof}
 
 \begin{theorem}[Triangular flags]

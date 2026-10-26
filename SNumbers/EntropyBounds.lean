@@ -268,6 +268,134 @@ lemma le_entropyNumber_of_separated {S : X →L[𝕜] Y} {n : ℕ} {δ : ℝ} {P
     Finset.card_le_card_of_injOn g (fun z hz => hg_mem z hz) hinj
   omega
 
+/-! ### Entropy numbers are pseudo-s-numbers
+
+The entropy numbers satisfy the axioms (S1)–(S3) of an s-number sequence: (S1) needs
+`e₀(S) = ‖S‖`, proved below, and (S2), (S3) are the cases with one index `0` of
+additivity and multiplicativity. They fail the rank axiom (S4): `eₙ(S) > 0` for every
+`S ≠ 0`. In Pietsch's terminology they are pseudo-s-numbers. -/
+
+/-- If `‖S x‖ ≤ ε` for every `x` in the closed unit ball, then `‖S‖ ≤ ε`: rescale a
+nonzero `x` to norm `1`. -/
+private lemma norm_le_of_forall_norm_le_one {S : X →L[𝕜] Y} {ε : ℝ} (hε : 0 ≤ ε)
+    (h : ∀ x : X, ‖x‖ ≤ 1 → ‖S x‖ ≤ ε) : ‖S‖ ≤ ε := by
+  refine S.opNorm_le_bound hε fun x => ?_
+  rcases eq_or_ne x 0 with rfl | hx
+  · simp
+  have hxpos : 0 < ‖x‖ := norm_pos_iff.mpr hx
+  have hc : ‖((‖x‖⁻¹ : ℝ) : 𝕜)‖ = ‖x‖⁻¹ := by
+    rw [RCLike.norm_ofReal, abs_of_pos (inv_pos.mpr hxpos)]
+  have h1 := h (((‖x‖⁻¹ : ℝ) : 𝕜) • x) (by rw [norm_smul, hc, inv_mul_cancel₀ hxpos.ne'])
+  rw [map_smul, norm_smul, hc] at h1
+  calc ‖S x‖ = ‖x‖ * (‖x‖⁻¹ * ‖S x‖) := by field_simp
+    _ ≤ ‖x‖ * ε := mul_le_mul_of_nonneg_left h1 hxpos.le
+    _ = ε * ‖x‖ := mul_comm _ _
+
+/-- A single closed ball that covers `S(B_X)` has radius at least `‖S‖`: with `S x` it
+contains `-S x`, so `2 ‖S x‖ ≤ 2ε`. -/
+lemma norm_le_of_mem_entropySet_zero {S : X →L[𝕜] Y} {ε : ℝ} (hε : ε ∈ entropySet S 0) :
+    ‖S‖ ≤ ε := by
+  obtain ⟨hε0, N, hN, hcov⟩ := hε
+  have hmem : ∀ z : X, ‖z‖ ≤ 1 → ∃ y ∈ N, ‖S z - y‖ ≤ ε := by
+    intro z hz
+    have hz' := hcov ⟨z, by simpa using hz, rfl⟩
+    simp only [Set.mem_iUnion, Metric.mem_closedBall, exists_prop, dist_eq_norm] at hz'
+    obtain ⟨y, hy, hd⟩ := hz'
+    exact ⟨y, by simpa using hy, hd⟩
+  refine norm_le_of_forall_norm_le_one hε0.le fun x hx => ?_
+  obtain ⟨y, hy, hd⟩ := hmem x hx
+  obtain ⟨y', hy', hd'⟩ := hmem (-x) (by rwa [norm_neg])
+  have hN1 : N.card ≤ 1 := by simpa using hN
+  have hyy : y' = y := Finset.card_le_one.mp hN1 _ hy' _ hy
+  rw [hyy, map_neg] at hd'
+  have h2 : S x + S x = (S x - y) - (-S x - y) := by abel
+  have h3 : ‖S x + S x‖ ≤ 2 * ε := by
+    rw [h2]; linarith [norm_sub_le (S x - y) (-S x - y)]
+  rw [← two_smul 𝕜 (S x), norm_smul, RCLike.norm_two] at h3
+  linarith
+
+/-- **`e₀(S) = ‖S‖`**: one ball suffices for radius `‖S‖`, and no smaller radius does. -/
+lemma entropyNumber_zero_eq_norm (S : X →L[𝕜] Y) : entropyNumber S 0 = ‖S‖ :=
+  le_antisymm (entropyNumber_le_norm S 0)
+    (by rw [entropyNumber_def]
+        exact le_csInf (entropySet_nonempty S 0) fun ε hε => norm_le_of_mem_entropySet_zero hε)
+
+/-- **The entropy numbers are a pseudo-s-number sequence**: they satisfy (S1)–(S3). -/
+theorem isPseudoSNumberSequence_entropyNumber :
+    IsPseudoSNumberSequence (𝕜 := 𝕜) (fun {_X _Y} _ _ _ _ S n => entropyNumber S n) where
+  nonneg := fun S n => entropyNumber_nonneg S n
+  norm_at_zero := fun S => entropyNumber_zero_eq_norm S
+  antitone := fun S n => entropyNumber_antitone S n
+  subadditive := fun S T n => entropyNumber_add_le S T n
+  ideal := fun A S B n => entropyNumber_comp_comp_le B S A n
+
+/-- **The entropy numbers fail the rank axiom (S4)**: `eₙ(S) > 0` for every `S ≠ 0`.
+For a unit vector `x` with `v = S x ≠ 0`, the `2ⁿ + 1` points `(k/2ⁿ) v`, `k ≤ 2ⁿ`, lie in
+`S(B_X)` at mutual distance at least `‖v‖/2ⁿ`, so `eₙ(S) ≥ ‖v‖/2ⁿ⁺¹` by
+`le_entropyNumber_of_separated`. -/
+theorem entropyNumber_pos {S : X →L[𝕜] Y} (hS : S ≠ 0) (n : ℕ) : 0 < entropyNumber S n := by
+  classical
+  -- A unit vector `x₀` with `S x₀ ≠ 0`.
+  obtain ⟨x, hx⟩ : ∃ x, S x ≠ 0 := by
+    by_contra h
+    push Not at h
+    exact hS (ContinuousLinearMap.ext h)
+  have hx0 : x ≠ 0 := fun h => hx (by rw [h, map_zero])
+  have hxpos : 0 < ‖x‖ := norm_pos_iff.mpr hx0
+  set x₀ : X := ((‖x‖⁻¹ : ℝ) : 𝕜) • x with hx₀
+  have hx₀_norm : ‖x₀‖ = 1 := by
+    rw [hx₀, norm_smul, RCLike.norm_ofReal, abs_of_pos (inv_pos.mpr hxpos),
+      inv_mul_cancel₀ hxpos.ne']
+  set v : Y := S x₀ with hv
+  have hv0 : v ≠ 0 := by
+    rw [hv, hx₀, map_smul]
+    exact smul_ne_zero (by simpa using hxpos.ne') hx
+  have hvpos : 0 < ‖v‖ := norm_pos_iff.mpr hv0
+  -- The points `f k = (k / 2ⁿ) • v`.
+  set f : ℕ → Y := fun k => (((k : ℝ) / 2 ^ n : ℝ) : 𝕜) • v with hf
+  have hdist : ∀ k l : ℕ, dist (f k) (f l) = |(k : ℝ) - l| / 2 ^ n * ‖v‖ := by
+    intro k l
+    rw [hf, dist_eq_norm, ← sub_smul, norm_smul, ← RCLike.ofReal_sub, RCLike.norm_ofReal,
+      ← sub_div, abs_div, abs_of_pos (by positivity : (0 : ℝ) < 2 ^ n)]
+  have hsep : ∀ k l : ℕ, k ≠ l → ‖v‖ / 2 ^ n ≤ dist (f k) (f l) := by
+    intro k l hkl
+    rw [hdist]
+    have h1 : (1 : ℝ) ≤ |(k : ℝ) - l| := by
+      have : (k : ℤ) ≠ l := by exact_mod_cast hkl
+      have h := Int.one_le_abs (sub_ne_zero.mpr this)
+      exact_mod_cast h
+    rw [div_mul_eq_mul_div]
+    exact div_le_div_of_nonneg_right (by nlinarith) (by positivity)
+  set P : Finset Y := (Finset.range (2 ^ n + 1)).image f with hP
+  have hinj : Set.InjOn f (Finset.range (2 ^ n + 1) : Set ℕ) := by
+    intro k _ l _ hkl
+    by_contra hne
+    have := hsep k l hne
+    rw [hkl, dist_self] at this
+    exact absurd this (not_le.mpr (by positivity))
+  have hcard : 2 ^ n < P.card := by
+    rw [hP, Finset.card_image_of_injOn hinj, Finset.card_range]; omega
+  have hsub : ↑P ⊆ ⇑S '' Metric.closedBall 0 1 := by
+    intro z hz
+    rw [hP, Finset.coe_image] at hz
+    obtain ⟨k, hk, rfl⟩ := hz
+    have hk' : (k : ℝ) ≤ 2 ^ n := by
+      have : k ≤ 2 ^ n := Nat.lt_succ_iff.mp (Finset.mem_range.mp hk)
+      exact_mod_cast this
+    refine ⟨(((k : ℝ) / 2 ^ n : ℝ) : 𝕜) • x₀, ?_, by rw [map_smul]⟩
+    rw [Metric.mem_closedBall, dist_zero_right, norm_smul, hx₀_norm, mul_one,
+      RCLike.norm_ofReal, abs_of_nonneg (by positivity)]
+    exact div_le_one_of_le₀ hk' (by positivity)
+  have hP_sep : ∀ z ∈ P, ∀ z' ∈ P, z ≠ z' → ‖v‖ / 2 ^ n ≤ dist z z' := by
+    intro z hz z' hz' hne
+    rw [hP, Finset.mem_image] at hz hz'
+    obtain ⟨k, -, rfl⟩ := hz
+    obtain ⟨l, -, rfl⟩ := hz'
+    exact hsep k l (fun h => hne (by rw [h]))
+  have := le_entropyNumber_of_separated hsub hcard hP_sep
+  have hpos : 0 < ‖v‖ / 2 ^ n / 2 := by positivity
+  linarith
+
 /-! ### Triangular flags
 
 `n+1` vectors of the unit ball whose images are independent at level `γ`:
