@@ -2326,6 +2326,11 @@ $\mu(B_X) \le 2^n \varepsilon^D \mu(B_X)$ and hence
 $1 \le 2^n \varepsilon^D$, the measure of $B_X$ being positive and finite.
 Were $\varepsilon \le 1/2$, then
 $2^n \varepsilon^D \le 2^n 2^{-(n+1)} = 1/2$, a contradiction.
+
+A single argument for both cases would restrict to an $(n+1)$-dimensional subspace
+$M$; the covering balls have centres outside $M$, and bounding the volume of their
+sections by $M$ without losing a factor $2$ needs Brunn's section theorem, which is
+not in Mathlib.
 \end{proof}
 
 \begin{theorem}[Hilbert-entropy bound]

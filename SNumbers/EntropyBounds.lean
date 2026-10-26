@@ -911,7 +911,9 @@ lemma half_le_entropyNumber_id_of_not_finiteDimensional (X : Type u) [NormedAddC
   linarith
 
 /-- **`eₙ(id_X) ≥ 1/2` whenever `dim X > n`**: the volume comparison
-`half_le_entropyNumber_id` in finite dimension, Riesz's lemma otherwise. -/
+`half_le_entropyNumber_id` in finite dimension, Riesz's lemma otherwise. A single
+argument through an `(n+1)`-dimensional subspace would need Brunn's section theorem (the
+covering balls have centres outside the subspace), which Mathlib lacks. -/
 lemma half_le_entropyNumber_id_of_lt_rank (X : Type u) [NormedAddCommGroup X]
     [NormedSpace 𝕜 X] {n : ℕ} (hn : (n : Cardinal) < Module.rank 𝕜 X) :
     1 / 2 ≤ entropyNumber (ContinuousLinearMap.id 𝕜 X) n := by
