@@ -2303,14 +2303,22 @@ while $\sigma_k = \tau_k$ kills the terms with $k < j$.
 
 \begin{proposition}[Entropy of the identity]
 \label{prop:entropy-identity}
-\lean{SNumbers.half_le_entropyNumber_id}
+\lean{SNumbers.half_le_entropyNumber_id_of_lt_rank, SNumbers.half_le_entropyNumber_id,
+      SNumbers.half_le_entropyNumber_id_of_not_finiteDimensional}
 \leanok
-\uses{def:entropy-number}
+\uses{def:entropy-number, prop:entropy-lower-bound}
 If $\dim X > n$ then $e_n(\mathrm{id}_X) \ge 1/2$.
 \end{proposition}
 \begin{proof}
 \leanok
-Let $D$ be the dimension of $X$ as a real vector space, so $D > n$, and let
+If $X$ is infinite-dimensional, Riesz's lemma gives, for every $R > 1$, a sequence in
+the ball of radius $R$ whose points are at mutual distance at least $1$; rescaled by
+$R^{-1}$, any $2^n + 1$ of them lie in $B_X$ at mutual distance at least $1/R$, so
+$e_n(\mathrm{id}_X) \ge 1/(2R)$ by Proposition~\ref{prop:entropy-lower-bound}, and
+$R \to 1$ gives the claim.
+
+If $X$ is finite-dimensional,
+let $D$ be the dimension of $X$ as a real vector space, so $D > n$, and let
 $\mu$ be a Haar measure on $X$. Scaling a ball by $\varepsilon$ scales its
 measure by $\varepsilon^D$, so a cover of $B_X$ by $2^n$ balls of radius
 $\varepsilon$ gives

@@ -58,8 +58,9 @@ two of them, and here two in one box is a contradiction.
   triangular systems below `dₙ` resp. `cₙ`.
 * `SNumbers.max_gelfandNumber_kolmogorovNumber_le_succ_mul_entropyNumber` :
     `max (cₙ S) (dₙ S) ≤ (n+1) · eₙ S`, the sharp bound of [Pie80, 12.3.2].
-* `SNumbers.half_le_entropyNumber_id` : `eₙ (id_X) ≥ 1/2` when `dim X > n`,
-  by comparing volumes.
+* `SNumbers.half_le_entropyNumber_id_of_lt_rank` : `eₙ (id_X) ≥ 1/2` when `dim X > n`,
+  by comparing volumes in finite dimension (`half_le_entropyNumber_id`) and by Riesz's
+  lemma in infinite dimension.
 * `SNumbers.approximationNumber_le_two_mul_entropyNumber` :
     `aₙ S ≤ 2 · eₙ S` between Hilbert spaces.
 * `SNumbers.hilbertNumber_le_two_mul_entropyNumber` : `hₙ S ≤ 2 · eₙ S`.
@@ -851,6 +852,73 @@ lemma half_le_entropyNumber_id (X : Type u) [NormedAddCommGroup X]
     rw [pow_succ, ← mul_assoc, ← mul_pow]
     norm_num
   nlinarith [h3, h4, h5, h6, pow_pos hε0 D]
+
+/-- **`eₙ(id_X) ≥ 1/2` on infinite-dimensional spaces.** For every `R > 1`, Riesz's lemma
+gives a sequence in the ball of radius `R` whose points are at mutual distance at least `1`
+(`exists_seq_norm_le_one_le_norm_sub'`); rescaled by `R⁻¹`, any `2ⁿ + 1` of them lie in
+`B_X` at mutual distance at least `1/R`, so `eₙ(id_X) ≥ 1/(2R)` by
+`le_entropyNumber_of_separated`. Letting `R → 1` gives the claim. -/
+lemma half_le_entropyNumber_id_of_not_finiteDimensional (X : Type u) [NormedAddCommGroup X]
+    [NormedSpace 𝕜 X] (hX : ¬FiniteDimensional 𝕜 X) (n : ℕ) :
+    1 / 2 ≤ entropyNumber (ContinuousLinearMap.id 𝕜 X) n := by
+  classical
+  -- For every `R > 1`, `1 / (2R) ≤ eₙ(id_X)`.
+  have key : ∀ R : ℝ, 1 < R → 1 / R / 2 ≤ entropyNumber (ContinuousLinearMap.id 𝕜 X) n := by
+    intro R hR
+    have hR0 : 0 < R := by linarith
+    have hc : 1 < ‖(((1 + R) / 2 : ℝ) : 𝕜)‖ := by
+      rw [RCLike.norm_ofReal, abs_of_pos (by linarith)]; linarith
+    have hcR : ‖(((1 + R) / 2 : ℝ) : 𝕜)‖ < R := by
+      rw [RCLike.norm_ofReal, abs_of_pos (by linarith)]; linarith
+    obtain ⟨f, hf_norm, hf_sep⟩ := exists_seq_norm_le_one_le_norm_sub' hc hcR hX
+    set g : ℕ → X := fun k => ((R⁻¹ : ℝ) : 𝕜) • f k with hg
+    have hcR' : ‖((R⁻¹ : ℝ) : 𝕜)‖ = R⁻¹ := by
+      rw [RCLike.norm_ofReal, abs_of_pos (inv_pos.mpr hR0)]
+    have hsep : ∀ k l : ℕ, k ≠ l → 1 / R ≤ dist (g k) (g l) := by
+      intro k l hkl
+      rw [hg, dist_eq_norm, ← smul_sub, norm_smul, hcR', one_div]
+      exact le_mul_of_one_le_right (inv_pos.mpr hR0).le (hf_sep hkl)
+    set P : Finset X := (Finset.range (2 ^ n + 1)).image g with hP
+    have hinj : Set.InjOn g (Finset.range (2 ^ n + 1) : Set ℕ) := by
+      intro k _ l _ hkl
+      by_contra hne
+      have := hsep k l hne
+      rw [hkl, dist_self] at this
+      exact absurd this (not_le.mpr (by positivity))
+    have hcard : 2 ^ n < P.card := by
+      rw [hP, Finset.card_image_of_injOn hinj, Finset.card_range]; omega
+    have hsub : ↑P ⊆ ⇑(ContinuousLinearMap.id 𝕜 X) '' Metric.closedBall 0 1 := by
+      intro z hz
+      rw [hP, Finset.coe_image] at hz
+      obtain ⟨k, -, rfl⟩ := hz
+      refine ⟨g k, ?_, rfl⟩
+      rw [Metric.mem_closedBall, dist_zero_right, hg, norm_smul, hcR']
+      exact (inv_mul_le_one₀ hR0).mpr (hf_norm k)
+    have hP_sep : ∀ z ∈ P, ∀ z' ∈ P, z ≠ z' → 1 / R ≤ dist z z' := by
+      intro z hz z' hz' hne
+      rw [hP, Finset.mem_image] at hz hz'
+      obtain ⟨k, -, rfl⟩ := hz
+      obtain ⟨l, -, rfl⟩ := hz'
+      exact hsep k l (fun h => hne (by rw [h]))
+    exact le_entropyNumber_of_separated hsub hcard hP_sep
+  -- Let `R = 1 + ε` tend to `1`.
+  refine le_of_forall_pos_le_add fun ε hε => ?_
+  have h := key (1 + ε) (by linarith)
+  have hle : 1 / 2 - ε ≤ 1 / (1 + ε) / 2 := by
+    rw [div_div, show (1 : ℝ) / 2 - ε = (1 - 2 * ε) / 2 by ring, div_le_div_iff₀ (by norm_num)
+      (by positivity)]
+    nlinarith
+  linarith
+
+/-- **`eₙ(id_X) ≥ 1/2` whenever `dim X > n`**: the volume comparison
+`half_le_entropyNumber_id` in finite dimension, Riesz's lemma otherwise. -/
+lemma half_le_entropyNumber_id_of_lt_rank (X : Type u) [NormedAddCommGroup X]
+    [NormedSpace 𝕜 X] {n : ℕ} (hn : (n : Cardinal) < Module.rank 𝕜 X) :
+    1 / 2 ≤ entropyNumber (ContinuousLinearMap.id 𝕜 X) n := by
+  by_cases hX : FiniteDimensional 𝕜 X
+  · rw [← Module.finrank_eq_rank, Nat.cast_lt] at hn
+    exact half_le_entropyNumber_id X hn
+  · exact half_le_entropyNumber_id_of_not_finiteDimensional X hX n
 
 end Identity
 
