@@ -245,7 +245,8 @@ theorem le_sn_DiagCLM {s : Family 𝕜} (hs : IsStrictSNumberSequence s)
           exact inv_anti₀ hpos (hdom j)
   -- Assemble via (S3) and (S5').
   have hideal := hs.ideal A (DiagCLM p σ) B n
-  rw [hfact, hs.strictly_normalised_at_id n (by rw [finrank_piLp]; omega)] at hideal
+  rw [hfact, hs.strictly_normalised_at_id n
+    (Module.lt_rank_of_lt_finrank (by rw [finrank_piLp]; omega))] at hideal
   have hsnn : 0 ≤ s (DiagCLM p σ) n := hs.nonneg _ _
   have hchain : (1 : ℝ) ≤ ‖σ ⟨n, hn⟩‖⁻¹ * s (DiagCLM p σ) n := by
     calc (1 : ℝ) ≤ ‖B‖ * s (DiagCLM p σ) n * ‖A‖ := hideal
@@ -325,7 +326,7 @@ normalisation (S5'), and `sₙ(id) = 0` for `n ≥ m` is the rank axiom (S4). -/
 whenever `n < m` (directly from (S5'), via `dim ℓ^p_m = m`). -/
 theorem sn_id_piLp {s : Family 𝕜} (hs : IsStrictSNumberSequence s) {n : ℕ} (hn : n < m) :
     s (ContinuousLinearMap.id 𝕜 (PiLp p (fun _ : Fin m => 𝕜))) n = 1 :=
-  hs.strictly_normalised_at_id n (by rw [finrank_piLp]; exact hn)
+  hs.strictly_normalised_at_id n (Module.lt_rank_of_lt_finrank (by rw [finrank_piLp]; exact hn))
 
 
 /-! # Part II: mixed exponents, `D_σ : ℓ^q_m → ℓ^p_m`

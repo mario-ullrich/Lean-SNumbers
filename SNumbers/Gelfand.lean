@@ -489,12 +489,9 @@ whenever `M ≠ ⊥`. The constraint `codim M ≤ n < dim X` forces
 /-- (S5') Strict normalisation: `gelfandNumber (id_X) n = 1` whenever
 `n < Module.finrank 𝕜 X`. -/
 lemma gelfandNumber_strict {X : Type u} [NormedAddCommGroup X]
-    [NormedSpace 𝕜 X] (n : ℕ) (h : n < Module.finrank 𝕜 X) :
+    [NormedSpace 𝕜 X] (n : ℕ) (h : (n : Cardinal) < Module.rank 𝕜 X) :
     gelfandNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
-  have h_finrank_pos : 0 < Module.finrank 𝕜 X :=
-    Nat.lt_of_le_of_lt (Nat.zero_le _) h
-  have : FiniteDimensional 𝕜 X := .of_finrank_pos h_finrank_pos
-  have : Nontrivial X := Module.nontrivial_of_finrank_pos h_finrank_pos
+  have : Nontrivial X := nontrivial_of_natCast_lt_rank h
   set I := ContinuousLinearMap.id 𝕜 X with hI_def
   refine le_antisymm ?_ ?_
   · -- `≤ 1`: take `M = ⊤`. `deviation(I, ⊤) = ‖I‖ = 1`.
@@ -512,14 +509,9 @@ lemma gelfandNumber_strict {X : Type u} [NormedAddCommGroup X]
     -- `‖I.comp M.subtypeL‖ = ‖M.subtypeL‖ = 1`.
     refine le_csInf (gelfandSet_nonempty I n) ?_
     rintro _ ⟨M, _, hM_rank, rfl⟩
-    -- Show `Nontrivial M` from `codim M ≤ n < finrank X`.
-    have hM_finrank_quot_le : Module.finrank 𝕜 (X ⧸ M) ≤ n :=
-      Module.finrank_le_of_rank_le hM_rank
-    have h_sum :
-        Module.finrank 𝕜 (X ⧸ M) + Module.finrank 𝕜 M = Module.finrank 𝕜 X :=
-      Submodule.finrank_quotient_add_finrank M
-    have hM_finrank_pos : 0 < Module.finrank 𝕜 M := by omega
-    have : Nontrivial M := Module.nontrivial_of_finrank_pos hM_finrank_pos
+    -- Show `Nontrivial M` from `codim M ≤ n < dim X`.
+    have : Nontrivial M :=
+      Submodule.nontrivial_iff_ne_bot.mpr (ne_bot_of_rank_quotient_le_of_lt_rank hM_rank h)
     -- `I.comp M.subtypeL = M.subtypeL`, and its norm is 1.
     have h_dev_eq : deviationFromRestriction I M = ‖M.subtypeL‖ := by
       show ‖I.comp M.subtypeL‖ = ‖M.subtypeL‖
@@ -532,7 +524,7 @@ lemma gelfandNumber_id_euclidean (n : ℕ) :
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
     rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
-  exact gelfandNumber_strict n h
+  exact gelfandNumber_strict n (Module.lt_rank_of_lt_finrank h)
 
 /-! ## Summary: Gelfand numbers form a strict s-number sequence -/
 

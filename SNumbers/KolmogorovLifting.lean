@@ -466,17 +466,12 @@ variable [NormedAddCommGroup X] [NormedSpace 𝕜 X] [CompleteSpace X]
 
 /-- Per-approximant: `‖Q − L‖ ≥ 1` for every rank-`n` `L : ℓ¹(B_X) →L[𝕜] X`,
 `n < dim X`. Riesz at level `r = 1 − ε/2` plus density-of-norm scaling. -/
-private lemma one_le_norm_Q_sub_L (n : ℕ) (h_dim : n < Module.finrank 𝕜 X)
+private lemma one_le_norm_Q_sub_L (n : ℕ) (h_dim : (n : Cardinal) < Module.rank 𝕜 X)
     (L : BallLp 𝕜 X →L[𝕜] X) (hL : L.rank ≤ (n : Cardinal)) :
     1 ≤ ‖(Q : BallLp 𝕜 X →L[𝕜] X) - L‖ := by
-  have : FiniteDimensional 𝕜 X :=
-    .of_finrank_pos (Nat.lt_of_le_of_lt (Nat.zero_le _) h_dim)
-  have : Nontrivial X := Module.nontrivial_of_finrank_pos
-    (Nat.lt_of_le_of_lt (Nat.zero_le _) h_dim)
   set V : Submodule 𝕜 X := LinearMap.range (L : BallLp 𝕜 X →ₗ[𝕜] X)
-  have hV_lt : Module.finrank 𝕜 V < Module.finrank 𝕜 X :=
-    lt_of_le_of_lt (Module.finrank_le_of_rank_le hL) h_dim
-  have hV_ne_top : V ≠ ⊤ := fun h => by rw [h, finrank_top] at hV_lt; exact lt_irrefl _ hV_lt
+  have : FiniteDimensional 𝕜 V := finiteDimensional_of_rank_le hL
+  have hV_ne_top : V ≠ ⊤ := ne_top_of_rank_le_of_lt_rank hL h_dim
   have hV_closed : IsClosed (V : Set X) := V.closed_of_finiteDimensional
   have hV_exists : ∃ x : X, x ∉ V := SetLike.exists_notMem_of_ne_top V hV_ne_top
   -- Limit `r → 1`: enough to show `1 ≤ ‖Q − L‖ + ε` for every `ε > 0`. The
@@ -516,12 +511,10 @@ private lemma one_le_norm_Q_sub_L (n : ℕ) (h_dim : n < Module.finrank 𝕜 X)
     (lt_of_mul_lt_mul_right (h_lhs.trans_le h_chain) (norm_nonneg _)).le
   linarith
 
-/-- (S5') Strict normalisation `kolmogorovNumber id_X n = 1` whenever
-`n < Module.finrank 𝕜 X`. -/
-lemma kolmogorovNumber_strict (n : ℕ) (h : n < Module.finrank 𝕜 X) :
+/-- (S5') Strict normalisation `kolmogorovNumber id_X n = 1` whenever `dim X > n`. -/
+lemma kolmogorovNumber_strict (n : ℕ) (h : (n : Cardinal) < Module.rank 𝕜 X) :
     kolmogorovNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
-  have : Nontrivial X :=
-    Module.nontrivial_of_finrank_pos (Nat.lt_of_le_of_lt (Nat.zero_le _) h)
+  have : Nontrivial X := nontrivial_of_natCast_lt_rank h
   refine le_antisymm ((kolmogorovNumber_le_norm _ _).trans norm_id.le) ?_
   show 1 ≤ approximationNumber
     ((ContinuousLinearMap.id 𝕜 X).comp (Q : BallLp 𝕜 X →L[𝕜] X)) n
@@ -541,7 +534,7 @@ lemma kolmogorovNumber_id_euclidean (n : ℕ) :
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
     rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
-  exact kolmogorovNumber_strict n h
+  exact kolmogorovNumber_strict n (Module.lt_rank_of_lt_finrank h)
 
 end S5b
 

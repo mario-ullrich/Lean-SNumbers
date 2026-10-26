@@ -517,12 +517,9 @@ private lemma one_le_norm_mkQL_of_proper {X : Type u} [NormedAddCommGroup X]
 /-- (S5') Strict normalisation: `kolmogorovNumber (id_X) n = 1` whenever
 `n < Module.finrank 𝕜 X`. -/
 lemma kolmogorovNumber_strict {X : Type u} [NormedAddCommGroup X]
-    [NormedSpace 𝕜 X] (n : ℕ) (h : n < Module.finrank 𝕜 X) :
+    [NormedSpace 𝕜 X] (n : ℕ) (h : (n : Cardinal) < Module.rank 𝕜 X) :
     kolmogorovNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
-  have h_finrank_pos : 0 < Module.finrank 𝕜 X :=
-    Nat.lt_of_le_of_lt (Nat.zero_le _) h
-  have : FiniteDimensional 𝕜 X := .of_finrank_pos h_finrank_pos
-  have : Nontrivial X := Module.nontrivial_of_finrank_pos h_finrank_pos
+  have : Nontrivial X := nontrivial_of_natCast_lt_rank h
   set I := ContinuousLinearMap.id 𝕜 X with hI_def
   refine le_antisymm ?_ ?_
   · -- `≤ 1`: take `V = ⊥`. `deviation(I, ⊥) = ‖I‖ = 1`.
@@ -536,14 +533,8 @@ lemma kolmogorovNumber_strict {X : Type u} [NormedAddCommGroup X]
     -- `deviation(I, V) = ‖V.mkQL.comp I‖ = ‖V.mkQL‖`.
     refine le_csInf (kolmogorovSet_nonempty I n) ?_
     rintro _ ⟨V, hV, rfl⟩
-    have hV_finrank_le : Module.finrank 𝕜 V ≤ n := Module.finrank_le_of_rank_le hV
-    have hV_finrank_lt : Module.finrank 𝕜 V < Module.finrank 𝕜 X :=
-      lt_of_le_of_lt hV_finrank_le h
-    have hV_ne_top : V ≠ ⊤ := by
-      intro h_top
-      rw [h_top, finrank_top] at hV_finrank_lt
-      exact lt_irrefl _ hV_finrank_lt
-    have : FiniteDimensional 𝕜 V := FiniteDimensional.finiteDimensional_submodule V
+    have hV_ne_top : V ≠ ⊤ := ne_top_of_rank_le_of_lt_rank hV h
+    have : FiniteDimensional 𝕜 V := finiteDimensional_of_rank_le hV
     have h_dev_eq : deviationFromSubspace I V = ‖V.mkQL‖ := by
       show ‖V.mkQL.comp I‖ = ‖V.mkQL‖
       rw [hI_def, ContinuousLinearMap.comp_id]
@@ -556,7 +547,7 @@ lemma kolmogorovNumber_id_euclidean (n : ℕ) :
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
     rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
-  exact kolmogorovNumber_strict n h
+  exact kolmogorovNumber_strict n (Module.lt_rank_of_lt_finrank h)
 
 /-! ## Summary: Kolmogorov numbers (quotient form) form a strict s-number sequence -/
 

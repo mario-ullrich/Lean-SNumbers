@@ -317,15 +317,11 @@ Key idea:
 variable [CompleteSpace 𝕜]
 
 /-- (S5') Strict normalisation: `approximationNumber (id_X) n = 1` whenever
-`n < Module.finrank 𝕜 X`. -/
+`dim X > n`. -/
 lemma approximationNumber_strict {X : Type u} [NormedAddCommGroup X]
-    [NormedSpace 𝕜 X] (n : ℕ) (h : n < Module.finrank 𝕜 X) :
+    [NormedSpace 𝕜 X] (n : ℕ) (h : (n : Cardinal) < Module.rank 𝕜 X) :
     approximationNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
-  -- Set up: `X` is finite-dimensional and nontrivial.
-  have h_finrank_pos : 0 < Module.finrank 𝕜 X :=
-    Nat.lt_of_le_of_lt (Nat.zero_le _) h
-  have : FiniteDimensional 𝕜 X := .of_finrank_pos h_finrank_pos
-  have : Nontrivial X := Module.nontrivial_of_finrank_pos h_finrank_pos
+  have : Nontrivial X := nontrivial_of_natCast_lt_rank h
   have h_id_norm : ‖ContinuousLinearMap.id 𝕜 X‖ = 1 := norm_id
   set I := ContinuousLinearMap.id 𝕜 X with hI_def
   refine le_antisymm ?_ ?_
@@ -340,14 +336,9 @@ lemma approximationNumber_strict {X : Type u} [NormedAddCommGroup X]
     rintro _ ⟨L, hL, rfl⟩
     -- ===== Step A: `range L` is a closed proper subspace of `X`. =====
     set V : Submodule 𝕜 X := LinearMap.range (L : X →ₗ[𝕜] X) with hV_def
-    -- `dim V ≤ rank L ≤ n < dim X`, so `V` cannot be all of `X`.
-    have hV_finrank_le : Module.finrank 𝕜 V ≤ n := Module.finrank_le_of_rank_le hL
-    have hV_finrank_lt : Module.finrank 𝕜 V < Module.finrank 𝕜 X :=
-      lt_of_le_of_lt hV_finrank_le h
-    have hV_ne_top : V ≠ ⊤ := by
-      intro h_top
-      rw [h_top, finrank_top] at hV_finrank_lt
-      exact lt_irrefl _ hV_finrank_lt
+    -- `dim V ≤ rank L ≤ n < dim X`, so `V` is finite-dimensional and not all of `X`.
+    have : FiniteDimensional 𝕜 V := finiteDimensional_of_rank_le hL
+    have hV_ne_top : V ≠ ⊤ := ne_top_of_rank_le_of_lt_rank hL h
     -- Finite-dimensional subspaces are closed (uses `[CompleteSpace 𝕜]`).
     have hV_closed : IsClosed (V : Set X) := V.closed_of_finiteDimensional
     -- Properness gives some point outside `V`.
@@ -389,7 +380,7 @@ lemma approximationNumber_id_euclidean (n : ℕ) :
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
     rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
-  exact approximationNumber_strict n h
+  exact approximationNumber_strict n (Module.lt_rank_of_lt_finrank h)
 
 /-! ### Summary: approximation numbers form a strict s-number sequence -/
 

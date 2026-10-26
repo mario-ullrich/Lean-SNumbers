@@ -222,7 +222,7 @@ theorem bernsteinNumber_mul_lt_comp :
         bernsteinNumber (idEmbed (𝕜 := 𝕜) (m := 3) ∞ 2) 1 <
       bernsteinNumber ((idEmbed (𝕜 := 𝕜) (m := 3) 2 ∞).comp (idEmbed ∞ 2)) (1 + 1) := by
   rw [idEmbed_two_infty_comp_idEmbed_infty_two,
-    bernsteinNumber_strict _ (by rw [finrank_piLp]; norm_num)]
+    bernsteinNumber_strict _ (Module.lt_rank_of_lt_finrank (by rw [finrank_piLp]; norm_num))]
   have hS : bernsteinNumber (idEmbed (𝕜 := 𝕜) (m := 3) 2 ∞) 1 ≤ Real.sqrt (3 / 2) := by
     convert bernsteinNumber_idEmbed_infty_two_le (𝕜 := 𝕜) 3 1 using 2; norm_num
   have hT : bernsteinNumber (idEmbed (𝕜 := 𝕜) (m := 3) ∞ 2) 1 ≤ 1 / Real.sqrt 2 := by

@@ -141,11 +141,49 @@ def NormalisedAtId (s : Family 𝕜) : Prop :=
 
 A strengthening of (S5), which only fixes the value on the specific Hilbert
 space `ℓ₂^{n+1}`. Sequences satisfying (S5') have `s n (id_X) = 1` on *every*
-`X` with finite dimension strictly above `n`; specialising to
-`X = ℓ₂^{n+1}` (where `dim = n + 1 > n`) recovers (S5). -/
+`X` whose dimension exceeds `n`; specialising to
+`X = ℓ₂^{n+1}` (where `dim = n + 1 > n`) recovers (S5). The dimension is the
+cardinal `Module.rank`; for a finite-dimensional `X` the hypothesis follows from
+`n < finrank X` by `Module.lt_rank_of_lt_finrank`. -/
 def StrictlyNormalisedAtId (s : Family 𝕜) : Prop :=
   ∀ {X : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X] (n : ℕ),
-      n < Module.finrank 𝕜 X → s (ContinuousLinearMap.id 𝕜 X) n = 1
+      (n : Cardinal) < Module.rank 𝕜 X → s (ContinuousLinearMap.id 𝕜 X) n = 1
+
+/-! ### Dimension facts behind (S5')
+
+Each of the four strict sequences uses one of these consequences of `dim X > n`. -/
+
+section RankFacts
+
+variable {X : Type u} [NormedAddCommGroup X] [NormedSpace 𝕜 X] {n : ℕ}
+
+/-- A space of dimension greater than `n` is nontrivial. -/
+lemma nontrivial_of_natCast_lt_rank (h : (n : Cardinal) < Module.rank 𝕜 X) :
+    Nontrivial X :=
+  rank_pos_iff_nontrivial.mp ((zero_le : (0 : Cardinal) ≤ n).trans_lt h)
+
+/-- A subspace of dimension at most `n` is finite-dimensional. -/
+lemma finiteDimensional_of_rank_le {V : Submodule 𝕜 X}
+    (hV : Module.rank 𝕜 V ≤ (n : Cardinal)) : FiniteDimensional 𝕜 V :=
+  Module.rank_lt_aleph0_iff.mp (hV.trans_lt (Cardinal.natCast_lt_aleph0))
+
+/-- A subspace of dimension at most `n` is proper when `dim X > n`. -/
+lemma ne_top_of_rank_le_of_lt_rank {V : Submodule 𝕜 X}
+    (hV : Module.rank 𝕜 V ≤ (n : Cardinal)) (h : (n : Cardinal) < Module.rank 𝕜 X) :
+    V ≠ ⊤ := by
+  rintro rfl
+  rw [rank_top] at hV
+  exact absurd (hV.trans_lt h) (lt_irrefl _)
+
+/-- A subspace of codimension at most `n` is nonzero when `dim X > n`. -/
+lemma ne_bot_of_rank_quotient_le_of_lt_rank {M : Submodule 𝕜 X}
+    (hM : Module.rank 𝕜 (X ⧸ M) ≤ (n : Cardinal)) (h : (n : Cardinal) < Module.rank 𝕜 X) :
+    M ≠ ⊥ := by
+  rintro rfl
+  rw [(Submodule.quotEquivOfEqBot (⊥ : Submodule 𝕜 X) rfl).rank_eq] at hM
+  exact absurd (hM.trans_lt h) (lt_irrefl _)
+
+end RankFacts
 
 /-- An **s-number sequence** in the sense of Pietsch. -/
 structure IsSNumberSequence (s : Family 𝕜) : Prop where

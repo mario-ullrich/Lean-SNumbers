@@ -318,14 +318,14 @@ private lemma gainOnSubspace_id_eq_one {M : Submodule 𝕜 X} (hM : M ≠ ⊥) :
     rw [ContinuousLinearMap.id_apply, div_self (norm_pos_iff.mpr hx_ne).ne']
 
 /-- (S5') Strict normalisation: `bernsteinNumber (id_X) n = 1` whenever
-`n < Module.finrank 𝕜 X`. -/
+`dim X > n`. -/
 lemma bernsteinNumber_strict {X : Type u} [NormedAddCommGroup X]
-    [NormedSpace 𝕜 X] (n : ℕ) (h : n < Module.finrank 𝕜 X) :
+    [NormedSpace 𝕜 X] (n : ℕ) (h : (n : Cardinal) < Module.rank 𝕜 X) :
     bernsteinNumber (ContinuousLinearMap.id 𝕜 X) n = 1 := by
-  have : FiniteDimensional 𝕜 X :=
-    .of_finrank_pos (Nat.lt_of_le_of_lt (Nat.zero_le _) h)
   -- Construct an `(n+1)`-dim subspace `M ⊆ X`.
-  obtain ⟨g, hg_li⟩ := exists_linearIndependent_of_le_finrank (h : n + 1 ≤ _)
+  have h' : ((n + 1 : ℕ) : Cardinal) ≤ Module.rank 𝕜 X := by
+    rw [Nat.cast_succ]; exact Cardinal.natCast_add_one_le_iff.mpr h
+  obtain ⟨g, hg_li⟩ := exists_linearIndependent_of_le_rank h'
   set M : Submodule 𝕜 X := Submodule.span 𝕜 (Set.range g)
   have hM_rank : Module.rank 𝕜 M = ((n + 1 : ℕ) : Cardinal) :=
     rank_span_range_fin hg_li
@@ -345,7 +345,7 @@ lemma bernsteinNumber_id_euclidean (n : ℕ) :
       (ContinuousLinearMap.id 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1)))) n = 1 := by
   have h : n < Module.finrank 𝕜 (EuclideanSpace 𝕜 (Fin (n + 1))) := by
     rw [finrank_euclideanSpace_fin' (n + 1)]; exact Nat.lt_succ_self n
-  exact bernsteinNumber_strict n h
+  exact bernsteinNumber_strict n (Module.lt_rank_of_lt_finrank h)
 
 /-! ## (S3) Ideal property
 
@@ -568,7 +568,8 @@ lemma le_sn_of_boundedBelow_strict {s : Family 𝕜}
     rw [← hcomp]; exact hinj f₀ V.subtypeL hmetric n
   -- Ideal property against `g = f₀⁻¹` and strict normalisation `sₙ(id_E) = 1`.
   have h_ideal := hs.ideal (ContinuousLinearMap.id 𝕜 E) f₀ g n
-  rw [ContinuousLinearMap.comp_id, hgf, hs.strictly_normalised_at_id n hE] at h_ideal
+  rw [ContinuousLinearMap.comp_id, hgf,
+    hs.strictly_normalised_at_id n (Module.lt_rank_of_lt_finrank hE)] at h_ideal
   have hsn : 0 ≤ s f₀ n := hs.nonneg f₀ n
   have hidle : ‖ContinuousLinearMap.id 𝕜 E‖ ≤ 1 := norm_id_le
   have h1 : (1 : ℝ) ≤ ‖g‖ * s f₀ n := by
