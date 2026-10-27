@@ -1884,7 +1884,7 @@ norming functional of $y$ (Hahn--Banach) gives $\|J_Y y\| \ge \|y\|$.
 \label{thm:pietsch-embedding}
 \lean{SNumbers.Embedding.gelfandNumber_eq_approximationNumber}
 \leanok
-\uses{def:gelfand-number, def:approximation-number, lem:canonical-embedding}
+\uses{def:approximation-number, def:gelfand-number, lem:canonical-embedding}
 For all normed spaces $X$, $Y$ over $\mathbb{K}$, every $S \in \mathcal{L}(X, Y)$ and
 every $n \in \mathbb{N}_0$,
 \[
@@ -1893,7 +1893,7 @@ every $n \in \mathbb{N}_0$,
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:gelfand-injective, thm:sandwich, thm:gelfand-is-snumber}
+\uses{thm:gelfand-is-snumber, thm:sandwich, thm:gelfand-injective}
 By injectivity (Theorem~\ref{thm:gelfand-injective}) and the sandwich theorem,
 $c_n(S) = c_n(J_Y S) \le a_n(J_Y S)$. Conversely, let $M \subseteq X$ be closed of
 codimension at most $n$. Extend each functional $(\varphi \circ S)|_M$,
@@ -2034,7 +2034,8 @@ $e = (e_n)_n$ form a pseudo-\textup{s}-number sequence: they satisfy (S1),
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{prop:entropy-zero, prop:entropy-basic, thm:entropy-additive, thm:entropy-multiplicative}
+\uses{prop:entropy-basic, thm:entropy-additive, thm:entropy-multiplicative,
+  prop:entropy-zero}
 (S1) is Propositions~\ref{prop:entropy-zero} and~\ref{prop:entropy-basic};
 (S2) and (S3) are the cases with one index $0$ of
 Theorems~\ref{thm:entropy-additive} and~\ref{thm:entropy-multiplicative}.
